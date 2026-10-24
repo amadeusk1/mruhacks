@@ -56,6 +56,8 @@ var _has_net_pose := false
 var _name_label: Label3D
 var _tint_applied := -1
 var _overlay := ""  # emote/activity clip playing until the penguin moves
+var _dance_beat := -1.0  # >= 0 while standing on the town dance floor (see set_dancing)
+var _dance_beat_s := 0.5
 var _seat_kit := ""  # "casino": seated clips come from that kit instead of the bench "sit"
 var _hopping := false
 var _left_ground := false
@@ -871,7 +873,43 @@ func _play_overlay(clip_name: String, kit: String) -> bool:
 	return true
 
 
+## The town dance floor calls this every frame while this penguin stands on it: `beat` is the
+## shared beat counter (same on every client), `beat_s` the seconds per beat. A negative beat
+## ends the dance. The clip is kept locked to the beat so everyone moves together.
+func set_dancing(beat: float, beat_s: float) -> void:
+	_dance_beat = beat
+	_dance_beat_s = beat_s
+
+
+func is_dancing() -> bool:
+	return _dance_beat >= 0.0
+
+
+func _animate_dance() -> bool:
+	if _dance_beat < 0.0 or _clips == null or _sitting or _fisher_phase != "":
+		return false
+	var clip := PenguinAnims.resolve(_clips, "emote_dance", "emotes")
+	if clip == "":
+		return false
+	var anim := _clips.get_animation(clip)
+	var bars := 4.0  # the dance clip is four beats long
+	var want := fposmod(_dance_beat, bars) / bars * anim.length
+	_clips.speed_scale = anim.length / (bars * _dance_beat_s)
+	if _clips.current_animation != clip:
+		_clips.play(clip, 0.12)
+		_clips.seek(want, true)
+	else:
+		var off := wrapf(_clips.current_animation_position - want, -anim.length * 0.5, anim.length * 0.5)
+		if absf(off) > 0.12:
+			_clips.seek(want, true)
+	visual.rotation = Vector3.ZERO
+	return true
+
+
 func _animate(delta: float, speed: float) -> void:
+	if _dance_beat >= 0.0 and speed <= 0.25 and _animate_dance():
+		_overlay = ""
+		return
 	if _overlay != "" and _clips and speed <= 0.25 and not _sitting and _clips.current_animation == _overlay:
 		return
 	_overlay = ""
