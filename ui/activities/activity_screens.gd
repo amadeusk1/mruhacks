@@ -9,7 +9,6 @@ const SCREENS := {
 	"inventory": "res://ui/activities/wardrobe/inventory.gd",
 	"home_choose": "res://ui/activities/home/home_select.gd",
 	"home_visitors": "res://ui/activities/home/home_select.gd",
-	"cinema": "res://ui/activities/cinema/cinema_ui.gd",
 	"arcade": "res://ui/activities/arcade/arcade_ui.gd",
 	"sketch": "res://ui/activities/sketch/sketch_ui.gd",
 	"snowballs": "res://ui/activities/winter/winter_ui.gd",

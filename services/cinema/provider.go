@@ -14,10 +14,12 @@ import (
 )
 
 type Title struct {
-	ID       string  `json:"id"`
-	Title    string  `json:"title"`
-	Year     int     `json:"year"`
-	Duration float64 `json:"duration"`
+	ID       string   `json:"id"`
+	Title    string   `json:"title"`
+	Year     int      `json:"year"`
+	Duration float64  `json:"duration"`
+	Genres   []string `json:"genres,omitempty"`
+	Overview string   `json:"overview,omitempty"`
 }
 type Playback struct {
 	URL       *url.URL
@@ -29,6 +31,7 @@ type Provider interface {
 	Open(context.Context, string) (Playback, error)
 	Stop(context.Context, string) error
 	Fetch(context.Context, *url.URL, string) (*http.Response, error)
+	Poster(context.Context, string) (*http.Response, error)
 }
 type Emby struct {
 	Base      *url.URL
@@ -95,15 +98,19 @@ func (p *Emby) json(ctx context.Context, method, path string, q url.Values, body
 }
 
 type embyItem struct {
-	ID    string `json:"Id"`
-	Name  string `json:"Name"`
-	Year  int    `json:"ProductionYear"`
-	Ticks int64  `json:"RunTimeTicks"`
+	ID       string   `json:"Id"`
+	Name     string   `json:"Name"`
+	Year     int      `json:"ProductionYear"`
+	Ticks    int64    `json:"RunTimeTicks"`
+	Genres   []string `json:"Genres"`
+	Overview string   `json:"Overview"`
 }
 
-func (i embyItem) title() Title { return Title{i.ID, i.Name, i.Year, float64(i.Ticks) / 1e7} }
+func (i embyItem) title() Title {
+	return Title{ID: i.ID, Title: i.Name, Year: i.Year, Duration: float64(i.Ticks) / 1e7, Genres: i.Genres, Overview: i.Overview}
+}
 func (p *Emby) Catalog(ctx context.Context, search string) ([]Title, error) {
-	q := url.Values{"Recursive": {"true"}, "IncludeItemTypes": {"Movie,Episode"}, "Fields": {"RunTimeTicks"}, "Limit": {"80"}, "SortBy": {"SortName"}, "SortOrder": {"Ascending"}}
+	q := url.Values{"Recursive": {"true"}, "IncludeItemTypes": {"Movie,Episode"}, "Fields": {"RunTimeTicks,Genres,Overview"}, "Limit": {"80"}, "SortBy": {"SortName"}, "SortOrder": {"Ascending"}}
 	if search != "" {
 		q.Set("SearchTerm", search)
 	}
@@ -182,4 +189,9 @@ func (p *Emby) Fetch(ctx context.Context, u *url.URL, rangeHeader string) (*http
 		return nil, errors.New("Emby stream unavailable")
 	}
 	return resp, nil
+}
+
+// Poster streams the item's primary image (small, cache-friendly); the caller validates the id.
+func (p *Emby) Poster(ctx context.Context, id string) (*http.Response, error) {
+	return p.request(ctx, "GET", p.endpoint("/Items/"+url.PathEscape(id)+"/Images/Primary", url.Values{"maxHeight": {"480"}, "quality": {"85"}}), nil)
 }

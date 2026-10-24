@@ -15,16 +15,19 @@ import (
 type fakeProvider struct{ opens int }
 
 func (p *fakeProvider) Catalog(context.Context, string) ([]Title, error) {
-	return []Title{{"1", "Test", 2026, 120}}, nil
+	return []Title{{ID: "1", Title: "Test", Year: 2026, Duration: 120}}, nil
 }
 func (p *fakeProvider) Open(context.Context, string) (Playback, error) {
 	p.opens++
 	u, _ := url.Parse("https://emby.example/emby/videos/1/master.m3u8?api_key=secret")
-	return Playback{u, "session", Title{"1", "Test", 2026, 120}}, nil
+	return Playback{u, "session", Title{ID: "1", Title: "Test", Year: 2026, Duration: 120}}, nil
 }
 func (p *fakeProvider) Stop(context.Context, string) error { return nil }
 func (p *fakeProvider) Fetch(context.Context, *url.URL, string) (*http.Response, error) {
 	return &http.Response{StatusCode: 200, Header: http.Header{"Content-Type": []string{"application/vnd.apple.mpegurl"}}, Body: io.NopCloser(strings.NewReader("#EXTM3U\nsegment.ts?api_key=secret\n"))}, nil
+}
+func (p *fakeProvider) Poster(context.Context, string) (*http.Response, error) {
+	return &http.Response{StatusCode: 200, Header: http.Header{"Content-Type": []string{"image/jpeg"}}, Body: io.NopCloser(strings.NewReader("jpeg"))}, nil
 }
 func request(s *Server, method, path, body, cookie string) *httptest.ResponseRecorder {
 	r := httptest.NewRequest(method, path, strings.NewReader(body))
@@ -198,5 +201,18 @@ func TestHandoffTicketIsSingleUseAndViewOnly(t *testing.T) {
 	}
 	if m := request(s, "GET", "/cinema/api/state", "", surface); m.Code != 200 {
 		t.Fatal("surface cannot read state", m.Code)
+	}
+}
+func TestPosterRequiresSessionAndValidID(t *testing.T) {
+	s := newServer(&fakeProvider{}, "http://localhost", "host", "viewer")
+	if w := request(s, "GET", "/cinema/api/poster/1", "", ""); w.Code != 401 {
+		t.Fatal("anonymous poster", w.Code)
+	}
+	viewer := login(t, s, "viewer")
+	if w := request(s, "GET", "/cinema/api/poster/..%2Fx", "", viewer); w.Code != 400 && w.Code != 404 {
+		t.Fatal("bad id", w.Code)
+	}
+	if w := request(s, "GET", "/cinema/api/poster/1", "", viewer); w.Code != 200 || w.Header().Get("Content-Type") != "image/jpeg" {
+		t.Fatal("poster", w.Code)
 	}
 }

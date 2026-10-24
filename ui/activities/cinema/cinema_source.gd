@@ -1,5 +1,8 @@
 class_name CinemaSource
-extends RefCounted
+extends Node
+## A Node (not RefCounted) on purpose: adapters await HTTP, and a GDScript coroutine resumed on a
+## RefCounted that has no live reference crashes the engine (SIGBUS). As a Node owned by the
+## CinemaSession autoload its lifetime is explicit and resumption after free is checked.
 ## Provider-neutral seam between the cinema UI and the MediaProvider boundary
 ## ("Cinema - Plex Watchparty Integration Plan": Plex first via adapted plex-watchparty, Emby later).
 ## The UI only talks to this interface; Plex/Emby adapters implement it. DemoSource below is the
@@ -7,7 +10,7 @@ extends RefCounted
 ## tokens and stream URLs never reach the UI.
 ##
 ## status: "demo" | "signed_out" | "connecting" | "connected" | "empty" | "offline" | "error"
-## item:   {id, title, year:int, thumb: Texture2D|null, thumb_url: String, duration_s: float, summary}
+## item:   {id, title, year:int, thumb: Texture2D|null, duration_s: float, summary, genres: Array}
 ## snapshot (one server timeline, per the plan):
 ##   {screening_id, media_id, stream_generation, revision, playing, position_s, server_time_ms,
 ##    duration_s, controller_player_id, phase: "idle"|"preparing"|"buffering"|"playing"|"paused"|"ended",
@@ -16,6 +19,8 @@ extends RefCounted
 signal status_changed(status: String, detail: String)
 signal catalog_changed(items: Array)
 signal snapshot_changed(snapshot: Dictionary)
+signal thumb_ready(media_id: String, tex: Texture2D)
+signal notice(text: String)   ## transient problem worth a toast ("Your code can't host")
 
 var provider_type := "demo"     ## "plex" | "emby" | "demo" (display only)
 var source_name := ""           ## e.g. the media server's friendly name
@@ -63,6 +68,21 @@ func request_tracks(_audio_id: String, _subtitle_id: String) -> void:
 	pass
 
 
+## Sign-in for sources that need it (status "signed_out"). The code is used once, never stored.
+func sign_in(_player_name: String, _code: String) -> void:
+	pass
+
+
+## Whether this client may take the controller seat (host) at all.
+func can_host() -> bool:
+	return true
+
+
+## URL for the close-up webview (single-use view ticket), or "" when there is no video surface.
+func closeup_url() -> String:
+	return ""
+
+
 func is_controller(player_id: String) -> bool:
 	return str(snapshot.get("controller_player_id", "")) == player_id
 
@@ -86,9 +106,9 @@ func _set_snapshot(s: Dictionary) -> void:
 class DemoSource:
 	extends CinemaSource
 	const TITLES := [
-		{"id": "demo:moonbound", "title": "Moonbound", "year": 2026, "duration_s": 5708.0, "summary": "A little penguin. A big sky.", "top": "#1B2D5C", "bot": "#3A5AA0"},
-		{"id": "demo:underwater", "title": "Underwater Day", "year": 2025, "duration_s": 5220.0, "summary": "Small friends. Big wonders.", "top": "#0F6A78", "bot": "#1F9FA8"},
-		{"id": "demo:lantern", "title": "Lantern Coast", "year": 2024, "duration_s": 6010.0, "summary": "Brighter together.", "top": "#5B4A7C", "bot": "#E08A64"},
+		{"id": "demo:moonbound", "title": "Moonbound", "year": 2026, "duration_s": 5708.0, "summary": "A little penguin builds a rocket from spare igloo bricks and flies to the moon to bring back a lantern for the winter festival.", "genres": ["Adventure", "Family"], "top": "#1B2D5C", "bot": "#3A5AA0"},
+		{"id": "demo:underwater", "title": "Underwater Day", "year": 2025, "duration_s": 5220.0, "summary": "Three young penguins follow a glowing fish deep under the ice shelf and find a whole town of sea creatures.", "genres": ["Family", "Comedy"], "top": "#0F6A78", "bot": "#1F9FA8"},
+		{"id": "demo:lantern", "title": "Lantern Coast", "year": 2024, "duration_s": 6010.0, "summary": "A lighthouse keeper and a lost puffin light every lamp on the coast before the big storm rolls in.", "genres": ["Drama", "Family"], "top": "#5B4A7C", "bot": "#E08A64"},
 	]
 
 	func connect_source() -> void:

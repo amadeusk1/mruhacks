@@ -587,6 +587,36 @@ func play_activity(clip_name: String) -> bool:
 	return _play_overlay(clip_name, "social")
 
 
+## One-off clip while seated ("cinema/cinema_snack"), then back to the seat's loop.
+func play_seated(clip_name: String) -> bool:
+	if _clips == null or not _sitting or _seat_kit == "":
+		return false
+	var clip := PenguinAnims.resolve(_clips, clip_name, _seat_kit)
+	if clip == "":
+		return false
+	_clips.play(clip, 0.15)
+	var loop := PenguinAnims.resolve(_clips, str(PenguinAnims.SEATS.get(_seat_kit, ["", ""])[1]), "")
+	if loop != "":
+		_clips.queue(loop)
+	return true
+
+
+## Holds a prop ("interaction_props/popcorn_tub") in the right flipper; "" drops it.
+func hold_prop(asset_id: String) -> void:
+	var hand := Sockets.find(visual, "hand_R")
+	if hand == null:
+		return
+	var old := hand.get_node_or_null("HeldProp")
+	if old:
+		old.queue_free()
+	if asset_id == "":
+		return
+	var prop := AssetPack.spawn(asset_id.get_slice("/", 0), asset_id.get_slice("/", 1))
+	if prop:
+		prop.name = "HeldProp"
+		hand.add_child(prop)
+
+
 func _play_overlay(clip_name: String, kit: String) -> bool:
 	if _clips == null:
 		return false

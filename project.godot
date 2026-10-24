@@ -25,7 +25,7 @@ AssetRegistry="*res://scripts/assets/asset_registry.gd"
 Activities="*res://scripts/world/activities.gd"
 UIRouter="*res://ui/ui_router.gd"
 ActivityScreens="*res://ui/activities/activity_screens.gd"
-CinemaClient="*res://scripts/cinema_client.gd"
+CinemaSession="*res://ui/activities/cinema/cinema_session.gd"
 
 [display]
 
@@ -94,3 +94,7 @@ occlusion_radius={
 "type": "float",
 "value": 0.0
 }
+
+[pengloo]
+
+cinema/native_webview=true

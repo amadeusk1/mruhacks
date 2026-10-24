@@ -176,6 +176,7 @@ func (s *Server) handler() http.Handler {
 		}
 		jsonOut(w, titles)
 	}))
+	mux.HandleFunc("GET /cinema/api/poster/{id}", s.protect(s.poster))
 	mux.HandleFunc("GET /cinema/api/state", s.protect(func(w http.ResponseWriter, r *http.Request, u session) { s.touch(u.ID); jsonOut(w, s.snapshot()) }))
 	mux.HandleFunc("POST /cinema/api/claim", s.protect(s.claim))
 	mux.HandleFunc("POST /cinema/api/control", s.protect(s.control))
@@ -658,4 +659,26 @@ func (s *Server) cleanupIdle() {
 		defer cancel()
 		s.stopStreamLocked(ctx)
 	}
+}
+
+func (s *Server) poster(w http.ResponseWriter, r *http.Request, _ session) {
+	id := r.PathValue("id")
+	if !regexp.MustCompile(`^[a-zA-Z0-9_-]{1,100}$`).MatchString(id) {
+		fail(w, 400, "Invalid item")
+		return
+	}
+	resp, e := s.provider.Poster(r.Context(), id)
+	if e != nil {
+		fail(w, 502, e.Error())
+		return
+	}
+	defer resp.Body.Close()
+	typ := resp.Header.Get("Content-Type")
+	if resp.StatusCode != 200 || !strings.HasPrefix(typ, "image/") {
+		fail(w, 404, "No poster")
+		return
+	}
+	w.Header().Set("Content-Type", typ)
+	w.Header().Set("Cache-Control", "private, max-age=3600")
+	io.Copy(w, io.LimitReader(resp.Body, 4<<20))
 }
