@@ -40,6 +40,10 @@ Title LIVING WORLD / EFFECT-READY PROP KIT. Catalog with four rows four assets. 
 
 Title PLAYER HOMES / MODULAR SHELL KIT. Top row six small finished empty-house exterior silhouettes: SNOW DOME, A-FRAME, ROUND COTTAGE, TREEHOUSE, LIGHTHOUSE LOFT, HOUSEBOAT. Below show exploded construction modules: FLOOR GRID TILES, STRAIGHT WALL, CURVED WALL, DOOR WALL, WINDOW WALL, REMOVABLE ROOF SECTIONS, STAIRS & LANDING, TREEHOUSE SUPPORT, LIGHTHOUSE CURVED FLOOR, HOUSEBOAT HULL & DECK, DOOR INSERT, WINDOW INSERT. Very clear separate construction pieces, furnished interiors not included. Chunky cream/coral/teal/honey palette, functional openings. Show one empty room floor with faint square placement grid.
 
+## Effect Shapes
+
+Title EFFECT SHAPES / FX KIT. No buildings. A small squat penguin stands beside the title for scale. Four labeled rows of isolated faceted shapes on an ivory ground: SMOKE AND STEAM (small, medium, and large cream-gray puffs, plus one thin steam wisp); WATER (turquoise ripple rings as scale stages, droplets, one foam blob); WEATHER (tiny flake, clump, chunky star, larger snowflake); LIGHT (amber flame teardrop and a four-point sparkle). No arrows and no lettering on the shapes.
+
 ## Town Connections Prop Kit
 
 Title TOWN CONNECTIONS / WORLD BUILDING KIT. Top small vignette of a stone path, tiny bridge across turquoise stream and stairs, warm snow village palette. Below three rows of five assets: STRAIGHT PATH TILE, PATH CORNER, PATH JUNCTION, STONE STEP, LANDING; CLIFF STRAIGHT, CLIFF CORNER, CLIFF CAP, STREAM STRAIGHT, STREAM BEND; FOOTBRIDGE, RAIL SEGMENT, WAYFINDING SIGN with blank inserts, NOTICE BOARD blank, MAILBOX. Modular seams visible, snow caps shown as separate overlays on one sample. No full buildings, no large map.

@@ -112,6 +112,7 @@ Reference for later world layout.
 
 - [Animation Kits - Index](Animation%20Kits%20-%20Index.md)
 - [Prop Kits - Master Plan](Prop%20Kits%20-%20Master%20Plan.md)
+- [Prop Kit - Effect Shapes](Prop%20Kit%20-%20Effect%20Shapes.md)
 
 All animation sheets: [Animation Mockups - Gallery](Animation%20Mockups%20-%20Gallery.md).
 

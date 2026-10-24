@@ -12,7 +12,7 @@ Existence is verified from filenames only; it does not mean every model is art-a
 
 ## Remaining kit scope
 
-Reusable smoke puff effect; foliage wind masks; separate stream/foam/ripple effects; weather particles; emission masks; explicit door/curtain pivots.
+Host props are already exported. The missing pieces are the detached effect meshes in [Prop Kit - Effect Shapes](Prop%20Kit%20-%20Effect%20Shapes.md): smoke puffs, steam, splash, foam, snowflakes, flame, and sparkle. Reuse `fishing/ripple` and `winter/snow_puff`. Foliage still needs a wind mask, and doors and curtains still need their pivots checked.
 
 ## Authoring and integration
 

@@ -1,0 +1,228 @@
+[
+  {
+    "id": "fx/smoke_puff_s",
+    "file": "fx/smoke_puff_s.glb",
+    "category": "fx",
+    "size_m": [
+      0.166,
+      0.154,
+      0.18
+    ],
+    "sockets": {},
+    "tints": {},
+    "socket": "socket_fx_smoke",
+    "rest_size_m": 0.16,
+    "network": "local",
+    "origin": "bottom",
+    "life_s": [
+      3,
+      5
+    ],
+    "emit_s": [
+      0.6,
+      1.2
+    ]
+  },
+  {
+    "id": "fx/smoke_puff_m",
+    "file": "fx/smoke_puff_m.glb",
+    "category": "fx",
+    "size_m": [
+      0.324,
+      0.292,
+      0.328
+    ],
+    "sockets": {},
+    "tints": {},
+    "socket": "socket_fx_smoke",
+    "rest_size_m": 0.32,
+    "network": "local",
+    "origin": "bottom",
+    "life_s": [
+      3,
+      5
+    ],
+    "emit_s": [
+      0.6,
+      1.2
+    ]
+  },
+  {
+    "id": "fx/smoke_puff_l",
+    "file": "fx/smoke_puff_l.glb",
+    "category": "fx",
+    "size_m": [
+      0.467,
+      0.42,
+      0.492
+    ],
+    "sockets": {},
+    "tints": {},
+    "socket": "socket_fx_smoke",
+    "rest_size_m": 0.48,
+    "network": "local",
+    "origin": "bottom",
+    "life_s": [
+      3,
+      5
+    ],
+    "note": "rare; do not emit a column"
+  },
+  {
+    "id": "fx/steam_wisp",
+    "file": "fx/steam_wisp.glb",
+    "category": "fx",
+    "size_m": [
+      0.028,
+      0.062,
+      0.22
+    ],
+    "sockets": {},
+    "tints": {},
+    "socket": "socket_fx_steam",
+    "rest_size_m": 0.22,
+    "network": "local",
+    "origin": "bottom",
+    "life_s": [
+      1.2,
+      2.0
+    ]
+  },
+  {
+    "id": "fx/splash_drop",
+    "file": "fx/splash_drop.glb",
+    "category": "fx",
+    "size_m": [
+      0.029,
+      0.027,
+      0.05
+    ],
+    "sockets": {},
+    "tints": {},
+    "socket": "socket_fx_splash",
+    "rest_size_m": 0.05,
+    "network": "local",
+    "origin": "center",
+    "trigger": "one-shot",
+    "note": "pool the bursts"
+  },
+  {
+    "id": "fx/foam_blob",
+    "file": "fx/foam_blob.glb",
+    "category": "fx",
+    "size_m": [
+      0.197,
+      0.128,
+      0.059
+    ],
+    "sockets": {},
+    "tints": {},
+    "socket": "socket_fx_splash",
+    "rest_size_m": 0.22,
+    "network": "local",
+    "origin": "water plane",
+    "trigger": "one-shot"
+  },
+  {
+    "id": "fx/snow_flake",
+    "file": "fx/snow_flake.glb",
+    "category": "fx",
+    "size_m": [
+      0.049,
+      0.046,
+      0.055
+    ],
+    "sockets": {},
+    "tints": {},
+    "socket": "camera weather",
+    "rest_size_m": 0.05,
+    "network": "local",
+    "origin": "center",
+    "note": "everyday particle; disable indoors and with distance"
+  },
+  {
+    "id": "fx/snow_clump",
+    "file": "fx/snow_clump.glb",
+    "category": "fx",
+    "size_m": [
+      0.109,
+      0.084,
+      0.096
+    ],
+    "sockets": {},
+    "tints": {},
+    "socket": "socket_fx_spray",
+    "rest_size_m": 0.12,
+    "network": "local",
+    "origin": "center",
+    "note": "close flakes and light sled spray; hits stay winter/snow_puff"
+  },
+  {
+    "id": "fx/snow_star",
+    "file": "fx/snow_star.glb",
+    "category": "fx",
+    "size_m": [
+      0.137,
+      0.158,
+      0.016
+    ],
+    "sockets": {},
+    "tints": {},
+    "socket": "camera weather",
+    "rest_size_m": 0.16,
+    "network": "local",
+    "origin": "center",
+    "note": "occasional, not the default particle"
+  },
+  {
+    "id": "fx/snowflake",
+    "file": "fx/snowflake.glb",
+    "category": "fx",
+    "size_m": [
+      0.28,
+      0.25,
+      0.024
+    ],
+    "sockets": {},
+    "tints": {},
+    "socket": "camera weather",
+    "rest_size_m": 0.28,
+    "network": "local",
+    "origin": "center",
+    "note": "hero shape; everyday particle is snow_flake"
+  },
+  {
+    "id": "fx/flame",
+    "file": "fx/flame.glb",
+    "category": "fx",
+    "size_m": [
+      0.039,
+      0.037,
+      0.088
+    ],
+    "sockets": {},
+    "tints": {},
+    "socket": "socket_fx_flame",
+    "rest_size_m": 0.09,
+    "network": "local",
+    "origin": "bottom",
+    "note": "flicker locally; reduced motion keeps a steady glow"
+  },
+  {
+    "id": "fx/sparkle",
+    "file": "fx/sparkle.glb",
+    "category": "fx",
+    "size_m": [
+      0.06,
+      0.06,
+      0.06
+    ],
+    "sockets": {},
+    "tints": {},
+    "socket": "socket_fx_sparkle",
+    "rest_size_m": 0.06,
+    "network": "local",
+    "origin": "center",
+    "trigger": "short twinkle"
+  }
+]

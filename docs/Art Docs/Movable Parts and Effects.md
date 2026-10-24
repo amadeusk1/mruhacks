@@ -53,7 +53,7 @@ Effects (particles and shaders) attach at sockets named `socket_fx_<kind>`, plac
 
 | Socket | Where | Effect |
 | --- | --- | --- |
-| `socket_fx_smoke` | Chimney mouth, just above the cap | Smoke puffs (see the `fx` kit meshes) |
+| `socket_fx_smoke` | Chimney mouth, just above the cap | Smoke puffs (see [Prop Kit - Effect Shapes](../Prop%20Kit%20-%20Effect%20Shapes.md)) |
 | `socket_fx_steam` | Coffee machine spout, mugs, takeaway cups | Steam wisps |
 | `socket_fx_splash` | Where a fountain stream or waterfall lands | Droplets and foam |
 | `socket_fx_ripple` | Bobber, fountain basin | Pooled ripple rings |

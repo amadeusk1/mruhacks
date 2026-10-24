@@ -8,7 +8,7 @@ exec(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "showcase.py"
 
 KITS = ["avatar", "plaza", "nature_dock", "fishing", "buildings", "cafe", "cottage", "world_misc",
         "cinema", "cinema_lobby", "cinema_auditorium", "arcade", "winter", "activities",
-        "homes", "room_kit", "home_themes"]
+        "homes", "room_kit", "home_themes", "fx"]
 kits = [k for k in KITS if os.path.exists(os.path.join(common.ART, "blender", "kits", f"{k}.py"))]
 show(kits)
 common.setup_render()

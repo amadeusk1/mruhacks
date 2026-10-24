@@ -72,7 +72,12 @@ PALETTE = {
     "insert_sign": ("#5A2E2A", 0.7, 0), "insert_chalk": ("#2C3236", 0.95, 0),
     "insert_arcade": ("#7EC8F2", 0.5, 1.5), "insert_marquee": ("#7A2A2E", 0.7, 0),
     "glass": ("#CFEFF4", 0.1, 0),
+    # effect shapes: the game fades these; the mesh alpha is only a starting hint
+    "smoke": ("#E6E1D6", 0.95, 0), "smoke_b": ("#C9C3B8", 0.95, 0),
+    "steam": ("#F7FBFC", 0.45, 0.15), "foam": ("#E7F7F8", 0.35, 0),
 }
+
+FX_ALPHA = {"smoke": 0.82, "smoke_b": 0.74, "steam": 0.62, "foam": 0.7, "glass": 0.45}
 
 ASSETS = []  # filled by Builder.finish()
 
@@ -169,8 +174,8 @@ def mat(name):
     if emit:
         bsdf.inputs["Emission Color"].default_value = rgb
         bsdf.inputs["Emission Strength"].default_value = emit
-    if name == "glass":
-        bsdf.inputs["Alpha"].default_value = 0.45
+    if name in FX_ALPHA:
+        bsdf.inputs["Alpha"].default_value = FX_ALPHA[name]
         m.surface_render_method = "BLENDED"
     if name.startswith("tint_"):
         # Base Color = shade attribute x tint. glTF exports this as baseColorFactor (the

@@ -66,4 +66,5 @@ The town, activity and character pack has 238 assets; per-kit counts are in [Mod
 | Cinema | cinema (exterior modules), cinema_lobby, cinema_auditorium |
 | Arcade | arcade (solo and duo cabinets, building) |
 | Activities | fishing, winter (sledding and snowball arena), activities (basketball, Sketch Club) |
+| Effects | fx (smoke, steam, splash, snow, flame, sparkle) |
 | Housing | room_kit, home_themes, homes |
