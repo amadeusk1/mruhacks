@@ -27,7 +27,7 @@ func _ready() -> void:
 	print("LIVING dance floor at %s" % floor_node.global_position)
 	var rect := living.get_node("AuroraLayer").get_child(0) as ColorRect
 	print("LIVING aurora rect size=%s visible=%s" % [rect.size, rect.is_visible_in_tree()])
-	for t in [0.5, 0.745, 0.0]:
+	for t in [0.5, 0.7, 0.745, 0.0]:
 		LivingTown.hour_override = t
 		await get_tree().create_timer(1.0).timeout
 		print("LIVING hour=%.3f phase=%s aurora=%s" % [t, LivingTown.phase_name(t), (rect.material as ShaderMaterial).get_shader_parameter("strength")])
@@ -52,16 +52,9 @@ func _ready() -> void:
 	_p.global_position += Vector3(5.0, 0, 0)
 	await get_tree().create_timer(0.6).timeout
 	print("LIVING after leaving: dancing=%s count=%d" % [_p.call("is_dancing"), floor_node.call("dancer_count")])
-	# the day/night switch (button / N): both directions, with the button label following
-	LivingTown.hour_override = -1.0
-	for i in 2:
-		living.call("toggle_day_night")
-		await get_tree().create_timer(3.5).timeout
-		var h := LivingTown.hour()
-		print("LIVING switch %d: hour=%.2f daylight=%.2f button='%s'" % [i + 1, h, LivingTown.daylight(h), (living.get("_button") as Button).text])
-		_shot("%s/switch_%d.png" % [out, i + 1])
 	get_tree().quit()
 
 
 func _shot(path: String) -> void:
+	await RenderingServer.frame_post_draw  # otherwise a stale frame comes back
 	get_viewport().get_texture().get_image().save_png(path)

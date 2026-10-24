@@ -56,6 +56,10 @@ var _has_net_pose := false
 var _name_label: Label3D
 var _tint_applied := -1
 var _overlay := ""  # emote/activity clip playing until the penguin moves
+var _sent_anim := ""  # local: the clip last reported to Net.note_anim
+var _sent_pos := 0.0
+var _net_anim := ""  # puppet: the owner's current clip, played while it lasts
+var _net_anim_n := -1
 var _dance_beat := -1.0  # >= 0 while standing on the town dance floor (see set_dancing)
 var _dance_beat_s := 0.5
 var _seat_kit := ""  # "casino": seated clips come from that kit instead of the bench "sit"
@@ -83,6 +87,7 @@ func _ready() -> void:
 	_remote_peer = int(get_meta("remote_peer", 0))
 	if _remote_peer != 0:
 		add_to_group("remote_penguins")  # Voice: proximity gain + speaking icon
+		add_to_group("remote_player")  # court, dance floor and snowball arena find puppets by this
 		_setup_remote()
 		return
 	add_to_group("player")
@@ -107,6 +112,15 @@ func set_travel_locked(locked: bool) -> void:
 	if locked:
 		_clear_seat(false)
 		halt()
+
+
+## Something really is taking keys right now: a focused text field or a screen that blocks the world.
+func _typing_now() -> bool:
+	var focused := get_viewport().gui_get_focus_owner()
+	if focused is LineEdit or focused is TextEdit:
+		return true
+	var router := get_node_or_null("/root/UIRouter")
+	return router != null and router.has_method("blocks_world") and bool(router.call("blocks_world"))
 
 
 ## Chat focus. Stops walking without pulling the penguin out of a seat.
@@ -218,6 +232,10 @@ func _unhandled_input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("click_walk"):
+		var arena := get_tree().get_first_node_in_group("snow_arena")
+		if arena != null and bool(arena.call("try_throw", self, event)):
+			get_viewport().set_input_as_handled()
+			return
 		_try_click(event)
 
 
@@ -225,6 +243,7 @@ func _physics_process(delta: float) -> void:
 	if _remote_peer != 0:
 		_step_remote(delta)
 		return
+	_report_anim()
 	var direction := Vector3.ZERO
 	var wish := Vector3.ZERO if _blocks_play() else _camera_wish()
 	if _sitting and wish != Vector3.ZERO:
@@ -613,6 +632,8 @@ func _animate_hop() -> bool:
 
 
 func _blocks_play() -> bool:
+	if _typing_locked and not _typing_now():
+		_typing_locked = false  # self-heal: the lock outlived its text field or screen (no focus_exited)
 	if _input_locked or _typing_locked:
 		return true
 	var focused := get_viewport().gui_get_focus_owner()
@@ -824,6 +845,46 @@ func set_seat_clip(kit: String) -> void:
 	_start_seat_clip()
 
 
+## Local: tell the room which kit clip is playing. Base clips (idle/walk/run/jump) are derived from
+## the pose stream and emotes have their own rate-limited event, so neither is reported.
+func _report_anim() -> void:
+	if _clips == null:
+		return
+	var cur := String(_clips.current_animation)
+	if cur.begins_with("emotes/"):
+		return
+	var want := cur if cur.contains("/") else ""
+	var pos := _clips.current_animation_position if want != "" else 0.0
+	var anim := _clips.get_animation(want) if want != "" else null
+	var loop := anim != null and anim.loop_mode != Animation.LOOP_NONE
+	var restarted := want != "" and want == _sent_anim and not loop and pos < _sent_pos - 0.05
+	_sent_pos = pos
+	if want == _sent_anim and not restarted:
+		return
+	_sent_anim = want
+	Net.note_anim(want, loop)
+
+
+## Puppet: play the owner's current clip from where the owner is in it (late joiners included).
+func apply_anim(clip: String, loop: bool, age: float, n: int) -> void:
+	if _remote_peer == 0 or n == _net_anim_n:
+		return
+	_net_anim_n = n
+	_net_anim = ""
+	if clip == "" or _clips == null or not _clips.has_animation(clip):
+		return
+	var anim := _clips.get_animation(clip)
+	if loop:
+		anim.loop_mode = Animation.LOOP_LINEAR
+	elif age >= anim.length:
+		return  # a one-shot that already finished
+	_net_anim = clip
+	_overlay = ""
+	_clips.speed_scale = 1.0
+	_clips.play(clip, 0.12)
+	_clips.seek(fposmod(age, anim.length) if loop else age, true)
+
+
 ## Remote puppets: the seat style the owner chose.
 func apply_act(kit: String) -> void:
 	if _remote_peer == 0 or kit == _seat_kit:
@@ -854,7 +915,10 @@ func _start_seat_clip() -> void:
 
 ## Plays an emote ("wave", "dance", "emote_cheer"...) from anim_emotes. Moving cancels it.
 func play_emote(emote_name: String) -> bool:
-	return _play_overlay(emote_name, "emotes")
+	var ok := _play_overlay(emote_name, "emotes")
+	if ok and _remote_peer == 0:
+		Net.note_emote(emote_name)
+	return ok
 
 
 ## Plays any activity clip ("fishing/fish_cast", "snow_throw", "arcade_play"...). Moving cancels it.
@@ -908,6 +972,11 @@ func _animate_dance() -> bool:
 
 
 func _animate(delta: float, speed: float) -> void:
+	if _net_anim != "" and _clips != null:
+		if _clips.current_animation == _net_anim:
+			visual.rotation = Vector3.ZERO
+			return
+		_net_anim = ""  # the one-shot ended, or another clip took over
 	if _dance_beat >= 0.0 and speed <= 0.25 and _animate_dance():
 		_overlay = ""
 		return

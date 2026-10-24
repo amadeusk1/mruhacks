@@ -535,7 +535,11 @@ func make_grid() -> MeshInstance3D:
 
 # ---------------------------------------------------------------- persistence --
 func save_path() -> String:
-	return "user://home_%s.json" % shell_id.get_slice("/", 1)
+	return path_for(shell_id)
+
+
+static func path_for(shell: String) -> String:
+	return "user://home_%s.json" % shell.get_slice("/", 1)
 
 
 func save_layout() -> void:
@@ -550,12 +554,25 @@ func save_layout() -> void:
 	saved.emit(ok)
 
 
-func load_layout(default_items: Array = []) -> void:
-	var data = null
-	if FileAccess.file_exists(save_path()):
+## remote: another player's layout (a visit). It comes off the network, so every entry is checked
+## against the catalogue before anything loads.
+func load_layout(default_items: Array = [], remote: Variant = null) -> void:
+	var data = remote
+	if remote == null and FileAccess.file_exists(save_path()):
 		data = JSON.parse_string(FileAccess.get_file_as_string(save_path()))
-	var list: Array = data["items"] if data is Dictionary and data.has("items") else default_items
-	for e in list:
+	var list: Array = data["items"] if data is Dictionary and data.get("items") is Array else default_items
+	for e in list.slice(0, 300):
+		if not (e is Dictionary) or not (e.get("cell") is Array) or e["cell"].size() != 2 or _entry(str(e.get("id", ""))).is_empty():
+			continue
 		var c: Array = e["cell"]
-		_add(str(e["id"]), Vector2i(c[0], c[1]), int(e.get("rot", 0)), str(e.get("slot", "")), e.get("tints", {}))
+		var tints = e.get("tints", {})
+		_add(str(e["id"]), Vector2i(int(c[0]), int(c[1])), int(e.get("rot", 0)), str(e.get("slot", "")), tints if tints is Dictionary else {})
 	_undo.clear()
+
+
+func clear_items() -> void:
+	for it in items:
+		if is_instance_valid(it["node"]):
+			it["node"].queue_free()
+	items.clear()
+	selected = {}
