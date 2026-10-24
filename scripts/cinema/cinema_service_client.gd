@@ -31,6 +31,7 @@ func set_service(url: String) -> void:
 func call_api(method: int, path: String, body: Variant, done: Callable, timeout := TIMEOUT_S) -> void:
 	var http := HTTPRequest.new()
 	http.timeout = timeout
+	http.download_chunk_size = 1 << 20  # default 64 KB/frame makes a 2 MB video chunk take seconds
 	add_child(http)
 	var headers := PackedStringArray(["Content-Type: application/json"])
 	if not web:
@@ -42,7 +43,8 @@ func call_api(method: int, path: String, body: Variant, done: Callable, timeout 
 	if err != OK:
 		http.queue_free()
 		log_line.emit("%s -> request error %d" % [path, err])
-		done.call(0, null, PackedByteArray())
+		if done.is_valid():
+			done.call(0, null, PackedByteArray())
 
 
 func _finished(result: int, code: int, headers: PackedStringArray, body: PackedByteArray, http: HTTPRequest, path: String, done: Callable) -> void:
@@ -54,7 +56,8 @@ func _finished(result: int, code: int, headers: PackedStringArray, body: PackedB
 				cookie = c
 	var data: Variant = JSON.parse_string(body.get_string_from_utf8()) if body.size() > 0 and body[0] in [0x7B, 0x5B] else null
 	log_line.emit("%s -> %d%s" % [path, code, "" if result == HTTPRequest.RESULT_SUCCESS else " (result %d)" % result])
-	done.call(code, data, body)
+	if done.is_valid():  # the caller (e.g. a closed screen player) may be gone by now
+		done.call(code, data, body)
 
 
 # ---- API ---------------------------------------------------------------------------------
@@ -95,7 +98,8 @@ func library(query: String, done: Callable) -> void:
 
 func state(done: Callable) -> void:
 	call_api(HTTPClient.METHOD_GET, "/api/state", null, func(c: int, d: Variant, _b: PackedByteArray) -> void:
-		done.call(d if c == 200 and d is Dictionary else null))
+		if done.is_valid():
+			done.call(d if c == 200 and d is Dictionary else null))
 
 
 func claim(done: Callable) -> void:
@@ -134,4 +138,6 @@ func logout(done: Callable) -> void:
 ## done(bytes: PackedByteArray, empty on failure)
 func segment(kind: String, start: float, length: float, done: Callable) -> void:
 	call_api(HTTPClient.METHOD_GET, "/api/segment?kind=%s&start=%.3f&len=%.3f" % [kind, start, length], null,
-		func(c: int, _d: Variant, b: PackedByteArray) -> void: done.call(b if c == 200 else PackedByteArray()), 45.0)
+		func(c: int, _d: Variant, b: PackedByteArray) -> void:
+			if done.is_valid():
+				done.call(b if c == 200 else PackedByteArray()), 45.0)

@@ -23,6 +23,8 @@ func _ready() -> void:
 	match part:
 		"client":
 			_client()
+		"overlay":
+			_with_film(_overlay)
 		"room":  # baseline: just enter and leave the cinema
 			_done(true)
 		_:
@@ -56,3 +58,53 @@ func _client() -> void:
 						var n: int = (films as Array).size() if films is Array else 0
 						c.logout(func() -> void:
 							_done(n > 0 and st is Dictionary and not c.signed_in, "films=%d state=%s" % [n, st is Dictionary])))))))
+
+
+## Signs in as host, starts the longest film, then calls body(client). Ends paused + signed out.
+func _with_film(body: Callable) -> void:
+	var c := CinemaServiceClient.new()
+	add_child(c)
+	c.log_line.connect(func(t: String) -> void: print("HTTP %.1f %s" % [Time.get_ticks_msec() / 1000.0, t]))
+	c.set_service(url)
+	c.login("Smoke", code, func(ok: bool, err: String) -> void:
+		if not ok:
+			_done(false, "login: " + err); return
+		c.library("", func(films: Variant) -> void:
+			var film := {}
+			for f in (films if films is Array else []):
+				if float(f.get("duration", 0)) > 3000:
+					film = f
+					break
+			if film.is_empty():
+				_done(false, "no film"); return
+			c.claim(func(_claimed: bool) -> void:
+				c.control("load", {"id": film["id"]}, func(loaded: bool, _d: Variant) -> void:
+					c.control("play", {}, func(playing: bool, _d2: Variant) -> void:
+						if not (loaded and playing):
+							_done(false, "host could not start the film"); return
+						body.call(c))))))
+
+
+func _finish(c: CinemaServiceClient, ok: bool, why: String) -> void:
+	c.control("pause", {}, func(_o: bool, _d: Variant) -> void:
+		c.logout(func() -> void: _done(ok, why)))
+
+
+# ---- 2. watch overlay ---------------------------------------------------------------------
+func _overlay(c: CinemaServiceClient) -> void:
+	var good := 0
+	var notes: Array = []
+	for i in 5:
+		var o: Control = load("res://ui/activities/cinema/cinema_watch_overlay.gd").new()
+		o.set("client", c)
+		UIRouter.push(o)
+		await get_tree().create_timer(6.0 if i == 0 else 3.0).timeout  # first open waits for the first chunk
+		var p: CinemaScreenPlayer = o.get("player")
+		var pic := (o.get("_picture") as TextureRect).texture
+		notes.append("%d:%d" % [i + 1, p.frames_shown])
+		if pic != null and p.frames_shown > 10 and p.playing:
+			good += 1
+		print("OPEN %d %.1f frames=%d" % [i + 1, Time.get_ticks_msec() / 1000.0, p.frames_shown])
+		o.call("close")
+		await get_tree().process_frame
+	_finish(c, good == 5, "opens with picture %d/5 frames %s" % [good, " ".join(notes)])

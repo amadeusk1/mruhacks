@@ -108,12 +108,14 @@ func (s *Server) evictSegmentsLocked() {
 	}
 }
 
-// transcode runs one ffmpeg child for a chunk; nil on failure or when all slots are busy.
+// transcode runs one ffmpeg child for a chunk, queueing up to 30 s for a free slot; nil on failure.
 func (s *Server) transcode(parent context.Context, id, kind string, start, length float64) []byte {
+	wait := time.NewTimer(30 * time.Second)
+	defer wait.Stop()
 	select {
 	case s.ffmpegSlots <- struct{}{}:
 		defer func() { <-s.ffmpegSlots }()
-	default:
+	case <-wait.C:
 		return nil
 	}
 	token := randomID()
