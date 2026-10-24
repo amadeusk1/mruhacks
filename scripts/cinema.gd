@@ -37,6 +37,15 @@ func _ready() -> void:
 	var lobby := find_child("cinema_lobby", true, false) as Node3D
 	if lobby:
 		SeatSpot.from_sockets(self, lobby, "stool")
+		var kiosk_socket := Sockets.find(lobby, "kiosk")
+		if kiosk_socket:  # the library kiosk opens the host-pick UI (cinema_ui via ActivityScreens)
+			var kiosk := Interactable.new()
+			kiosk.name = "CinemaLibraryKiosk"
+			kiosk.title = "Movies"
+			kiosk.verb = "Browse"
+			kiosk.activity = "cinema"
+			add_child(kiosk)
+			kiosk.global_position = kiosk_socket.global_position
 
 
 ## Voice/presence room inside this one location (GAME_DESIGN_CONTEXT §8: the auditorium is
