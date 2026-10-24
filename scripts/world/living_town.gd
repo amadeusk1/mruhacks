@@ -1,21 +1,18 @@
 class_name LivingTown
 extends Node3D
 
-## Makes the town live through a day. Every client derives the time of day from the same wall
-## clock (one full day every CYCLE_S seconds), so everybody sees the same light without any
-## networking. The sun arcs over and sets, the sky and ambient light shift through dusk to a
+## Makes the town live through a day. Every client derives the time of day from the host's
+## world clock (Net.world_time(), one full day every CYCLE_S seconds), so everybody in a session
+## sees the same light, late joiners included. The sun arcs over and sets, the sky and ambient light shift through dusk to a
 ## moonlit blue night, the lanterns switch on (glowing halos plus a few real lights near the
 ## player), northern lights ripple along the top of the screen, and the snowfall comes and goes.
-##
-## The Day/Night button (or N) sweeps your own view to daylight or night (it is local only).
 
-const CYCLE_S := 600.0
+const CYCLE_S := 1440.0  # one in-game day every 24 real minutes
 const KEYFRAMES := [["Morning", 0.31], ["Noon", 0.5], ["Dusk", 0.745], ["Night", 0.0]]
 const LAMP_LIGHTS := 5  # real lights near the player; the rest are halo sprites only
 const LAMP_COLOR := Color("#FFC76B")
 
 static var hour_override := -1.0  # tools and --tod=
-static var offset := 0.0  # local day/night switch
 
 var _town: Node
 var _env: Environment
@@ -27,10 +24,6 @@ var _halos: Array = []  # Sprite3D, one per lamp
 var _pool: Array = []  # {light, lamp, e, want}
 var _snow: GPUParticles3D
 var _aurora_mat: ShaderMaterial
-var _toast: Label
-var _toast_t := 0.0
-var _sweep := 0.0  # day-fraction still to travel for a day/night switch
-var _button: Button
 var _scan := 0.0
 var _t := 0.0
 
@@ -39,7 +32,7 @@ var _t := 0.0
 static func hour() -> float:
 	if hour_override >= 0.0:
 		return hour_override
-	return fposmod(Time.get_unix_time_from_system() / CYCLE_S + offset, 1.0)
+	return fposmod(Net.world_time() / CYCLE_S, 1.0)
 
 
 static func elevation(h: float) -> float:
@@ -68,7 +61,7 @@ static func phase_name(h: float) -> String:
 
 ## How hard it is snowing, 0..1, slowly drifting (same for everyone).
 static func snowiness() -> float:
-	var u := Time.get_unix_time_from_system()
+	var u := Net.world_time()
 	return 0.5 + 0.5 * sin(u / 97.0 + sin(u / 233.0) * 2.0)
 
 
@@ -154,63 +147,10 @@ func _build_aurora() -> void:
 	_aurora_mat.shader = load("res://scripts/world/aurora.gdshader")
 	rect.material = _aurora_mat
 	layer.add_child(rect)
-	var hud := CanvasLayer.new()
-	hud.layer = 3
-	add_child(hud)
-	_toast = Label.new()
-	_toast.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_toast.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
-	_toast.offset_left = 18.0
-	_toast.offset_top = -48.0
-	_toast.add_theme_font_size_override("font_size", 18)
-	_toast.add_theme_color_override("font_color", Color(0.97, 0.98, 1.0))
-	_toast.add_theme_color_override("font_outline_color", Color(0.1, 0.16, 0.24))
-	_toast.add_theme_constant_override("outline_size", 6)
-	var font := load("res://fonts/Fredoka-Bold.ttf") as Font
-	if font != null:
-		_toast.add_theme_font_override("font", font)
-	_toast.modulate.a = 0.0
-	hud.add_child(_toast)
-	_button = Button.new()
-	_button.focus_mode = Control.FOCUS_NONE
-	_button.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	_button.offset_left = -190.0
-	_button.offset_right = -18.0
-	_button.offset_top = 84.0
-	_button.offset_bottom = 124.0
-	_button.add_theme_font_size_override("font_size", 17)
-	if font != null:
-		_button.add_theme_font_override("font", font)
-	_button.pressed.connect(toggle_day_night)
-	hud.add_child(_button)
 
-
-func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_N:
-		toggle_day_night()
-		get_viewport().set_input_as_handled()
-
-
-## Switches your own view between day and night with a quick sunrise/sunset sweep.
-func toggle_day_night() -> void:
-	var going_night := daylight(hour()) > 0.5
-	var target := 0.0 if going_night else 0.5  # midnight or noon
-	_sweep = fposmod(target - hour(), 1.0)
-	_toast.text = "Night mode (your view only)" if going_night else "Daylight mode (your view only)"
-	_toast_t = 2.2
-
-
-func _refresh_button() -> void:
-	if _button != null:
-		_button.text = "Switch to day" if night(hour()) > 0.5 else "Switch to night"
 
 func _process(delta: float) -> void:
 	_t += delta
-	if _sweep > 0.0:
-		var step := minf(_sweep, delta * 0.35)
-		offset += step
-		_sweep -= step
-	_refresh_button()
 	_apply(hour())
 	_scan -= delta
 	if _scan <= 0.0:
@@ -219,8 +159,6 @@ func _process(delta: float) -> void:
 	_fade_lights(delta)
 	if _snow != null:
 		_snow.amount_ratio = lerpf(0.3, 1.0, snowiness())
-	_toast_t = maxf(_toast_t - delta, 0.0)
-	_toast.modulate.a = clampf(_toast_t / 0.5, 0.0, 1.0)
 
 
 func _apply(h: float) -> void:
@@ -269,6 +207,7 @@ func _apply(h: float) -> void:
 	if _aurora_mat != null:
 		_aurora_mat.set_shader_parameter("strength", pow(night_f, 3.0) * 0.85 * (0.7 + 0.3 * aur))
 		_aurora_mat.set_shader_parameter("t", _t)
+		_aurora_mat.set_shader_parameter("stars", smoothstep(0.55, 0.95, night_f))
 
 
 func _focus() -> Vector3:

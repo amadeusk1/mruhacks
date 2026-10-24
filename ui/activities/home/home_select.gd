@@ -169,6 +169,7 @@ func _save() -> void:
 	cfg.set_value("home", "shell", _sel)
 	cfg.set_value("home", "visitors", _visit)
 	cfg.save(PATH)
+	Net.set_visitors(_visit)
 
 
 func _use() -> void:

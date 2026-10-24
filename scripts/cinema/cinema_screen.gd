@@ -48,6 +48,18 @@ static func attach(hall: Node3D, player: CinemaScreenPlayer) -> CinemaScreen:
 	bars.material_override = black
 	bars.position = Vector3(0, 0, -0.005)
 	quad.add_child(bars)
+	var card := Label3D.new()  # idle card while no film is loaded
+	card.name = "IdleCard"
+	card.font = load("res://fonts/Fredoka-Bold.ttf")
+	card.font_size = 96
+	card.pixel_size = 0.0042
+	card.outline_size = 0
+	card.modulate = Color("#F4E9D2")
+	card.width = 1000.0
+	card.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	card.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	card.position = Vector3(0, 0, 0.45)  # in front of the curtains (0.3 m before the screen), like a sign
+	quad.add_child(card)
 	quad.material_override = mat
 	hall.add_child(quad)
 	quad.position = center + face * (box.size[thin] * 0.5 + 0.02)
@@ -59,6 +71,29 @@ static func attach(hall: Node3D, player: CinemaScreenPlayer) -> CinemaScreen:
 		quad._on_texture(player.texture)
 	quad._on_playing(player.playing)
 	return quad
+
+
+var _card_in := 0.0
+
+
+## Idle card: says how to start a movie night when nothing is loaded; hidden while a film is up.
+func _process(delta: float) -> void:
+	_card_in -= delta
+	if _card_in > 0.0:
+		return
+	_card_in = 0.5
+	var card := get_node_or_null("IdleCard") as Label3D
+	if card == null:
+		return
+	card.visible = not player.has_film()
+	var c := player.client
+	var host := c.signed_in and bool(c.me.get("eligible", false))
+	if not c.signed_in:
+		card.text = "Movie night\nPress F to sign in, then pick or watch a movie"
+	elif host:
+		card.text = "No movie playing\nPress F (or use the podium) to pick one"
+	else:
+		card.text = "No movie playing\nAsk the host to pick one, or press F to suggest"
 
 
 func _enter_tree() -> void:

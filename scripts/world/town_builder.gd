@@ -554,7 +554,7 @@ func _start_ambient(node: Node) -> void:
 	for mi in node.find_children("*", "MeshInstance3D", true, false):
 		for s in (mi as MeshInstance3D).mesh.get_surface_count():
 			var m := mi.get_active_material(s) as BaseMaterial3D
-			if m and m.emission_enabled and (String(m.resource_name).begins_with("glow") or String(m.resource_name).begins_with("bulb")):
+			if m and m.emission_enabled and (String(m.resource_name).begins_with("glow") or String(m.resource_name).begins_with("bulb") or String(m.resource_name).begins_with("tint_bulb")):
 				var d := m.duplicate() as BaseMaterial3D
 				mi.set_surface_override_material(s, d)
 				_glows.append([d, d.emission_energy_multiplier, randf() * TAU, randf_range(2.5, 4.0)])

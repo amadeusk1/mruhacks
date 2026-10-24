@@ -35,6 +35,15 @@ func _ready() -> void:
 	var back := UIKit.button("Back to seat", "secondary")
 	back.pressed.connect(close)
 	bar.add_child(back)
+	if not CinemaService.client.signed_in:
+		var go := UIKit.button("Sign in to watch", "primary")
+		go.name = "SignIn"
+		go.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+		go.pressed.connect(CinemaService.open_sign_in)
+		add_child(go)
+		CinemaService.signed_in_changed.connect(func(_on: bool) -> void:
+			if is_instance_valid(go):
+				go.queue_free(), CONNECT_ONE_SHOT)
 	if player == null:
 		player = CinemaService.player
 	player.texture_changed.connect(_on_texture)  # method: disconnects when the overlay is freed
