@@ -320,7 +320,7 @@ static func stair_ramps(nodes: Array, parent: Node) -> int:
 		var low := clampf(0.25 / maxf(along.y, 0.05), 0.45, 1.5)
 		ramp(parent, a - along * low, b + along * 0.15, 1.4, "FlightRamp")
 		# cheeks start where the ramp is already a step above the ground: the foot stays open
-		_cheeks(parent, a + along * clampf(0.4 / maxf(along.y, 0.05), 0.7, 2.0), b + along * 0.15, 1.4)
+		_cheeks(parent, a + along * clampf(0.6 / maxf(along.y, 0.05), 1.2, 2.5), b + along * 0.15, 1.4)
 		made += 1
 	return made
 

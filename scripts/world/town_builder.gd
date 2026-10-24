@@ -267,10 +267,10 @@ func _ground_heightfield(nav: Node, space: PhysicsDirectSpaceState3D) -> PackedF
 	return h
 
 
-## Cliff tops: wherever the ground drops more than LEDGE m between neighbouring samples (about
-## 70 degrees), a row of posts on the high side keeps the penguin from walking off the sled hill
-## or a cliff. Not where a deck, ramp or bridge covers the edge.
-const LEDGE := 0.9
+## Cliff tops: wherever the ground drops more than LEDGE m between neighbouring samples (steeper
+## than the penguin's 55 degree floor, so it would slide down out of control), a row of posts on
+## the high side keeps it on the sled hill or the plateau. Not where a deck, ramp or bridge covers it.
+const LEDGE := 0.45
 
 
 func _ledges(nav: Node, space: PhysicsDirectSpaceState3D, h: PackedFloat32Array) -> void:
