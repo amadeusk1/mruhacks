@@ -38,7 +38,13 @@ func _ready() -> void:
 	if player == null:
 		player = CinemaService.player
 	player.texture_changed.connect(_on_texture)  # method: disconnects when the overlay is freed
+	player.watch(self)
 	_picture.texture = player.texture
+
+
+func _exit_tree() -> void:
+	if player:
+		player.unwatch(self)
 
 
 func _on_texture(t: Texture2D) -> void:
