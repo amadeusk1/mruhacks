@@ -24,7 +24,7 @@ const ROOMS := {
 			["cafe/mug_set", [1.25, 1.03, -0.35], 0.0],
 			["cafe/tray_breakfast_preset_preview", [-1.3, 0.7, -0.55], 15.0],
 		],
-		"seats": [["plaza/stool", "socket_table_0", [[0.55, 0], [-0.55, 0]]], ["plaza/stool", "socket_table_1", [[0.55, 0], [-0.55, 0]]]],
+		"games": [["socket_table_0", "plaza/stool", "", "stool"], ["socket_table_1", "plaza/stool", "", "stool"]],
 		"camera": {"limit_x": 1.4, "limit_z": 1.2, "height": 6.6, "distance": 5.4},
 	},
 	"casino": {
@@ -47,8 +47,9 @@ const ROOMS := {
 			["casino/coat_stand", [3.6, 0.12, 2.7], 0.0],
 		],
 		# [table placement anchor, seat prop, game, seat height]; seats come from the table's socket_seat_*
-		"games": [["socket_roulette", "casino/roulette_stool", "roulette"], ["socket_poker", "casino/casino_chair", "poker"],
-			["socket_blackjack", "casino/casino_chair", "blackjack"]],
+		"games": [["socket_roulette", "casino/roulette_stool", "roulette", "casino"], ["socket_poker", "casino/casino_chair", "poker", "casino"],
+			["socket_blackjack", "casino/casino_chair", "blackjack", "casino"],
+			["socket_lounge_0", "", "", "armchair", "socket_seat"], ["socket_lounge_1", "", "", "armchair", "socket_seat"]],
 		"slot_row": true,  # machines, stools and tints from the shell's slot_row meta
 		"lights": [[-4.7, 1.6, -3.6], [4.7, 1.6, -3.6], [0.0, 2.6, 0.0]],
 		"camera": {"limit_x": 3.4, "limit_z": 2.4, "height": 9.5, "distance": 7.8},
@@ -70,6 +71,9 @@ const ROOMS := {
 			["arcade/arcade_bench", [-2.4, 0.0, 1.1], 90.0],
 			["arcade/arcade_stool", [-1.6, 0.0, -0.9], 0.0],
 		],
+		"games": [["socket_cabinet_0", "", "arcade", "arcade", "socket_player"], ["socket_cabinet_1", "", "arcade", "arcade", "socket_player"],
+			["socket_cabinet_3", "", "arcade", "arcade", "socket_player"], ["socket_cabinet_5", "", "arcade", "arcade", "socket_player"],
+			["socket_cabinet_6", "", "arcade", "arcade", "socket_player"]],
 		"tints": {"socket_cabinet_0": {"body": "#7B4FC4"}, "socket_cabinet_1": {"body": "#207D85"},
 			"socket_cabinet_5": {"body": "#D9473B"}, "socket_cabinet_6": {"body": "#F2C230"}},
 		"camera": {"limit_x": 2.2, "limit_z": 1.6, "height": 8.0, "distance": 6.6},
@@ -108,15 +112,11 @@ func _enter_tree() -> void:
 		var tints: Dictionary = _cfg.get("tints", {}).get(str(p[1]), {})
 		if node and not tints.is_empty():
 			Tints.apply(node, {"body": Color(tints["body"])})
-	for s in _cfg.get("seats", []):
-		var base := _socket(sockets, s[1])
-		for off in s[2]:
-			_place(nav, s[0], base + Vector3(off[0], 0, off[1]), 0.0)
 	if _cfg.get("slot_row", false):
 		_slot_row(nav, shell_id, sockets)
 	for g in _cfg.get("games", []):
 		if placed.has(g[0]):
-			_seats(nav, placed[g[0]], g[1], g[2])
+			_seats(nav, placed[g[0]], g)
 	for l in _cfg.get("lights", []):
 		var light := OmniLight3D.new()  # warm lamp pools
 		light.light_color = Color("#FFC76B")
@@ -193,45 +193,52 @@ func camera_for_spawn(_spawn_name: String) -> Dictionary:
 		"height": c["height"], "distance": c["distance"]}
 
 
-## Seat props and CasinoSeat interactables at each socket_seat_* of a placed table/machine,
-## facing the table centre.
-func _seats(nav: Node, table: Array, seat_id: String, game: String) -> void:
+## A seat prop (optional) plus a SeatSpot at every `prefix*` socket of a placed table/cabinet,
+## each facing the table centre. games entry: [anchor, seat prop or "", activity, kit, prefix].
+func _seats(nav: Node, table: Array, g: Array) -> void:
 	var t_node: Node3D = table[0]
 	if t_node == null:
 		return
+	var seat_id: String = g[1]
+	var prefix: String = g[4] if g.size() > 4 else "socket_seat"
 	var at: Vector3 = table[2]
 	var basis := Basis(Vector3.UP, deg_to_rad(table[3]))
-	var seat_h := float((AssetRegistry.sockets(seat_id).get("socket_seat", [0, 0, 0.43]) as Array)[2])
+	var seat_h := 0.0
+	if seat_id != "":
+		var ss: Dictionary = AssetRegistry.sockets(seat_id)
+		seat_h = float((ss.get("socket_seat", ss.get("socket_seat_0", [0, 0, 0.43])) as Array)[2])
 	for sname in AssetRegistry.sockets(table[1]):
-		if not String(sname).begins_with("socket_seat"):
+		if not String(sname).begins_with(prefix):
 			continue
 		var floor_pos := at + basis * _socket(AssetRegistry.sockets(table[1]), sname)
 		floor_pos.y = at.y
 		var away := Vector2(floor_pos.x - at.x, floor_pos.z - at.z)
-		if away.length() < 0.05:
-			away = Vector2(0, 1)  # slot machines: the seat socket is straight in front
-		var yaw := atan2(-away.x, -away.y) + PI  # penguin forward is -Z: face the table
-		var prop := AssetPack.place(nav, seat_id.get_base_dir(), seat_id.get_file(), floor_pos, yaw)
-		var seat := CasinoSeat.new()
-		seat.name = "%s_%s" % [t_node.name, String(sname).trim_prefix("socket_")]
-		seat.title = game.capitalize()
-		seat.verb = "Play"
-		seat.activity = game
-		seat.position = floor_pos
-		add_child(seat)
-		seat.seat_point = global_transform * (floor_pos + Vector3(0, seat_h, 0))
-		seat.stand_point = global_transform * (floor_pos + Vector3(away.normalized().x, 0, away.normalized().y) * 0.7)
-		seat.face_yaw = yaw
-		if prop:
-			prop.set_meta("seat", seat.name)
+		var yaw := atan2(away.x, away.y) if away.length() > 0.05 else deg_to_rad(table[3])  # forward -Z faces the table
+		if seat_id != "":
+			AssetPack.place(nav, seat_id.get_base_dir(), seat_id.get_file(), floor_pos, yaw)
+		_make_seat("%s_%s" % [t_node.name, String(sname).trim_prefix("socket_")], floor_pos, yaw, seat_h, g[3], g[2])
+
+
+func _make_seat(seat_name: String, floor_pos: Vector3, yaw: float, seat_h: float, kit: String, game: String) -> SeatSpot:
+	var seat := SeatSpot.new()
+	seat.name = seat_name
+	seat.kit = kit
+	seat.activity = game
+	seat.title = game.capitalize() if game != "" else ""
+	seat.verb = "Play" if game != "" else "Sit"
+	seat.position = floor_pos
+	add_child(seat)
+	seat.seat_point = global_transform * (floor_pos + Vector3(0, seat_h, 0))
+	seat.face_yaw = global_rotation.y + yaw
+	return seat
 
 
 func _slot_row(nav: Node, shell_id: String, sockets: Dictionary) -> void:
 	var row: Dictionary = AssetRegistry.entry(shell_id).get("slot_row", {})
+	var seat_h := float((AssetRegistry.sockets("casino/slot_stool").get("socket_seat", [0, 0, 0.43]) as Array)[2])
 	for key in row:
 		var spec: Dictionary = row[key]
-		var at := _socket(sockets, "socket_" + key)
-		var machine := _place(nav, spec["asset"], at, 0.0)
+		var machine := _place(nav, spec["asset"], _socket(sockets, "socket_" + key), 0.0)
 		if machine and spec.has("tint"):
 			var colors := {}
 			for role in spec["tint"]:
@@ -239,17 +246,7 @@ func _slot_row(nav: Node, shell_id: String, sockets: Dictionary) -> void:
 			Tints.apply(machine, colors)
 		var stool_at := _socket(sockets, "socket_" + str(spec["stool"]))
 		AssetPack.place(nav, "casino", "slot_stool", stool_at, 0.0)
-		var seat := CasinoSeat.new()
-		seat.name = "Slot_%s" % key
-		seat.title = "Slots"
-		seat.verb = "Play"
-		seat.activity = "slots"
-		seat.position = stool_at
-		add_child(seat)
-		var seat_h := float((AssetRegistry.sockets("casino/slot_stool").get("socket_seat", [0, 0, 0.43]) as Array)[2])
-		seat.seat_point = global_transform * (stool_at + Vector3(0, seat_h, 0))
-		seat.stand_point = global_transform * (stool_at + Vector3(0, 0, 0.7))
-		seat.face_yaw = 0.0  # machines face +Z; penguin forward is -Z, so yaw 0 faces the machine
+		_make_seat("Slot_%s" % key, stool_at, 0.0, seat_h, "casino", "slots")  # machines face +Z
 
 
 func _point(sockets: Dictionary, p) -> Vector3:

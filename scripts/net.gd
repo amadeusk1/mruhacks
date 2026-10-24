@@ -283,6 +283,23 @@ func note_fisher(phase: String) -> void:
 		request_fisher.rpc_id(1, phase)
 
 
+## Seated/station animation style other players should see ("casino", "cinema", "arcade", "").
+func note_act(act: String) -> void:
+	if not is_online() or _closing:
+		return
+	if _mode == Mode.HOST:
+		_set_act(local_id(), act)
+	else:
+		request_act.rpc_id(1, act)
+
+
+func _set_act(id: int, act: String) -> void:
+	if _mode != Mode.HOST or not _players.has(id) or str(_players[id].get("act", "")) == act:
+		return
+	_players[id]["act"] = act
+	_broadcast()
+
+
 func _set_fisher(id: int, phase: String) -> void:
 	if _mode != Mode.HOST or not _players.has(id):
 		return
@@ -438,6 +455,7 @@ func _snapshot() -> Array:
 			"bench": str(player["bench"]),
 			"igloo": int(player.get("igloo", 0)),
 			"fisher": str(player.get("fisher", "")),
+			"act": str(player.get("act", "")),
 		})
 	return list
 
@@ -669,6 +687,13 @@ func request_fisher(phase: String) -> void:
 	if _mode != Mode.HOST:
 		return
 	_set_fisher(multiplayer.get_remote_sender_id(), phase)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func request_act(act: String) -> void:
+	if _mode != Mode.HOST:
+		return
+	_set_act(multiplayer.get_remote_sender_id(), act)
 
 
 @rpc("any_peer", "call_remote", "reliable")

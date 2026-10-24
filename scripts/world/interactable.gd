@@ -68,7 +68,21 @@ func interact(player: Node) -> bool:
 func _process(_delta: float) -> void:
 	if _note != "" and Time.get_ticks_msec() / 1000.0 > _note_until:
 		_note = ""
-	# the town HUD shows this prompt as its action button (UI mockup); keep the 3D label as fallback
-	_label.visible = can_interact() and get_tree().get_first_node_in_group("town_hud") == null
+	# nearest usable interactable only; the town HUD shows it as its action button (UI mockup),
+	# so the 3D label is a fallback for rooms without the HUD
+	_label.visible = can_interact() and _is_nearest() and get_tree().get_first_node_in_group("town_hud") == null
 	if _label.visible:
 		_label.text = "F  " + prompt_text()
+
+
+## Only the closest usable interactable shows its prompt (tables have many seats).
+func _is_nearest() -> bool:
+	var player := get_tree().get_first_node_in_group("local_player") as Node3D
+	if player == null:
+		return true
+	var mine := player.global_position.distance_squared_to(approach_point())
+	for other in get_tree().get_nodes_in_group("interactables"):
+		if other != self and other.has_method("approach_point") and other.can_interact() \
+				and player.global_position.distance_squared_to(other.approach_point()) < mine:
+			return false
+	return true

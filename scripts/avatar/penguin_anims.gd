@@ -11,6 +11,16 @@ const KITS := ["emotes", "social", "casino", "fishing", "sledding", "snowballs",
 const WALK_MPS := 0.3334  # anim_locomotion walk/run speed_mps
 const RUN_MPS := 1.1
 
+## Seat/station styles: [enter, loop, leave] (library/clip). Empty entries are skipped.
+const SEATS := {
+	"casino": ["casino/hop_onto_seat", "casino/casino_seated_idle", "casino/leave_seat"],
+	"cinema": ["cinema/cinema_sit", "cinema/cinema_watch", "cinema/cinema_stand"],
+	"arcade": ["arcade/arcade_enter", "arcade/arcade_play", "arcade/arcade_exit"],
+	"sketch": ["drawing/sketch_sit", "drawing/sketch_think", "drawing/sketch_stand"],
+	"armchair": ["home/armchair_sit", "home/armchair_idle", "home/armchair_stand"],
+	"stool": ["everyday/stool_back_up_sit", "social/sit_idle", "social/sit_exit"],
+}
+
 ## Teammate fishing phases (fishing_hud.gd) -> anim_fishing clips.
 const FISHING := {"cast": "fishing/fish_cast", "wait": "fishing/fish_wait", "bite": "fishing/fish_hook",
 	"reel": "fishing/fish_reel", "catch": "fishing/fish_catch", "miss": "fishing/fish_escape"}

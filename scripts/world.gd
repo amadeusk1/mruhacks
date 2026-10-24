@@ -423,6 +423,8 @@ func _ensure_puppet(entry: Dictionary) -> void:
 	puppet.apply_identity(str(entry.get("name", "Penguin")), int(entry.get("color", 0)))
 	if puppet.has_method("apply_fisher"):
 		puppet.apply_fisher(str(entry.get("fisher", "")))
+	if puppet.has_method("apply_act"):
+		puppet.apply_act(str(entry.get("act", "")))
 	if _poses.has(id):
 		var pose: Dictionary = _poses[id]
 		puppet.present_remote(pose["at"], float(pose["yaw"]), float(pose["speed"]), bool(pose["sitting"]))
