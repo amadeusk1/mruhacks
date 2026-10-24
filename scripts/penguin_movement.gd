@@ -360,6 +360,9 @@ func apply_identity(player_name: String, color_index: int) -> void:
 		return
 	_tint_applied = color_index
 	var coat := Net.coat_color(color_index)
+	if visual.has_method("set_coat"):  # rigged art-pack penguin (scripts/avatar/penguin_avatar.gd)
+		visual.call("set_coat", coat)
+		return
 	_tint(visual.get_node("Body") as MeshInstance3D, coat)
 	_tint(visual.get_node("FlipperL") as MeshInstance3D, coat)
 	_tint(visual.get_node("FlipperR") as MeshInstance3D, coat)
@@ -418,6 +421,9 @@ func _restore_feet() -> void:
 
 
 func _animate(delta: float, speed: float) -> void:
+	if visual.has_method("animate"):  # rigged visual drives its own clips
+		visual.call("animate", delta, speed, _sitting)
+		return
 	if _sitting:
 		_phase += delta * 1.4
 		visual.rotation = Vector3(deg_to_rad(12.0), 0.0, 0.0)
