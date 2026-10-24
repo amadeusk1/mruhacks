@@ -37,3 +37,7 @@ Existing code and models are starting points. Do not replace working code just t
 ## Out of scope unless explicitly chosen
 
 Currency, monetization, shops, battle passes, hunger, crafting, vehicles, arbitrary structural house building, unlimited server capacity and public account recovery. Decorative props do not create these requirements. Friend requests, reporting, visitor controls and alternate house types are UI proposals that need actual services before shipping enabled controls.
+
+## Confirmed hosting and future platform update
+
+The team will self-host the server. A browser client on its own domain is also required eventually. The observed native ENet and Forward Plus baseline therefore needs an early compatibility proof and deliberate transport/rendering choices; see [Dev Handoff - Self Hosting and Browser Release](Dev%20Handoff%20-%20Self%20Hosting%20and%20Browser%20Release.md). These requirements are documented, not implemented by this handoff.

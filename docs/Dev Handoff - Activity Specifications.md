@@ -51,3 +51,7 @@ Test complete chains for different roster sizes, submit twice, timeout, disconne
 ## Shared acceptance
 
 Every activity must pass happy path, early cancel, occupied slot, invalid request, simultaneous join, late join/spectate, disconnect, reconnect/expiry and replay. Input, cursor, camera and voice state must restore correctly every time. Result effects may play after accepted state; they do not decide scores. Show understandable unavailable/demo states when a dependency is missing.
+
+## Cross-platform activity acceptance
+
+The eventual browser client must share activity state with native players. Verify cinema playback and voice integration early, then test every activity with mixed native/browser participants. Browser suspension must not pause server timers or leave stale input active. See [Dev Handoff - Self Hosting and Browser Release](Dev%20Handoff%20-%20Self%20Hosting%20and%20Browser%20Release.md).

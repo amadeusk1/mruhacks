@@ -44,3 +44,9 @@ Verify UI at project baseline 1280×720 and a larger desktop viewport with enlar
 Choose measurable budgets after target hardware and capacity are selected: frame time, server tick time, memory, bandwidth, load duration and save latency. Record a reproducible busy-hub/activity case and realistic player count. Do not claim the world supports 40 players because a mockup says 18/40.
 
 Every completed feature records build/commit, test conditions, expected and observed results, known limitations and reproduction steps. A release includes client/server versions, protocol version, migration version, checksums, runbook and rollback artifact. Label unimplemented controls and demo media honestly.
+
+## Required early browser gate and eventual web release
+
+Before locking networking, rendering, voice or cinema dependencies, run the early compatibility proof in [Dev Handoff - Self Hosting and Browser Release](Dev%20Handoff%20-%20Self%20Hosting%20and%20Browser%20Release.md). One native and one browser client must share a world and demonstrate saved housing, microphone audio and real synchronized media. Record limitations and transport latency measurements.
+
+Hosting is on the team's own server. Before public web launch, test its actual domain/TLS, external connectivity, browser matrix, atomic web updates, stale tabs, reconnect, permissions, backup restoration and rollback. Browser delivery may follow native delivery, but compatibility decisions cannot wait until the end.

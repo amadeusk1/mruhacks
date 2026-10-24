@@ -33,3 +33,7 @@ Effects: named sockets for smoke/steam/splash, child pivots for doors/curtains/c
 Use the twelve UI boards and their detailed notes. Required refinements include correct selected tab, consistent key prompts, truthful save/connection state, distinct catch results, team labels rather than player-name headings, and Menu rather than Game Paused online. Screen art and placeholder characters are not a new modeling reference. Missing/error/loading variants may reuse components instead of adding entirely separate scenes.
 
 Implement friends/report/home permissions only when their backing services work. Otherwise hide or mark them unavailable; do not display a fake submitted report. Basic voice mute and gameplay exit remain usable regardless of those services.
+
+## Browser client requirement
+
+Support an eventual browser release on the game's own domain. Prove representative assets under the Compatibility renderer early, and test browser audio permissions, input focus, tab suspension and authoritative resynchronization. Do not assume current Forward Plus effects or native voice/media integrations carry over. See [Dev Handoff - Self Hosting and Browser Release](Dev%20Handoff%20-%20Self%20Hosting%20and%20Browser%20Release.md).

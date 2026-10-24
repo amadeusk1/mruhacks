@@ -56,3 +56,7 @@ Activity results that persist rewards/progress, if introduced, need an exactly-o
 ## Clock and reconnect
 
 Use server time/deadlines for countdowns and match end; clients estimate display time and never decide victory from local clocks. Reconnect revalidates identity, restores a current snapshot and sends only the player's authorized private assignment. Expired sessions return to a safe room state. Duplicate tabs/connections need an explicit policy: reject the second or replace the first cleanly. Never leave phantom seats, cabinet stations or fishing spots.
+
+## Native and browser contract parity
+
+Future browser support is confirmed. Keep message schemas, server authority, join tickets, save revisions and reconnect semantics independent of ENet. Reliable/unreliable intent must be mapped explicitly to the selected transport; a WebSocket path cannot be assumed to supply unreliable delivery. See [Dev Handoff - Self Hosting and Browser Release](Dev%20Handoff%20-%20Self%20Hosting%20and%20Browser%20Release.md) for cross-play and transport acceptance.

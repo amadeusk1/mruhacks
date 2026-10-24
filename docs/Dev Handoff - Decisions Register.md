@@ -4,19 +4,19 @@
 
 ## Confirmed
 
-Waddle World is the placeholder title. Simple original UI. Modular penguins, interchangeable gear and engine tinting. Player-decorated homes with grid placement. Cute movement and emotes. Cinema, arcade, fishing, sledding, snowballs, basketball and drawing telephone. Online server/backend support is needed. All mockup/reference work goes into Obsidian and GitHub when committed.
+Waddle World is the placeholder title. Simple original UI. Modular penguins, interchangeable gear and engine tinting. Player-decorated homes with grid placement. Cute movement and emotes. Cinema, arcade, fishing, sledding, snowballs, basketball and drawing telephone. Online server/backend support is needed and will run on the team’s own server. An eventual browser release on its own domain is required; see [Dev Handoff - Self Hosting and Browser Release](Dev%20Handoff%20-%20Self%20Hosting%20and%20Browser%20Release.md). All mockup/reference work goes into Obsidian and GitHub when committed.
 
 ## Resolve before their dependent work
 
 | Decision | Suggested starting point | Must be resolved before |
 | --- | --- | --- |
-| Target platforms | Native desktop first to match current Godot project | Network/media/voice transport and build pipeline |
-| Hosting owner, region and budget | One small dedicated world deployment plus application service/DB | Provisioning or purchasing infrastructure |
+| Release sequence and browser matrix | Native first is proposed; eventual browser support is confirmed; prove both early | Network/media/voice transport, renderer and build pipeline |
+| Own-server specifications and connectivity | Confirm OS, hardware, uplink, public reachability, operator and domain/DNS access | Deployment sizing and public endpoint setup |
 | Identity model | Invite-only stable guest credential for prototype | Durable profiles, home ownership and join authorization |
 | Account recovery/cross-device | Explicitly choose supported or deferred | Public account promises |
 | Initial world capacity | Small measured playtest group | Capacity labels and load-test acceptance |
 | Server authority model | Authoritative contested actions; plan server movement | Multiplayer activities and validation |
-| Voice provider/stack | Prove native Godot integration and remote connectivity | Proximity voice implementation |
+| Voice provider/stack | Prove native and browser integration and remote connectivity | Proximity voice implementation |
 | Media provider/player | One verified end-to-end source | Cinema integration and export platform choice |
 | Basketball mode | Shooting contest first; full possession remains visible | Final input/UI and gameplay implementation |
 | Sled format/collisions | Time trial first, nonblocking racers if shared | Race logic and collision tuning |

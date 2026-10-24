@@ -6,7 +6,7 @@
 
 1. [GAME_DESIGN_CONTEXT](GAME_DESIGN_CONTEXT.md) — original supplied brief, preserved unchanged.
 2. [Dev Handoff - Scope and Current Code](Dev%20Handoff%20-%20Scope%20and%20Current%20Code.md) — confirmed scope, observed code, gaps.
-3. [Dev Handoff - Server and Deployment](Dev%20Handoff%20-%20Server%20and%20Deployment.md) — online architecture and operations.
+3. [Dev Handoff - Server and Deployment](Dev%20Handoff%20-%20Server%20and%20Deployment.md) — online architecture and operations; [Dev Handoff - Self Hosting and Browser Release](Dev%20Handoff%20-%20Self%20Hosting%20and%20Browser%20Release.md) — own-server deployment and future web release.
 4. [Dev Handoff - Data and Network Contracts](Dev%20Handoff%20-%20Data%20and%20Network%20Contracts.md) — identity, persistence, authority and message semantics.
 5. [Dev Handoff - Activity Specifications](Dev%20Handoff%20-%20Activity%20Specifications.md) — all seven activities and acceptance requirements.
 6. [Dev Handoff - Client UI Housing and Assets](Dev%20Handoff%20-%20Client%20UI%20Housing%20and%20Assets.md) — frontend, character, housing and art integration.
@@ -19,4 +19,4 @@ Visual index: [Waddle World - UI Mockups](Waddle%20World%20-%20UI%20Mockups.md).
 
 A concept is an image/specification. An asset is an inspectable exported resource. A feature is implemented only when it runs through its complete lifecycle in the game. An online feature is verified only after two separate clients on different networks can complete it and recover from a disconnect. A green connection banner, local demo, or static model does not meet those latter definitions.
 
-Later direct user instructions take priority over old proposals. Confirmed: modular penguins, customizable houses with grid decoration, cute movement/emotes, simple UI, all requested activities, and an online server requirement. Proposed: provider choices, player caps, exact controls, rule numbers, commercial hosting topology, and public account policy. This package specifies them as decisions to resolve, not silently approved purchases or integrations.
+Later direct user instructions take priority over old proposals. Confirmed: modular penguins, customizable houses with grid decoration, cute movement/emotes, simple UI, all requested activities, an online server on the team’s own hardware, and eventual browser access on its own domain. Proposed: provider choices, player caps, exact controls, rule numbers, deployment component layout, and public account policy. This package specifies them as decisions to resolve, not silently approved purchases or integrations.
