@@ -333,7 +333,7 @@ func _reveal() -> void:
 	var owner := str(r.get("owner", ""))
 	if owner != "":
 		var oc := A.chip("%s's chain · %d of %d" % [owner, int(r.get("chain", 0)) + 1, int(r.get("chains", 1))], A.WHITE, A.NAVY, "users", 20)
-		A.pin(_root, oc, Vector4(0, 0, 0, 0), Vector4(96, 26, 520, 0))
+		A.pin(_root, oc, Vector4(0, 0, 0, 0), Vector4(24, 100, 460, 0))
 	if bool(state.get("is_host", true)):
 		var done := bool(r.get("done", false))
 		var next := A.button("Play again" if done else "Next entry", "primary", "arrow_right", 30, Vector2(440, 78))

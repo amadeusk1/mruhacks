@@ -15,7 +15,9 @@ signal home_invite(from_id: int, from_name: String)
 signal sled_gate(race_id: int, phase: String, seconds: float)
 signal sled_pose(peer_id: int, x: float, y: float, z: float, yaw: float, steer: float, crashed: bool)
 
-const PORT := 7777
+const DEFAULT_PORT := 7777
+## --net-port=N on the command line: parallel local test sessions without colliding on 7777.
+var PORT := DEFAULT_PORT
 const ADDRESS := "127.0.0.1"
 const COATS: Array[Color] = [
 	Color(0.18, 0.45, 0.78),
@@ -57,6 +59,9 @@ var _sled_notice: Dictionary = {}
 
 
 func _ready() -> void:
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--net-port="):
+			PORT = int(a.trim_prefix("--net-port="))
 	multiplayer.peer_connected.connect(_on_peer_connected)
 	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
 	multiplayer.connected_to_server.connect(_on_connected_to_server)
