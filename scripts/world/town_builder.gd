@@ -21,6 +21,7 @@ var _layout: Dictionary
 var _walks: Array = []  # walkable placements' floor bodies, joined to the ground in _ready
 var _blockers: Array = []  # [node, id, scale]: collision built in _ready, once the ground is queryable
 var _glows: Array = []  # [material, base_energy, phase]
+var lamp_mult := 1.0  # LivingTown dims the lantern bulbs by day and brightens them at night
 var _saved_env: Environment
 var _saved_sun := {}
 var _t := 0.0
@@ -85,6 +86,8 @@ func _ready() -> void:
 	var world := get_tree().get_first_node_in_group("world")
 	if world:
 		AmbientFx.snowfall(self, world.get_node("CameraRig"))
+	add_child(DanceFloor.new())
+	add_child(LivingTown.new())  # last: it finds the lamps and the snowfall built above
 
 
 func _exit_tree() -> void:
@@ -100,7 +103,7 @@ func _exit_tree() -> void:
 func _process(delta: float) -> void:
 	_t += delta
 	for g in _glows:  # gentle, out-of-phase lantern breathing (Engine Spec - Ambient World)
-		g[0].emission_energy_multiplier = g[1] * (1.0 + 0.12 * sin(_t * TAU / g[3] + g[2]))
+		g[0].emission_energy_multiplier = g[1] * lamp_mult * (1.0 + 0.12 * sin(_t * TAU / g[3] + g[2]))
 
 
 ## Same contract as the teammate's rooms: centre, follow limits, camera height and distance.

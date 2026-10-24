@@ -18,6 +18,10 @@ config/name="Pengloo"
 run/main_scene="res://scenes/startup.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")
 
+[audio]
+
+driver/enable_input=true
+
 [autoload]
 
 Net="*res://scripts/net.gd"
@@ -27,6 +31,7 @@ SketchClub="*res://scripts/activities/sketch_club.gd"
 UIRouter="*res://ui/ui_router.gd"
 ActivityScreens="*res://ui/activities/activity_screens.gd"
 CinemaService="*res://scripts/cinema/cinema_service.gd"
+Voice="*res://scripts/voice/voice.gd"
 
 [display]
 
@@ -111,8 +116,8 @@ world/region_use_async_iterations=false
 
 [pengloo]
 
-cinema/service_enabled=false
-cinema/service_url="http://127.0.0.1:8095/cinema/"
-cinema/watch_overlay=false
-cinema/screen_video=false
-cinema/ambience=false
+cinema/service_enabled=true
+cinema/service_url="https://pengloo.party/cinema/"
+cinema/watch_overlay=true
+cinema/screen_video=true
+cinema/ambience=true

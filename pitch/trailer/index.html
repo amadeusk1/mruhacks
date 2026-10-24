@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #071a26;
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      20 s launch trailer. Cuts sit on beats of the song's first 20 s (172 BPM),
+      floored to the frame at 30 fps. Shape follows the Party Animals release trailer:
+      shots halve (2.8 s, 1.4 s, 0.7 s), then the name's letters zoom out with art
+      inside them, the logo lands on dark, then the event card.
+    -->
+    <div data-hf-id="hf-at0g"
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="20"
+      data-width="1920"
+      data-height="1080"
+    >
+      <div data-hf-id="hf-gmvp"
+        id="montage"
+        data-composition-id="montage"
+        data-composition-src="compositions/montage.html"
+        data-start="0"
+        data-duration="14.2"
+        data-track-index="1"
+        data-track-kind="graphics"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
+      <div data-hf-id="hf-guyk"
+        id="logo"
+        data-composition-id="logo"
+        data-composition-src="compositions/logo.html"
+        data-start="14.2"
+        data-duration="3.53333"
+        data-track-index="1"
+        data-track-kind="graphics"
+        data-variable-values='{"projectName":"Pengloo"}'
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
+      <div data-hf-id="hf-iy21"
+        id="card"
+        data-composition-id="card"
+        data-composition-src="compositions/card.html"
+        data-start="17.73333"
+        data-duration="2.26667"
+        data-track-index="1"
+        data-track-kind="graphics"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
+      <audio data-hf-id="hf-z213"
+        id="song"
+        class="clip"
+        src="assets/song.m4a"
+        data-start="0"
+        data-duration="20"
+        data-track-index="2"
+        data-volume="1"
+      ></audio>
+    </div>
+    <script>
+      window.__timelines["main"] = gsap.timeline({ paused: true });
+    </script>
+  </body>
+</html>

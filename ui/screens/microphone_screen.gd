@@ -1,7 +1,7 @@
 class_name MicrophoneScreen
 extends UIModal
-## Mic permission/device panel. Voice isn't implemented yet: "Enable microphone" records the
-## preference and lists real input devices, but never claims voice is live.
+## Mic permission/device panel for proximity voice (scripts/voice/voice.gd). Enabling asks the
+## browser/OS for the mic the first time; denial is reported by Voice.mic_problem.
 
 func _init() -> void:
 	setup("MICROPHONE", "Voice chat helps you waddle together.", 700, true, false)
@@ -19,7 +19,7 @@ func _init() -> void:
 	var enable := UIKit.button("Enable microphone", "primary")
 	enable.pressed.connect(func() -> void:
 		UIRouter.set_setting("mic", true)
-		UIWidgets.toast(self, "Saved. Voice chat is coming soon.", "mic")
+		UIWidgets.toast(self, "Mic on. Nearby penguins can hear you.", "mic")
 		close())
 	body.add_child(enable)
 	var keep := UIKit.button("Keep muted", "secondary")
@@ -31,6 +31,9 @@ func _init() -> void:
 	body.add_child(UIKit.label("Input device", "Strong"))
 	var dev := OptionButton.new()
 	dev.custom_minimum_size.y = 62
-	for d in AudioServer.get_input_device_list():
+	var devs := AudioServer.get_input_device_list()
+	for d in devs:
 		dev.add_item("Default device" if d == "Default" else d)
+	dev.select(maxi(devs.find(AudioServer.input_device), 0))
+	dev.item_selected.connect(func(i: int) -> void: AudioServer.input_device = devs[i])
 	body.add_child(dev)

@@ -252,3 +252,26 @@ func TestSegmentCacheSharesOneTranscode(t *testing.T) {
 		t.Fatal("expected one transcode, got", string(b))
 	}
 }
+
+func TestClientIP(t *testing.T) {
+	req := func(remote, real string) *http.Request {
+		r := httptest.NewRequest("POST", "/cinema/api/login", nil)
+		r.RemoteAddr = remote
+		if real != "" {
+			r.Header.Set("X-Real-IP", real)
+		}
+		return r
+	}
+	for _, c := range []struct{ remote, real, want string }{
+		{"172.18.0.4:51000", "203.0.113.9", "203.0.113.9"}, // compose proxy: trust its header
+		{"127.0.0.1:40000", "2001:db8::7", "2001:db8::7"},
+		{"198.51.100.2:1234", "203.0.113.9", "198.51.100.2"}, // public peer: header is ignored
+		{"172.18.0.4:51000", "not-an-ip", "172.18.0.4"},
+		{"172.18.0.4:51000", "", "172.18.0.4"},
+		{"[2001:db8::1]:443", "", "2001:db8::1"},
+	} {
+		if got := clientIP(req(c.remote, c.real)); got != c.want {
+			t.Errorf("clientIP(%s, %q) = %s, want %s", c.remote, c.real, got, c.want)
+		}
+	}
+}
