@@ -1,8 +1,10 @@
 extends Node
 
-## Opens Puck Rally when a penguin sits at an arcade cabinet.
-## Solo practice is local. Two players on one duo cabinet ready up and the host runs the puck.
+## Opens the arcade screens when a penguin sits at a cabinet.
+## Solo cabinets play their game up close (cabinet_play.gd). The duo cabinet opens the versus
+## lobby (arcade_ui.gd); ArcadeNet runs online matches on the server, solo practice is local.
 
+const CABINET_GAMES := ["pac", "tetris", "dino", "fish", "star"]
 
 var _ui = null
 
@@ -10,15 +12,12 @@ var _ui = null
 func _ready() -> void:
 	Activities.requested.connect(_on_requested)
 	Net.roster_changed.connect(_paint)
-	Net.arcade_state.connect(_on_state)
+	ArcadeNet.duo_changed.connect(_on_state)
 	Net.seat_denied.connect(_on_denied)
 
 
-const _CABINET_GAMES := ["pac", "tetris", "dino"]
-
-
 func _on_requested(activity: String, anchor: Node, _player: Node) -> void:
-	if activity in _CABINET_GAMES:
+	if activity in CABINET_GAMES:
 		_open_cabinet(activity, anchor)
 		return
 	if activity != "arcade" or _ui != null:
@@ -30,7 +29,9 @@ func _on_requested(activity: String, anchor: Node, _player: Node) -> void:
 	ui.intent.connect(_on_intent)
 	_ui = ui
 	UIRouter.push(ui)
-	Net.arcade_watch(ui.cabinet)
+	var known: Dictionary = ArcadeNet.duo.get(ui.cabinet, {})
+	if not known.is_empty():
+		ui.game = str(known.get("game", "puck"))
 	_paint()
 
 
@@ -40,6 +41,7 @@ func _open_cabinet(activity: String, anchor: Node) -> void:
 	var ui := preload("res://ui/activities/arcade/cabinet_play.gd").new()
 	ui.game_id = activity
 	ui.anchor = anchor
+	ui.cab_key = str(anchor.call("bench_key")) if anchor.has_method("bench_key") else activity
 	ui.intent.connect(_on_intent)
 	_ui = ui
 	UIRouter.push(ui)
@@ -48,41 +50,27 @@ func _open_cabinet(activity: String, anchor: Node) -> void:
 func _on_intent(action: String) -> void:
 	if _ui == null:
 		return
+	if action.begins_with("pick:"):
+		ArcadeNet.duo_pick(action.trim_prefix("pick:"))
+		return
 	match action:
 		"leave":
 			_ui = null
-			Net.arcade_stop()
+			ArcadeNet.stop_playing()
 			var player := get_tree().get_first_node_in_group("local_player")
 			if player != null and player.has_method("stand_up"):
 				player.call("stand_up")
-		"solo":
-			Net.arcade_solo()
-		"ready":
-			Net.arcade_ready()
-		"play_again":
-			if not ("local_solo" in _ui):
-				return
-			if bool(_ui.local_solo) or not _partner_here():
-				Net.arcade_solo()
+		"ready", "play_again":
+			if Net.is_online() and _partner_here():
+				ArcadeNet.duo_ready()
+			elif _ui.has_method("start_solo"):
 				_ui.start_solo()
-			else:
-				Net.arcade_watch(str(_ui.cabinet))
-				_ui.return_lobby()
-				_paint()
 
 
-func _on_state(state: Dictionary) -> void:
-	if _ui == null or not ("cabinet" in _ui) or str(state.get("cab", "")) != str(_ui.cabinet) or bool(_ui.local_solo):
+func _on_state(cab: String, state: Dictionary) -> void:
+	if _ui == null or not is_instance_valid(_ui) or not ("cabinet" in _ui) or cab != str(_ui.cabinet):
 		return
-	var phase := str(state.get("phase", ""))
-	if phase == "results":
-		_ui.show_match_end(int(state.get("sa", 0)), int(state.get("sb", 0)))
-	elif phase == "live":
-		_ui.apply_live(
-			float(state["px"]), float(state["py"]),
-			float(state["lp"]), float(state["rp"]),
-			int(state["sa"]), int(state["sb"])
-		)
+	_ui.apply_state(state)
 
 
 func _on_denied(key: String) -> void:
@@ -107,7 +95,7 @@ func _paint() -> void:
 	if Net.is_online():
 		for entry in Net.roster():
 			var bench := str(entry.get("bench", ""))
-			if _cabinet_of_bench(bench) != str(_ui.cabinet):
+			if ArcadeNet._cab_of_bench(bench) != str(_ui.cabinet):
 				continue
 			var side := 1 if bench.ends_with("_player_2") else 0
 			rows[side] = {
@@ -135,14 +123,14 @@ func _partner_here() -> bool:
 		return false
 	var n := 0
 	for entry in Net.roster():
-		if _cabinet_of_bench(str(entry.get("bench", ""))) == str(_ui.cabinet):
+		if ArcadeNet._cab_of_bench(str(entry.get("bench", ""))) == str(_ui.cabinet):
 			n += 1
 	return n >= 2
 
 
 func _cabinet(anchor: Node) -> String:
 	if anchor.has_method("bench_key"):
-		return _cabinet_of_bench(str(anchor.call("bench_key")))
+		return ArcadeNet._cab_of_bench(str(anchor.call("bench_key")))
 	return ""
 
 
@@ -157,14 +145,6 @@ func _slots(anchor: Node, cab: String) -> int:
 		return 1
 	var n := 0
 	for s in anchor.get_parent().get_children():
-		if s.has_method("bench_key") and _cabinet_of_bench(str(s.call("bench_key"))) == cab:
+		if s.has_method("bench_key") and ArcadeNet._cab_of_bench(str(s.call("bench_key"))) == cab:
 			n += 1
 	return maxi(n, 1)
-
-
-func _cabinet_of_bench(bench: String) -> String:
-	if bench.ends_with("_player_1"):
-		return bench.trim_suffix("_player_1")
-	if bench.ends_with("_player_2"):
-		return bench.trim_suffix("_player_2")
-	return ""

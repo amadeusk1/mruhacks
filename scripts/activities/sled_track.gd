@@ -9,12 +9,12 @@ const ROCK := preload("res://scenes/rock.tscn")
 const BOOST_SHADER := preload("res://scripts/activities/boost_pad.gdshader")
 ## Cross-section: [lateral m, height above the centreline m, colour]. Track | bank wall | lip | field.
 const PROFILE := [
-	[-46.0, 3.2, Color("#F4F8FB")], [-16.0, 1.2, Color("#F1F6FA")], [-9.5, 1.9, Color("#EEF4F9")],
-	[-7.2, 2.05, Color("#F7FAFC")], [-6.0, 1.75, Color("#E4EEF6")], [-5.0, 0.3, Color("#D3E3F0")],
-	[-4.2, 0.2, Color("#DDE9F3")], [-2.0, 0.05, Color("#E9F1F8")], [0.0, 0.0, Color("#EDF4FA")],
-	[2.0, 0.05, Color("#E9F1F8")], [4.2, 0.2, Color("#DDE9F3")], [5.0, 0.3, Color("#D3E3F0")],
-	[6.0, 1.75, Color("#E4EEF6")], [7.2, 2.05, Color("#F7FAFC")], [9.5, 1.9, Color("#EEF4F9")],
-	[16.0, 1.2, Color("#F1F6FA")], [46.0, 3.2, Color("#F4F8FB")],
+	[-46.0, 3.2, Color("#EEF4FA")], [-16.0, 1.2, Color("#F3F7FB")], [-9.5, 1.9, Color("#F7FAFD")],
+	[-7.2, 2.05, Color("#FFFFFF")], [-6.0, 1.75, Color("#E8F1F8")], [-5.0, 0.3, Color("#86B2DA")],
+	[-4.2, 0.2, Color("#AFCBE6")], [-2.0, 0.05, Color("#C5DAEE")], [0.0, 0.0, Color("#CFE1F2")],
+	[2.0, 0.05, Color("#C5DAEE")], [4.2, 0.2, Color("#AFCBE6")], [5.0, 0.3, Color("#86B2DA")],
+	[6.0, 1.75, Color("#E8F1F8")], [7.2, 2.05, Color("#FFFFFF")], [9.5, 1.9, Color("#F7FAFD")],
+	[16.0, 1.2, Color("#F3F7FB")], [46.0, 3.2, Color("#EEF4FA")],
 ]
 
 var start_lamps: Array[MeshInstance3D] = []
@@ -63,7 +63,7 @@ func _ground() -> void:
 				h = SledCourse.dish(lat)
 			var c: Color = prof[2]
 			if absf(lat) < 4.5 and int(s) % 6 < 3 and absf(absf(lat) - 1.6) < 0.5:
-				c = c.darkened(0.03)  # faint groomed grooves
+				c = c.darkened(0.07)  # groomed grooves
 			st.set_color(c)
 			st.set_uv(Vector2(lat * 0.1, s * 0.1))
 			st.add_vertex(p[i] + r * lat + Vector3.UP * h)

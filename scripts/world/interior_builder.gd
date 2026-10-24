@@ -72,9 +72,9 @@ const ROOMS := {
 			["arcade/arcade_rug", [0.0, 0.07, 0.11], 0.0],
 			["arcade/arcade_bench", "socket_bench_0", 90.0],
 		],
-		"games": [["socket_cabinet_solo_0", "", "pac", "arcade", "socket_player"], ["socket_cabinet_solo_1", "", "tetris", "arcade", "socket_player"],
-			["socket_cabinet_solo_2", "", "dino", "arcade", "socket_player"], ["socket_cabinet_solo_3", "", "tetris", "arcade", "socket_player"],
-			["socket_cabinet_solo_4", "", "pac", "arcade", "socket_player"], ["socket_cabinet_duo", "", "arcade", "arcade", "socket_player"]],
+		"games": [["socket_cabinet_solo_0", "", "tetris", "arcade", "socket_player"], ["socket_cabinet_solo_1", "", "fish", "arcade", "socket_player"],
+			["socket_cabinet_solo_2", "", "dino", "arcade", "socket_player"], ["socket_cabinet_solo_3", "", "pac", "arcade", "socket_player"],
+			["socket_cabinet_solo_4", "", "star", "arcade", "socket_player"], ["socket_cabinet_duo", "", "arcade", "arcade", "socket_player"]],
 		"tints": {"socket_cabinet_solo_0": {"body": "#7B4FC4"}, "socket_cabinet_solo_1": {"body": "#3FB3B5"},
 			"socket_cabinet_solo_2": {"body": "#D9473B"}, "socket_cabinet_solo_3": {"body": "#E3A92B"},
 			"socket_cabinet_solo_4": {"body": "#3D7BD9"}},
@@ -245,6 +245,16 @@ func _seats(nav: Node, table: Array, g: Array) -> void:
 		var screen_sockets := AssetRegistry.sockets(table[1])
 		if screen_sockets.has("socket_screen"):
 			seat.set_meta("screen_local", _socket(screen_sockets, "socket_screen"))
+	if g[3] == "arcade" and AssetRegistry.sockets(table[1]).has("socket_screen") and not t_node.has_node("Screen"):
+		var screen := preload("res://scripts/world/cabinet_screen.gd").new()
+		screen.name = "Screen"
+		screen.game = g[2]
+		screen.duo = int(AssetRegistry.entry(table[1]).get("slots", 1)) > 1
+		screen.screen_size = Vector2(1.7, 0.23) if screen.duo else Vector2(0.42, 0.235)
+		# the screen insert leans back ~13 deg; sit just proud of it
+		screen.position = Vector3(0, 1.082, 0.152)
+		screen.rotation.x = deg_to_rad(-13.2)
+		t_node.add_child(screen)
 
 
 ## Seats authored in the shell: a seat prop plus a SeatSpot at every socket_<anchor>_seat_<k>,
@@ -271,7 +281,8 @@ func _make_seat(seat_name: String, floor_pos: Vector3, yaw: float, seat_h: float
 	seat.name = seat_name
 	seat.kit = kit
 	seat.activity = game
-	seat.title = {"pac": "Pac-Man", "tetris": "Tetris", "dino": "Dino Run", "arcade": "Puck Rally"}.get(game, game.capitalize() if game != "" else "")
+	seat.title = {"pac": "Pac-Man", "tetris": "Tetris", "dino": "Dino Run", "fish": "Fish Frenzy", "star": "Star Patrol",
+		"arcade": "Puck Rally / Snow Trails"}.get(game, game.capitalize() if game != "" else "")
 	seat.verb = "Play" if game != "" else "Sit"
 	seat.position = floor_pos
 	add_child(seat)

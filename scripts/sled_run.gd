@@ -164,7 +164,7 @@ func _on_finished() -> void:
 	_finish_time = _clock - _go_at
 	hud.stop_clock(_finish_time)
 	hud.set_hint("")
-	var best := hud.save_best(_finish_time)
+	var best: bool = hud.save_best(_finish_time)
 	if _mode == "race":
 		hud.show_finish("Finished!", _finish_time, "Waiting for the others...", "")
 	else:

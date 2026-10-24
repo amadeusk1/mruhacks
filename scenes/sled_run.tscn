@@ -8,8 +8,8 @@
 [ext_resource type="PackedScene" path="res://scenes/sled_hud.tscn" id="7_hud"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
-sky_top_color = Color(0.42, 0.66, 0.92, 1)
-sky_horizon_color = Color(0.82, 0.9, 0.97, 1)
+sky_top_color = Color(0.3, 0.56, 0.88, 1)
+sky_horizon_color = Color(0.74, 0.86, 0.96, 1)
 ground_bottom_color = Color(0.82, 0.88, 0.92, 1)
 ground_horizon_color = Color(0.8, 0.88, 0.94, 1)
 
@@ -20,7 +20,7 @@ sky_material = SubResource("ProceduralSkyMaterial_sky")
 background_mode = 2
 sky = SubResource("Sky_hill")
 ambient_light_source = 3
-ambient_light_energy = 0.75
+ambient_light_energy = 0.55
 tonemap_mode = 2
 fog_enabled = true
 fog_light_color = Color(0.84, 0.9, 0.97, 1)
@@ -37,7 +37,7 @@ environment = SubResource("Environment_hill")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.766, -0.415, 0.491, 0, 0.764, 0.645, -0.643, -0.495, 0.585, 0, 30, 0)
-light_energy = 1.15
+light_energy = 0.95
 shadow_enabled = true
 directional_shadow_max_distance = 80.0
 

@@ -135,6 +135,7 @@ func apply_identity(player_name: String, color_index: int) -> void:
 		_name_label.no_depth_test = true
 		add_child(_name_label)
 	_name_label.text = player_name
+	_name_label.visible = _remote  # your own name over your own head is noise
 	if _tint_applied == color_index:
 		return
 	_tint_applied = color_index
@@ -234,7 +235,7 @@ func _process(delta: float) -> void:
 	_play(clip)
 	if _spray:
 		_spray.emitting = speed > 6.0 and not _air
-		_spray.amount_ratio = clampf((speed - 6.0) / 14.0 + absf(_steer) * 0.4, 0.15, 1.0)
+		_spray.initial_velocity_max = 2.5 + speed * 0.15 + absf(_steer) * 2.0
 	if _hiss:
 		var want := speed > 1.0 and not _air
 		if want and not _hiss.playing:

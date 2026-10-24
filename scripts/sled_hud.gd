@@ -367,7 +367,7 @@ func show_podium(rows: Array, me: int, colors: Dictionary) -> void:
 	_running = false
 	var root := A.panel(22, 26)
 	root.mouse_filter = Control.MOUSE_FILTER_STOP
-	A.pin(_podium, root, Vector4(0.5, 0.5, 0.5, 0.5), Vector4(-420, -280, 420, 280))
+	A.pin(_podium, root, Vector4(0.5, 0.5, 0.5, 0.5), Vector4(-420, -230, 420, 220))
 	var v := A.vbox(10)
 	root.add_child(v)
 	var head := A.hbox(10, BoxContainer.ALIGNMENT_CENTER)
