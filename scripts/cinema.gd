@@ -7,6 +7,23 @@ extends Node3D
 
 func _ready() -> void:
 	AssetPack.dress_cinema(self)
+	var hall := find_child("cinema_auditorium", true, false) as Node3D  # claimable, net-safe seats
+	if hall:
+		var screen := Sockets.find(hall, "screen")
+		SeatSpot.from_sockets(self, hall, "cinema", screen.global_position if screen else hall.global_position)
+	var lobby := find_child("cinema_lobby", true, false) as Node3D
+	if lobby:
+		SeatSpot.from_sockets(self, lobby, "stool")
+
+
+## Voice/presence room inside this one location (GAME_DESIGN_CONTEXT §8: the auditorium is
+## its own audio room). Lobby and hall sit at the lobby_center / hall_center offsets.
+func voice_room_at(pos: Vector3) -> String:
+	if pos.distance_to(get_meta("hall_center", Vector3(240, 0, 50))) < 12.0:
+		return "cinema_hall"
+	if pos.distance_to(get_meta("lobby_center", Vector3(240, 0, 0))) < 12.0:
+		return "cinema_lobby"
+	return "cinema_front"
 
 
 func camera_for_spawn(spawn_name: String) -> Dictionary:

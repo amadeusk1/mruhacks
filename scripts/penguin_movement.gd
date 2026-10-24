@@ -435,8 +435,12 @@ func _clear_seat(relocate: bool) -> void:
 		return
 	_sitting = false
 	if _seat_kit != "":
+		var leave: String = PenguinAnims.SEATS.get(_seat_kit, ["", "", ""])[2]
 		_seat_kit = ""
-		_play_overlay("leave_seat", "casino")
+		if _remote_peer == 0:
+			Net.note_act("")
+		if leave != "":
+			_play_overlay(leave, "")
 	_end_fishing()
 	_seat_bench = null
 	_restore_feet()
@@ -503,6 +507,8 @@ func _step_remote(delta: float) -> void:
 	if _sitting and not _net_sitting:
 		_restore_feet()
 	_sitting = _net_sitting
+	if not _sitting and _seat_kit != "" and _remote_peer != 0:
+		_seat_kit = ""
 	if _sitting:
 		_seat_point = global_position
 	_plant_shadow()
@@ -537,18 +543,41 @@ func _restore_feet() -> void:
 		_foot_r.position.z = _foot_r_z
 
 
-## Seat style for the current seat: "casino" hops on and loops casino_seated_idle.
+## Seated/station clip sets: [enter, loop, leave] from the anim kits (PenguinAnims.SEATS).
+## "" keeps the bench "sit". Replicated so other players see it (Net.note_act).
 func set_seat_clip(kit: String) -> void:
 	_seat_kit = kit
-	if _clips and kit == "casino" and _clips.has_animation("casino/hop_onto_seat"):
-		_clips.speed_scale = 1.0
-		_clips.play("casino/hop_onto_seat", 0.1)
-		var idle := PenguinAnims.resolve(_clips, "casino_seated_idle", "casino")
-		if idle == "":  # this kit kept its glTF "_loop" suffix
-			idle = PenguinAnims.resolve(_clips, "casino_seated_idle_loop", "casino")
+	if _remote_peer == 0:
+		Net.note_act(kit)
+	_start_seat_clip()
+
+
+## Remote puppets: the seat style the owner chose.
+func apply_act(kit: String) -> void:
+	if _remote_peer == 0 or kit == _seat_kit:
+		return
+	_seat_kit = kit
+	if kit != "":
+		_start_seat_clip()
+
+
+func _start_seat_clip() -> void:
+	var clips: Array = PenguinAnims.SEATS.get(_seat_kit, [])
+	if _clips == null or clips.is_empty():
+		return
+	var enter := PenguinAnims.resolve(_clips, clips[0], "")
+	var idle := PenguinAnims.resolve(_clips, clips[1], "")
+	if idle == "":
+		idle = PenguinAnims.resolve(_clips, clips[1] + "_loop", "")  # some kits keep the glTF suffix
+	if idle != "":
+		_clips.get_animation(idle).loop_mode = Animation.LOOP_LINEAR
+	_clips.speed_scale = 1.0
+	if enter != "":
+		_clips.play(enter, 0.1)
 		if idle != "":
-			_clips.get_animation(idle).loop_mode = Animation.LOOP_LINEAR
 			_clips.queue(idle)
+	elif idle != "":
+		_clips.play(idle, 0.15)
 
 
 ## Plays an emote ("wave", "dance", "emote_cheer"...) from anim_emotes. Moving cancels it.

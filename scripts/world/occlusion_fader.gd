@@ -77,7 +77,7 @@ func _physics_process(delta: float) -> void:
 			r.visible = true
 			_roofs_hidden.erase(r)
 	_animate(hits, delta)
-	_set_silhouette(true)  # the shader only draws where something is actually in front
+	_set_silhouette(not hits.is_empty())
 
 
 func _animate(hits: Dictionary, delta: float) -> void:

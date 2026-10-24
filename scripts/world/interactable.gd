@@ -68,6 +68,17 @@ func interact(player: Node) -> bool:
 func _process(_delta: float) -> void:
 	if _note != "" and Time.get_ticks_msec() / 1000.0 > _note_until:
 		_note = ""
-	_label.visible = can_interact()
+	_label.visible = can_interact() and _is_nearest()
 	if _label.visible:
 		_label.text = "F  " + prompt_text()
+
+
+## Only the closest usable interactable shows its prompt (tables have many seats).
+func _is_nearest() -> bool:
+	var player := get_tree().get_first_node_in_group("local_player") as Node3D
+	var mine := player.global_position.distance_squared_to(approach_point())
+	for other in get_tree().get_nodes_in_group("interactables"):
+		if other != self and other.has_method("approach_point") and other.can_interact() \
+				and player.global_position.distance_squared_to(other.approach_point()) < mine:
+			return false
+	return true
