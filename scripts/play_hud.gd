@@ -91,10 +91,10 @@ func _on_focus_exited() -> void:
 func _refresh_log() -> void:
 	if _lines.is_empty():
 		_log.text = "Chat with friends here."
-		_log.add_theme_color_override("font_color", Color(0.78, 0.86, 0.92, 0.9))
+		_log.add_theme_color_override("font_color", Color(0.55, 0.56, 0.61, 1))  # UI theme: muted on ivory
 		return
 	_log.text = "\n".join(_lines)
-	_log.add_theme_color_override("font_color", Color(0.95, 0.97, 1, 1))
+	_log.add_theme_color_override("font_color", Color(0.08, 0.15, 0.3, 1))  # UI theme: navy on ivory
 
 
 func _set_typing(active: bool) -> void:

@@ -24,11 +24,14 @@ Net="*res://scripts/net.gd"
 AssetRegistry="*res://scripts/assets/asset_registry.gd"
 Activities="*res://scripts/world/activities.gd"
 UIRouter="*res://ui/ui_router.gd"
+ActivityScreens="*res://ui/activities/activity_screens.gd"
 
 [display]
 
 window/size/viewport_width=1280
 window/size/viewport_height=720
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
 
 [filesystem]
 

@@ -10,7 +10,7 @@ func _init() -> void:
 	title_label.theme_type_variation = "Title"
 	body.add_child(UIKit.tab_bar([["Audio", "speaker"], ["Controls", "gamepad"], ["Accessibility", "accessibility"]], _show))
 	var stack := Control.new()
-	stack.custom_minimum_size = Vector2(0, 430)
+	stack.custom_minimum_size = Vector2(0, 500)
 	body.add_child(stack)
 	_pages = [_audio_page(), ControlsScreen.page(), AccessibilityScreen.page(false)]
 	for p in _pages:

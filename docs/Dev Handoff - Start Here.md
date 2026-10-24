@@ -20,3 +20,8 @@ Visual index: [Waddle World - UI Mockups](Waddle%20World%20-%20UI%20Mockups.md).
 A concept is an image/specification. An asset is an inspectable exported resource. A feature is implemented only when it runs through its complete lifecycle in the game. An online feature is verified only after two separate clients on different networks can complete it and recover from a disconnect. A green connection banner, local demo, or static model does not meet those latter definitions.
 
 Later direct user instructions take priority over old proposals. Confirmed: modular penguins, customizable houses with grid decoration, cute movement/emotes, simple UI, all requested activities, an online server on the team’s own hardware, and eventual browser access at the confirmed game domain `pengloo.party`. Proposed: provider choices, player caps, exact controls, rule numbers, deployment component layout, and public account policy. This package specifies them as decisions to resolve, not silently approved purchases or integrations.
+
+
+## Plex cinema integration update
+
+The user selected plex-watchparty as the base for the first Plex integration. See [Cinema - Plex Watchparty Integration Plan](Cinema%20-%20Plex%20Watchparty%20Integration%20Plan.md) for verified source behavior, required adaptations and implementation gates. Playback adapters and deployment remain to implement.

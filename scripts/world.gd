@@ -51,6 +51,12 @@ func _ready() -> void:
 	Net.host_lost.connect(_on_host_lost)
 	Net.chat_received.connect(_on_chat)
 	Net.home_invite.connect(_on_home_invite)
+	var arcade := preload("res://scripts/arcade_session.gd").new()
+	arcade.name = "ArcadeSession"
+	add_child(arcade)
+	var roulette := preload("res://scripts/roulette_session.gd").new()
+	roulette.name = "RouletteSession"
+	add_child(roulette)
 	_apply_launch_args()
 
 
@@ -134,7 +140,6 @@ func travel_to(location_id: String, spawn_name: String = "BusArrival", igloo_id:
 	if epoch != _epoch:
 		_traveling = false
 		return
-	_refresh_stop(room)
 	_penguin.set_travel_locked(false)
 	Net.arrive(location_id, spawn_name, false, _igloo_id)
 	_traveling = false
@@ -164,7 +169,6 @@ func shift_to_marker(marker_name: String) -> void:
 	if epoch != _epoch:
 		_traveling = false
 		return
-	_refresh_stop(room)
 	await get_tree().create_timer(0.35).timeout
 	if epoch != _epoch:
 		_traveling = false
@@ -187,7 +191,6 @@ func _ground_at(at: Vector3) -> Vector3:
 
 func _place_penguin(room: Node, spawn_name: String) -> void:
 	var arrival := room.get_node(spawn_name) as Node3D
-	var stop := room.get_node_or_null("NavigationRegion3D/BusStop") as Node3D  # interiors have no stop
 	var extra := 0.0
 	if spawn_name == "BusArrival" and Net.is_online():
 		extra = float(posmod(Net.local_id(), 4)) * 0.65
@@ -196,10 +199,7 @@ func _place_penguin(room: Node, spawn_name: String) -> void:
 	_penguin.process_mode = Node.PROCESS_MODE_INHERIT
 	_penguin.visible = true
 	_hud.set_play_visible(true)
-	if spawn_name == "BusArrival" and stop != null:
-		_penguin.face_point(stop.global_position)
-	else:
-		_penguin.rotation.y = arrival.rotation.y
+	_penguin.rotation.y = arrival.rotation.y
 	_penguin.halt()
 	_apply_camera(room, spawn_name)
 
@@ -217,12 +217,6 @@ func _apply_camera(room: Node, spawn_name: String) -> void:
 		)
 	else:
 		_camera_rig.call("set_frame", Vector3.ZERO, 7.5, 5.0)
-
-
-func _refresh_stop(room: Node) -> void:
-	var stop := room.get_node_or_null("NavigationRegion3D/BusStop")
-	if stop != null and stop.has_method("refresh_occupancy"):
-		stop.call("refresh_occupancy")
 
 
 func _enter_activity() -> void:

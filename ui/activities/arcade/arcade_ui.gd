@@ -8,7 +8,16 @@ signal intent(action: String)
 
 const A := preload("res://ui/activities/act_style.gd")
 
+var blocks_world := true
+var cabinet := ""
+var station := 0
+var slots := 1
+var versus := false
+var local_solo := false
 var phase := "lobby"          ## lobby | playing | results
+var _pad := 0.5
+var _lobby_sig := ""
+var _closing_ui := false
 var stations := [
 	{"name": "You", "status": "Ready to play!", "body": 0, "outfit": {}},
 	{"name": "", "status": "Waiting for a friend", "body": 0, "outfit": {}},
@@ -20,8 +29,78 @@ var board: PuckBoard
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	theme = UIKit.THEME
-	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	mouse_filter = Control.MOUSE_FILTER_STOP
 	_build()
+
+
+func _process(delta: float) -> void:
+	if phase != "playing" or board == null or not board.mirror or local_solo:
+		return
+	var axis := Input.get_axis("move_forward", "move_back") if InputMap.has_action("move_forward") else 0.0
+	_pad = clampf(_pad + axis * 0.9 * delta, 0.13, 0.87)
+	Net.arcade_paddle(_pad)
+
+
+func show_lobby(rows: Array) -> void:
+	if local_solo or phase != "lobby":
+		return
+	var sig := str(rows)
+	if sig == _lobby_sig:
+		return
+	_lobby_sig = sig
+	stations = rows
+	_build()
+
+
+func return_lobby() -> void:
+	local_solo = false
+	phase = "lobby"
+	_lobby_sig = ""
+	_pad = 0.5
+
+
+func start_solo() -> void:
+	_start_local()
+
+
+func begin_net() -> void:
+	local_solo = false
+	versus = true
+	phase = "playing"
+	_pad = 0.5
+	_build()
+	board.mirror = true
+	board.ai_right = false
+	board.running = false
+
+
+func apply_live(px: float, py: float, lp: float, rp: float, sa: int, sb: int) -> void:
+	if local_solo or phase == "results":
+		return
+	if phase != "playing" or board == null or not board.mirror:
+		begin_net()
+	board.apply_view(px, py, lp, rp)
+	_set_scores(sa, sb)
+	if sa >= board.target or sb >= board.target:
+		_show_results(sa, sb)
+
+
+func show_match_end(sa: int, sb: int) -> void:
+	if local_solo or phase == "results":
+		return
+	if phase != "playing":
+		begin_net()
+	_set_scores(sa, sb)
+	_show_results(sa, sb)
+
+
+func _set_scores(sa: int, sb: int) -> void:
+	if _root == null:
+		return
+	var labels := _root.find_children("Score", "Label", true, false)
+	if labels.size() >= 2:
+		(labels[0] as Label).text = str(sa)
+		(labels[1] as Label).text = str(sb)
 
 
 func set_station(i: int, data: Dictionary) -> void:
@@ -80,21 +159,32 @@ func _build_lobby() -> void:
 	var solo := A.button("Solo practice", "secondary", "gamepad", 24, Vector2(300, 74))
 	solo.pressed.connect(func() -> void: intent.emit("solo"); _start_local())
 	row.add_child(solo)
-	var two_ready: bool = str(stations[1].get("name", "")) != ""
+	var two_ready := str(stations[0].get("name", "")) != "" and str(stations[1].get("name", "")) != ""
 	var ready := A.button("Ready", "primary", "play", 32, Vector2(380, 86))
 	ready.disabled = not two_ready
 	ready.tooltip_text = "" if two_ready else "Waiting for a second player at this cabinet"
-	ready.pressed.connect(func() -> void: intent.emit("ready"))
+	ready.pressed.connect(func() -> void:
+		intent.emit("ready")
+		ready.text = "Waiting"
+		ready.disabled = true)
 	row.add_child(ready)
 	var leave := A.button("Leave", "danger", "leave", 24, Vector2(260, 74))
-	leave.pressed.connect(func() -> void: intent.emit("leave"); queue_free())
+	leave.pressed.connect(close)
 	row.add_child(leave)
 
 
 func _start_local() -> void:
+	local_solo = true
+	versus = false
+	var me: Dictionary = stations[clampi(station, 0, 1)].duplicate()
+	if str(me.get("name", "")) == "":
+		me = {"name": "You", "status": "Ready to play!", "body": 0, "outfit": {}}
+	stations[0] = me
 	stations[1] = {"name": "Computer", "status": "Practice", "body": 2, "outfit": {}}
 	phase = "playing"
+	_pad = 0.5
 	_build()
+	board.mirror = false
 	board.ai_right = true
 	board.start()
 
@@ -122,7 +212,7 @@ func _build_playing() -> void:
 	var foot := A.hbox(12)
 	v.add_child(foot)
 	var leave := A.button("Leave", "secondary", "", 22, Vector2(200, 58))
-	leave.pressed.connect(func() -> void: intent.emit("leave"); queue_free())
+	leave.pressed.connect(close)
 	foot.add_child(leave)
 	var hint := A.chip("Move up / down  ·  W / S", A.CARD, A.NAVY, "", 17)
 	foot.add_child(A.expander())
@@ -181,7 +271,8 @@ func _build_results() -> void:
 			line.add_child(A.label(str(stations[1]["name"]), 32, A.NAVY, true))
 			line.add_child(A.title(str(_final.y), 52))
 			mid.add_child(line)
-			var won := _final.x > _final.y
+			var mine := _final.x if local_solo or station == 0 else _final.y
+			var won := mine > (_final.y if local_solo or station == 0 else _final.x)
 			mid.add_child(A.label("Great game!" if won else "So close!", 20, A.NAVY, false, HORIZONTAL_ALIGNMENT_CENTER))
 			row.add_child(mid)
 		row.add_child(pv)
@@ -190,15 +281,22 @@ func _build_results() -> void:
 	var b := A.hbox(16, BoxContainer.ALIGNMENT_CENTER)
 	bar.add_child(b)
 	var again := A.button("Play again", "primary", "rotate", 28, Vector2(360, 78))
-	again.pressed.connect(func() -> void: intent.emit("play_again"); _start_local())
+	again.pressed.connect(func() -> void:
+		intent.emit("play_again")
+		if intent.get_connections().is_empty():
+			_start_local())
 	b.add_child(again)
 	var home := A.button("Back to town", "secondary", "home", 24, Vector2(330, 78))
-	home.pressed.connect(func() -> void: intent.emit("leave"); queue_free())
+	home.pressed.connect(close)
 	b.add_child(home)
 
 
 func close() -> void:
+	if _closing_ui:
+		return
+	_closing_ui = true
 	intent.emit("leave")
+	UIRouter.remove(self)
 	queue_free()
 
 

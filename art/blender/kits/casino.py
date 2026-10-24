@@ -194,7 +194,7 @@ def roulette_base(b, w=2.5, d=1.25):
     """Cream stone base with walnut plinth and coral/teal pennant panels."""
     b.box(w + 0.1, d + 0.1, 0.12, 0, 0, 0, "stone_dark", bevel=0.04)
     b.box(w, d, TABLE_Z - 0.2, 0, 0, 0.12, "stone", bevel=0.05)
-    for i, xx in enumerate((-0.8, 0.0, 0.8)):
+    for i, xx in enumerate((-1.2, 0.0, 1.2)):
         b.box(0.32, 0.03, 0.3, xx, -d / 2 - 0.015, 0.18, TRIM, bevel=0.01)
         b.prism([(-0.16, 0.3), (0.16, 0.3), (0.0, 0.05)], 0.03, xx, -d / 2 - 0.035, 0.18, "coral")
         diamond(b, xx, -d / 2 - 0.05, 0.38, 0.05)
@@ -202,26 +202,26 @@ def roulette_base(b, w=2.5, d=1.25):
 
 def roulette_table():
     b = Builder("roulette_table", seed=901)
-    w, d = 2.5, 1.25
+    w, d = 3.6, 1.3                                   # 4 seats at 1.15 m pitch (Interior Spacing Standard)
     roulette_base(b, w, d)
     top = stadium(w + 0.25, d + 0.25, 10)
     slab(b, top, TABLE_Z - 0.1, 0.06, "walnut", bevel=0.015)
     slab(b, offset(top, -0.13), TABLE_Z - 0.05, 0.05, FELT)
     rail_ring(b, offset(top, -0.04), TABLE_Z - 0.04, studs=5)
     # felt betting layout insert (authored texture), right of the wheel
-    b.box(1.45, 0.72, 0.006, 0.42, 0.0, TABLE_Z, "insert_felt", bevel=0)
-    b.socket("bet_surface", (0.42, 0.0, TABLE_Z + 0.006))
-    roulette_wheel(b, -0.78, 0.0, TABLE_Z - 0.04)
+    b.box(2.0, 0.8, 0.006, 0.55, 0.0, TABLE_Z, "insert_felt", bevel=0)
+    b.socket("bet_surface", (0.55, 0.0, TABLE_Z + 0.006))
+    roulette_wheel(b, -1.2, 0.0, TABLE_Z - 0.04)
     # brass chip rack at the back rail, table marker
-    with b.at((0.55, d / 2 + 0.02, TABLE_Z)):
+    with b.at((0.8, d / 2 + 0.02, TABLE_Z)):
         chip_rack_geo(b)
-    b.cyl(0.03, 0.02, -0.2, 0.25, TABLE_Z, BRASS, segs=8)
-    b.cyl(0.012, 0.06, -0.2, 0.25, TABLE_Z + 0.02, BRASS, segs=6)
-    b.sphere(0.02, -0.2, 0.25, TABLE_Z + 0.09, BRASS, u=6, v=4)
-    for i, sx in enumerate((-0.6, 0.0, 0.6, 1.1)):          # four stools along the front
+    b.cyl(0.03, 0.02, -0.4, 0.28, TABLE_Z, BRASS, segs=8)
+    b.cyl(0.012, 0.06, -0.4, 0.28, TABLE_Z + 0.02, BRASS, segs=6)
+    b.sphere(0.02, -0.4, 0.28, TABLE_Z + 0.09, BRASS, u=6, v=4)
+    for i, sx in enumerate((-1.74, -0.58, 0.58, 1.74)):   # four stools along the front, 1.16 m apart
         stool(b, sx, -d / 2 - 0.42)
         b.socket(f"seat_{i}", (sx, -d / 2 - 0.42, SEAT_Z), rotz=180)   # sockets face where the bird looks (+Y = table)
-    for i, (sx, sy) in enumerate(((-1.55, -0.2), (1.75, -0.3))):
+    for i, (sx, sy) in enumerate(((-2.6, -0.2), (2.6, -0.2))):
         b.socket(f"spectator_{i}", (sx, sy, 0), rotz=90 if sx < 0 else -90)
     o = b.finish(KIT, "furniture", {"game": "roulette", "seats": 4, "felt_insert": "insert_felt",
                                     "rotor_insert": "insert_rotor", "notes": "single-zero layout authored as texture"})
@@ -370,8 +370,8 @@ def pedestal(b, x, y, h, w=0.3):
 
 def poker_table():
     b = Builder("poker_table", seed=921)
-    W, D = 2.3, 1.25
-    for sx in (-0.55, 0.55):
+    W, D = 3.0, 1.7                                   # seats on a 1.95 x 1.3 m ellipse: neighbours >= 1.3 m apart
+    for sx in (-0.75, 0.75):
         pedestal(b, sx, 0, TABLE_Z - 0.1)
     top = stadium(W, D, 12)
     slab(b, top, TABLE_Z - 0.1, 0.06, "walnut", bevel=0.015)
@@ -382,13 +382,13 @@ def poker_table():
         r = math.radians(a)
         ex, ey = (W / 2 - 0.15) * math.cos(r), (D / 2 - 0.08) * math.sin(r)
         cup_holder(b, ex * 0.95, ey * 0.95, TABLE_Z + 0.06)
-        cx, cy = ex * 1.38 + math.copysign(0.0, ex), ey * 1.75
+        cx, cy = (W / 2 + 0.45) * math.cos(r), (D / 2 + 0.45) * math.sin(r)
         chair(b, cx, cy, math.degrees(math.atan2(-cy, -cx)) - 90 + 180)
         b.socket(f"seat_{i}", (cx, cy, SEAT_Z), rotz=math.degrees(math.atan2(-cx, cy)))
         b.socket(f"hand_{i}", (ex * 0.62, ey * 0.62, TABLE_Z), rotz=math.degrees(math.atan2(-ex, ey)))
         seats.append((cx, cy))
     for k in range(5):
-        b.socket(f"board_{k}", (-0.36 + k * 0.18, 0.0, TABLE_Z + 0.002))
+        b.socket(f"board_{k}", (-0.44 + k * 0.22, 0.0, TABLE_Z + 0.002))
     b.socket("pot", (0, 0.24, TABLE_Z))
     b.socket("deck", (0, -0.24, TABLE_Z))
     o = b.finish(KIT, "furniture", {"game": "poker", "seats": 6, "felt_insert": "insert_felt"})
@@ -408,12 +408,12 @@ def table_button(name, color, label):
 # --------------------------------------------------------------------- blackjack ---
 def blackjack_table():
     b = Builder("blackjack_table", seed=931)
-    R = 1.15
-    arc = half_disc(R, 18, back=0.0)
+    R = 1.5                                           # 5 seats on r = 1.9 m: chord 1.17 m apart
+    arc = half_disc(R, 20, back=0.0)
     # walnut apron with brass-studded panels around the arc
-    slab(b, half_disc(R - 0.18, 18), 0, TABLE_Z - 0.1, "walnut")
-    for k in range(9):
-        a = math.pi + math.pi * (k + 0.5) / 9
+    slab(b, half_disc(R - 0.18, 20), 0, TABLE_Z - 0.1, "walnut")
+    for k in range(11):
+        a = math.pi + math.pi * (k + 0.5) / 11
         x, y = (R - 0.16) * math.cos(a), (R - 0.16) * math.sin(a)
         with b.at((x, y, 0), rotz=math.degrees(a) + 90):
             b.box(0.3, 0.03, TABLE_Z - 0.2, 0, 0, 0.06, "walnut_b", bevel=0.01)
@@ -426,14 +426,14 @@ def blackjack_table():
     # chip tray inset, shoe and discard tray on the dealer edge
     with b.at((0, -0.14, TABLE_Z)):
         chip_rack_geo(b, 6)
-    with b.at((0.7, -0.15, TABLE_Z)):
+    with b.at((0.95, -0.15, TABLE_Z)):
         shoe_geo(b)
-    with b.at((-0.72, -0.15, TABLE_Z)):
+    with b.at((-0.95, -0.15, TABLE_Z)):
         discard_geo(b)
     b.socket("dealer_hand", (0, -0.36, TABLE_Z))
     for i in range(5):
         a = math.pi + math.pi * (i + 0.5) / 5
-        bx, by = 0.68 * math.cos(a), 0.68 * math.sin(a)
+        bx, by = 0.95 * math.cos(a), 0.95 * math.sin(a)
         cx, cy = (R + 0.4) * math.cos(a), (R + 0.4) * math.sin(a)
         cup_holder(b, (R - 0.1) * math.cos(a), (R - 0.1) * math.sin(a), TABLE_Z + 0.06)
         chair(b, cx, cy, math.degrees(math.atan2(-cy, -cx)) + 90)
@@ -617,7 +617,7 @@ def card_mat():
 CW, CD, CH = 8.4, 6.6, 2.7          # exterior footprint and wall height
 BW, BD, BH = 3.4, 0.6, 3.9          # raised entrance bay (false front carrying the marquee)
 SLAB = 0.12
-DOOR_W, DOOR_H = 1.5, 1.95
+DOOR_W, DOOR_H = 1.9, 1.95          # double doors >= 1.9 m clear (Interior Spacing Standard)
 
 
 def arch_ring(b, cx, z0, r, y, mat="stone", n=9, depth=0.1, keystone=True):
@@ -768,77 +768,85 @@ def casino_exterior():
     return house
 
 
-IW, ID, IH = 10.0, 8.0, 2.8          # interior room (separate scene; roomier than the exterior)
-SLOT_ROW_X = (1.25, 2.15, 3.05, 3.95)  # back-wall slot row, right of the carpet runner
+IW, ID, IH = 16.0, 12.0, 3.0         # interior room (separate scene): Interior Spacing Standard target
+SLOT_ROW_X = (2.6, 3.75, 4.9, 6.05)    # back-wall slot row, 1.15 m pitch, right of the main aisle
+# table anchors: 2.0 m main aisle at x in [-1, 1], 2.5 m entry zone, 1.5 m spectator bands around tables
+ANCHORS = {"roulette": (-4.5, 3.4), "poker": (-4.5, -2.4), "blackjack": (4.3, -1.4)}
 SLOT_ROW_TINTS = ("coral", "teal", "plum", "coral")
 
 
 def casino_interior_shell():
     b = Builder("casino_interior_shell", seed=981)
     b.box(IW + 0.4, ID + 0.4, SLAB, 0, 0, 0, "stone_dark", bevel=0.04)
-    planks(b, IW - 2 * T, ID - 2 * T, z=SLAB, plank=0.22, mats=("walnut", "walnut_b", "wood_dark"), along="y")
-    # red carpet runner from the door with a gold border and spade insert
-    b.box(1.5, ID - 1.2, 0.012, 0, -0.4, SLAB + 0.06, "carpet_gold", bevel=0.004)
-    b.box(1.36, ID - 1.34, 0.012, 0, -0.4, SLAB + 0.068, "carpet_red", bevel=0.004)
-    b.box(0.6, 0.6, 0.004, 0, -2.6, SLAB + 0.08, "insert_carpet", bevel=0)
-    # lounge corners, planters, plaque on the back wall
+    planks(b, IW - 2 * T, ID - 2 * T, z=SLAB, plank=0.24, mats=("walnut", "walnut_b", "wood_dark"), along="y")
+    # 2.0 m red carpet main aisle from the door to the back wall, with a gold border and spade insert
+    cl = ID - 2 * T - 0.4
+    b.box(2.0, cl, 0.012, 0, -0.2 + 0.2, SLAB + 0.06, "carpet_gold", bevel=0.004)
+    b.box(1.84, cl - 0.16, 0.012, 0, 0.0, SLAB + 0.068, "carpet_red", bevel=0.004)
+    b.box(0.8, 0.8, 0.004, 0, -3.6, SLAB + 0.08, "insert_carpet", bevel=0)
+    for side, rz in ((-1, 90), (1, -90)):
+        with b.at((side * (IW / 2 - T / 2), 0, SLAB), rotz=rz):
+            wins = [(-3.2, 0.9, 1.0, 2.0), (0.4, 0.9, 1.0, 2.0), (3.6, 0.9, 1.0, 2.0)]
+            masonry_wall(b, ID - 2 * T, IH, openings=wins, cap=TRIM)
+            for cx, w, zb, zt in wins:
+                window_unit(b, cx, zb, w=w, h=zt - zb)
+            b.box(ID - 2 * T, 0.03, 0.9, 0, -T / 2 - 0.015, 0.0, "walnut", bevel=0.01)          # wainscot
+            for cx in (-4.8, -1.4, 2.0, 5.2):
+                wall_lantern(b, cx, -T / 2, 2.0)
+    with b.at((0, ID / 2 - T / 2, SLAB), rotz=180):
+        masonry_wall(b, IW, IH, quoins=(True, True), cap=TRIM)
+        b.box(IW - 0.4, 0.03, 0.9, 0, -T / 2 - 0.015, 0.0, "walnut", bevel=0.01)
+        for cx in (-6.6, -2.2, 2.2, 6.6):
+            wall_lantern(b, cx, -T / 2, 2.0)
+    # low front lip (cutaway) with a 2.0 m entrance gap
+    for sgn in (-1, 1):
+        b.box(IW / 2 - 1.0, T, 0.45, sgn * (IW / 4 + 0.5), -ID / 2 + T / 2, SLAB, WALL_T, bevel=0.02)
+        b.box(0.35, T + 0.1, 0.9, sgn * 1.18, -ID / 2 + T / 2, SLAB, "stone", bevel=0.03)
+    # lounge corners (front), planters on the side walls and back corners, plaque on the back wall
     for sx in (-1, 1):
-        with b.at((sx * 4.2, -3.3, SLAB), rotz=180 + sx * 30):
+        with b.at((sx * 6.5, -4.6, SLAB), rotz=180 + sx * 30):
             b.box(0.86, 0.78, 0.1, 0, 0, 0.04, "walnut", bevel=0.03)
             b.box(0.66, 0.64, 0.16, 0, -0.02, 0.14, CUSH, bevel=0.06)
             b.box(0.86, 0.2, 0.62, 0, 0.29, 0.14, CUSH, bevel=0.07)
             for ax in (-1, 1):
                 b.box(0.17, 0.78, 0.42, ax * 0.35, 0, 0.14, CUSH, bevel=0.06)
-        b.cyl(0.23, 0.05, sx * 3.2, -3.5, SLAB + 0.44, "walnut", segs=14, bevel=0.012)
-        b.cyl(0.04, 0.44, sx * 3.2, -3.5, SLAB, "walnut", segs=8)
-        for (px, py) in ((sx * (IW / 2 - 0.55), 2.2), (sx * (IW / 2 - 0.55), -0.3)):   # side walls: back wall holds the slot row
+        b.cyl(0.23, 0.05, sx * 5.3, -4.9, SLAB + 0.44, "walnut", segs=14, bevel=0.012)
+        b.cyl(0.04, 0.44, sx * 5.3, -4.9, SLAB, "walnut", segs=8)
+        for (px, py) in ((sx * (IW / 2 - 0.6), ID / 2 - 0.6), (sx * (IW / 2 - 0.6), 1.0)):
             b.cyl(0.26, 0.38, px, py, SLAB, "stone", segs=8, bevel=0.03)
             b.cyl(0.27, 0.06, px, py, SLAB + 0.17, TRIM, segs=8, bevel=0.01)
             for k in range(6):
-                a = 2 * math.pi * k / 6
-                b.blob(0.09, 0.3, 0.05, px + math.cos(a) * 0.13, py + math.sin(a) * 0.13, SLAB + 0.6,
-                       pick(("leaf", "leaf_b", "leaf_dark"), k), subdiv=1, rot=(40, 0, math.degrees(a) + 90))
-    hexa = [(-0.26, 0.0), (-0.26, 0.48), (0.0, 0.66), (0.26, 0.48), (0.26, 0.0), (0.0, -0.18)]
-    b.prism(hexa, 0.05, 0, ID / 2 - T - 0.03, SLAB + 1.45, BRASS, bevel=0.01)
-    b.prism([(x * 0.84, z * 0.84 + 0.05) for x, z in hexa], 0.02, 0, ID / 2 - T - 0.06, SLAB + 1.45, "insert_suits")
-    for side, rz in ((-1, 90), (1, -90)):
-        with b.at((side * (IW / 2 - T / 2), 0, SLAB), rotz=rz):
-            masonry_wall(b, ID - 2 * T, IH, openings=[(-1.6, 0.8, 1.0, 1.9), (1.6, 0.8, 1.0, 1.9)], cap=TRIM)
-            for cx in (-1.6, 1.6):
-                window_unit(b, cx, 1.0, w=0.8, h=0.9)
-            b.box(ID - 2 * T, 0.03, 0.9, 0, -T / 2 - 0.015, 0.0, "walnut", bevel=0.01)          # wainscot
-            for cx in (-3.0, 0.0, 3.0):
-                wall_lantern(b, cx, -T / 2, 1.8)
-    with b.at((0, ID / 2 - T / 2, SLAB), rotz=180):
-        masonry_wall(b, IW, IH, quoins=(True, True), cap=TRIM)
-        b.box(IW - 0.4, 0.03, 0.9, 0, -T / 2 - 0.015, 0.0, "walnut", bevel=0.01)
-        for cx in (-3.6, 3.6):
-            wall_lantern(b, cx, -T / 2, 1.8)
-    # low front lip (cutaway) with the entrance gap
-    for s in (-1, 1):
-        b.box(IW / 2 - 1.0, T, 0.45, s * (IW / 4 + 0.5), -ID / 2 + T / 2, SLAB, WALL_T, bevel=0.02)
-    for s in (-1, 1):
-        b.box(0.35, T + 0.1, 0.9, s * 0.95, -ID / 2 + T / 2, SLAB, "stone", bevel=0.03)
-    o = b.finish(KIT, "building", {"footprint_m": [IW, ID], "floor_z": SLAB, "ceiling_child": "casino_interior_shell_ceiling",
-                                   "layout_sockets": "roulette, poker, blackjack, slots_0..3 (+ slot_stool_0..3), lounge_*",
-                                   "slot_row": {f"slots_{i}": {"asset": "casino/slot_machine", "tint": {"body": SLOT_VARIANTS[t]},
-                                                                "stool": f"slot_stool_{i}"} for i, t in enumerate(SLOT_ROW_TINTS)}})
+                a2 = 2 * math.pi * k / 6
+                b.blob(0.09, 0.3, 0.05, px + math.cos(a2) * 0.13, py + math.sin(a2) * 0.13, SLAB + 0.6,
+                       pick(("leaf", "leaf_b", "leaf_dark"), k), subdiv=1, rot=(40, 0, math.degrees(a2) + 90))
+    hexa = [(-0.3, 0.0), (-0.3, 0.55), (0.0, 0.76), (0.3, 0.55), (0.3, 0.0), (0.0, -0.21)]
+    b.prism(hexa, 0.05, 0, ID / 2 - T - 0.03, SLAB + 1.6, BRASS, bevel=0.01)
+    b.prism([(x * 0.84, z * 0.84 + 0.05) for x, z in hexa], 0.02, 0, ID / 2 - T - 0.06, SLAB + 1.6, "insert_suits")
+    o = b.finish(KIT, "building", {
+        "footprint_m": [IW, ID], "floor_z": SLAB, "ceiling_child": "casino_interior_shell_ceiling",
+        "spacing": "Art Docs/Interior Spacing Standard.md: seats >= 1.15 m apart, 2.0 m main aisle, 2.5 m entry zone, "
+                   "1.5 m spectator bands, 1.4 m slot standing zones",
+        "layout_sockets": "roulette, poker, blackjack, slots_0..3 (+ slot_stool_0..3), lounge_*, entry_zone",
+        "slot_row": {f"slots_{i}": {"asset": "casino/slot_machine", "tint": {"body": SLOT_VARIANTS[t]},
+                                     "stool": f"slot_stool_{i}"} for i, t in enumerate(SLOT_ROW_TINTS)}})
     c = Builder("casino_interior_shell_ceiling", seed=982)
-    for k in range(9):
-        c.box(0.16, ID, 0.18, -IW / 2 + 0.6 + k * (IW - 1.2) / 8, 0, SLAB + IH - 0.18, "walnut", bevel=0.02)
+    for k in range(13):
+        c.box(0.16, ID, 0.18, -IW / 2 + 0.6 + k * (IW - 1.2) / 12, 0, SLAB + IH - 0.18, "walnut", bevel=0.02)
     c.box(IW, ID, 0.06, 0, 0, SLAB + IH, "wood_c", bevel=0.01)
-    for (x, y) in ((-2.6, 1.6), (2.6, 1.6), (-2.6, -1.6), (2.6, -1.6), (0, 0)):
-        c.cyl(0.01, 0.55, x, y, SLAB + IH - 0.55, BRASS, segs=6)
-        c.cyl(0.32, 0.12, x, y, SLAB + IH - 0.7, BRASS, segs=12, r2=0.38)
-        c.cyl(0.26, 0.05, x, y, SLAB + IH - 0.72, "glow", segs=12)
-        c.cyl(0.3, 0.06, x, y, SLAB + IH - 0.62, TRIM, segs=12)
+    lamps = [(ax, ay + 0.8) for ax, ay in ANCHORS.values()] + [(0, 2.5), (0, -2.5), (4.3, 4.6)]
+    for (x, y) in lamps:
+        c.cyl(0.01, 0.7, x, y, SLAB + IH - 0.7, BRASS, segs=6)
+        c.cyl(0.32, 0.12, x, y, SLAB + IH - 0.85, BRASS, segs=12, r2=0.38)
+        c.cyl(0.26, 0.05, x, y, SLAB + IH - 0.87, "glow", segs=12)
+        c.cyl(0.3, 0.06, x, y, SLAB + IH - 0.77, TRIM, segs=12)
     ceil = c.finish(KIT, "roof", {"visibility_group": "roof"})
     attach(ceil, o)
-    socks = {"spawn_inside": (0, -ID / 2 + 0.9, SLAB), "exit": (0, -ID / 2 + 0.3, SLAB),
-             "roulette": (-2.6, 1.9, SLAB), "poker": (-2.3, -1.4, SLAB), "blackjack": (2.5, -0.5, SLAB),
-             **{f"slots_{i}": (x, ID / 2 - 0.62, SLAB) for i, x in enumerate(SLOT_ROW_X)},
-             **{f"slot_stool_{i}": (x, ID / 2 - 1.32, SLAB) for i, x in enumerate(SLOT_ROW_X)},
-             "lounge_0": (-4.2, -3.3, SLAB), "lounge_1": (4.2, -3.3, SLAB)}
+    sy = ID / 2 - T - 0.06 - 0.28                     # slot backs against the wall
+    socks = {"spawn_inside": (0, -ID / 2 + 1.4, SLAB), "exit": (0, -ID / 2 + 0.3, SLAB), "entry_zone": (0, -ID / 2 + 1.5, SLAB),
+             **{k: (x, y, SLAB) for k, (x, y) in ANCHORS.items()},
+             **{f"slots_{i}": (x, sy, SLAB) for i, x in enumerate(SLOT_ROW_X)},
+             **{f"slot_stool_{i}": (x, sy - 0.7, SLAB) for i, x in enumerate(SLOT_ROW_X)},
+             "lounge_0": (-6.5, -4.6, SLAB), "lounge_1": (6.5, -4.6, SLAB)}
     for nm, p in socks.items():
         add_socket(o, nm, p, 0)                       # slot machines face -Y (into the room) at yaw 0
     planar_uv(o)

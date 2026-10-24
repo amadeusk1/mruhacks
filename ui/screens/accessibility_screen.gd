@@ -40,6 +40,12 @@ static func page(compact: bool) -> Control:
 		func(on: bool) -> void: UIRouter.set_setting("reduce_motion", on), "", "" if compact else "Limit camera and UI animations."))
 	col.add_child(UIKit.toggle_row("eye" if compact else "", "High contrast", bool(UIRouter.settings["high_contrast"]),
 		func(on: bool) -> void: UIRouter.set_setting("high_contrast", on), "", "" if compact else "Increase contrast for better visibility."))
+	var full_row := UIKit.toggle_row("frame" if compact else "", "Full screen", bool(UIRouter.settings.get("fullscreen", false)),
+		func(on: bool) -> void: UIRouter.set_setting("fullscreen", on), "", "" if compact else "Fills the monitor. F11 switches it.")
+	var full_toggle := full_row.get_child(full_row.get_child_count() - 1) as CheckButton
+	if full_toggle:
+		full_toggle.set_meta("fullscreen_toggle", true)
+	col.add_child(full_row)
 	if not compact:
 		var scale_row := UIKit.hbox(14)
 		scale_row.add_child(UIKit.label("UI scale", "Strong"))

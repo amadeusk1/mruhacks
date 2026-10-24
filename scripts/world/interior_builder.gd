@@ -12,7 +12,7 @@ const ROOMS := {
 		"shell": "cafe/cafe_interior_shell",
 		"town_spawn": "CafeDoorOut",
 		"floor_y": 0.1,
-		"spawn": [0.2, 0.0, 1.35], "exit": [0.2, 0.0, 2.45],
+		"spawn": "socket_spawn_inside", "exit": "socket_exit",
 		"props": [
 			["cafe/cafe_counter", "socket_counter", 0.0],
 			["cafe/coffee_station", "socket_coffee_station", 0.0],
@@ -20,12 +20,14 @@ const ROOMS := {
 			["cafe/wall_shelf", "socket_wall_shelf", 0.0],
 			["plaza/round_table", "socket_table_0", 0.0],
 			["plaza/round_table", "socket_table_1", 0.0],
-			["cafe/pastry_case", [0.3, 1.05, -0.35], 0.0],
-			["cafe/mug_set", [1.25, 1.03, -0.35], 0.0],
-			["cafe/tray_breakfast_preset_preview", [-1.3, 0.7, -0.55], 15.0],
+			["plaza/round_table", "socket_table_2", 0.0],
+			["cafe/pastry_case", "socket_pastry_case", 0.0],
+			["cafe/mug_set", "socket_mug_set", 0.0],
+			["cafe/tray_breakfast_preset_preview", "socket_table_0_top", 15.0],
 		],
-		"games": [["socket_table_0", "plaza/stool", "", "stool"], ["socket_table_1", "plaza/stool", "", "stool"]],
-		"camera": {"limit_x": 1.4, "limit_z": 1.2, "height": 6.6, "distance": 5.4},
+		# seats authored in the shell to the Interior Spacing Standard: socket_<anchor>_seat_<k> faces socket_<anchor>
+		"shell_seats": ["plaza/stool", "stool"],
+		"camera": {"limit_x": 3.0, "limit_z": 2.4, "height": 9.0, "distance": 7.4},
 	},
 	"casino": {
 		"shell": "casino/casino_interior_shell",
@@ -55,28 +57,29 @@ const ROOMS := {
 		"camera": {"limit_x": 3.4, "limit_z": 2.4, "height": 9.5, "distance": 7.8},
 	},
 	"arcade": {
-		"shell": "arcade/arcade_shell",
+		"shell": "arcade/arcade_shell",  # 12 x 9 m floor; front wall is the hideable arcade_shell_cutaway
 		"town_spawn": "ArcadeDoorOut",
 		"floor_y": 0.02,
-		"spawn": [0.0, 0.0, 1.7], "exit": [0.0, 0.0, 3.2],
-		"cut_front": 1.0,  # the shell has no *_cutaway child: trim its front wall at load
+		"spawn": "socket_door_inside", "exit": [0.0, 0.0, 4.7],
 		"props": [
-			["arcade/arcade_cabinet", "socket_cabinet_0", 0.0],
-			["arcade/arcade_cabinet", "socket_cabinet_1", 0.0],
-			["arcade/arcade_cabinet_duo", "socket_cabinet_3", 0.0],
-			["arcade/arcade_cabinet", "socket_cabinet_5", 0.0],
-			["arcade/arcade_cabinet", "socket_cabinet_6", 0.0],
+			["arcade/arcade_cabinet", "socket_cabinet_solo_0", 0.0],
+			["arcade/arcade_cabinet", "socket_cabinet_solo_1", 0.0],
+			["arcade/arcade_cabinet", "socket_cabinet_solo_2", 0.0],
+			["arcade/arcade_cabinet", "socket_cabinet_solo_3", 0.0],
+			["arcade/arcade_cabinet", "socket_cabinet_solo_4", 0.0],
+			["arcade/arcade_cabinet_duo", "socket_cabinet_duo", 0.0],
 			["arcade/token_machine", "socket_token_machine", -90.0],
-			["arcade/arcade_rug", [0.0, 0.035, 0.4], 0.0],
-			["arcade/arcade_bench", [-2.4, 0.0, 1.1], 90.0],
-			["arcade/arcade_stool", [-1.6, 0.0, -0.9], 0.0],
+			["arcade/arcade_rug", [0.0, 0.07, 0.11], 0.0],
+			["arcade/arcade_bench", "socket_bench_0", 90.0],
 		],
-		"games": [["socket_cabinet_0", "", "arcade", "arcade", "socket_player"], ["socket_cabinet_1", "", "arcade", "arcade", "socket_player"],
-			["socket_cabinet_3", "", "arcade", "arcade", "socket_player"], ["socket_cabinet_5", "", "arcade", "arcade", "socket_player"],
-			["socket_cabinet_6", "", "arcade", "arcade", "socket_player"]],
-		"tints": {"socket_cabinet_0": {"body": "#7B4FC4"}, "socket_cabinet_1": {"body": "#207D85"},
-			"socket_cabinet_5": {"body": "#D9473B"}, "socket_cabinet_6": {"body": "#F2C230"}},
-		"camera": {"limit_x": 2.2, "limit_z": 1.6, "height": 8.0, "distance": 6.6},
+		"games": [["socket_cabinet_solo_0", "", "pac", "arcade", "socket_player"], ["socket_cabinet_solo_1", "", "tetris", "arcade", "socket_player"],
+			["socket_cabinet_solo_2", "", "dino", "arcade", "socket_player"], ["socket_cabinet_solo_3", "", "tetris", "arcade", "socket_player"],
+			["socket_cabinet_solo_4", "", "pac", "arcade", "socket_player"], ["socket_cabinet_duo", "", "arcade", "arcade", "socket_player"]],
+		"tints": {"socket_cabinet_solo_0": {"body": "#7B4FC4"}, "socket_cabinet_solo_1": {"body": "#3FB3B5"},
+			"socket_cabinet_solo_2": {"body": "#D9473B"}, "socket_cabinet_solo_3": {"body": "#E3A92B"},
+			"socket_cabinet_solo_4": {"body": "#3D7BD9"}},
+		"lights": [[-3.2, 2.4, -2.6], [1.6, 2.4, -2.6], [0.0, 2.6, 1.6]],
+		"camera": {"limit_x": 3.0, "limit_z": 2.2, "height": 9.0, "distance": 7.4},
 	},
 }
 
@@ -97,13 +100,16 @@ func _enter_tree() -> void:
 	WalkSurface.build(shell, nav, shell.position.y - 0.3, "ShellWalk")  # raised floors, steps
 	if _cfg.has("cut_front"):
 		_cut_front(shell, size.z * 0.5 - float(_cfg["cut_front"]))
+	var inner = AssetRegistry.entry(shell_id).get("interior_m", null)  # floor size; the bbox includes plinth and awning
+	var room := Vector3(float(inner[0]), size.y, float(inner[1])) if inner is Array else size
+	var pad := 0.1 if inner is Array else 0.0  # interior_m walls sit just outside the floor
 	var y: float = _cfg["floor_y"]
-	_box(nav, Vector3(0, y - 0.05, 0), Vector3(size.x, 0.1, size.z), 1)
+	_box(nav, Vector3(0, y - 0.05, 0), Vector3(room.x, 0.1, room.z), 1)
 	var sockets: Dictionary = AssetRegistry.sockets(shell_id)
 	var exit := _point(sockets, _cfg["exit"])
 	for side in [-1, 1]:  # side and back walls (layer 2 carves the navmesh); the front stays open
-		_box(nav, Vector3(side * size.x * 0.5, 1.0, 0), Vector3(0.2, 2.0, size.z), 2)
-	_box(nav, Vector3(0, 1.0, -size.z * 0.5), Vector3(size.x, 2.0, 0.2), 2)
+		_box(nav, Vector3(side * (room.x * 0.5 + pad), 1.0, 0), Vector3(0.2, 2.0, room.z), 2)
+	_box(nav, Vector3(0, 1.0, -(room.z * 0.5 + pad)), Vector3(room.x, 2.0, 0.2), 2)
 	var placed := {}
 	for p in _cfg["props"]:
 		var at := _socket(sockets, p[1]) if p[1] is String else _v(p[1])
@@ -118,6 +124,8 @@ func _enter_tree() -> void:
 	for g in _cfg.get("games", []):
 		if placed.has(g[0]):
 			_seats(nav, placed[g[0]], g)
+	if _cfg.has("shell_seats"):
+		_shell_seats(nav, sockets, _cfg["shell_seats"])
 	for l in _cfg.get("lights", []):
 		var light := OmniLight3D.new()  # warm lamp pools
 		light.light_color = Color("#FFC76B")
@@ -217,7 +225,30 @@ func _seats(nav: Node, table: Array, g: Array) -> void:
 		var yaw := atan2(away.x, away.y) if away.length() > 0.05 else deg_to_rad(table[3])  # forward -Z faces the table
 		if seat_id != "":
 			AssetPack.place(nav, seat_id.get_base_dir(), seat_id.get_file(), floor_pos, yaw)
-		_make_seat("%s_%s" % [t_node.name, String(sname).trim_prefix("socket_")], floor_pos, yaw, seat_h, g[3], g[2])
+		var seat := _make_seat("%s_%s" % [t_node.name, String(sname).trim_prefix("socket_")], floor_pos, yaw, seat_h, g[3], g[2])
+		seat.set_meta("table", t_node)
+		var screen_sockets := AssetRegistry.sockets(table[1])
+		if screen_sockets.has("socket_screen"):
+			seat.set_meta("screen_local", _socket(screen_sockets, "socket_screen"))
+
+
+## Seats authored in the shell: a seat prop plus a SeatSpot at every socket_<anchor>_seat_<k>,
+## facing socket_<anchor>. spec: [seat prop, kit].
+func _shell_seats(nav: Node, sockets: Dictionary, spec: Array) -> void:
+	var seat_id: String = spec[0]
+	var ss: Dictionary = AssetRegistry.sockets(seat_id)
+	var seat_h := float((ss.get("socket_seat", [0, 0, 0.43]) as Array)[2])
+	for sname in sockets:
+		var n := String(sname)
+		if not n.contains("_seat_"):
+			continue
+		var floor_pos := _socket(sockets, n)
+		var anchor := n.get_slice("_seat_", 0)
+		var at := _socket(sockets, anchor) if sockets.has(anchor) else floor_pos + Vector3(0, 0, -1)
+		var away := Vector2(floor_pos.x - at.x, floor_pos.z - at.z)
+		var yaw := atan2(away.x, away.y)  # forward -Z faces the anchor
+		AssetPack.place(nav, seat_id.get_base_dir(), seat_id.get_file(), floor_pos, yaw)
+		_make_seat(n.trim_prefix("socket_"), floor_pos, yaw, seat_h, spec[1], "")
 
 
 func _make_seat(seat_name: String, floor_pos: Vector3, yaw: float, seat_h: float, kit: String, game: String) -> SeatSpot:
@@ -225,7 +256,7 @@ func _make_seat(seat_name: String, floor_pos: Vector3, yaw: float, seat_h: float
 	seat.name = seat_name
 	seat.kit = kit
 	seat.activity = game
-	seat.title = game.capitalize() if game != "" else ""
+	seat.title = {"pac": "Pac-Man", "tetris": "Tetris", "dino": "Dino Run", "arcade": "Puck Rally"}.get(game, game.capitalize() if game != "" else "")
 	seat.verb = "Play" if game != "" else "Sit"
 	seat.position = floor_pos
 	add_child(seat)

@@ -6,9 +6,14 @@ from kits.cinema import (stanchion, velvet_rope, poster_frame, potted_plant, BUL
 
 KIT = "cinema_lobby"
 PREVIEW_WIDTH = 13.0
-LW, LD, LH = 8.0, 6.0, 2.9      # lobby interior footprint and wall height
+# Sizes follow Art Docs/Interior Spacing Standard (seats >= 1.15 m apart, 2.0 m double doors).
+LW, LD, LH = 12.0, 10.0, 3.6    # lobby interior footprint and wall height
 FZ = 0.06                       # floor surface height
-DOOR_TOP = 2.45                 # lintel height of the screen-door wall opening
+SD_R = 1.17                     # screen-door arch radius: leaves open to a 2.0 m clear width
+SD_RECT = 1.7                    # screen-door leaf height (arch springs here)
+DOOR_TOP = SD_RECT + SD_R + 0.38 # lintel height of the screen-door wall opening
+ENTRANCE = 2.4                   # front entrance gap
+SOFA_PITCH = 1.15
 
 
 # ------------------------------------------------------------------ furniture
@@ -119,20 +124,22 @@ def lobby_poster(b, x=0, y=0, z=0, insert="insert_poster"):
     b.cyl(0.07, 0.02, x, y - 0.24, z + 1.19, "glow", segs=6)
 
 
-def sofa(b, x=0, y=0, z=0, seats=2, mats=(UPHOLSTERY, UPHOLSTERY), sock=True):
-    w = 0.66 * seats + 0.3
+def sofa(b, x=0, y=0, z=0, seats=2, mats=(UPHOLSTERY, UPHOLSTERY), sock=True, pitch=SOFA_PITCH):
+    """Lounge sofa or armchair (seats=1). Seat centres sit `pitch` apart."""
+    w = pitch * (seats - 1) + 0.96
+    cw = (w - 0.36) / seats - 0.02          # cushions fit between the arms
     with b.at((x, y, z)):
         for sx in (-1, 1):
             for sy in (-1, 1):
                 b.box(0.08, 0.08, 0.08, sx * (w / 2 - 0.1), sy * 0.26, 0, "wood_dark", bevel=0.01)
         b.box(w, 0.68, 0.18, 0, 0, 0.08, "wood_dark", bevel=0.04)
         for i in range(seats):
-            b.box(0.64, 0.56, 0.14, -0.33 * (seats - 1) + 0.66 * i, -0.04, 0.25, mats[0], bevel=0.05)
+            b.box(cw, 0.56, 0.14, -pitch / 2 * (seats - 1) + pitch * i, -0.04, 0.25, mats[0], bevel=0.05)
         b.box(w - 0.04, 0.22, 0.5, 0, 0.24, 0.24, mats[0], bevel=0.06)
         for sx in (-1, 1):
             b.box(0.18, 0.66, 0.42, sx * (w / 2 - 0.09), 0, 0.2, mats[0], bevel=0.06)
         for i in range(seats if sock else 0):
-            b.socket(f"seat_{i}", (-0.33 * (seats - 1) + 0.66 * i, -0.05, 0.39), 0)
+            b.socket(f"seat_{i}", (-pitch / 2 * (seats - 1) + pitch * i, -0.05, 0.39), 0)
 
 
 def round_table(b, x=0, y=0, z=0, lantern=True):
@@ -170,14 +177,15 @@ def arch_points(cx, cz, r, a0=0, a1=180, n=10):
 def screen_doors(b, x=0, y=0, z=0, rotz=0, sock=True, fill_to=DOOR_TOP, fill_mat="plaster"):
     """Arched teal double doors in a stone surround with a SCREEN sign (insert) in the arch.
     Back of the surround at y; faces -Y. Door sill at z."""
-    dw, rect = 1.3, 1.4
-    r = dw / 2
+    r, rect = SD_R, SD_RECT
+    dw = 2 * r
     with b.at((x, y, z), rotz=rotz):
         # stone surround: block jambs and voussoir arch
         for sx in (-1, 1):
-            for i, (zz, hh) in enumerate(((0, 0.5), (0.5, 0.48), (0.98, 0.42))):
+            for i in range(4):
+                zz, hh = rect * i / 4, rect / 4
                 b.box(0.3, 0.3, hh - 0.015, sx * (r + 0.15), -0.15, zz, pick(STONE, i + (sx > 0)), bevel=0.03)
-        k = 7
+        k = 9
         for i in range(k):
             a0, a1 = 180 * i / k, 180 * (i + 1) / k
             ri, ro = r, r + 0.3
@@ -188,7 +196,7 @@ def screen_doors(b, x=0, y=0, z=0, rotz=0, sock=True, fill_to=DOOR_TOP, fill_mat
             b.prism(pts, 0.3, y=-0.15, z=rect, mat=pick(STONE, i), bevel=0.02)
         b.box(0.36, 0.34, 0.12, 0, -0.16, rect + r + 0.22, "stone_dark", bevel=0.03)
         # spandrels: wall-flush fill between the arch ring and the rectangular wall opening
-        # (1.9 m wide, up to fill_to), notched around the keystone, so no corner gaps show
+        # (2 * (r + 0.3) wide, up to fill_to), notched around the keystone, so no corner gaps show
         ro, kx, ktop = r + 0.3, 0.18, rect + r + 0.34
         ka = math.degrees(math.acos(kx / ro))
         for sx in (-1, 1):
@@ -206,14 +214,14 @@ def screen_doors(b, x=0, y=0, z=0, rotz=0, sock=True, fill_to=DOOR_TOP, fill_mat
             with b.part(f"door_{'l' if sx < 0 else 'r'}", pivot=(sx * (r - 0.12), -0.14, 0),
                         motion="hinge", axis="z", open_deg=-90 * sx):
                 b.box(r - 0.08, 0.1, rect - 0.06, sx * (0.01 + (r - 0.08) / 2), -0.14, 0.01, DOOR, bevel=0.01)
-                b.torus(0.15, 0.03, sx * 0.33, -0.2, 1.0, "brass", segs=14, ring=6, rot=(90, 0, 0))
-                b.cyl(0.13, 0.03, sx * 0.33, -0.19, 1.0, "glow_window", segs=14, rot=(90, 0, 0), center=True)
-                b.box(0.04, 0.05, 0.36, sx * 0.08, -0.22, 0.6, "brass", bevel=0.01)
+                b.torus(0.17, 0.035, sx * r * 0.5, -0.2, 1.15, "brass", segs=14, ring=6, rot=(90, 0, 0))
+                b.cyl(0.15, 0.03, sx * r * 0.5, -0.19, 1.15, "glow_window", segs=14, rot=(90, 0, 0), center=True)
+                b.box(0.04, 0.05, 0.4, sx * 0.1, -0.22, 0.6, "brass", bevel=0.01)
                 b.box(r - 0.16, 0.03, 0.16, sx * (r / 2 - 0.02), -0.2, 0.05, "brass", bevel=0.008)
                 if sx > 0:
                     b.box(0.07, 0.03, rect - 0.08, 0.0, -0.205, 0.02, DOOR, bevel=0.008)   # astragal covers the centre seam
         # SCREEN sign plate in the arch
-        sign = arch_points(0, rect + 0.06, r - 0.14, 0, 180, 10)
+        sign = arch_points(0, rect + 0.06, r - 0.2, 0, 180, 12)
         b.prism(sign, 0.04, y=-0.21, mat="insert_sign", bevel=0.005)
         if sock:
             b.socket("door", (0, -0.7, 0), 180 + rotz)
@@ -259,7 +267,7 @@ def stone_pier(b, x, y, h=LH, w=0.46, cap=True):
         b.box(w + 0.1, w + 0.1, 0.16, x, y, h, "stone_dark", bevel=0.04)
 
 
-def lobby_shell(b, door_y=1.6, door_w=1.3):
+def lobby_shell(b, door_y=2.0):
     """Cutaway lobby room: tiled floor, plaster walls on back/left/right with stone piers,
     low front wall with entrance gap, opening in the right wall for the screen doors."""
     t = 0.3
@@ -278,7 +286,7 @@ def lobby_shell(b, door_y=1.6, door_w=1.3):
     b.box(t, LD, 0.55, -LW / 2 - t / 2, 0, 0, "plaster", bevel=0.03)
     b.box(t + 0.08, LD, 0.1, -LW / 2 - t / 2, 0, 0.55, "stone_dark", bevel=0.03)
     # right wall with the screen-door opening
-    y0, y1 = door_y - door_w / 2 - 0.3, door_y + door_w / 2 + 0.3
+    y0, y1 = door_y - SD_R - 0.3, door_y + SD_R + 0.3   # matches the stone surround exactly
     for a, c in ((-LD / 2, y0), (y1, LD / 2)):
         b.box(t, c - a, LH, LW / 2 + t / 2, (a + c) / 2, 0, "plaster", bevel=0.03)
         b.box(0.06, c - a, 0.22, LW / 2 - 0.03, (a + c) / 2, FZ, "stone_dark", bevel=0.01)
@@ -286,7 +294,7 @@ def lobby_shell(b, door_y=1.6, door_w=1.3):
     b.box(t, y1 - y0, FZ - 0.03, LW / 2 + t / 2, door_y, 0.03, "stone_dark", bevel=0.005)   # threshold under the doors
     b.box(t + 0.08, LD, 0.14, LW / 2 + t / 2, 0, LH, "stone_dark", bevel=0.03)
     # low front wall with an entrance gap
-    gap = 1.8
+    gap = ENTRANCE
     for sx in (-1, 1):
         L = LW / 2 - gap / 2
         b.box(L, t, 0.55, sx * (gap / 2 + L / 2), -LD / 2 - t / 2, 0, "plaster", bevel=0.03)
@@ -295,7 +303,7 @@ def lobby_shell(b, door_y=1.6, door_w=1.3):
     # stone piers at corners and along the walls
     for px, py, h in ((-LW / 2 - 0.1, LD / 2 + 0.1, LH), (LW / 2 + 0.1, LD / 2 + 0.1, LH),
                       (-LW / 2 - 0.1, -LD / 2 - 0.1, 1.0), (LW / 2 + 0.1, -LD / 2 - 0.1, 1.0),
-                      (-1.05, LD / 2 + 0.1, LH), (-LW / 2 - 0.1, 0.0, 0.9), (LW / 2 + 0.1, -0.7, LH)):
+                      (-1.6, LD / 2 + 0.1, LH), (-LW / 2 - 0.1, 0.0, 0.9), (LW / 2 + 0.1, -1.6, LH)):
         stone_pier(b, px, py, h=h)
     b.socket("entrance", (0, -LD / 2 - 0.6, 0), 180)
     b.socket("screen_door", (LW / 2 - 0.6, door_y, FZ), 90)
@@ -367,37 +375,42 @@ def build():
     # ---- assembled lobby -----------------------------------------------------
     b = Builder("cinema_lobby")
     lobby_shell(b)
+    dy = 2.0                                        # screen-door centre on the right wall
     with b.at((0, 0, FZ)):
-        concession_counter(b, -2.35, 1.72, sock=False)
-        for i, x in enumerate((-0.35, 0.55, 1.45, 2.35)):
+        concession_counter(b, -3.4, 3.65, sock=False)
+        for i, x in enumerate((-0.4, 0.8, 2.0, 3.2)):
             lobby_poster(b, x, LD / 2, 0.95, insert="insert_poster" if i % 2 == 0 else "insert_poster_b")
-        wall_banner(b, 3.3, LD / 2, 1.35)
-        movie_kiosk(b, 1.0, 1.75, sock=False)
-        screen_doors(b, LW / 2 + 0.3, 1.6, 0, rotz=-90, sock=False)
-        carpet(b, 3.5, 2.0, 2.1, -0.65, 0)
-        carpet(b, 1.0, 1.9, 3.45, 1.3, 0)
-        for x0, x1 in ((-1.05, -0.05), (-0.05, 0.95)):
-            velvet_rope(b, (x0, 0.55, 0.52), (x1, 0.55, 0.52), sag=0.1)
-        for x in (-1.05, -0.05, 0.95):
-            stanchion(b, x, 0.55, 0)
-        round_table(b, -1.9, -1.75, 0)
-        with b.at((-2.8, -1.75, 0), rotz=90):
+        wall_banner(b, 4.6, LD / 2, 1.5)
+        movie_kiosk(b, 1.2, 3.3, sock=False)
+        screen_doors(b, LW / 2 + 0.3, dy, 0, rotz=-90, sock=False)
+        carpet(b, 4.2, 3.0, 2.7, -0.9, 0)
+        carpet(b, 1.7, 2.3, 5.05, 1.75, 0)
+        # queue line in front of the kiosk: posts 1.4 m apart
+        posts = (-1.2, 0.2, 1.6)
+        for x0, x1 in zip(posts, posts[1:]):
+            velvet_rope(b, (x0, 1.6, 0.52), (x1, 1.6, 0.52), sag=0.12)
+        for x in posts:
+            stanchion(b, x, 1.6, 0)
+        # lounge for four: two armchairs at a table, a two-seat sofa by the left wall
+        round_table(b, -3.6, -2.6, 0)
+        with b.at((-4.6, -2.6, 0), rotz=90):
             sofa(b, seats=1, sock=False)
-        with b.at((-1.0, -1.75, 0), rotz=-90):
+        with b.at((-2.6, -2.6, 0), rotz=-90):
             sofa(b, seats=1, sock=False)
-        with b.at((-3.45, 0.15, 0), rotz=90):
+        with b.at((-5.2, -0.2, 0), rotz=90):
             sofa(b, seats=2, sock=False)
-        bin_box(b, 3.55, -2.5, 0)
-        for px, py in ((-3.6, -2.55), (3.35, 2.55), (-0.75, 2.58), (3.55, -1.95)):
+        bin_box(b, 5.45, -4.45, 0)
+        for px, py in ((-5.5, -4.5), (5.4, 4.45), (-1.0, 4.55), (5.45, -3.4)):
             potted_plant(b, px, py, 0, s=1.25, berries=True)
-        for px in (-1.05,):
-            wall_lantern(b, px, LD / 2 - 0.13, 1.85)
-        for py in (0.3, 2.72):
+        wall_lantern(b, -1.6, LD / 2 + 0.1 - 0.25, 2.2)
+        for py in (0.25, 3.75):
             with b.at((LW / 2, py, 0), rotz=90):
-                wall_lantern(b, 0, 0, 1.95)
-    b.socket("kiosk", (1.0, 1.75 - 0.8, FZ), 180)
-    b.socket("counter", (-2.35, 1.72 - 0.8, FZ), 180)
-    for i, (sx, sy, rz) in enumerate(((-2.75, -1.75, 90), (-1.05, -1.75, -90), (-3.4, -0.18, 90), (-3.4, 0.48, 90))):
+                wall_lantern(b, 0, 0, 2.3)
+    b.socket("kiosk", (1.2, 3.3 - 0.8, FZ), 180)
+    b.socket("counter", (-3.4, 3.65 - 0.8, FZ), 180)
+    seats = ((-4.55, -2.6, 90), (-2.65, -2.6, -90),
+             (-5.15, -0.2 - SOFA_PITCH / 2, 90), (-5.15, -0.2 + SOFA_PITCH / 2, 90))
+    for i, (sx, sy, rz) in enumerate(seats):
         b.socket(f"seat_{i}", (sx, sy, FZ + 0.39), rz)
     b.finish(KIT, "room", {"prefab": True, "interior_m": [LW, LD], "floor_z": FZ,
                            "note": "screen door on the right wall leads to cinema_auditorium"})

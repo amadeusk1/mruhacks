@@ -29,8 +29,12 @@ func _init() -> void:
 					var should_loop: bool = nm.ends_with("_sway") or nm.ends_with("_flutter") or nm.ends_with("_spin")
 					if should_loop and a.loop_mode == Animation.LOOP_NONE: bad.append("%s/%s:%s" % [kit, f, nm])
 					if a.loop_mode != Animation.LOOP_NONE: loops += 1
+					var base: Node = ap.get_node_or_null(ap.root_node)
+					if base == null:
+						bad.append("%s/%s:%s no root %s" % [kit, f, nm, ap.root_node])
+						continue
 					for t in a.get_track_count():
-						if r.get_node_or_null(ap.root_node).get_node_or_null(NodePath(String(a.track_get_path(t)).get_slice(":", 0))) == null:
+						if base.get_node_or_null(NodePath(String(a.track_get_path(t)).get_slice(":", 0))) == null:
 							bad.append("%s/%s:%s unresolved %s" % [kit, f, nm, a.track_get_path(t)])
 			r.free()
 	print("PART_CLIPS files=%d clips=%d looping=%d problems=%s" % [files, clips, loops, str(bad.slice(0, 8))])
