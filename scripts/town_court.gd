@@ -250,7 +250,7 @@ func _hud_layer() -> void:
 	_line = _label(font, 22)
 	_status = _label(font, 18)
 	_hint = _label(font, 15)
-	_hint.text = "Click shoots.  F passes.  F on a dribbler steals."
+	_hint.text = "Walk into the ball.  Click shoots.  F passes."
 	_hint.modulate = Color(1, 1, 1, 0.82)
 	root.add_child(_line)
 	root.add_child(_status)

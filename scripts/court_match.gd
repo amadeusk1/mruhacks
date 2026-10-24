@@ -5,7 +5,7 @@ extends RefCounted
 
 const GRAVITY := 9.8
 const BALL_R := 0.12
-const PICKUP := 0.7
+const PICKUP := 1.25
 const STEAL_REACH := 0.85
 const STEAL_COOLDOWN := 1.2
 const PASS_REACH := 6.0
@@ -147,6 +147,11 @@ func tick(delta: float, present: Array, bodies: Dictionary) -> void:
 		if _flight_kind != "":
 			_intercept(ids)
 		_check_out()
+	if phase == "practice":
+		if ball_mode == "held":
+			text = "Click to shoot"
+		elif text == "Click to shoot":
+			text = "Shoot around"
 
 
 func view() -> Dictionary:
@@ -690,12 +695,7 @@ func _attack_hoop(id: int) -> Vector3:
 	if body.is_empty():
 		return hoop_coral
 	var at := Vector3(float(body["x"]), 0.0, float(body["z"]))
-	var forward := _forward(float(body["yaw"]))
-	var to_coral := hoop_coral - at
-	var to_teal := hoop_teal - at
-	to_coral.y = 0.0
-	to_teal.y = 0.0
-	if to_teal.length() > 0.2 and to_coral.length() > 0.2 and forward.dot(to_teal.normalized()) > forward.dot(to_coral.normalized()):
+	if _flat(at, hoop_teal) < _flat(at, hoop_coral):
 		return hoop_teal
 	return hoop_coral
 

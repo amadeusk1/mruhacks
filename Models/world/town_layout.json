@@ -1309,7 +1309,7 @@
     0.0,
     19.2
    ],
-   "rot_y_deg": -90,
+   "rot_y_deg": 90,
    "scale": 1.0,
    "tints": {},
    "tags": [
@@ -1326,7 +1326,7 @@
     0.0,
     19.2
    ],
-   "rot_y_deg": 90,
+   "rot_y_deg": -90,
    "scale": 1.0,
    "tints": {},
    "tags": [
@@ -7378,56 +7378,56 @@
   {
    "id": "activities/shooting_spot",
    "pos": [
-    23.45,
-    0.065,
-    17.122
-   ],
-   "rot_y_deg": -90,
-   "scale": 1.0,
-   "tints": {},
-   "tags": [
-    "decor"
-   ],
-   "zone": "court"
-  },
-  {
-   "id": "activities/shooting_spot",
-   "pos": [
-    22.475,
-    0.065,
-    18.186
-   ],
-   "rot_y_deg": -90,
-   "scale": 1.0,
-   "tints": {},
-   "tags": [
-    "decor"
-   ],
-   "zone": "court"
-  },
-  {
-   "id": "activities/shooting_spot",
-   "pos": [
-    22.475,
-    0.065,
-    20.214
-   ],
-   "rot_y_deg": -90,
-   "scale": 1.0,
-   "tints": {},
-   "tags": [
-    "decor"
-   ],
-   "zone": "court"
-  },
-  {
-   "id": "activities/shooting_spot",
-   "pos": [
-    23.45,
+    19.85,
     0.065,
     21.278
    ],
-   "rot_y_deg": -90,
+   "rot_y_deg": 90,
+   "scale": 1.0,
+   "tints": {},
+   "tags": [
+    "decor"
+   ],
+   "zone": "court"
+  },
+  {
+   "id": "activities/shooting_spot",
+   "pos": [
+    20.825,
+    0.065,
+    20.214
+   ],
+   "rot_y_deg": 90,
+   "scale": 1.0,
+   "tints": {},
+   "tags": [
+    "decor"
+   ],
+   "zone": "court"
+  },
+  {
+   "id": "activities/shooting_spot",
+   "pos": [
+    20.825,
+    0.065,
+    18.186
+   ],
+   "rot_y_deg": 90,
+   "scale": 1.0,
+   "tints": {},
+   "tags": [
+    "decor"
+   ],
+   "zone": "court"
+  },
+  {
+   "id": "activities/shooting_spot",
+   "pos": [
+    19.85,
+    0.065,
+    17.122
+   ],
+   "rot_y_deg": 90,
    "scale": 1.0,
    "tints": {},
    "tags": [

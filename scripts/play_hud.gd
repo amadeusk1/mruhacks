@@ -47,8 +47,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	if _menu_open():
 		close_chat()
 		return
-	if event.is_action_pressed("ui_accept") and not _entry.has_focus():
-		_entry.grab_focus()
+	if _is_chat_key(event) and not _entry.has_focus():
+		_entry.call_deferred("grab_focus")
 		get_viewport().set_input_as_handled()
 	elif _entry.has_focus() and event.is_action_pressed("ui_cancel"):
 		_entry.release_focus()
@@ -101,6 +101,13 @@ func _set_typing(active: bool) -> void:
 	var player := get_tree().get_first_node_in_group("player")
 	if player != null and player.has_method("set_typing_locked"):
 		player.call("set_typing_locked", active)
+
+
+func _is_chat_key(event: InputEvent) -> bool:
+	if not event is InputEventKey:
+		return false
+	var key := event as InputEventKey
+	return key.pressed and not key.echo and key.physical_keycode == KEY_T and not key.shift_pressed and not key.ctrl_pressed and not key.alt_pressed and not key.meta_pressed
 
 
 func _menu_open() -> bool:

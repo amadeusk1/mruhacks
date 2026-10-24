@@ -558,6 +558,21 @@ func _publish_pose() -> void:
 	Net.note_pose(global_position, rotation.y, court_speed(), _sitting)
 
 
+func _face_near_hoop() -> void:
+	var best: Node3D = null
+	var best_dist := 9999.0
+	for node in get_tree().get_nodes_in_group("town_hoop"):
+		var hoop := node as Node3D
+		if hoop == null:
+			continue
+		var flat := Vector2(hoop.global_position.x - global_position.x, hoop.global_position.z - global_position.z)
+		if flat.length() < best_dist:
+			best_dist = flat.length()
+			best = hoop
+	if best != null:
+		face_point(best.global_position)
+
+
 func court_speed() -> float:
 	if _remote_peer != 0:
 		return _net_speed
@@ -570,6 +585,9 @@ func _court_press(action: String) -> bool:
 		return false
 	if not Net.court_here(global_position):
 		return false
+	if action == "shoot":
+		_face_near_hoop()
+		Net.court_witness(Net.local_id(), global_position, rotation.y, court_speed())
 	if action == "shoot" or action == "pass":
 		if not Net.court_carrying():
 			return false

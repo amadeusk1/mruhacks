@@ -210,8 +210,7 @@ func hide_presence() -> void:
 
 
 func arrive(location: String, spawn: String, hidden: bool, igloo: int = 0) -> void:
-	if not is_online():
-		return
+	# Solo never opens a peer, but the court still needs to know you are in town.
 	_send_place(location, spawn, hidden, igloo)
 
 

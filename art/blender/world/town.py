@@ -859,10 +859,10 @@ def layout():
             DOCK_HEADS.append((PLACE[-1], Vector((0, -1))))
     put("fishing/fishing_dock_spot", 1.7, -38.3, 0, z=zS, tags=("prop", "walkable"), zone="pier")
     # --- basketball: full court from two halves ------------------------------------------------------
-    put("activities/basketball_court_half", COURT_C.x - 3.85, COURT_C.y, -90, z=0.0, tags=("prop", "walkable"), name="CourtWest", zone="court")
-    put("activities/basketball_court_half", COURT_C.x + 3.85, COURT_C.y, 90, z=0.0, tags=("prop", "walkable"), name="CourtEast", zone="court")
-    put("activities/basketball_hoop", COURT_C.x - 8.45, COURT_C.y, -90, tags=("prop", "blocker"), zone="court")
-    put("activities/basketball_hoop", COURT_C.x + 8.45, COURT_C.y, 90, tags=("prop", "blocker"), zone="court")
+    put("activities/basketball_court_half", COURT_C.x - 3.85, COURT_C.y, 90, z=0.0, tags=("prop", "walkable"), name="CourtWest", zone="court")
+    put("activities/basketball_court_half", COURT_C.x + 3.85, COURT_C.y, -90, z=0.0, tags=("prop", "walkable"), name="CourtEast", zone="court")
+    put("activities/basketball_hoop", COURT_C.x - 8.45, COURT_C.y, 90, tags=("prop", "blocker"), zone="court")
+    put("activities/basketball_hoop", COURT_C.x + 8.45, COURT_C.y, -90, tags=("prop", "blocker"), zone="court")
     put("activities/scoreboard", COURT_C.x, COURT_C.y + 6.2, 0, tags=("prop", "blocker"), zone="court")
     put("activities/ball_rack", COURT_C.x - 4.0, COURT_C.y + 5.4, 0, tags=("prop", "blocker"), zone="court")
     for x in (-2.0, 2.0):
@@ -1197,9 +1197,9 @@ def dress():
         if abs(cxx + k * 2.2 - (cxx - 6.0)) > 1.4:
             put("activities/low_boundary_fence", cxx + k * 2.2, cyy + 4.9, 0, tags=("prop",), zone="court")
     for k in range(4):
-        w = socket_world("activities/basketball_court_half", f"socket_shoot_{k}", cxx - 3.85, cyy, -90, 0.0)
+        w = socket_world("activities/basketball_court_half", f"socket_shoot_{k}", cxx - 3.85, cyy, 90, 0.0)
         if w:
-            put("activities/shooting_spot", w[0], w[1], -90, z=0.065, tags=("decor",), zone="court")
+            put("activities/shooting_spot", w[0], w[1], 90, z=0.065, tags=("decor",), zone="court")
     put("activities/ready_marker", cxx - 5.2, cyy + 3.2, 0, z=0.065, tags=("decor",), zone="court")
     for k in range(3):
         put("activities/basketball", cxx - 4.4 + k * 0.4, cyy + 5.4, 0, z=0.82, tags=("decor",), zone="court")
