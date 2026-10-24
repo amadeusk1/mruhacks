@@ -114,6 +114,15 @@ func set_travel_locked(locked: bool) -> void:
 		halt()
 
 
+## Something really is taking keys right now: a focused text field or a screen that blocks the world.
+func _typing_now() -> bool:
+	var focused := get_viewport().gui_get_focus_owner()
+	if focused is LineEdit or focused is TextEdit:
+		return true
+	var router := get_node_or_null("/root/UIRouter")
+	return router != null and router.has_method("blocks_world") and bool(router.call("blocks_world"))
+
+
 ## Chat focus. Stops walking without pulling the penguin out of a seat.
 func set_typing_locked(locked: bool) -> void:
 	_typing_locked = locked
@@ -623,6 +632,8 @@ func _animate_hop() -> bool:
 
 
 func _blocks_play() -> bool:
+	if _typing_locked and not _typing_now():
+		_typing_locked = false  # self-heal: the lock outlived its text field or screen (no focus_exited)
 	if _input_locked or _typing_locked:
 		return true
 	var focused := get_viewport().gui_get_focus_owner()
