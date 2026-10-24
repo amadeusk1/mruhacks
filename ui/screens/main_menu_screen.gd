@@ -40,6 +40,15 @@ func _ready() -> void:
 
 
 func _build_backdrop() -> void:
+	if OS.has_feature("web"):
+		var backdrop := TextureRect.new()
+		backdrop.texture = load("res://ui/screens/backdrop_blur.jpg")
+		backdrop.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		backdrop.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		UIKit.full(backdrop)
+		add_child(backdrop)
+		return
 	var holder := SubViewportContainer.new()
 	holder.stretch = true
 	UIKit.full(holder)
@@ -74,7 +83,7 @@ func _build_backdrop() -> void:
 
 func _place_cam() -> void:
 	# slow orbit around the plaza, low and close like the mockup's village view
-	if not _cam.is_inside_tree():
+	if not is_instance_valid(_cam) or not _cam.is_inside_tree():
 		return
 	# slow drift past the cove docks and homes, low like the mockup's village view
 	var a := deg_to_rad(212.0) + sin(_t * 0.05) * 0.18
