@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: #050e15; }
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        font-family: "Inter", sans-serif;
+        background: radial-gradient(ellipse 70% 60% at 50% 48%, #0d2a3a 0%, #071a26 55%, #040c12 100%);
+      }
+      .year {
+        position: absolute;
+        left: 120px;
+        top: 96px;
+        font: 800 30px/1 "Inter", sans-serif;
+        letter-spacing: 0.24em;
+        color: #7fd3e6;
+        z-index: 20;
+      }
+      .year::after { content: ""; display: block; width: 44px; height: 3px; margin-top: 14px; background: #7fd3e6; opacity: 0.7; }
+
+      #win {
+        position: absolute;
+        left: 360px;
+        top: 150px;
+        width: 1200px;
+        height: 760px;
+        border-radius: 20px;
+        overflow: hidden;
+        background: #0d1f2a;
+        box-shadow: 0 0 0 2px rgba(127, 211, 230, 0.18), 0 40px 90px rgba(0, 0, 0, 0.55);
+      }
+      #bar {
+        height: 60px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 0 24px;
+        background: #0a1821;
+        color: #a9c3d0;
+        font: 600 24px/1 "Inter", sans-serif;
+      }
+      #bar span { width: 14px; height: 14px; border-radius: 50%; background: #2c4552; }
+      #bar b { margin-left: 14px; font-weight: 600; }
+      #view {
+        position: absolute;
+        left: 0;
+        top: 60px;
+        width: 1200px;
+        height: 700px;
+        overflow: hidden;
+        background: linear-gradient(180deg, #a9dcf0 0%, #d6eef8 55%, #eaf6fb 100%);
+      }
+      .hill { position: absolute; border-radius: 50%; background: #f7fbfd; box-shadow: inset 0 18px 30px rgba(120, 170, 200, 0.18); }
+      .walker { position: absolute; }
+      .walker svg { width: 100%; display: block; }
+      .flake { position: absolute; border-radius: 50%; background: #fff; box-shadow: 0 0 6px rgba(120, 180, 210, 0.6); }
+      #off { position: absolute; inset: 0; background: #020709; opacity: 0; }
+      .tape-wrap { position: absolute; left: -340px; width: 2600px; height: 96px; z-index: 10; }
+      .tape {
+        width: 100%;
+        height: 100%;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0) 22%, rgba(0, 0, 0, 0) 75%, rgba(0, 0, 0, 0.3) 100%),
+          repeating-linear-gradient(-45deg, #ffcd16 0 48px, #141414 48px 96px);
+        box-shadow: 0 16px 28px rgba(0, 0, 0, 0.55);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="clip2022" data-start="0" data-duration="2.2" data-width="1920" data-height="1080">
+      <div class="year">2022</div>
+      <div id="stage">
+        <div id="win">
+          <div id="bar"><span></span><span></span><span></span><b>Club Penguin Rewritten</b></div>
+          <div id="view">
+            <div class="hill" style="left:-200px; top:330px; width:900px; height:520px"></div>
+            <div class="hill" style="left:420px; top:300px; width:1100px; height:560px"></div>
+            <div class="walker" id="w0" style="left:330px; top:395px; width:150px"><svg class="peng" viewBox="0 -40 200 270" aria-hidden="true">
+      <ellipse cx="100" cy="222" rx="66" ry="9" fill="rgba(4,18,27,.3)"/>
+      <ellipse cx="74" cy="212" rx="22" ry="10" fill="#f39a2b"/>
+      <ellipse cx="126" cy="212" rx="22" ry="10" fill="#f39a2b"/>
+      <ellipse cx="34" cy="142" rx="15" ry="40" fill="#2b5ea6" transform="rotate(20 34 142)"/>
+      <ellipse cx="166" cy="142" rx="15" ry="40" fill="#2b5ea6" transform="rotate(-20 166 142)"/>
+      <path d="M100 36C152 36 178 86 178 140C178 192 146 216 100 216C54 216 22 192 22 140C22 86 48 36 100 36Z" fill="#3b7dd8"/>
+      <path d="M100 70C136 70 156 102 156 142C156 184 132 206 100 206C68 206 44 184 44 142C44 102 64 70 100 70Z" fill="#fbf4e6"/>
+      <ellipse cx="80" cy="110" rx="7.5" ry="9.5" fill="#1b1d22"/>
+      <ellipse cx="120" cy="110" rx="7.5" ry="9.5" fill="#1b1d22"/>
+      <circle cx="82.5" cy="106.5" r="2.6" fill="#fff"/>
+      <circle cx="122.5" cy="106.5" r="2.6" fill="#fff"/>
+      <path d="M87 122Q100 117 113 122Q105 137 100 138Q95 137 87 122Z" fill="#f39a2b"/>
+      <ellipse cx="64" cy="130" rx="9" ry="5" fill="#ff8f8f" opacity=".35"/>
+      <ellipse cx="136" cy="130" rx="9" ry="5" fill="#ff8f8f" opacity=".35"/>
+      <path d="M46 84C42 40 70 22 100 22C130 22 158 40 154 84Z" fill="#d93a2f"/>
+      <rect x="40" y="70" width="120" height="24" rx="12" fill="#b82b22"/>
+      <path d="M58 72v20M74 71v22M90 70v24M106 70v24M122 71v22M138 72v20" stroke="rgba(0,0,0,.18)" stroke-width="3"/>
+      <circle cx="100" cy="20" r="14" fill="#ea4b3f"/>
+    </svg></div>
+<div class="walker" id="w1" style="left:640px; top:430px; width:170px"><svg class="peng" viewBox="0 -40 200 270" aria-hidden="true">
+      <ellipse cx="100" cy="222" rx="66" ry="9" fill="rgba(4,18,27,.3)"/>
+      <ellipse cx="74" cy="212" rx="22" ry="10" fill="#f39a2b"/>
+      <ellipse cx="126" cy="212" rx="22" ry="10" fill="#f39a2b"/>
+      <ellipse cx="34" cy="142" rx="15" ry="40" fill="#d3a530" transform="rotate(20 34 142)"/>
+      <ellipse cx="166" cy="142" rx="15" ry="40" fill="#d3a530" transform="rotate(-20 166 142)"/>
+      <path d="M100 36C152 36 178 86 178 140C178 192 146 216 100 216C54 216 22 192 22 140C22 86 48 36 100 36Z" fill="#f2c64a"/>
+      <path d="M100 70C136 70 156 102 156 142C156 184 132 206 100 206C68 206 44 184 44 142C44 102 64 70 100 70Z" fill="#fbf4e6"/>
+      <ellipse cx="80" cy="110" rx="7.5" ry="9.5" fill="#1b1d22"/>
+      <ellipse cx="120" cy="110" rx="7.5" ry="9.5" fill="#1b1d22"/>
+      <circle cx="82.5" cy="106.5" r="2.6" fill="#fff"/>
+      <circle cx="122.5" cy="106.5" r="2.6" fill="#fff"/>
+      <path d="M87 122Q100 117 113 122Q105 137 100 138Q95 137 87 122Z" fill="#f39a2b"/>
+      <ellipse cx="64" cy="130" rx="9" ry="5" fill="#ff8f8f" opacity=".35"/>
+      <ellipse cx="136" cy="130" rx="9" ry="5" fill="#ff8f8f" opacity=".35"/>
+      <path d="M56 66C50 20 68 2 86 6Q100 18 114 6C132 2 150 20 144 66Z" fill="#9a6538"/>
+      <path d="M54 48H146V64H54Z" fill="#5f3b1f"/>
+      <path d="M6 42Q30 74 100 70Q170 74 194 42Q194 86 100 92Q6 86 6 42Z" fill="#8b5a34"/>
+    </svg></div>
+<div class="walker" id="w2" style="left:900px; top:380px; width:140px"><svg class="peng" viewBox="0 -40 200 270" aria-hidden="true">
+      <ellipse cx="100" cy="222" rx="66" ry="9" fill="rgba(4,18,27,.3)"/>
+      <ellipse cx="74" cy="212" rx="22" ry="10" fill="#f39a2b"/>
+      <ellipse cx="126" cy="212" rx="22" ry="10" fill="#f39a2b"/>
+      <ellipse cx="34" cy="142" rx="15" ry="40" fill="#6b48b0" transform="rotate(20 34 142)"/>
+      <ellipse cx="166" cy="142" rx="15" ry="40" fill="#6b48b0" transform="rotate(-20 166 142)"/>
+      <path d="M100 36C152 36 178 86 178 140C178 192 146 216 100 216C54 216 22 192 22 140C22 86 48 36 100 36Z" fill="#8a63d2"/>
+      <path d="M100 70C136 70 156 102 156 142C156 184 132 206 100 206C68 206 44 184 44 142C44 102 64 70 100 70Z" fill="#fbf4e6"/>
+      <ellipse cx="80" cy="110" rx="7.5" ry="9.5" fill="#1b1d22"/>
+      <ellipse cx="120" cy="110" rx="7.5" ry="9.5" fill="#1b1d22"/>
+      <circle cx="82.5" cy="106.5" r="2.6" fill="#fff"/>
+      <circle cx="122.5" cy="106.5" r="2.6" fill="#fff"/>
+      <path d="M87 122Q100 117 113 122Q105 137 100 138Q95 137 87 122Z" fill="#f39a2b"/>
+      <ellipse cx="64" cy="130" rx="9" ry="5" fill="#ff8f8f" opacity=".35"/>
+      <ellipse cx="136" cy="130" rx="9" ry="5" fill="#ff8f8f" opacity=".35"/>
+      <path d="M100 26C150 26 180 70 178 128C176 150 168 160 160 162C150 120 132 84 100 84C68 84 50 120 40 162C32 160 24 150 22 128C20 70 50 26 100 26Z" fill="#5cb544"/>
+      <path d="M40 160C50 120 68 86 100 86C132 86 150 120 160 160" fill="none" stroke="#efe3b0" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="66" cy="36" r="17" fill="#5cb544"/><circle cx="134" cy="36" r="17" fill="#5cb544"/>
+      <circle cx="66" cy="34" r="10" fill="#fff"/><circle cx="134" cy="34" r="10" fill="#fff"/>
+      <circle cx="67" cy="35" r="5" fill="#1b1d22"/><circle cx="133" cy="35" r="5" fill="#1b1d22"/>
+    </svg></div>
+<div class="walker" id="w3" style="left:520px; top:300px; width:115px"><svg class="peng" viewBox="0 -40 200 270" aria-hidden="true">
+      <ellipse cx="100" cy="222" rx="66" ry="9" fill="rgba(4,18,27,.3)"/>
+      <ellipse cx="74" cy="212" rx="22" ry="10" fill="#f39a2b"/>
+      <ellipse cx="126" cy="212" rx="22" ry="10" fill="#f39a2b"/>
+      <ellipse cx="34" cy="142" rx="15" ry="40" fill="#d27795" transform="rotate(20 34 142)"/>
+      <ellipse cx="166" cy="142" rx="15" ry="40" fill="#d27795" transform="rotate(-20 166 142)"/>
+      <path d="M100 36C152 36 178 86 178 140C178 192 146 216 100 216C54 216 22 192 22 140C22 86 48 36 100 36Z" fill="#f29bb8"/>
+      <path d="M100 70C136 70 156 102 156 142C156 184 132 206 100 206C68 206 44 184 44 142C44 102 64 70 100 70Z" fill="#fbf4e6"/>
+      <ellipse cx="80" cy="110" rx="7.5" ry="9.5" fill="#1b1d22"/>
+      <ellipse cx="120" cy="110" rx="7.5" ry="9.5" fill="#1b1d22"/>
+      <circle cx="82.5" cy="106.5" r="2.6" fill="#fff"/>
+      <circle cx="122.5" cy="106.5" r="2.6" fill="#fff"/>
+      <path d="M87 122Q100 117 113 122Q105 137 100 138Q95 137 87 122Z" fill="#f39a2b"/>
+      <ellipse cx="64" cy="130" rx="9" ry="5" fill="#ff8f8f" opacity=".35"/>
+      <ellipse cx="136" cy="130" rx="9" ry="5" fill="#ff8f8f" opacity=".35"/>
+      <path d="M54 74C70 50 86 14 108 -22C112 -28 120 -26 120 -18C122 14 134 46 148 74Z" fill="#6c45b8"/>
+      <ellipse cx="100" cy="76" rx="74" ry="15" fill="#5a379e"/>
+      <path d="M104 22l5 11 12 1-9 8 3 12-11-6-11 6 3-12-9-8 12-1z" fill="#ffd54a"/>
+    </svg></div>
+<i class="flake" id="f0" style="left:797px; top:372px; width:12px; height:12px"></i>
+<i class="flake" id="f1" style="left:223px; top:35px; width:10px; height:10px"></i>
+<i class="flake" id="f2" style="left:224px; top:489px; width:6px; height:6px"></i>
+<i class="flake" id="f3" style="left:9px; top:372px; width:6px; height:6px"></i>
+<i class="flake" id="f4" style="left:429px; top:222px; width:8px; height:8px"></i>
+<i class="flake" id="f5" style="left:418px; top:108px; width:12px; height:12px"></i>
+<i class="flake" id="f6" style="left:1032px; top:-28px; width:8px; height:8px"></i>
+<i class="flake" id="f7" style="left:30px; top:77px; width:8px; height:8px"></i>
+<i class="flake" id="f8" style="left:937px; top:-12px; width:10px; height:10px"></i>
+<i class="flake" id="f9" style="left:689px; top:68px; width:6px; height:6px"></i>
+<i class="flake" id="f10" style="left:817px; top:230px; width:10px; height:10px"></i>
+<i class="flake" id="f11" style="left:97px; top:54px; width:10px; height:10px"></i>
+<i class="flake" id="f12" style="left:667px; top:383px; width:12px; height:12px"></i>
+<i class="flake" id="f13" style="left:403px; top:143px; width:10px; height:10px"></i>
+<i class="flake" id="f14" style="left:734px; top:120px; width:10px; height:10px"></i>
+<i class="flake" id="f15" style="left:635px; top:306px; width:10px; height:10px"></i>
+<i class="flake" id="f16" style="left:1120px; top:419px; width:12px; height:12px"></i>
+<i class="flake" id="f17" style="left:928px; top:294px; width:12px; height:12px"></i>
+<i class="flake" id="f18" style="left:27px; top:223px; width:8px; height:8px"></i>
+<i class="flake" id="f19" style="left:773px; top:240px; width:8px; height:8px"></i>
+<i class="flake" id="f20" style="left:139px; top:11px; width:6px; height:6px"></i>
+<i class="flake" id="f21" style="left:303px; top:101px; width:6px; height:6px"></i>
+<i class="flake" id="f22" style="left:673px; top:408px; width:10px; height:10px"></i>
+<i class="flake" id="f23" style="left:583px; top:123px; width:12px; height:12px"></i>
+<i class="flake" id="f24" style="left:1084px; top:513px; width:6px; height:6px"></i>
+<i class="flake" id="f25" style="left:799px; top:223px; width:6px; height:6px"></i>
+            <div id="off"></div>
+          </div>
+        </div>
+        <div class="tape-wrap" id="t1-wrap" style="top:512px"><div class="tape" id="t1"></div></div>
+      </div>
+    </div>
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      // Penguins waddle: a few finite rocks and a slow drift, all a function of time.
+      [["#w0", 40], ["#w1", -30], ["#w2", 24], ["#w3", -18]].forEach(([id, dx], i) => {
+        tl.fromTo(id, { x: 0 }, { x: dx, duration: 2.2, ease: "none" }, 0);
+        tl.fromTo(id + " svg", { rotation: -5 }, { rotation: 5, duration: 0.3, ease: "sine.inOut", repeat: 10, yoyo: true, transformOrigin: "50% 90%" }, i * 0.08);
+      });
+      document.querySelectorAll(".flake").forEach((f, i) => {
+        tl.fromTo(f, { y: 0 }, { y: 80 + (i % 5) * 14, duration: 2.2, ease: "none" }, 0);
+      });
+      function shake(t) {
+        [[12, -7], [-9, 5], [6, -3], [-3, 2], [0, 0]].forEach((xy, i) => tl.set("#stage", { x: xy[0], y: xy[1] }, t + i * 0.033));
+      }
+
+      tl.set("#t1-wrap", { rotation: -6 }, 0);
+      tl.fromTo("#t1", { clipPath: "inset(0 100% 0 0)", scaleY: 1.3 }, { clipPath: "inset(0 0% 0 0%)", scaleY: 1, duration: 0.17, ease: "power3.out" }, 0.6);
+      shake(0.72);
+      // The fan site goes dark: a hard cut with a two-frame flicker.
+      tl.set("#off", { opacity: 1 }, 1.15);
+      tl.set("#off", { opacity: 0.35 }, 1.217);
+      tl.set("#off", { opacity: 1 }, 1.283);
+      tl.to("#bar", { color: "#4d6672", duration: 0.4, ease: "power2.out" }, 1.15);
+      window.__timelines["clip2022"] = tl;
+    </script>
+  </body>
+</html>

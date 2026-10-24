@@ -1,0 +1,126 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      background: #071a26;
+      font-family: "Nunito", sans-serif;
+    }
+    .shot {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+    .kb {
+      position: absolute;
+      inset: 0;
+    }
+    .kb img {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1920px;
+      height: 1080px;
+      object-fit: cover;
+    }
+    .tag {
+      position: absolute;
+      right: 120px;
+      bottom: 96px;
+      padding: 8px 18px;
+      border-radius: 10px;
+      background: rgba(7, 26, 38, 0.7);
+      color: #f5f9fc;
+      font-size: 28px;
+      font-weight: 700;
+    }
+    /* Game-clip slots: swap each for a muted <video> of the real game */
+    .slot {
+      background: #0f6f8c;
+      display: grid;
+      place-content: center;
+      text-align: center;
+      gap: 24px;
+    }
+    .slot-frame {
+      position: absolute;
+      inset: 108px 192px;
+      border: 8px dashed rgba(245, 249, 252, 0.55);
+      border-radius: 36px;
+    }
+    .slot-label {
+      color: #f5f9fc;
+      font-size: 88px;
+      font-weight: 900;
+      line-height: 1;
+    }
+    .slot-path {
+      color: #ffc24b;
+      font-size: 34px;
+      font-weight: 700;
+    }
+  </style>
+  <div data-hf-id="hf-2pzc" id="root" data-composition-id="montage" data-width="1920" data-height="1080">
+    <!-- 2.8 s shots -->
+    <div data-hf-id="hf-gwvg" id="m-map" class="shot clip" data-start="0" data-duration="2.9" data-track-index="1">
+      <div data-hf-id="hf-jxzy" class="kb" data-layout-allow-overflow id="m-map-kb"><img data-hf-id="hf-4stt" src="assets/map.jpg" alt="" /></div>
+      <div data-hf-id="hf-j51q" class="tag">Concept art (AI-generated)</div>
+    </div>
+    <div data-hf-id="hf-1j77" id="m-walk" class="shot slot clip" data-start="2.9" data-duration="2.83333" data-track-index="1">
+      <div data-hf-id="hf-f2rk" class="slot-frame"></div>
+      <div data-hf-id="hf-bokx" class="slot-label">Game clip: walking around</div>
+      <div data-hf-id="hf-999b" class="slot-path">assets/clip-walk.mp4</div>
+    </div>
+
+    <!-- 1.4 s shots -->
+    <div data-hf-id="hf-366e" id="m-sled" class="shot clip" data-start="5.73333" data-duration="1.4" data-track-index="1">
+      <div data-hf-id="hf-1mba" class="kb" data-layout-allow-overflow id="m-sled-kb"><img data-hf-id="hf-1895" src="assets/sled.jpg" alt="" /></div>
+      <div data-hf-id="hf-q98y" class="tag">Concept art (AI-generated)</div>
+    </div>
+    <div data-hf-id="hf-z6jd" id="m-sledrun" class="shot slot clip" data-start="7.13333" data-duration="1.4" data-track-index="1">
+      <div data-hf-id="hf-u8jc" class="slot-frame"></div>
+      <div data-hf-id="hf-udku" class="slot-label">Game clip: sled run</div>
+      <div data-hf-id="hf-o0fw" class="slot-path">assets/clip-sled.mp4</div>
+    </div>
+    <div data-hf-id="hf-3x6d" id="m-fishing" class="shot clip" data-start="8.53333" data-duration="1.4" data-track-index="1">
+      <div data-hf-id="hf-9b5y" class="kb" data-layout-allow-overflow id="m-fishing-kb"><img data-hf-id="hf-tgs1" src="assets/fishing.jpg" alt="" /></div>
+      <div data-hf-id="hf-qnjz" class="tag">Concept art (AI-generated)</div>
+    </div>
+    <div data-hf-id="hf-okoq" id="m-arcade" class="shot clip" data-start="9.93333" data-duration="1.43333" data-track-index="1">
+      <div data-hf-id="hf-a94s" class="kb" data-layout-allow-overflow id="m-arcade-kb"><img data-hf-id="hf-xmur" src="assets/arcade-social.jpg" alt="" /></div>
+      <div data-hf-id="hf-r1v0" class="tag">Concept art (AI-generated)</div>
+    </div>
+
+    <!-- 0.7 s shots -->
+    <div data-hf-id="hf-q7h3" id="m-snowball" class="shot clip" data-start="11.36666" data-duration="0.7" data-track-index="1">
+      <div data-hf-id="hf-dz26" class="kb" data-layout-allow-overflow id="m-snowball-kb"><img data-hf-id="hf-jiix" src="assets/snowball.jpg" alt="" /></div>
+      <div data-hf-id="hf-rg61" class="tag">Concept art (AI-generated)</div>
+    </div>
+    <div data-hf-id="hf-1ygk" id="m-cinema" class="shot clip" data-start="12.06666" data-duration="0.7" data-track-index="1">
+      <div data-hf-id="hf-7gnj" class="kb" data-layout-allow-overflow id="m-cinema-kb"><img data-hf-id="hf-qlme" src="assets/cinema.jpg" alt="" /></div>
+      <div data-hf-id="hf-ruh2" class="tag">Concept art (AI-generated)</div>
+    </div>
+    <div data-hf-id="hf-myx6" id="m-bus" class="shot slot clip" data-start="12.76666" data-duration="0.7" data-track-index="1">
+      <div data-hf-id="hf-t1m9" class="slot-frame"></div>
+      <div data-hf-id="hf-foqj" class="slot-label">Game clip: bus map</div>
+      <div data-hf-id="hf-npme" class="slot-path">assets/clip-bus.mp4</div>
+    </div>
+    <div data-hf-id="hf-yxjd" id="m-movie" class="shot clip" data-start="13.46666" data-duration="0.73334" data-track-index="1">
+      <div data-hf-id="hf-odt0" class="kb" data-layout-allow-overflow id="m-movie-kb"><img data-hf-id="hf-4xo7" src="assets/movie.jpg" alt="" /></div>
+      <div data-hf-id="hf-s8s3" class="tag">Concept art (AI-generated)</div>
+    </div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    // One camera move per still, each a different direction so the cut has something to cut on.
+    tl.fromTo("#m-map-kb", { scale: 1.0 }, { scale: 1.14, duration: 2.9, ease: "power2.inOut" }, 0);
+    tl.fromTo("#m-sled-kb", { scale: 1.12, x: 70 }, { scale: 1.12, x: -70, duration: 1.4, ease: "power2.inOut" }, 5.73333);
+    tl.fromTo("#m-fishing-kb", { scale: 1.16 }, { scale: 1.0, duration: 1.4, ease: "expo.out" }, 8.53333);
+    tl.fromTo("#m-arcade-kb", { scale: 1.1, x: -60 }, { scale: 1.1, x: 60, duration: 1.43333, ease: "power2.inOut" }, 9.93333);
+    tl.fromTo("#m-snowball-kb", { scale: 1.18 }, { scale: 1.04, duration: 0.7, ease: "expo.out" }, 11.36666);
+    tl.fromTo("#m-cinema-kb", { scale: 1.0 }, { scale: 1.1, duration: 0.7, ease: "power2.in" }, 12.06666);
+    tl.fromTo("#m-movie-kb", { scale: 1.14 }, { scale: 1.02, duration: 0.73334, ease: "expo.out" }, 13.46666);
+    window.__timelines["montage"] = tl;
+  </script>
+</template>

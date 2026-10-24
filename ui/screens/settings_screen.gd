@@ -36,15 +36,14 @@ func _audio_page() -> Control:
 		var key: String = it[2]
 		a.add_child(UIKit.slider_row(it[0], it[1], float(UIRouter.settings[key]), func(v: float) -> void: UIRouter.set_setting(key, v)))
 	a.add_child(HSeparator.new())
-	# Voice chat isn't wired yet: show the user's choice truthfully and explain.
 	var mic := UIKit.toggle_row("mic", "Microphone", bool(UIRouter.settings["mic"]), func(on: bool) -> void:
 		UIRouter.set_setting("mic", on), "Muted" if not UIRouter.settings["mic"] else "On")
 	a.add_child(mic)
 	var ptt_key := ControlsScreen.key_text("push_to_talk")
 	a.add_child(UIKit.toggle_row("gamepad", "Push to talk", bool(UIRouter.settings["push_to_talk"]),
 		func(on: bool) -> void: UIRouter.set_setting("push_to_talk", on), "Hold to talk (%s)" % ptt_key))
-	var note := UIKit.label("Voice chat is coming soon. Your choices are saved.", "Muted")
-	a.add_child(note)
+	a.add_child(UIKit.toggle_row("speaker", "Deafen", Voice.deafened,
+		func(on: bool) -> void: Voice.set_deafened(on), "Hearing nobody" if Voice.deafened else "Hearing nearby penguins"))
 	row.add_child(audio)
 	var acc := AccessibilityScreen.page(true)
 	acc.size_flags_horizontal = Control.SIZE_EXPAND_FILL

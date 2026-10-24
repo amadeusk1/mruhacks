@@ -127,8 +127,9 @@ func _town_targets() -> Array:
 			for e in ends:
 				list.append(["%s %s" % [tag, e.name], (e as Node3D).global_position])
 			if ends.is_empty():
-				list.append([tag + " far", _far_side(node, plaza)])
-				list.append([tag + " near", _far_side(node, plaza + 2.0 * (node.global_position - plaza))])
+				# deck ends often meet a building or a guard rail: the navmesh stops 0.35 m short of those
+				list.append([tag + " far", _far_side(node, plaza), 1.4])
+				list.append([tag + " near", _far_side(node, plaza + 2.0 * (node.global_position - plaza)), 1.4])
 	var zone: Dictionary = _room.get("_layout").get("zones", [{}])[0]
 	var c: Array = zone.get("center", [0, 0, 0])
 	var ring := float(zone.get("radius", 9.5)) - 1.0
@@ -329,7 +330,9 @@ func _drive(label: String, at: Vector3, dir: Vector3, box) -> void:
 	var p := _p.global_position
 	var off := _flat(NavigationServer3D.map_get_closest_point(_map, p) - p)
 	var water: float = _room.get("_layout").get("water_level", -INF) if _room_name == "town" else -INF
-	if _doors.any(func(d): return _flat(Geometry3D.get_closest_point_to_segment(d, at, p) - d) < 1.5):
+	var flat_at := Vector3(at.x, 0, at.z)
+	var flat_p := Vector3(p.x, 0, p.z)
+	if _doors.any(func(d): return _flat(Geometry3D.get_closest_point_to_segment(Vector3(d.x, 0, d.z), flat_at, flat_p) - Vector3(d.x, 0, d.z)) < 1.5):
 		pass  # walked out through an exit; in play the doorway would have taken the penguin outside
 	elif (box is AABB and _inside_core(p, box)) or (box is Dictionary and _in_cells(p, box, label.contains("rock"))):
 		_fail("passthrough", label, p, "(inside the prop)")
@@ -367,7 +370,7 @@ func _foot_cells(node: Node3D) -> Dictionary:
 			for i in n + 1:
 				for j in n + 1 - i:
 					var q := a + (b - a) * (float(i) / n) + (c - a) * (float(j) / n)
-					if q.y > ground + 0.05 and q.y < ground + 0.9 and (not trunk or _flat(q - at) < 0.4):
+					if q.y > ground + 0.05 and q.y < ground + 0.9 and (not trunk or _flat(q - at) < 0.25):
 						cells[Vector2i(floori(q.x / 0.15), floori(q.z / 0.15))] = true
 	return cells
 

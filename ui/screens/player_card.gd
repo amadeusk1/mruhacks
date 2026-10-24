@@ -1,6 +1,7 @@
 class_name PlayerCard
 ## Player card (board panel 4, left). Visit home takes you to the homes on the island.
-## Voice, block and report have no service yet, so they are shown disabled with the reason as a tooltip.
+## Mute voice toggles Voice's per-player mute. Block and report have no service yet, so they are
+## shown disabled with the reason as a tooltip.
 
 const T := preload("res://ui/theme/ui_tokens.gd")
 
@@ -36,7 +37,14 @@ static func make(e: Dictionary) -> UIModal:
 		UIWidgets.toast(m, "Invite sent to %s." % str(e.get("name", "them")), "check"))
 	invite.disabled = not Net.is_online()
 	col.add_child(invite)
-	for it in [["Mute voice", "mic_off", "Voice chat isn't available yet."], ["Block", "block", "Blocking needs accounts, coming later."],
+	var who := str(e.get("name", ""))
+	var mute := UIKit.button("Unmute voice" if Voice.is_muted(who) else "Mute voice", "outline", "mic_off", Vector2(0, 60))
+	mute.pressed.connect(func() -> void:
+		Voice.set_muted(who, not Voice.is_muted(who))
+		mute.text = "Unmute voice" if Voice.is_muted(who) else "Mute voice")
+	mute.disabled = id == Net.local_id()
+	col.add_child(mute)
+	for it in [["Block", "block", "Blocking needs accounts, coming later."],
 			["Report", "flag", "Reporting needs a moderation service, coming later."]]:
 		var b := UIKit.button(it[0], "outline", it[1], Vector2(0, 60))
 		b.disabled = true

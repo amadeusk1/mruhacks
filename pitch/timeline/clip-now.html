@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: #050e15; }
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        font-family: "Inter", sans-serif;
+        background: radial-gradient(ellipse 70% 60% at 50% 48%, #0d2a3a 0%, #071a26 55%, #040c12 100%);
+      }
+      .year {
+        position: absolute;
+        left: 120px;
+        top: 96px;
+        font: 800 30px/1 "Inter", sans-serif;
+        letter-spacing: 0.24em;
+        color: #7fd3e6;
+        z-index: 20;
+      }
+      .year::after { content: ""; display: block; width: 44px; height: 3px; margin-top: 14px; background: #7fd3e6; opacity: 0.7; }
+
+      #patch {
+        position: absolute;
+        left: 560px;
+        top: 640px;
+        width: 800px;
+        height: 260px;
+        border-radius: 50%;
+        background: radial-gradient(ellipse at center, rgba(234, 246, 251, 0.9) 0%, rgba(214, 238, 248, 0.5) 45%, rgba(214, 238, 248, 0) 72%);
+      }
+      .fr { position: absolute; width: 280px; height: 350px; }
+      .fr svg { position: absolute; left: 45px; top: 70px; width: 190px; }
+      .frame {
+        position: absolute;
+        inset: 0;
+        border-radius: 24px;
+        background: #0e2430;
+        box-shadow: 0 0 0 2px rgba(127, 211, 230, 0.35), 0 24px 50px rgba(0, 0, 0, 0.5);
+      }
+      .cbar { display: flex; gap: 8px; padding: 16px 18px; }
+      .cbar i { width: 11px; height: 11px; border-radius: 50%; background: #2f4a58; }
+      .bubble {
+        position: absolute;
+        right: 18px;
+        top: 14px;
+        display: flex;
+        gap: 6px;
+        padding: 9px 12px;
+        border-radius: 14px;
+        background: #e6f3f9;
+      }
+      .bubble i { width: 9px; height: 9px; border-radius: 50%; background: #7a93a0; }
+      #line {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 470px;
+        text-align: center;
+        color: #f5f9fc;
+        font: 900 64px/1.15 "Inter", sans-serif;
+        z-index: 20;
+      }
+      /* Same face and size as #line, centred on the same spot */
+      #rev { position: absolute; left: 0; right: 0; top: 507px; text-align: center; color: #f5f9fc; font: 900 64px/1.15 "Inter", sans-serif; z-index: 20; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="clipnow" data-start="0" data-duration="3.4" data-width="1920" data-height="1080">
+      <div class="year">Now</div>
+      <div id="patch"></div>
+      <div class="fr" id="fr0" style="left:680px; top:384px">
+          <div class="frame" id="fm0"><div class="cbar"><i></i><i></i><i></i></div><div class="bubble"><i></i><i></i><i></i></div></div>
+          <svg class="peng" viewBox="0 -40 200 270" aria-hidden="true">
+      <ellipse cx="100" cy="222" rx="66" ry="9" fill="rgba(4,18,27,.3)"/>
+      <ellipse cx="74" cy="212" rx="22" ry="10" fill="#f39a2b"/>
+      <ellipse cx="126" cy="212" rx="22" ry="10" fill="#f39a2b"/>
+      <ellipse cx="34" cy="142" rx="15" ry="40" fill="#2b5ea6" transform="rotate(20 34 142)"/>
+      <ellipse cx="166" cy="142" rx="15" ry="40" fill="#2b5ea6" transform="rotate(-20 166 142)"/>
+      <path d="M100 36C152 36 178 86 178 140C178 192 146 216 100 216C54 216 22 192 22 140C22 86 48 36 100 36Z" fill="#3b7dd8"/>
+      <path d="M100 70C136 70 156 102 156 142C156 184 132 206 100 206C68 206 44 184 44 142C44 102 64 70 100 70Z" fill="#fbf4e6"/>
+      <ellipse cx="80" cy="110" rx="7.5" ry="9.5" fill="#1b1d22"/>
+      <ellipse cx="120" cy="110" rx="7.5" ry="9.5" fill="#1b1d22"/>
+      <circle cx="82.5" cy="106.5" r="2.6" fill="#fff"/>
+      <circle cx="122.5" cy="106.5" r="2.6" fill="#fff"/>
+      <path d="M87 122Q100 117 113 122Q105 137 100 138Q95 137 87 122Z" fill="#f39a2b"/>
+      <ellipse cx="64" cy="130" rx="9" ry="5" fill="#ff8f8f" opacity=".35"/>
+      <ellipse cx="136" cy="130" rx="9" ry="5" fill="#ff8f8f" opacity=".35"/>
+      <path d="M46 84C42 40 70 22 100 22C130 22 158 40 154 84Z" fill="#d93a2f"/>
+      <rect x="40" y="70" width="120" height="24" rx="12" fill="#b82b22"/>
+      <path d="M58 72v20M74 71v22M90 70v24M106 70v24M122 71v22M138 72v20" stroke="rgba(0,0,0,.18)" stroke-width="3"/>
+      <circle cx="100" cy="20" r="14" fill="#ea4b3f"/>
+    </svg>
+        </div>
+      <div class="fr" id="fr1" style="left:820px; top:374px">
+          <div class="frame" id="fm1"><div class="cbar"><i></i><i></i><i></i></div><div class="bubble"><i></i><i></i><i></i></div></div>
+          <svg class="peng" viewBox="0 -40 200 270" aria-hidden="true">
+      <ellipse cx="100" cy="222" rx="66" ry="9" fill="rgba(4,18,27,.3)"/>
+      <ellipse cx="74" cy="212" rx="22" ry="10" fill="#f39a2b"/>
+      <ellipse cx="126" cy="212" rx="22" ry="10" fill="#f39a2b"/>
+      <ellipse cx="34" cy="142" rx="15" ry="40" fill="#6b48b0" transform="rotate(20 34 142)"/>
+      <ellipse cx="166" cy="142" rx="15" ry="40" fill="#6b48b0" transform="rotate(-20 166 142)"/>
+      <path d="M100 36C152 36 178 86 178 140C178 192 146 216 100 216C54 216 22 192 22 140C22 86 48 36 100 36Z" fill="#8a63d2"/>
+      <path d="M100 70C136 70 156 102 156 142C156 184 132 206 100 206C68 206 44 184 44 142C44 102 64 70 100 70Z" fill="#fbf4e6"/>
+      <ellipse cx="80" cy="110" rx="7.5" ry="9.5" fill="#1b1d22"/>
+      <ellipse cx="120" cy="110" rx="7.5" ry="9.5" fill="#1b1d22"/>
+      <circle cx="82.5" cy="106.5" r="2.6" fill="#fff"/>
+      <circle cx="122.5" cy="106.5" r="2.6" fill="#fff"/>
+      <path d="M87 122Q100 117 113 122Q105 137 100 138Q95 137 87 122Z" fill="#f39a2b"/>
+      <ellipse cx="64" cy="130" rx="9" ry="5" fill="#ff8f8f" opacity=".35"/>
+      <ellipse cx="136" cy="130" rx="9" ry="5" fill="#ff8f8f" opacity=".35"/>
+      <path d="M100 26C150 26 180 70 178 128C176 150 168 160 160 162C150 120 132 84 100 84C68 84 50 120 40 162C32 160 24 150 22 128C20 70 50 26 100 26Z" fill="#5cb544"/>
+      <path d="M40 160C50 120 68 86 100 86C132 86 150 120 160 160" fill="none" stroke="#efe3b0" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="66" cy="36" r="17" fill="#5cb544"/><circle cx="134" cy="36" r="17" fill="#5cb544"/>
+      <circle cx="66" cy="34" r="10" fill="#fff"/><circle cx="134" cy="34" r="10" fill="#fff"/>
+      <circle cx="67" cy="35" r="5" fill="#1b1d22"/><circle cx="133" cy="35" r="5" fill="#1b1d22"/>
+    </svg>
+        </div>
+      <div class="fr" id="fr2" style="left:960px; top:384px">
+          <div class="frame" id="fm2"><div class="cbar"><i></i><i></i><i></i></div><div class="bubble"><i></i><i></i><i></i></div></div>
+          <svg class="peng" viewBox="0 -40 200 270" aria-hidden="true">
+      <ellipse cx="100" cy="222" rx="66" ry="9" fill="rgba(4,18,27,.3)"/>
+      <ellipse cx="74" cy="212" rx="22" ry="10" fill="#f39a2b"/>
+      <ellipse cx="126" cy="212" rx="22" ry="10" fill="#f39a2b"/>
+      <ellipse cx="34" cy="142" rx="15" ry="40" fill="#d27795" transform="rotate(20 34 142)"/>
+      <ellipse cx="166" cy="142" rx="15" ry="40" fill="#d27795" transform="rotate(-20 166 142)"/>
+      <path d="M100 36C152 36 178 86 178 140C178 192 146 216 100 216C54 216 22 192 22 140C22 86 48 36 100 36Z" fill="#f29bb8"/>
+      <path d="M100 70C136 70 156 102 156 142C156 184 132 206 100 206C68 206 44 184 44 142C44 102 64 70 100 70Z" fill="#fbf4e6"/>
+      <ellipse cx="80" cy="110" rx="7.5" ry="9.5" fill="#1b1d22"/>
+      <ellipse cx="120" cy="110" rx="7.5" ry="9.5" fill="#1b1d22"/>
+      <circle cx="82.5" cy="106.5" r="2.6" fill="#fff"/>
+      <circle cx="122.5" cy="106.5" r="2.6" fill="#fff"/>
+      <path d="M87 122Q100 117 113 122Q105 137 100 138Q95 137 87 122Z" fill="#f39a2b"/>
+      <ellipse cx="64" cy="130" rx="9" ry="5" fill="#ff8f8f" opacity=".35"/>
+      <ellipse cx="136" cy="130" rx="9" ry="5" fill="#ff8f8f" opacity=".35"/>
+      <path d="M54 74C70 50 86 14 108 -22C112 -28 120 -26 120 -18C122 14 134 46 148 74Z" fill="#6c45b8"/>
+      <ellipse cx="100" cy="76" rx="74" ry="15" fill="#5a379e"/>
+      <path d="M104 22l5 11 12 1-9 8 3 12-11-6-11 6 3-12-9-8 12-1z" fill="#ffd54a"/>
+    </svg>
+        </div>
+      <div class="fr" id="fr3" style="left:745px; top:458px">
+          <div class="frame" id="fm3"><div class="cbar"><i></i><i></i><i></i></div><div class="bubble"><i></i><i></i><i></i></div></div>
+          <svg class="peng" viewBox="0 -40 200 270" aria-hidden="true">
+      <ellipse cx="100" cy="222" rx="66" ry="9" fill="rgba(4,18,27,.3)"/>
+      <ellipse cx="74" cy="212" rx="22" ry="10" fill="#f39a2b"/>
+      <ellipse cx="126" cy="212" rx="22" ry="10" fill="#f39a2b"/>
+      <ellipse cx="34" cy="142" rx="15" ry="40" fill="#d3a530" transform="rotate(20 34 142)"/>
+      <ellipse cx="166" cy="142" rx="15" ry="40" fill="#d3a530" transform="rotate(-20 166 142)"/>
+      <path d="M100 36C152 36 178 86 178 140C178 192 146 216 100 216C54 216 22 192 22 140C22 86 48 36 100 36Z" fill="#f2c64a"/>
+      <path d="M100 70C136 70 156 102 156 142C156 184 132 206 100 206C68 206 44 184 44 142C44 102 64 70 100 70Z" fill="#fbf4e6"/>
+      <ellipse cx="80" cy="110" rx="7.5" ry="9.5" fill="#1b1d22"/>
+      <ellipse cx="120" cy="110" rx="7.5" ry="9.5" fill="#1b1d22"/>
+      <circle cx="82.5" cy="106.5" r="2.6" fill="#fff"/>
+      <circle cx="122.5" cy="106.5" r="2.6" fill="#fff"/>
+      <path d="M87 122Q100 117 113 122Q105 137 100 138Q95 137 87 122Z" fill="#f39a2b"/>
+      <ellipse cx="64" cy="130" rx="9" ry="5" fill="#ff8f8f" opacity=".35"/>
+      <ellipse cx="136" cy="130" rx="9" ry="5" fill="#ff8f8f" opacity=".35"/>
+      <path d="M56 66C50 20 68 2 86 6Q100 18 114 6C132 2 150 20 144 66Z" fill="#9a6538"/>
+      <path d="M54 48H146V64H54Z" fill="#5f3b1f"/>
+      <path d="M6 42Q30 74 100 70Q170 74 194 42Q194 86 100 92Q6 86 6 42Z" fill="#8b5a34"/>
+    </svg>
+        </div>
+      <div class="fr" id="fr4" style="left:905px; top:458px">
+          <div class="frame" id="fm4"><div class="cbar"><i></i><i></i><i></i></div><div class="bubble"><i></i><i></i><i></i></div></div>
+          <svg class="peng" viewBox="0 -40 200 270" aria-hidden="true">
+      <ellipse cx="100" cy="222" rx="66" ry="9" fill="rgba(4,18,27,.3)"/>
+      <ellipse cx="74" cy="212" rx="22" ry="10" fill="#f39a2b"/>
+      <ellipse cx="126" cy="212" rx="22" ry="10" fill="#f39a2b"/>
+      <ellipse cx="34" cy="142" rx="15" ry="40" fill="#2b8fa2" transform="rotate(20 34 142)"/>
+      <ellipse cx="166" cy="142" rx="15" ry="40" fill="#2b8fa2" transform="rotate(-20 166 142)"/>
+      <path d="M100 36C152 36 178 86 178 140C178 192 146 216 100 216C54 216 22 192 22 140C22 86 48 36 100 36Z" fill="#3fb4c9"/>
+      <path d="M100 70C136 70 156 102 156 142C156 184 132 206 100 206C68 206 44 184 44 142C44 102 64 70 100 70Z" fill="#fbf4e6"/>
+      <ellipse cx="80" cy="110" rx="7.5" ry="9.5" fill="#1b1d22"/>
+      <ellipse cx="120" cy="110" rx="7.5" ry="9.5" fill="#1b1d22"/>
+      <circle cx="82.5" cy="106.5" r="2.6" fill="#fff"/>
+      <circle cx="122.5" cy="106.5" r="2.6" fill="#fff"/>
+      <path d="M87 122Q100 117 113 122Q105 137 100 138Q95 137 87 122Z" fill="#f39a2b"/>
+      <ellipse cx="64" cy="130" rx="9" ry="5" fill="#ff8f8f" opacity=".35"/>
+      <ellipse cx="136" cy="130" rx="9" ry="5" fill="#ff8f8f" opacity=".35"/>
+      
+    </svg>
+        </div>
+      <div id="line"><div id="l1">Group chats everywhere.</div><div id="l2">Nowhere to be together.</div></div>
+      
+    </div>
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      tl.fromTo("#fm0", { opacity: 0, scale: 0.86 }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(1.6)" }, 0.50);
+      tl.fromTo("#fr0", { x: 0, y: 0, rotation: 0, scale: 1 }, { x: -490, y: -258, rotation: -3, scale: 0.92, duration: 1.4, ease: "power3.out" }, 0.50);
+      tl.fromTo("#fm1", { opacity: 0, scale: 0.86 }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(1.6)" }, 0.55);
+      tl.fromTo("#fr1", { x: 0, y: 0, rotation: 0, scale: 1 }, { x: 0, y: -334, rotation: 1, scale: 0.92, duration: 1.4, ease: "power3.out" }, 0.54);
+      tl.fromTo("#fm2", { opacity: 0, scale: 0.86 }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(1.6)" }, 0.60);
+      tl.fromTo("#fr2", { x: 0, y: 0, rotation: 0, scale: 1 }, { x: 490, y: -258, rotation: 3, scale: 0.92, duration: 1.4, ease: "power3.out" }, 0.58);
+      tl.fromTo("#fm3", { opacity: 0, scale: 0.86 }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(1.6)" }, 0.65);
+      tl.fromTo("#fr3", { x: 0, y: 0, rotation: 0, scale: 1 }, { x: -465, y: 196, rotation: 2, scale: 0.92, duration: 1.4, ease: "power3.out" }, 0.62);
+      tl.fromTo("#fm4", { opacity: 0, scale: 0.86 }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(1.6)" }, 0.70);
+      tl.fromTo("#fr4", { x: 0, y: 0, rotation: 0, scale: 1 }, { x: 455, y: 196, rotation: -2, scale: 0.92, duration: 1.4, ease: "power3.out" }, 0.66);
+      tl.to("#patch", { opacity: 0.15, duration: 1.2, ease: "power2.inOut" }, 1.0);
+      // Typing dots pulse a fixed number of times.
+      tl.fromTo(".bubble i", { opacity: 0.35 }, { opacity: 1, duration: 0.25, stagger: 0.08, repeat: 7, yoyo: true, ease: "sine.inOut" }, 0.8);
+      tl.fromTo("#l1", { opacity: 0, filter: "blur(10px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.3, ease: "power4.out" }, 2.1);
+      tl.fromTo("#l2", { opacity: 0, filter: "blur(10px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.3, ease: "power4.out" }, 2.35);
+      window.__timelines["clipnow"] = tl;
+    </script>
+  </body>
+</html>

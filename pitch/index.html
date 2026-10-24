@@ -1,0 +1,820 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Closing Demo Deck</title>
+<style>
+  /* Palette pulled from docs/concepts/World Map Concept.png */
+  :root {
+    --sea: #0f6f8c;
+    --sea-deep: #0b3d55;
+    --lagoon: #2bb7d3;
+    --snow: #f5f9fc;
+    --frost: #dcebf3;
+    --wood: #8b5a34;
+    --lamp: #ffc24b;
+    --ink: #12324a;
+    /* Cinematic slides (2017, 2022, Now): cold, near-black navy */
+    --night: #050f17;
+    --ice: #7fd3e6;
+  }
+
+  * { box-sizing: border-box; margin: 0; }
+
+  html, body {
+    height: 100%;
+    background: var(--sea-deep);
+    overflow: hidden;
+  }
+
+  body {
+    font-family: "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Fixed 1920x1080 stage, scaled to fit any screen or projector */
+  .stage {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 1920px;
+    height: 1080px;
+    transform-origin: 0 0;
+    background: var(--snow);
+    overflow: hidden;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: none;
+  }
+  .slide.is-active { display: block; }
+
+  /* The one loud thing: chunky extruded sign lettering, like the concept-art signs */
+  .sign {
+    font-weight: 900;
+    letter-spacing: -0.01em;
+    line-height: 0.95;
+    color: var(--snow);
+    text-shadow:
+      0 2px 0 #d7e7f0,
+      0 4px 0 #b9d3e1,
+      0 6px 0 #8fb6ca,
+      0 8px 0 var(--sea),
+      0 10px 0 var(--sea-deep),
+      0 22px 30px rgba(6, 30, 45, 0.45);
+  }
+
+  /* Light snowfall on the cozy slides (drawn by script) */
+  .snow {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  /* 1. Title */
+  .title-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .title-shade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(11, 61, 85, 0) 40%, rgba(11, 61, 85, 0.6) 65%, rgba(11, 61, 85, 0.92) 100%);
+  }
+  .title-text {
+    position: absolute;
+    left: 120px;
+    right: 120px;
+    bottom: 120px;
+  }
+  .title-text h1 { font-size: 200px; }
+  .title-text p {
+    margin-top: 40px;
+    font-size: 44px;
+    font-weight: 600;
+    color: var(--snow);
+  }
+
+  /* 2. 2005: warm, the island in its browser window */
+  .slide--2005 { background: radial-gradient(ellipse 70% 80% at 72% 45%, #fff3dc 0%, var(--snow) 70%); }
+  .grew {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1100px 1fr;
+    gap: 90px;
+    align-items: center;
+    height: 100%;
+    padding: 60px 120px 0;
+  }
+  .window-wrap { position: relative; }
+  .window {
+    border-radius: 18px;
+    overflow: hidden;
+    background: var(--frost);
+    box-shadow: 0 0 0 10px var(--wood), 0 30px 60px rgba(18, 50, 74, 0.35);
+    transform: rotate(-1.5deg);
+  }
+  .window-bar {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    padding: 14px 20px;
+    background: var(--wood);
+    color: #f6e3cc;
+    font-size: 24px;
+  }
+  .window-bar span {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #f6e3cc;
+    opacity: 0.6;
+  }
+  .window-bar b { margin-left: 12px; font-weight: 600; }
+  .window-view { overflow: hidden; }
+  .window img { display: block; width: 100%; }
+  .logo05 {
+    position: absolute;
+    right: 60px;
+    top: -168px;
+    width: 360px;
+    transform: rotate(4deg);
+    transform-origin: 50% 100%;
+    filter: drop-shadow(0 14px 14px rgba(18, 50, 74, 0.3));
+  }
+  .year05 { font-size: 200px; font-weight: 900; line-height: 0.9; color: var(--sea); letter-spacing: -0.02em; }
+
+  /* 2b. Memories: polaroids pinned to a corkboard, one per click */
+  .slide--memories {
+    background:
+      radial-gradient(circle at 20% 30%, rgba(255, 230, 190, 0.35), transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(90, 50, 20, 0.25), transparent 45%),
+      radial-gradient(rgba(90, 55, 25, 0.28) 1px, transparent 1.6px) 0 0 / 7px 7px,
+      radial-gradient(rgba(255, 235, 200, 0.22) 1px, transparent 1.6px) 3px 4px / 9px 9px,
+      radial-gradient(rgba(110, 70, 35, 0.18) 2px, transparent 2.6px) 5px 1px / 17px 13px,
+      #c39561;
+    box-shadow: inset 0 0 0 36px #8b5a34, inset 0 0 0 44px #6f4526, inset 0 0 120px rgba(60, 30, 10, 0.55);
+  }
+  .memo { position: absolute; opacity: 0; filter: drop-shadow(0 18px 18px rgba(40, 20, 5, 0.45)); }
+  .polaroid { padding: 18px 18px 0; background: #fbf9f4; }
+  .polaroid img { display: block; width: 100%; }
+  .polaroid figcaption, .note {
+    font-family: "Segoe Print", "Bradley Hand", "Comic Sans MS", cursive;
+    color: #2a3b4a;
+  }
+  .polaroid figcaption { height: 74px; line-height: 74px; text-align: center; font-size: 34px; }
+  .note {
+    width: 300px;
+    height: 300px;
+    padding: 48px 26px;
+    background: linear-gradient(160deg, #fff27a, #ffe14d);
+    font-size: 35px;
+    line-height: 1.25;
+    text-align: center;
+  }
+  .pin {
+    position: absolute;
+    left: 50%;
+    top: -14px;
+    width: 34px;
+    height: 34px;
+    margin-left: -17px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #ff8a80, #d93a2f 55%, #8f1d16);
+    box-shadow: 0 6px 8px rgba(40, 20, 5, 0.4);
+  }
+  .memo-line {
+    position: absolute;
+    left: 50%;
+    bottom: 110px;
+    padding: 26px 56px;
+    background: #fbf9f4;
+    color: var(--ink);
+    font-size: 64px;
+    font-weight: 900;
+    white-space: nowrap;
+    box-shadow: 0 18px 30px rgba(40, 20, 5, 0.45);
+    transform: translateX(-50%) rotate(-1.5deg);
+    opacity: 0;
+  }
+
+  /* 3-5. Timeline clips */
+  .slide--clip { background: #071a26; }
+  .slide--clip video, .slide--clip img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  /* A finished slide shows a still of the clip's last frame, so it never depends on seeking the video */
+  .slide--clip .clip-end { display: none; }
+  .slide--clip.is-done .clip-end { display: block; }
+  /* Now slide, third click: a follow-on clip swaps the text to "Revitalizing..." */
+  .revive-video, .revive-end { display: none; }
+  .is-revived .revive-video { display: block; }
+  .is-revived.is-revive-done .revive-end { display: block; }
+
+  /* 6. Trailer */
+  .slide--video { background: #000; }
+  .slide--video video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #000;
+  }
+  .empty {
+    position: absolute;
+    inset: 0;
+    display: none;
+    place-content: center;
+    text-align: center;
+    gap: 20px;
+    color: var(--frost);
+    font-size: 40px;
+  }
+  .empty code { font-size: 30px; color: var(--lamp); }
+  .is-missing .empty { display: grid; }
+  .is-missing video { display: none; }
+
+  /* 7. Pengloo key art */
+  .slide--key { background: #0a2433; }
+  .key-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .key-flash { position: absolute; inset: 0; background: radial-gradient(circle at 50% 50%, #ffffff 0%, rgba(255, 255, 255, 0.7) 30%, rgba(255, 255, 255, 0) 70%); opacity: 0; }
+  .key-logo { position: absolute; left: 0; right: 0; top: 50%; margin-top: -190px; text-align: center; }
+  .key-logo-in { display: inline-block; transform-origin: 50% 60%; }
+  .key-logo h2 {
+    font-size: 250px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    transform: rotate(-4deg);
+    background: linear-gradient(180deg, #ffffff 0%, #e6f7fd 45%, #8fdaec 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-stroke: 12px #0b3d55;
+    paint-order: stroke fill;
+    filter: drop-shadow(0 12px 0 #0b3d55) drop-shadow(0 28px 30px rgba(4, 18, 27, 0.45));
+  }
+  .key-tag {
+    display: inline-block;
+    margin-top: 34px;
+    padding: 14px 34px;
+    border-radius: 999px;
+    background: #0b3d55;
+    color: var(--snow);
+    font-size: 40px;
+    font-weight: 800;
+    box-shadow: 0 10px 24px rgba(4, 18, 27, 0.35);
+  }
+
+  /* 8-13. Features: full-screen game footage with the feature's name */
+  .slide--feat { background: #071a26; }
+  .feat-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .feat-empty {
+    position: absolute;
+    inset: 0;
+    display: none;
+    place-content: center;
+    gap: 22px;
+    text-align: center;
+    padding-bottom: 160px;
+    background: repeating-linear-gradient(-35deg, #0a2433 0 80px, #0c2a3b 80px 160px);
+  }
+  .feat-empty::before { content: ""; position: absolute; inset: 70px; border: 6px dashed rgba(127, 211, 230, 0.35); border-radius: 30px; }
+  .feat-empty div { font-size: 56px; font-weight: 800; color: var(--snow); }
+  .feat-empty code { font-size: 30px; color: var(--lamp); }
+  .slide--feat.is-missing .feat-empty { display: grid; }
+  .slide--feat.is-missing .feat-video { display: none; }
+  .feat-shade { position: absolute; inset: 0; background: linear-gradient(20deg, rgba(4, 16, 24, 0.9) 0%, rgba(4, 16, 24, 0.55) 30%, rgba(4, 16, 24, 0) 60%); }
+  .feat-text { position: absolute; left: 120px; bottom: 110px; }
+  .feat-text h2 { font-size: 140px; font-weight: 900; line-height: 0.95; color: var(--snow); }
+  .feat-text p { margin-top: 22px; font-size: 40px; font-weight: 600; color: var(--frost); max-width: 34ch; }
+
+  /* What we learned: bright snow ground, the tools' own logos */
+  .slide--learn { background: radial-gradient(ellipse 80% 75% at 30% 60%, #ffffff 0%, var(--snow) 45%, var(--frost) 100%); }
+  .learn-text { position: absolute; left: 120px; bottom: 150px; }
+  .learn-text h2 { font-size: 140px; font-weight: 900; line-height: 0.95; color: var(--ink); }
+  .learn-text p { margin-top: 26px; font-size: 48px; font-weight: 600; color: var(--sea-deep); max-width: 40ch; }
+  .logos { display: flex; align-items: center; gap: 80px; margin-top: 50px; }
+  .logos img { display: block; height: 130px; width: auto; }
+  .logos img[alt="Godot"] { height: 165px; } /* the Godot file has more padding around its mark */
+
+  /* Stripe wipe between feature slides (after the reference's first second), in sea teal */
+  .wipe { position: absolute; inset: 0; z-index: 50; overflow: hidden; pointer-events: none; display: none; }
+  .wipe.on { display: block; }
+  .band { position: absolute; left: 0; top: 0; height: 100%; transform-origin: 50% 50%; }
+
+  /* 9. Live demo */
+  .slide--demo { background: var(--sea); }
+  .demo {
+    position: relative;
+    display: grid;
+    place-content: center;
+    height: 100%;
+    text-align: center;
+  }
+  .demo h2 { font-size: 260px; }
+  .demo h2 .ch { display: inline-block; }
+  .demo p { margin-top: 56px; font-size: 44px; color: var(--frost); }
+
+  /* Progress */
+  .progress {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 8px;
+    background: var(--lamp);
+    transition: width 0.3s ease;
+  }
+  .slide--video.is-active ~ .progress { opacity: 0; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .progress { transition: none; }
+    .typing i { animation: none; }
+  }
+</style>
+</head>
+<body>
+<main class="stage" id="stage">
+
+  <!-- 1. Title -->
+  <section class="slide" id="s-title" aria-label="Title">
+    <img class="title-bg" src="../docs/concepts/World%20Map%20Concept.png" alt="Concept art of the island: plaza, cinema, arcade, sled hill, fishing dock">
+    <div class="title-shade"></div>
+    <canvas class="snow" width="1920" height="1080"></canvas>
+    <div class="title-text">
+      <h1 class="sign" data-name></h1>
+      <p>A place to hang out with your friends again. MRUHacks 2026, theme: Revitalize.</p>
+    </div>
+  </section>
+
+  <!-- 2. 2005 -->
+  <section class="slide slide--2005" id="s-2005" aria-label="2005">
+    <canvas class="snow" width="1920" height="1080"></canvas>
+    <div class="grew">
+      <div class="window-wrap">
+        <div class="window">
+          <div class="window-bar"><span></span><span></span><span></span><b>clubpenguin.com</b></div>
+          <div class="window-view"><img src="assets/cp-2009-island.png" alt="The Club Penguin homepage in 2009: penguins on a snowy island"></div>
+        </div>
+        <img class="logo05" src="assets/cp-logo.png" alt="Club Penguin logo">
+      </div>
+      <div class="copy05">
+        <h2 class="year05">2005</h2>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2b. Memories (each click pins the next one) -->
+  <section class="slide slide--memories" id="s-memories" aria-label="Club Penguin memories">
+    <figure class="memo polaroid" style="left: 150px; top: 270px; width: 500px; --tilt: -5deg"><span class="pin"></span><img src="assets/mem-igloo.png" alt="Penguins dancing at a decorated igloo party with puffles"><figcaption>my igloo party</figcaption></figure>
+    <figure class="memo polaroid" style="left: 720px; top: 210px; width: 340px; --tilt: 4deg"><span class="pin"></span><img src="assets/mem-puffle.png" alt="A blue puffle"><figcaption>my puffle</figcaption></figure>
+    <div class="memo note" style="left: 1130px; top: 300px; --tilt: -3deg"><span class="pin"></span>Mom, can I PLEASE get a membership?</div>
+    <figure class="memo polaroid" style="left: 1480px; top: 240px; width: 330px; --tilt: 6deg"><span class="pin"></span><img src="assets/mem-sled.png" alt="The snowy ski hill with penguins"><figcaption>Sled Hill</figcaption></figure>
+    <div class="memo-line">The first place online that felt like ours.</div>
+  </section>
+
+  <!-- 3-5. Timeline: clips rendered with HyperFrames from pitch/timeline -->
+  <section class="slide slide--clip" id="s-2017" aria-label="2017: Disney shuts Club Penguin down">
+    <video class="clip-video" src="assets/clip-2017.mp4?v=2" muted playsinline preload="auto"></video>
+    <img class="clip-end" src="assets/clip-2017-end.jpg?v=2" alt="">
+  </section>
+
+  <section class="slide slide--clip" id="s-2022" aria-label="2022: the biggest fan server is taken down">
+    <video class="clip-video" src="assets/clip-2022.mp4?v=2" muted playsinline preload="auto"></video>
+    <img class="clip-end" src="assets/clip-2022-end.jpg?v=2" alt="">
+  </section>
+
+  <section class="slide slide--clip" id="s-now" aria-label="Now: group chats everywhere, nowhere to be together">
+    <video class="clip-video" src="assets/clip-now.mp4" muted playsinline preload="auto"></video>
+    <img class="clip-end" src="assets/clip-now-end.jpg" alt="">
+    <video class="revive-video" src="assets/clip-now-revive.mp4" muted playsinline preload="auto"></video>
+    <img class="revive-end" src="assets/clip-now-revive-end.jpg" alt="">
+  </section>
+
+  <!-- 6. Trailer -->
+  <section class="slide slide--video" id="s-trailer" aria-label="Trailer">
+    <video id="trailer" src="assets/trailer.mp4" preload="auto" playsinline></video>
+    <div class="empty">
+      <div>Trailer not rendered yet.</div>
+      <code>pitch/assets/trailer.mp4</code>
+    </div>
+  </section>
+
+  <!-- 7. Pengloo key art -->
+  <section class="slide slide--key" id="s-key" aria-label="Pengloo">
+    <img class="key-bg" src="assets/pengloo-keyart.jpg" alt="Five bird friends sledding, fishing, throwing snowballs, gaming and eating popcorn">
+    <div class="key-flash"></div>
+    <div class="key-logo">
+      <div class="key-logo-in">
+        <h2 data-name></h2>
+        <div class="key-tag">A cozy island to hang out with your friends</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8-13. Features: drop real game footage at the path each placeholder shows -->
+  <section class="slide slide--feat" id="s-feat-walk" data-wipe aria-label="Walk anywhere">
+    <video class="feat-video" src="assets/feat-walk.mp4" muted loop playsinline preload="auto"></video>
+    <div class="feat-empty"><div>Game footage: walking around and leaving the igloo</div><code>pitch/assets/feat-walk.mp4</code></div>
+    <div class="feat-shade"></div>
+    <div class="feat-text">
+      <h2>Walk anywhere</h2>
+      <p>Click and your penguin finds the way. Start in your own igloo.</p>
+    </div>
+  </section>
+
+
+
+  <section class="slide slide--feat" id="s-feat-multiplayer" data-wipe aria-label="Multiplayer">
+    <video class="feat-video" src="assets/feat-multiplayer.mp4" muted loop playsinline preload="auto"></video>
+    <div class="feat-empty"><div>Game footage: two players talking in the plaza with voice chat</div><code>pitch/assets/feat-multiplayer.mp4</code></div>
+    <div class="feat-shade"></div>
+    <div class="feat-text">
+      <h2>Multiplayer</h2>
+      <p>See your friends' penguins live and talk with proximity voice chat.</p>
+    </div>
+  </section>
+
+
+  <section class="slide slide--feat" id="s-feat-minigames" data-wipe aria-label="Minigames">
+    <video class="feat-video" src="assets/feat-minigames.mp4" muted loop playsinline preload="auto"></video>
+    <div class="feat-empty"><div>Game footage: basketball, a sled race and the cinema</div><code>pitch/assets/feat-minigames.mp4</code></div>
+    <div class="feat-shade"></div>
+    <div class="feat-text">
+      <h2>Minigames</h2>
+      <p>Basketball, sled races and movie night in the cinema.</p>
+    </div>
+  </section>
+
+  <!-- 9. Live demo -->
+  <section class="slide slide--learn" id="s-learn" data-wipe aria-label="What we learned">
+    <div class="learn-text">
+      <h2>What we learned</h2>
+      <p>Our first time building a 3D game with</p>
+      <!-- Godot logo by Andrea Calabró, CC BY 4.0 (Wikimedia Commons). Blender logo: Blender Foundation, public domain file on Wikimedia Commons. -->
+      <div class="logos"><img src="assets/logo-godot.svg" alt="Godot"><img src="assets/logo-blender.svg" alt="Blender"></div>
+    </div>
+  </section>
+
+  <section class="slide slide--demo" id="s-play" data-wipe aria-label="Live demo">
+    <canvas class="snow" width="1920" height="1080"></canvas>
+    <div class="demo">
+      <h2 class="sign">Let's play.</h2>
+      <p>Switching to the game.</p>
+    </div>
+  </section>
+
+  <div class="wipe" id="wipe" aria-hidden="true">
+    <div class="band" data-w="160" data-delay="0" data-dur="560" style="width: 160px; background: var(--lagoon)"></div>
+    <div class="band" data-w="70" data-delay="40" data-dur="560" style="width: 70px; background: var(--snow)"></div>
+    <div class="band" data-w="5000" data-delay="90" data-dur="720" style="width: 5000px; background: var(--sea)"></div>
+    <div class="band" data-w="180" data-delay="230" data-dur="700" style="width: 180px; background: var(--lagoon)"></div>
+    <div class="band" data-w="60" data-delay="290" data-dur="680" style="width: 60px; background: var(--sea-deep)"></div>
+  </div>
+
+  <div class="progress" id="progress"></div>
+</main>
+
+<script>
+  // Swap the name here once the team picks one.
+  const PROJECT_NAME = "Pengloo";
+
+  const $ = (sel, root = document) => root.querySelector(sel);
+  const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
+
+  const stage = document.getElementById("stage");
+  const slides = $$(".slide");
+  const progress = document.getElementById("progress");
+  const trailer = document.getElementById("trailer");
+
+  document.querySelectorAll("[data-name]").forEach((el) => { el.textContent = PROJECT_NAME; });
+  document.title = PROJECT_NAME + " demo";
+
+  // Missing footage or trailer show a labeled slot instead of a broken player.
+  $$(".feat-video").forEach((v) => {
+    const mark = () => v.parentElement.classList.add("is-missing");
+    if (v.error) mark();
+    v.addEventListener("error", mark);
+  });
+  trailer.addEventListener("error", () => trailer.parentElement.classList.add("is-missing"));
+
+  function fit() {
+    const scale = Math.min(innerWidth / 1920, innerHeight / 1080);
+    stage.style.transform = `scale(${scale}) translate(-50%, -50%)`;
+  }
+
+  // ---------- Motion ----------
+
+  // A damped spring sampled into a CSS linear() easing. ratio < 1 overshoots.
+  function spring(ratio, points = 40) {
+    const w = 12;
+    const out = [];
+    for (let i = 0; i <= points; i++) {
+      const t = i / points;
+      const wd = w * Math.sqrt(1 - ratio * ratio);
+      const v = 1 - Math.exp(-ratio * w * t) * (Math.cos(wd * t) + (ratio * w / wd) * Math.sin(wd * t));
+      out.push(v.toFixed(4));
+    }
+    out[out.length - 1] = "1";
+    return `linear(${out.join(", ")})`;
+  }
+  const SOFT = spring(0.62);
+  const POP = spring(0.45);
+  const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+
+  function seeded(seed) {
+    return () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  }
+
+  // Step animations live in `live` and get committed when the next step starts.
+  let live = [];
+  let instant = false;
+
+  function play(el, keyframes, options) {
+    const anim = el.animate(keyframes, { fill: "both", ...options });
+    live.push(anim);
+    if (instant || reducedMotion.matches) anim.finish();
+    return anim;
+  }
+
+  function land(el, { from = "translateY(-40px)", delay = 0, duration = 900, easing = SOFT } = {}) {
+    return play(el, [{ opacity: 0, transform: from }, { opacity: 1, transform: "none" }], { duration, delay, easing });
+  }
+
+  // ---------- 2017, 2022, Now: rendered clips (source in pitch/timeline) ----------
+
+  // First press shows the clip's opening frame; second press plays it through.
+  // A finished slide (Previous, #n, reduced motion) shows a still of the last frame.
+  // Nothing here seeks the video: simple local servers can't serve byte ranges.
+  const CLIP_STEPS = [
+    (s) => {
+      const v = $("video", s);
+      s.classList.remove("is-done");
+      v.pause();
+      if (v.currentTime > 0) v.load(); // back to the first frame without seeking
+      play(v, [{ opacity: 0 }, { opacity: 1 }], { duration: 500, easing: "ease-out" });
+    },
+    (s) => {
+      const v = $("video", s);
+      if (instant || reducedMotion.matches) {
+        v.pause();
+        s.classList.add("is-done");
+      } else {
+        v.play().catch(() => {});
+      }
+    },
+  ];
+
+  // "Let's play." lands one letter at a time.
+  const playSign = $("#s-play h2");
+  playSign.setAttribute("aria-label", playSign.textContent);
+  playSign.innerHTML = [...playSign.textContent]
+    .map((ch) => (ch === " " ? " " : `<span class="ch" aria-hidden="true">${ch}</span>`))
+    .join("");
+
+  // ---------- Steps: each Next plays one; each slide's first step plays on arrival ----------
+
+  const STEPS = {
+    "s-title": [(s) => {
+      land($("h1", s), { from: "translateY(-150px)", duration: 1100 });
+      land($(".title-text p", s), { from: "translateY(30px)", delay: 300, duration: 800 });
+    }],
+
+    "s-2005": [(s) => {
+      play($(".window", s), [
+        { opacity: 0, transform: "translateY(90px) rotate(-6deg) scale(0.9)" },
+        { opacity: 1, transform: "rotate(-1.5deg)" },
+      ], { duration: 1000, easing: SOFT });
+      play($(".window-view img", s), [{ transform: "scale(1.18)" }, { transform: "scale(1)" }], { duration: 1200, delay: 80, easing: SOFT });
+      // The logo drops onto the top of the window and bounces to rest.
+      const fall = "cubic-bezier(0.5, 0, 0.9, 0.5)";
+      const rise = "cubic-bezier(0.1, 0.5, 0.4, 1)";
+      play($(".logo05", s), [
+        { opacity: 1, transform: "translateY(-560px) rotate(4deg) scale(1, 1)", easing: fall },
+        { opacity: 1, transform: "translateY(0px) rotate(4deg) scale(1.1, 0.86)", offset: 0.42, easing: rise },
+        { opacity: 1, transform: "translateY(-64px) rotate(2deg) scale(0.97, 1.04)", offset: 0.64, easing: fall },
+        { opacity: 1, transform: "translateY(0px) rotate(4deg) scale(1.05, 0.94)", offset: 0.82, easing: rise },
+        { opacity: 1, transform: "translateY(-12px) rotate(4deg) scale(1, 1)", offset: 0.91, easing: "ease-in" },
+        { opacity: 1, transform: "translateY(0px) rotate(4deg) scale(1, 1)" },
+      ], { duration: 1000, delay: 420 });
+      land($(".year05", s), { from: "translateY(-70px)", delay: 860 });
+    }],
+
+    // Each memory drops onto the board and gets pinned; the last click lands the line.
+    "s-memories": [
+      ...[0, 1, 2, 3].map((i) => (s) => {
+        const memo = $$(".memo", s)[i];
+        const tilt = getComputedStyle(memo).getPropertyValue("--tilt").trim();
+        play(memo, [
+          { opacity: 0, transform: `translateY(-420px) rotate(${parseFloat(tilt) * -2.5}deg) scale(1.12)` },
+          { opacity: 1, transform: `rotate(${tilt}) scale(1)` },
+        ], { duration: 850, easing: POP });
+        play($(".pin", memo), [{ opacity: 0, transform: "scale(2.2)" }, { opacity: 1, transform: "scale(1)" }], { duration: 300, delay: 420, easing: POP });
+      }),
+      (s) => play($(".memo-line", s), [
+        { opacity: 0, transform: "translateX(-50%) translateY(40px) rotate(-1.5deg)" },
+        { opacity: 1, transform: "translateX(-50%) rotate(-1.5deg)" },
+      ], { duration: 800, easing: SOFT }),
+    ],
+
+    // 2017 and 2022 play straight through on arrival; one press per slide.
+    "s-2017": [(s) => { CLIP_STEPS[0](s); CLIP_STEPS[1](s); }],
+    "s-2022": [(s) => { CLIP_STEPS[0](s); CLIP_STEPS[1](s); }],
+    "s-now": [
+      (s) => { s.classList.remove("is-revived", "is-revive-done"); CLIP_STEPS[0](s); },
+      CLIP_STEPS[1],
+      (s) => {
+        const rv = $(".revive-video", s);
+        s.classList.add("is-revived");
+        if (instant || reducedMotion.matches) {
+          rv.pause();
+          s.classList.add("is-revive-done");
+        } else {
+          if (rv.currentTime > 0) rv.load(); // first frame matches the Now clip's last frame
+          rv.play().catch(() => {});
+        }
+      },
+    ],
+
+    "s-key": [(s) => {
+      // Splash-screen entrance: flash, the art settles, the logo slams down, the screen kicks.
+      play($(".key-bg", s), [{ transform: "scale(1.18)" }, { transform: "scale(1)" }], { duration: 1100, easing: "cubic-bezier(0.16, 1, 0.3, 1)" });
+      play($(".key-flash", s), [{ opacity: 1 }, { opacity: 0 }], { duration: 450, easing: "ease-out" });
+      play($(".key-logo-in", s), [
+        { opacity: 0, transform: "scale(2.6)" },
+        { opacity: 1, transform: "scale(1)" },
+      ], { duration: 800, delay: 150, easing: POP });
+      play(s, [
+        { translate: "0px 0px" }, { translate: "-14px 9px" }, { translate: "11px -7px" },
+        { translate: "-6px 4px" }, { translate: "3px -2px" }, { translate: "0px 0px" },
+      ], { duration: 280, delay: 330, fill: "none" });
+      land($(".key-tag", s), { from: "translateY(30px)", delay: 700, duration: 700 });
+    }],
+
+    ...Object.fromEntries($$(".slide--feat").map((slide) => [slide.id, [(s) => {
+      const v = $(".feat-video", s);
+      if (!s.classList.contains("is-missing")) v.play().catch(() => {});
+      // The title arrives as the stripes leave: a fast slide with a colour split that settles.
+      play($("h2", s), [
+        { opacity: 0, transform: "translateX(180px) skewX(-18deg)", textShadow: "14px 0 0 rgba(255, 70, 110, 0.9), -14px 0 0 rgba(43, 183, 211, 0.9)" },
+        { opacity: 1, transform: "translateX(-12px) skewX(4deg)", textShadow: "5px 0 0 rgba(255, 70, 110, 0.7), -5px 0 0 rgba(43, 183, 211, 0.7)", offset: 0.6 },
+        { opacity: 1, transform: "none", textShadow: "0 0 0 rgba(255, 70, 110, 0), 0 0 0 rgba(43, 183, 211, 0)" },
+      ], { duration: 420, delay: 210, easing: "cubic-bezier(0.2, 0.8, 0.2, 1)" });
+      play($("p", s), [{ opacity: 0, transform: "translateX(60px)" }, { opacity: 1, transform: "none" }], { duration: 380, delay: 370, easing: "cubic-bezier(0.2, 0.8, 0.2, 1)" });
+    }]])),
+
+    // Same title entrance as the feature slides, then the two logos pop in.
+    "s-learn": [(s) => {
+      play($("h2", s), [
+        { opacity: 0, transform: "translateX(180px) skewX(-18deg)", textShadow: "14px 0 0 rgba(255, 70, 110, 0.9), -14px 0 0 rgba(43, 183, 211, 0.9)" },
+        { opacity: 1, transform: "translateX(-12px) skewX(4deg)", textShadow: "5px 0 0 rgba(255, 70, 110, 0.7), -5px 0 0 rgba(43, 183, 211, 0.7)", offset: 0.6 },
+        { opacity: 1, transform: "none", textShadow: "0 0 0 rgba(255, 70, 110, 0), 0 0 0 rgba(43, 183, 211, 0)" },
+      ], { duration: 420, delay: 210, easing: "cubic-bezier(0.2, 0.8, 0.2, 1)" });
+      play($("p", s), [{ opacity: 0, transform: "translateX(60px)" }, { opacity: 1, transform: "none" }], { duration: 380, delay: 370, easing: "cubic-bezier(0.2, 0.8, 0.2, 1)" });
+      $$(".logos img", s).forEach((logo, i) => play(logo, [
+        { opacity: 0, transform: "translateY(30px) scale(0.85)" },
+        { opacity: 1, transform: "none" },
+      ], { duration: 650, delay: 560 + i * 140, easing: POP }));
+    }],
+
+    "s-play": [(s) => {
+      $$(".ch", s).forEach((ch, i) => land(ch, { from: "translateY(-180px) scale(0.9)", delay: i * 70, easing: POP }));
+      land($(".demo p", s), { from: "translateY(20px)", delay: 900, duration: 700 });
+    }],
+  };
+
+  // ---------- Navigation ----------
+
+  let current = 0;
+  let done = 0; // steps already played on the current slide
+
+  const stepsOf = (i) => STEPS[slides[i].id] || [];
+
+  function playStep() {
+    live.forEach((anim) => anim.finish()); // a click mid-animation commits the previous step first
+    stepsOf(current)[done++](slides[current]);
+  }
+
+  // finished = true shows the slide with every step already played, no motion.
+  function go(index, finished) {
+    live.forEach((anim) => anim.cancel());
+    live = [];
+    current = Math.max(0, Math.min(slides.length - 1, index));
+    done = 0;
+    slides.forEach((s, i) => s.classList.toggle("is-active", i === current));
+    progress.style.width = `${((current + 1) / slides.length) * 100}%`;
+    history.replaceState(null, "", `#${current + 1}`);
+    // Timeline clips never keep playing behind another slide.
+    $$(".clip-video, .feat-video, .revive-video").forEach((v) => { if (!slides[current].contains(v)) v.pause(); });
+    if (slides[current].contains(trailer)) {
+      trailer.currentTime = 0;
+      trailer.play().catch(() => {});
+    } else {
+      trailer.pause();
+    }
+    instant = finished;
+    if (finished) {
+      while (done < stepsOf(current).length) playStep();
+    } else if (stepsOf(current).length) {
+      playStep();
+    }
+    instant = false;
+  }
+
+  // Stripes sweep across; the next slide is swapped in while the wide band covers the screen.
+  const wipe = document.getElementById("wipe");
+  const bands = $$(".band", wipe);
+  const SKEW_SPAN = 760; // horizontal reach of a band skewed 35 degrees over 1080 px
+  let wiping = false;
+  let queued = false; // a Next pressed mid-wipe runs as soon as the wipe ends
+  function wipeTo(index) {
+    wiping = true;
+    wipe.classList.add("on");
+    const runs = bands.map((b) => b.animate([
+      { transform: `translateX(${-(Number(b.dataset.w) + SKEW_SPAN)}px) skewX(-35deg)` },
+      { transform: `translateX(${1920 + SKEW_SPAN}px) skewX(-35deg)` },
+    ], { duration: Number(b.dataset.dur), delay: Number(b.dataset.delay), easing: "cubic-bezier(0.6, 0, 0.4, 1)", fill: "both" }));
+    setTimeout(() => go(index, false), 450);
+    Promise.all(runs.map((r) => r.finished)).then(() => {
+      runs.forEach((r) => r.cancel());
+      wipe.classList.remove("on");
+      wiping = false;
+      if (queued) { queued = false; next(); }
+    });
+  }
+
+  function next() {
+    if (wiping) { queued = true; return; }
+    if (done < stepsOf(current).length) playStep();
+    else if (current < slides.length - 1) {
+      const target = slides[current + 1];
+      if (target.hasAttribute("data-wipe") && !reducedMotion.matches) wipeTo(current + 1);
+      else go(current + 1, false);
+    }
+  }
+  function previous() {
+    if (wiping) return;
+    if (current > 0) go(current - 1, true);
+  }
+
+  addEventListener("keydown", (e) => {
+    if (["ArrowRight", "PageDown", " ", "Enter"].includes(e.key)) { e.preventDefault(); next(); }
+    if (["ArrowLeft", "PageUp", "Backspace"].includes(e.key)) { e.preventDefault(); previous(); }
+    if (e.key === "Home") go(0, true);
+    if (e.key === "End") go(slides.length - 1, true);
+    if (e.key === "f" || e.key === "F") {
+      document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+    }
+  });
+  addEventListener("click", (e) => (e.clientX > innerWidth / 2 ? next() : previous()));
+  addEventListener("resize", fit);
+
+  // ---------- Snow on the cozy slides. Seeded, so it looks the same every run ----------
+
+  const flakeRand = seeded(7);
+  const flakes = Array.from({ length: 90 }, () => ({
+    x: flakeRand(),
+    y: flakeRand(),
+    r: 1.4 + flakeRand() * 3,
+    v: 0.02 + flakeRand() * 0.04,
+    sway: flakeRand() * 6.28,
+  }));
+  let lastFrame = performance.now();
+  function snow(now) {
+    const dt = Math.min(0.05, (now - lastFrame) / 1000);
+    lastFrame = now;
+    const canvas = $(".snow", slides[current]);
+    if (canvas) {
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // Flakes get a faint sea-blue halo so they read on the pale snow ground.
+      ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
+      ctx.shadowColor = "rgba(15, 111, 140, 0.45)";
+      ctx.shadowBlur = 6;
+      for (const f of flakes) {
+        if (!reducedMotion.matches) {
+          f.y += f.v * dt;
+          f.sway += dt;
+          if (f.y > 1.02) f.y = -0.02;
+        }
+        ctx.beginPath();
+        ctx.arc((f.x + Math.sin(f.sway) * 0.01) * canvas.width, f.y * canvas.height, f.r, 0, 6.29);
+        ctx.fill();
+      }
+    }
+    requestAnimationFrame(snow);
+  }
+  requestAnimationFrame(snow);
+
+  fit();
+  const fromHash = parseInt(location.hash.slice(1), 10);
+  go(fromHash ? fromHash - 1 : 0, Boolean(fromHash));
+</script>
+</body>
+</html>

@@ -13,6 +13,7 @@ const ARC_THREE := 4.6
 const WIN_SCORE := 11
 const WIN_CAP := 15
 const MATCH_SECONDS := 240.0
+const LOFT_DEFAULT := 0.5
 
 var force_make := false
 
@@ -95,9 +96,11 @@ func reset() -> void:
 	_bodies.clear()
 
 
+## "shoot" or "shoot:<loft>", loft 0 (flattest line to the rim) to 1 (tall lob).
 func request(id: int, action: String) -> void:
-	if action == "shoot":
-		_shoot(id)
+	var bits := action.split(":")
+	if bits[0] == "shoot":
+		_shoot(id, clampf(float(bits[1]) if bits.size() > 1 and bits[1].is_valid_float() else LOFT_DEFAULT, 0.0, 1.0))
 	elif action == "pass":
 		_pass(id)
 	elif action == "steal":
@@ -277,7 +280,51 @@ func _pickup(ids: Array[int]) -> void:
 		inbound_left = 0.0
 
 
-func _shoot(id: int) -> void:
+## Flight time for a loft setting. The flattest shot peaks right at the rim (anything quicker
+## would still be climbing as it arrives); full loft is a lob about 2.4 times as slow.
+static func flight_time(rise: float, loft: float) -> float:
+	var flattest := maxf(sqrt(maxf(rise, 0.05) / (0.5 * GRAVITY)), 0.4)
+	return flattest * lerpf(1.0, 2.4, clampf(loft, 0.0, 1.0))
+
+
+## The loft that suits a distance: close shots want a flat-ish arc, long ones a higher one.
+static func ideal_loft(dist: float) -> float:
+	return clampf(0.25 + dist * 0.09, 0.2, 0.95)
+
+
+## 1 at the ideal loft, 0 when it is 0.45 or more off.
+static func loft_fit(dist: float, loft: float) -> float:
+	return 1.0 - clampf(absf(loft - ideal_loft(dist)) / 0.45, 0.0, 1.0)
+
+
+## What the aim guide colour means. Green (a good arc for the distance) goes in, a defender on
+## you only takes it down a little. Yellow is a coin flip. Orange falls back to the distance odds.
+const FIT_GOOD := 0.7
+const FIT_OK := 0.4
+
+
+static func shot_chance(dist: float, loft: float, contested: bool) -> float:
+	var fit := loft_fit(dist, loft)
+	if fit >= FIT_GOOD:
+		return 0.85 if contested else 1.0
+	if fit >= FIT_OK:
+		return 0.4 if contested else 0.55
+	return minf(_distance_chance(dist, contested) * 0.6, 0.5)
+
+
+## Points along the ball's path from `from` to `aim`, the same maths _launch flies.
+static func arc_points(from: Vector3, aim: Vector3, loft: float, steps: int) -> PackedVector3Array:
+	var duration := flight_time(aim.y - from.y, loft)
+	var vel := (aim - from) / duration
+	vel.y += 0.5 * GRAVITY * duration
+	var out := PackedVector3Array()
+	for i in steps + 1:
+		var t := duration * float(i) / steps
+		out.append(from + vel * t - Vector3(0.0, 0.5 * GRAVITY * t * t, 0.0))
+	return out
+
+
+func _shoot(id: int, loft := LOFT_DEFAULT) -> void:
 	if not _holding(id):
 		return
 	var body: Dictionary = _bodies.get(id, {})
@@ -287,7 +334,7 @@ func _shoot(id: int) -> void:
 	var aim_hoop := _attack_hoop(id)
 	var dist := Vector2(from.x - aim_hoop.x, from.z - aim_hoop.z).length()
 	var contested := _contested(id, Vector3(float(body["x"]), 0.0, float(body["z"])))
-	var chance := _chance(dist, contested)
+	var chance := shot_chance(dist, loft, contested)
 	var made := force_make or _roll() < chance
 	var aim := aim_hoop
 	_flight_hoop = aim_hoop
@@ -298,7 +345,7 @@ func _shoot(id: int) -> void:
 	_flight_points = 3 if dist >= ARC_THREE else 2
 	_flight_from = id
 	_flight_catch = 0
-	_launch(id, from, aim, 0.62, "shot")
+	_launch(id, from, aim, flight_time(aim.y - from.y, loft), "shot")
 
 
 func _pass(id: int) -> void:
@@ -669,7 +716,7 @@ func _contested(id: int, at: Vector3) -> bool:
 	return false
 
 
-func _chance(dist: float, contested: bool) -> float:
+static func _distance_chance(dist: float, contested: bool) -> float:
 	if dist < 2.5:
 		return 0.45 if contested else 0.85
 	if dist < ARC_THREE:

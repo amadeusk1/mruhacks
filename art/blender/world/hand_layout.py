@@ -125,6 +125,7 @@ def plaza():
     mark("Spawn", 0, -3.0, 180)
     mark("BusArrival", 2.2, -5.2, 200)
     mark("BusStop", 3.4, -7.3, 200, kind="bus")
+    mark("DanceFloor", 7.6, 0.0, 0, kind="activity", activity="dance", clear_r=2.7)   # scripts/world/dance_floor.gd reads it; r 2.3 floor
     # south gate: map board with a bench beside it, notice board, signpost and a bin
     place("world_misc/world_map_board", -3.95, -11.03, 160, tags=BLOCK, name="MapBoard")
     place("plaza/bench", -2.05, -11.63, 160, tags=BLOCK)
@@ -287,6 +288,46 @@ def stream():
             ("winter/rock_cluster_snow_small", 10.34, -13.32, 300, 1.0), ("nature_dock/rock_small_a_snow", 7.94, -11.88, 75, 0.8),
             ("nature_dock/rock_cluster_snow", 6.3, -16.6, 40, 0.8), ("nature_dock/rock_small_b_snow", 6.0, -15.4, 180, 0.8)]:  # S bend
         place(asset, x, y, yaw, z=ground(x, y) - 0.12, tags=BANK, scale=s)
+    # grey boulders lining both banks above the waterline (not at the bridges, not on the paths)
+    for asset, x, y, yaw, s in [
+            ('nature_dock/rock_cluster', 13.96, 32.25, 0, 0.9),
+            ('nature_dock/rock_small_b', 17.07, 30.76, 47, 0.7),
+            ('nature_dock/rock_small_a', 14.07, 30.55, 47, 0.7),
+            ('nature_dock/rock_cluster', 17.18, 29.06, 94, 0.8),
+            ('nature_dock/rock_small_b', 14.19, 28.86, 94, 0.8),
+            ('nature_dock/rock_small_a', 17.3, 27.37, 141, 0.9),
+            ('nature_dock/rock_cluster', 14.31, 27.16, 141, 0.9),
+            ('nature_dock/rock_small_b', 18.61, 19.81, 47, 0.7),
+            ('nature_dock/rock_small_a', 15.89, 18.55, 47, 0.7),
+            ('nature_dock/rock_small_b', 16.6, 17.01, 94, 0.8),
+            ('nature_dock/rock_cluster', 16.93, 15.95, 0, 0.9),
+            ('nature_dock/rock_small_b', 19.27, 13.41, 47, 0.7),
+            ('nature_dock/rock_small_a', 16.41, 14.33, 47, 0.7),
+            ('nature_dock/rock_cluster', 18.75, 11.79, 94, 0.8),
+            ('nature_dock/rock_small_b', 15.89, 12.71, 94, 0.8),
+            ('nature_dock/rock_small_a', 18.23, 10.17, 141, 0.9),
+            ('nature_dock/rock_cluster', 15.37, 11.09, 141, 0.9),
+            ('nature_dock/rock_small_b', 17.71, 8.55, 188, 0.7),
+            ('nature_dock/rock_small_a', 17.28, 7.22, 0, 0.9),
+            ('nature_dock/rock_small_b', 16.75, 5.61, 47, 0.7),
+            ('nature_dock/rock_cluster', 10.88, -5.57, 141, 0.9),
+            ('nature_dock/rock_small_a', 9.55, -15.22, 0, 0.9),
+            ('nature_dock/rock_small_b', 9.41, -16.92, 47, 0.7),
+            ('nature_dock/rock_cluster', 9.27, -18.61, 94, 0.8),
+            ('nature_dock/rock_small_b', 6.28, -18.36, 94, 0.8),
+            ('nature_dock/rock_small_a', 9.13, -20.3, 141, 0.9),
+            ('nature_dock/rock_cluster', 6.14, -20.06, 141, 0.9),
+            ('nature_dock/rock_small_a', 9.02, -22.8, 0, 0.9),
+            ('nature_dock/rock_cluster', 6.03, -22.99, 0, 0.9),
+            ('nature_dock/rock_small_b', 9.13, -24.5, 47, 0.7),
+            ('nature_dock/rock_small_a', 6.13, -24.69, 47, 0.7),
+            ('nature_dock/rock_cluster', 9.23, -26.2, 94, 0.8),
+            ('nature_dock/rock_small_b', 6.24, -26.39, 94, 0.8),
+            ('nature_dock/rock_small_a', 9.34, -27.89, 141, 0.9),
+            ('nature_dock/rock_small_b', 9.45, -29.59, 188, 0.7),
+            ('nature_dock/rock_cluster', 9.55, -31.29, 235, 0.8),
+            ('nature_dock/rock_small_b', 6.56, -31.48, 235, 0.8)]:
+        place(asset, x, y, yaw, z=ground(x, y) - 0.15, tags=BANK, scale=s)
     # railing on both banks beside the plaza stretch, with end posts
     for a, b in [((13.45, 8.4), (11.6, 2.6)), ((17.4, 4.9), (16.85, 2.2)), ((10.1, -2.9), (9.7, -5.6)), ((15.4, -3.3), (14.95, -6.5))]:
         run("town_connections/rail_segment", a, b, 2.1, yaw=math.degrees(math.atan2(b[1] - a[1], b[0] - a[0])))
@@ -514,7 +555,8 @@ def arena():
     def A(u, v):                                            # blockout-local metres -> world
         return o.x + u * sc, o.y + v * sc
     place("winter/snowball_arena_blockout", o.x, o.y, 0, z=az, tags=("prop",), name="SnowballArena", scale=sc)
-    mark("ArenaGate", T.ARENA_GATE_X, 18.2, 0, kind="activity", activity="snowballs", z=az)
+    # inside the gate, past the blockout's spectator bench (socket_spectator_1 at v 18.0) and between the ready pads
+    mark("ArenaGate", T.ARENA_GATE_X, 19.0, 0, kind="activity", activity="snowballs", z=az)
     # team ready pads with foot rings, respawn pads, flags, the snowball pile, scoreboard, spectator benches
     for team, col, u in (("coral", "#E86D58", 4.8), ("teal", "#207D85", 7.3)):
         place("winter/ready_pad", *A(u, 0.3), 0, z=az, tints={"team": col})
@@ -581,6 +623,14 @@ def woods():
     # behind the sketch club
     grove([(M_, 36.2, -9.6, 40, 1.0), (F, 34.4, -11.0, 200, 0.9), (L, 36.8, -2.6, 120, 1.0), (F, 37.0, -5.0, 280, 0.9),
            (M_, 31.2, -10.8, 330, 0.95)], zone="sketch")
+    # firs on the stream banks
+    grove([(F, 14.59, 16.69, 0, 0.9), (F, 11.99, -15.43, 0, 0.9), (F, 4.12, -14.77, 0, 0.9), (L, 11.71, -18.81, 142, 1.05)])
+    # firs round the court
+    grove([(M_, 16.0, -24.0, 30, 1.0), (F, 15.4, -21.0, 120, 0.9), (M_, 15.6, -17.4, 210, 0.95), (F, 31.0, -26.6, 300, 0.9),
+           (M_, 36.2, -13.8, 60, 0.95)], zone="court")
+    # firs at the homes lots' side yards
+    grove([(F, -25.4, 6.6, 10, 0.9), (F, -25.4, -6.6, 100, 0.85), (F, -25.4, 2.6, 190, 0.8), (F, -33.1, -2.6, 280, 0.85),
+           (F, -21.6, 6.6, 40, 0.9), (F, -21.6, -2.6, 130, 0.8)], zone="homes")
     # behind the cinema
     grove([(L, -1.5, 31.0, 30, 1.0), (M_, 1.8, 31.6, 150, 0.95), (F, -4.5, 29.8, 260, 0.9)])
     # east of the picnic, south of the plaza bridge path
@@ -609,11 +659,18 @@ def wayfinding():
     for x, y, yaw in [(-14.08, 2.81, 0), (10.32, -2.48, 60), (-14.78, -8.02, 0), (8.6, 24.7, 30), (32.6, 5.6, 0),
                       (26.12, -12.32, 0), (-7.6, 15.6, 90), (-22.02, -7.39, 90), (-21.5, 8.0, 0)]:
         place("world_misc/destination_signpost", x, y, yaw, tags=BLOCK)
+    # rest stops along the longer paths: a bench facing the path, a lamp beside it, a bin
+    for bx, by, byaw, lx, ly, nx, ny in [(2.9, -21.5, -90, 2.95, -20.2, 3.35, -22.7),        # south spoke, halfway to the pier
+                                         (20.5, 1.75, 180, 19.2, 1.7, 18.5, 2.1),            # east spoke past the bridge
+                                         (25.6, -8.2, 90, 25.2, -7.0, 25.3, -9.4)]:          # sketch -> court path
+        place("plaza/bench", bx, by, byaw, tags=BLOCK, zone="reststop")
+        place("plaza/lantern_post", lx, ly, 0, tags=LIGHT, zone="reststop")
+        place("plaza/street_bin", nx, ny, 0, tags=BLOCK, zone="reststop")
     # path lanterns where they mean something: bridge ends, the homes crossroads, the cove path, the pier head
     for x, y in [(10.6, 1.65), (16.1, -1.95),                     # plaza bridge
                  (9.09, -7.46), (11.77, -13.46),                  # court-path bridge
                  (13.2, 24.2),                                    # cinema-arena bridge
                  (-33.6, 1.75),                                   # homes (none at the crossroads: doors)
                  (-0.35, -27.5), (3.35, -27.5), (-0.95, -18.5),    # south spoke and pier head
-                 (31.85, 8.3), (-8.4, 16.4)]:                     # east loop, sled stairs foot
+                 (31.85, 8.3)]:                                   # east loop (none at the sled stair foot: wedge gap)
         place("plaza/lantern_post", x, y, 0, tags=LIGHT)
