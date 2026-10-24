@@ -7,6 +7,18 @@ extends Node3D
 
 func _ready() -> void:
 	AssetPack.dress_cinema(self)
+	# floors, tiers, steps and the stage collide where they're drawn (the dressing only adds a
+	# flat floor at y = 0, so the penguin walked inside the tiers); then rebake the navmesh
+	var nav := get_node_or_null("NavigationRegion3D")
+	for model_name in ["cinema_lobby", "cinema_auditorium", "cinema_exterior"]:
+		var model: Node3D = null  # the dressed instance under PackProps, not its inner mesh node
+		for n in find_children(model_name + "*", "Node3D", true, false):
+			if n.get_parent().name == "PackProps":
+				model = n
+		if model and nav:
+			WalkSurface.build(model, nav, model.global_position.y - 0.3, model_name + "_walk")
+	if nav and nav.has_method("rebake"):
+		nav.call("rebake")
 	var hall := find_child("cinema_auditorium", true, false) as Node3D  # claimable, net-safe seats
 	if hall:
 		var screen := Sockets.find(hall, "screen")

@@ -239,7 +239,10 @@ func _physics_process(delta: float) -> void:
 	if facing.length() > 0.15:
 		_turn_toward(facing, delta)
 
+	var before := global_position
+	var intended := Vector3(velocity.x, 0.0, velocity.z)  # move_and_slide zeroes it against the step
 	move_and_slide()
+	_step_up(before, intended, delta)
 	_plant_shadow()
 	_animate(delta, facing.length())
 	_publish_pose()
@@ -288,6 +291,37 @@ func _interact_point(node: Node) -> Vector3:
 	if body != null:
 		return body.global_position
 	return global_position
+
+
+## Step onto stairs, tier risers, bridge lips and kerbs up to STEP_HEIGHT: when the slide was
+## blocked by a wall, retry the horizontal move from STEP_HEIGHT higher and settle down onto
+## the step. (CharacterBody3D only snaps down; without this any vertical edge stops the bird.)
+const STEP_HEIGHT := 0.35
+
+
+func _step_up(before: Vector3, wish: Vector3, delta: float) -> void:
+	if not is_on_wall() or wish.length() < 0.1:
+		return
+	var moved := Vector2(global_position.x - before.x, global_position.z - before.z).length()
+	var want := wish.length() * delta
+	if moved > want * 0.6:
+		return
+	var start := Transform3D(global_basis, before)
+	var up := Vector3.UP * STEP_HEIGHT
+	if test_move(start, up):
+		return
+	var raised := start.translated(up)
+	var ahead := wish * delta
+	if test_move(raised, ahead):
+		return
+	var over := raised.translated(ahead)
+	var col := KinematicCollision3D.new()
+	if not test_move(over, -up, col):
+		return  # nothing to stand on: it's a drop, not a step
+	if col.get_normal().y < 0.7:
+		return
+	global_position = over.origin + col.get_travel()  # settled onto the step
+	velocity = Vector3(wish.x, 0.0, wish.z)
 
 
 func _try_click(event: InputEvent = null) -> void:

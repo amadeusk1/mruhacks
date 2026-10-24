@@ -18,6 +18,12 @@ func _ready() -> void:
 		AssetPack._furnish(dome, "room_kit", "sofa_2seat", Vector3(-0.3, 0.12, 1.25), PI)
 		AssetPack._furnish(dome, "room_kit", "armchair", Vector3(1.35, 0.12, -0.25), -PI * 0.5)
 		SeatSpot.from_sockets.call_deferred(self, dome, "armchair")  # after dress_home finishes furnishing
+	var nav := get_node_or_null("NavigationRegion3D")
+	for model in find_children("snow_dome*", "Node3D", true, false):  # floors where they're drawn
+		if nav and model.get_parent().name == "PackProps":
+			WalkSurface.build(model, nav, model.global_position.y - 0.3, model.name + "_walk")
+	if nav and nav.has_method("rebake"):
+		nav.call("rebake")
 
 
 func camera_for_spawn(spawn_name: String) -> Dictionary:

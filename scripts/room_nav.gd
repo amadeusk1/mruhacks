@@ -4,7 +4,7 @@ extends NavigationRegion3D
 ## Floor colliders (physics layer 1) are the only walkable surface.
 ## Blockers (physics layer 2) carve holes so paths go around the ice, not over it.
 
-const AGENT_RADIUS := 0.5
+const AGENT_RADIUS := 0.3  # the penguin capsule (0.28); 0.5 erased narrow bridges, docks and stairs
 const AGENT_HEIGHT := 1.25
 
 
@@ -21,15 +21,15 @@ func rebake() -> void:
 func _bake() -> void:
 	_carve_blockers()
 	var map := get_navigation_map()
-	NavigationServer3D.map_set_cell_size(map, 0.25)
-	NavigationServer3D.map_set_cell_height(map, 0.25)
+	NavigationServer3D.map_set_cell_size(map, 0.15)  # 0.25 eroded 0.5 m per side: no bridges or docks
+	NavigationServer3D.map_set_cell_height(map, 0.1)  # finer than the 0.2 m tier/stair steps
 	var mesh := NavigationMesh.new()
 	mesh.agent_radius = AGENT_RADIUS
 	mesh.agent_height = AGENT_HEIGHT
-	mesh.agent_max_climb = 0.25
+	mesh.agent_max_climb = 0.35  # matches penguin_movement STEP_HEIGHT
 	mesh.agent_max_slope = 25.0
-	mesh.cell_size = 0.25
-	mesh.cell_height = 0.25
+	mesh.cell_size = 0.15
+	mesh.cell_height = 0.1
 	mesh.geometry_parsed_geometry_type = NavigationMesh.PARSED_GEOMETRY_STATIC_COLLIDERS
 	mesh.geometry_collision_mask = 1
 	mesh.geometry_source_geometry_mode = NavigationMesh.SOURCE_GEOMETRY_ROOT_NODE_CHILDREN

@@ -17,6 +17,7 @@ const BLOCK_LAYER := 2
 @onready var _nav: NavigationRegion3D = $NavigationRegion3D
 
 var _layout: Dictionary
+var _walks: Array = []  # walkable placements' floor bodies, joined to the ground in _ready
 var _glows: Array = []  # [material, base_energy, phase]
 var _saved_env: Environment
 var _saved_sun := {}
@@ -37,6 +38,22 @@ func _enter_tree() -> void:
 
 func _ready() -> void:
 	_apply_environment()
+	await get_tree().physics_frame  # bodies registered for the edge raycasts
+	var nav := get_node("NavigationRegion3D")
+	var open := 0
+	var space := get_world_3d().direct_space_state
+	var ramps := 0
+	for pair in _walks:
+		ramps += WalkSurface.add_ramps(pair[0], nav, space)
+	await get_tree().physics_frame
+	for pair in _walks:
+		var left: Array = WalkSurface.span_gaps(pair[1], nav, space)
+		open += left.size()
+	print("Town walkables: %d, ramps: %d, gap spans: %d" % [_walks.size(), ramps, nav.get_children().filter(func(n): return n.has_meta("gap_span")).size()])
+	if open > 0:
+		push_warning("Town: %d walkable edges face a gap wider than 1.2 m (layout fix needed)" % open)
+	if nav.has_method("rebake"):
+		nav.call("rebake")
 	AmbientFx.dress(self)
 	var world := get_tree().get_first_node_in_group("world")
 	if world:
@@ -142,9 +159,15 @@ func _place(nav: Node, p: Dictionary) -> void:
 			colors[role] = Color(p["tints"][role])
 		Tints.apply(node, colors)
 	var tags: Array = p.get("tags", [])
-	if tags.has("walkable"):
-		for mi in node.find_children("*", "MeshInstance3D", true, false):
-			_trimesh_body(mi, FLOOR_LAYER)
+	if tags.has("walkable"):  # decks, bridges, stairs, courts: standable where drawn, solid below
+		var walk := WalkSurface.build(node, nav, node.position.y - 1.2, node.name + "_walk")
+		node.set_meta("walkable", true)
+		if id.contains("dock"):  # flat decks: one solid box across the footprint (plank gaps left holes)
+			var sz := AssetRegistry.size(id)
+			var deck := _box_body(nav, Vector3.ZERO, Vector3(sz.x, 0.3, sz.z), 0.0, FLOOR_LAYER)
+			deck.transform = node.transform * Transform3D(Basis.IDENTITY, Vector3(0, -0.15 + 0.02, 0))
+		if walk:
+			_walks.append([node, walk])
 	if tags.has("blocker"):
 		var size := AssetRegistry.size(id) * float(p.get("scale", 1.0))
 		_box_body(nav, node.position + Vector3(0, size.y * 0.5, 0), size, float(p.get("rot_y_deg", 0.0)), BLOCK_LAYER)
@@ -336,7 +359,7 @@ func _trimesh_body(mi: MeshInstance3D, layer: int) -> void:
 	mi.add_child(body)
 
 
-func _box_body(parent: Node, center: Vector3, size: Vector3, rot_y: float, layer: int) -> void:
+func _box_body(parent: Node, center: Vector3, size: Vector3, rot_y: float, layer: int) -> StaticBody3D:
 	var body := StaticBody3D.new()
 	body.collision_layer = layer
 	body.collision_mask = 0
@@ -347,6 +370,7 @@ func _box_body(parent: Node, center: Vector3, size: Vector3, rot_y: float, layer
 	shape.shape = box
 	body.add_child(shape)
 	parent.add_child(body)
+	return body
 
 
 func _apply_environment() -> void:
