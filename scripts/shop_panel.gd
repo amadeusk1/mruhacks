@@ -108,9 +108,9 @@ func _build() -> void:
 	_panel.name = "Panel"
 	_panel.set_anchors_preset(Control.PRESET_CENTER_RIGHT)
 	_panel.offset_left = -524.0
-	_panel.offset_top = -220.0
+	_panel.offset_top = -300.0
 	_panel.offset_right = -24.0
-	_panel.offset_bottom = 220.0
+	_panel.offset_bottom = 300.0
 	_panel.add_theme_stylebox_override("panel", _panel_style())
 	add_child(_panel)
 
@@ -203,7 +203,7 @@ func _card(id: String) -> Button:
 	button.name = "Card_%s" % id
 	button.text = ""
 	button.focus_mode = Control.FOCUS_NONE
-	button.custom_minimum_size = Vector2(230, 76)
+	button.custom_minimum_size = Vector2(230, 62)
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	button.pressed.connect(_on_card_pressed.bind(id))
 

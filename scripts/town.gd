@@ -28,11 +28,13 @@ func _dress_pet_shop() -> void:
 	var root := Node3D.new()
 	root.name = "PetStalls"
 	add_child(root)
-	_pen_post(root, 119.5)
-	_pen_post(root, 120.18)
-	_stall(root, "pebble", Vector3(119.15, 0.0, 98.15))
-	_stall(root, "slick", Vector3(119.85, 0.0, 98.22))
-	_stall(root, "ember", Vector3(120.5, 0.0, 98.15))
+	var ids: Array = PetCatalog.ORDER
+	var start_x := 118.2
+	var step := 0.68
+	for i in ids.size():
+		_stall(root, str(ids[i]), Vector3(start_x + step * i, 0.0, 98.25))
+	_pen_post(root, start_x - 0.42)
+	_pen_post(root, start_x + step * (ids.size() - 1) + 0.42)
 	_shop_counter(root, Vector3(120.76, 0.0, 100.74))
 
 
