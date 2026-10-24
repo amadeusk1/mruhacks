@@ -95,3 +95,8 @@ occlusion_radius={
 "type": "float",
 "value": 0.0
 }
+
+[navigation]
+
+world/map_use_async_iterations=false
+world/region_use_async_iterations=false
