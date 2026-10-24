@@ -9,6 +9,16 @@
       1.5
     ],
     "sockets": {
+      "socket_grip_1_L": [
+        -0.12,
+        -0.293,
+        1.014
+      ],
+      "socket_grip_1_R": [
+        0.07,
+        -0.264,
+        0.928
+      ],
       "socket_player_1": [
         0.0,
         -0.7,
@@ -19,6 +29,60 @@
         -0.17,
         1.08
       ]
+    },
+    "parts": {
+      "part_btn_1_a": {
+        "pivot": [
+          0.0,
+          -0.238,
+          0.912
+        ],
+        "motion": "press",
+        "depth": 0.008,
+        "dir": [
+          0.0,
+          -0.316,
+          0.949
+        ]
+      },
+      "part_btn_1_b": {
+        "pivot": [
+          0.07,
+          -0.276,
+          0.899
+        ],
+        "motion": "press",
+        "depth": 0.008,
+        "dir": [
+          0.0,
+          -0.316,
+          0.949
+        ]
+      },
+      "part_btn_1_c": {
+        "pivot": [
+          0.14,
+          -0.238,
+          0.912
+        ],
+        "motion": "press",
+        "depth": 0.008,
+        "dir": [
+          0.0,
+          -0.316,
+          0.949
+        ]
+      },
+      "part_joystick_1": {
+        "pivot": [
+          -0.12,
+          -0.26,
+          0.914
+        ],
+        "motion": "tilt",
+        "axis": "xy",
+        "max_deg": 22
+      }
     },
     "tints": {
       "body": "#7B4FC4"
@@ -44,6 +108,26 @@
       1.5
     ],
     "sockets": {
+      "socket_grip_1_L": [
+        -0.43,
+        -0.297,
+        1.025
+      ],
+      "socket_grip_1_R": [
+        -0.275,
+        -0.268,
+        0.94
+      ],
+      "socket_grip_2_L": [
+        0.19,
+        -0.297,
+        1.025
+      ],
+      "socket_grip_2_R": [
+        0.345,
+        -0.268,
+        0.94
+      ],
       "socket_player_1": [
         -0.32,
         -0.72,
@@ -59,6 +143,84 @@
         -0.17,
         1.08
       ]
+    },
+    "parts": {
+      "part_btn_1_a": {
+        "pivot": [
+          -0.31,
+          -0.242,
+          0.923
+        ],
+        "motion": "press",
+        "depth": 0.008,
+        "dir": [
+          0.0,
+          -0.316,
+          0.949
+        ]
+      },
+      "part_btn_1_b": {
+        "pivot": [
+          -0.24,
+          -0.28,
+          0.911
+        ],
+        "motion": "press",
+        "depth": 0.008,
+        "dir": [
+          0.0,
+          -0.316,
+          0.949
+        ]
+      },
+      "part_btn_2_a": {
+        "pivot": [
+          0.31,
+          -0.242,
+          0.923
+        ],
+        "motion": "press",
+        "depth": 0.008,
+        "dir": [
+          0.0,
+          -0.316,
+          0.949
+        ]
+      },
+      "part_btn_2_b": {
+        "pivot": [
+          0.38,
+          -0.28,
+          0.911
+        ],
+        "motion": "press",
+        "depth": 0.008,
+        "dir": [
+          0.0,
+          -0.316,
+          0.949
+        ]
+      },
+      "part_joystick_1": {
+        "pivot": [
+          -0.43,
+          -0.264,
+          0.926
+        ],
+        "motion": "tilt",
+        "axis": "xy",
+        "max_deg": 22
+      },
+      "part_joystick_2": {
+        "pivot": [
+          0.19,
+          -0.264,
+          0.926
+        ],
+        "motion": "tilt",
+        "axis": "xy",
+        "max_deg": 22
+      }
     },
     "tints": {
       "body": "#153447",
@@ -155,7 +317,13 @@
       0.209,
       1.02
     ],
-    "sockets": {},
+    "sockets": {
+      "socket_fx_sparkle": [
+        0.0,
+        -0.17,
+        1.0
+      ]
+    },
     "tints": {},
     "mount": "wall",
     "insert": "ARCADE"
@@ -282,6 +450,28 @@
         0.0
       ]
     },
+    "parts": {
+      "part_door_l": {
+        "pivot": [
+          -0.76,
+          -2.6,
+          0.07
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": -72
+      },
+      "part_door_r": {
+        "pivot": [
+          0.76,
+          -2.6,
+          0.07
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 72
+      }
+    },
     "tints": {
       "wall": "#F3E2C5"
     },
@@ -298,7 +488,13 @@
       5.594,
       1.966
     ],
-    "sockets": {},
+    "sockets": {
+      "socket_fx_smoke": [
+        1.9,
+        0.9,
+        1.98
+      ]
+    },
     "tints": {
       "roof": "#F07E66",
       "wall": "#F3E2C5"
@@ -367,6 +563,46 @@
         -1.7,
         0.0
       ],
+      "socket_fx_smoke": [
+        1.9,
+        0.9,
+        4.6
+      ],
+      "socket_fx_sparkle": [
+        0.0,
+        -3.03,
+        3.458
+      ],
+      "socket_grip_1_L": [
+        0.78,
+        1.547,
+        1.014
+      ],
+      "socket_grip_1_L__park.001": [
+        -1.12,
+        1.547,
+        1.014
+      ],
+      "socket_grip_1_L__park.002": [
+        -0.12,
+        1.547,
+        1.014
+      ],
+      "socket_grip_1_R": [
+        0.97,
+        1.576,
+        0.928
+      ],
+      "socket_grip_1_R__park.001": [
+        -0.93,
+        1.576,
+        0.928
+      ],
+      "socket_grip_1_R__park.002": [
+        0.07,
+        1.576,
+        0.928
+      ],
       "socket_screen": [
         0.9,
         1.67,
@@ -387,6 +623,184 @@
         -0.6,
         0.0
       ]
+    },
+    "parts": {
+      "part_btn_1_a": {
+        "pivot": [
+          0.9,
+          1.602,
+          0.912
+        ],
+        "motion": "press",
+        "depth": 0.008,
+        "dir": [
+          0.0,
+          -0.316,
+          0.949
+        ]
+      },
+      "part_btn_1_a__park.001": {
+        "pivot": [
+          -1.0,
+          1.602,
+          0.912
+        ],
+        "motion": "press",
+        "depth": 0.008,
+        "dir": [
+          0.0,
+          -0.316,
+          0.949
+        ]
+      },
+      "part_btn_1_a__park.002": {
+        "pivot": [
+          0.0,
+          1.602,
+          0.912
+        ],
+        "motion": "press",
+        "depth": 0.008,
+        "dir": [
+          0.0,
+          -0.316,
+          0.949
+        ]
+      },
+      "part_btn_1_b": {
+        "pivot": [
+          0.97,
+          1.564,
+          0.899
+        ],
+        "motion": "press",
+        "depth": 0.008,
+        "dir": [
+          0.0,
+          -0.316,
+          0.949
+        ]
+      },
+      "part_btn_1_b__park.001": {
+        "pivot": [
+          -0.93,
+          1.564,
+          0.899
+        ],
+        "motion": "press",
+        "depth": 0.008,
+        "dir": [
+          0.0,
+          -0.316,
+          0.949
+        ]
+      },
+      "part_btn_1_b__park.002": {
+        "pivot": [
+          0.07,
+          1.564,
+          0.899
+        ],
+        "motion": "press",
+        "depth": 0.008,
+        "dir": [
+          0.0,
+          -0.316,
+          0.949
+        ]
+      },
+      "part_btn_1_c": {
+        "pivot": [
+          1.04,
+          1.602,
+          0.912
+        ],
+        "motion": "press",
+        "depth": 0.008,
+        "dir": [
+          0.0,
+          -0.316,
+          0.949
+        ]
+      },
+      "part_btn_1_c__park.001": {
+        "pivot": [
+          -0.86,
+          1.602,
+          0.912
+        ],
+        "motion": "press",
+        "depth": 0.008,
+        "dir": [
+          0.0,
+          -0.316,
+          0.949
+        ]
+      },
+      "part_btn_1_c__park.002": {
+        "pivot": [
+          0.14,
+          1.602,
+          0.912
+        ],
+        "motion": "press",
+        "depth": 0.008,
+        "dir": [
+          0.0,
+          -0.316,
+          0.949
+        ]
+      },
+      "part_door_l": {
+        "pivot": [
+          -0.76,
+          -2.6,
+          0.07
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": -72
+      },
+      "part_door_r": {
+        "pivot": [
+          0.76,
+          -2.6,
+          0.07
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 72
+      },
+      "part_joystick_1": {
+        "pivot": [
+          0.78,
+          1.58,
+          0.914
+        ],
+        "motion": "tilt",
+        "axis": "xy",
+        "max_deg": 22
+      },
+      "part_joystick_1__park.001": {
+        "pivot": [
+          -1.12,
+          1.58,
+          0.914
+        ],
+        "motion": "tilt",
+        "axis": "xy",
+        "max_deg": 22
+      },
+      "part_joystick_1__park.002": {
+        "pivot": [
+          -0.12,
+          1.58,
+          0.914
+        ],
+        "motion": "tilt",
+        "axis": "xy",
+        "max_deg": 22
+      }
     },
     "tints": {
       "cabinet_purple": "#7B4FC4",

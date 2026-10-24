@@ -9,6 +9,11 @@
       4.158
     ],
     "sockets": {
+      "socket_fx_smoke": [
+        0.95,
+        0.75,
+        4.23
+      ],
       "socket_door": [
         -0.55,
         -2.5,
@@ -25,11 +30,23 @@
         0.24
       ]
     },
+    "parts": {
+      "part_door_leaf": {
+        "pivot": [
+          -0.98,
+          -1.395,
+          0.3
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 100
+      }
+    },
     "tints": {
       "wall": "#F3E2C5",
       "trim": "#BC874E",
-      "door": "#207D85",
-      "roof": "#F07E66"
+      "roof": "#F07E66",
+      "door": "#207D85"
     },
     "footprint_m": [
       3.4,
@@ -47,7 +64,13 @@
       3.744,
       2.172
     ],
-    "sockets": {},
+    "sockets": {
+      "socket_fx_smoke": [
+        0.95,
+        0.75,
+        4.23
+      ]
+    },
     "tints": {
       "wall": "#F3E2C5",
       "roof": "#F07E66"
@@ -65,7 +88,7 @@
     "category": "room",
     "size_m": [
       3.62,
-      3.397,
+      3.403,
       2.37
     ],
     "sockets": {
@@ -104,6 +127,18 @@
         1.28,
         1.49
       ]
+    },
+    "parts": {
+      "part_door_leaf": {
+        "pivot": [
+          -0.98,
+          -1.395,
+          0.3
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 100
+      }
     },
     "tints": {
       "wall": "#F3E2C5",
@@ -215,7 +250,7 @@
     "category": "nature",
     "size_m": [
       0.861,
-      0.689,
+      0.693,
       0.622
     ],
     "sockets": {},
@@ -227,8 +262,8 @@
     "category": "nature",
     "size_m": [
       0.725,
-      0.597,
-      0.505
+      0.586,
+      0.506
     ],
     "sockets": {},
     "tints": {}

@@ -68,6 +68,18 @@
         0.0
       ]
     },
+    "parts": {
+      "part_door_leaf": {
+        "pivot": [
+          -0.43,
+          -0.005,
+          0.06
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 100
+      }
+    },
     "tints": {
       "wall": "#F3E2C5",
       "trim": "#BC874E",
@@ -237,7 +249,13 @@
       0.6,
       1.55
     ],
-    "sockets": {},
+    "sockets": {
+      "socket_fx_smoke": [
+        0.0,
+        0.0,
+        1.62
+      ]
+    },
     "tints": {},
     "note": "sink the bottom into the roof; top at 1.52 m"
   },
@@ -256,6 +274,18 @@
         -0.66,
         0.0
       ]
+    },
+    "parts": {
+      "part_door_leaf": {
+        "pivot": [
+          -0.43,
+          -0.005,
+          0.06
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 100
+      }
     },
     "tints": {
       "trim": "#BC874E",
@@ -325,6 +355,18 @@
         0.0,
         0.18
       ]
+    },
+    "parts": {
+      "part_door_leaf": {
+        "pivot": [
+          -1.18,
+          1.605,
+          0.24
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 100
+      }
     },
     "tints": {
       "wall": "#F3E2C5",
