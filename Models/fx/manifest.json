@@ -277,6 +277,24 @@
     "usage": "pooled single ring: scale up 3-5x while fading; one per contact, never stacked"
   },
   {
+    "id": "fx/flame",
+    "file": "fx/flame.glb",
+    "category": "fx",
+    "size_m": [
+      0.036,
+      0.034,
+      0.087
+    ],
+    "sockets": {},
+    "tints": {},
+    "particle_size_m": [
+      0.06,
+      0.09
+    ],
+    "pivot": "base (wick top)",
+    "usage": "candles and wood stove (socket_fx_flame): one persistent mesh, local flicker by scale and emission; reduced motion holds a steady glow"
+  },
+  {
     "id": "fx/fish_tail",
     "file": "fx/fish_tail.glb",
     "category": "fx",

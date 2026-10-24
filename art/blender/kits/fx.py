@@ -10,8 +10,10 @@ PALETTE.update({
     "fx_smoke": ("#E8E2D8", 1.0, 0.25), "fx_steam": ("#F6F3EE", 1.0, 0.3), "fx_snow": ("#F4F8FB", 0.9, 0.35),
     "fx_water": ("#8FDDE8", 0.3, 0.35), "fx_foam": ("#F2FBFC", 0.8, 0.35), "fx_sparkle": ("#FFE08A", 0.5, 2.5),
     "fx_confetti": ("#E86D58", 0.8, 0.2), "fx_fishtail": ("#2E7F8C", 0.7, 0.0), "fx_fishtail_b": ("#3C98A4", 0.7, 0.0),
+    "fx_flame": ("#F59A3C", 0.6, 3.0), "fx_flame_core": ("#FFE8A8", 0.5, 4.5),
 })
-ALPHA = {"fx_smoke": 0.75, "fx_steam": 0.55, "fx_snow": 0.95, "fx_water": 0.7, "fx_foam": 0.85, "fx_sparkle": 1.0, "fx_confetti": 1.0}
+ALPHA = {"fx_smoke": 0.75, "fx_steam": 0.55, "fx_snow": 0.95, "fx_water": 0.7, "fx_foam": 0.85, "fx_sparkle": 1.0, "fx_confetti": 1.0,
+         "fx_flame": 0.8}
 
 
 def fx(b, **meta):
@@ -92,6 +94,13 @@ def build():
     b = Builder("ripple_ring", seed=13)
     b.torus(0.12, 0.006, 0, 0, 0, "fx_water", segs=24, ring=4, rot=(0, 0, 0))
     fx(b, lifetime_s=[0.8, 1.4], particle_size_m=[0.1, 0.6], usage="pooled single ring: scale up 3-5x while fading; one per contact, never stacked")
+
+    b = Builder("flame", seed=14)  # origin = wick top, so it sits on socket_fx_flame with no offset
+    b.blob(0.02, 0.02, 0.032, 0, 0, 0.03, "fx_flame", subdiv=1)
+    b.blob(0.011, 0.011, 0.02, 0, 0, 0.026, "fx_flame_core", subdiv=1)
+    b.cyl(0.012, 0.03, 0, 0, 0.055, "fx_flame", segs=6, r2=0.0)
+    fx(b, particle_size_m=[0.06, 0.09], pivot="base (wick top)",
+       usage="candles and wood stove (socket_fx_flame): one persistent mesh, local flicker by scale and emission; reduced motion holds a steady glow")
 
     gameplay()
 
