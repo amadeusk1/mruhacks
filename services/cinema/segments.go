@@ -66,7 +66,7 @@ func (s *Server) segment(w http.ResponseWriter, r *http.Request, u session) {
 		"-i", s.selfURL + "/cinema/internal/source/" + token, "-t", strconv.FormatFloat(length, 'f', 3, 64)}
 	if kind == "video" {
 		args = append(args, "-an", "-vf", "fps="+strconv.Itoa(segmentFPS)+",scale=640:-2", "-q:v", "6", "-f", "image2pipe", "-c:v", "mjpeg", "pipe:1")
-		w.Header().Set("Content-Type", "application/x-mjpeg-frames")
+		w.Header().Set("Content-Type", "application/x-pengloo-frames")
 		w.Header().Set("X-Segment-Fps", strconv.Itoa(segmentFPS))
 	} else {
 		args = append(args, "-vn", "-ac", "2", "-ar", "44100", "-c:a", "libmp3lame", "-b:a", "128k", "-f", "mp3", "pipe:1")
@@ -79,8 +79,39 @@ func (s *Server) segment(w http.ResponseWriter, r *http.Request, u session) {
 		return
 	}
 	w.Header().Set("Cache-Control", "private, no-store")
-	_, _ = io.Copy(w, out)
+	if kind == "audio" {
+		_, _ = io.Copy(w, out)
+	} else {
+		raw, _ := io.ReadAll(io.LimitReader(out, 64<<20))
+		_, _ = w.Write(frameJPEGs(raw))
+	}
 	_ = cmd.Wait()
+}
+
+// frameJPEGs turns ffmpeg's concatenated JPEGs into [u32 little-endian length][jpeg]... so clients
+// split frames in O(frames) instead of scanning bytes. ffmpeg's MJPEG frames carry no embedded
+// thumbnails, so an SOI marker (FF D8 FF) only starts a frame.
+func frameJPEGs(raw []byte) []byte {
+	out := make([]byte, 0, len(raw)+4096)
+	start := -1
+	emit := func(end int) {
+		n := end - start
+		out = append(out, byte(n), byte(n>>8), byte(n>>16), byte(n>>24))
+		out = append(out, raw[start:end]...)
+	}
+	for i := 0; i+2 < len(raw); i++ {
+		if raw[i] == 0xFF && raw[i+1] == 0xD8 && raw[i+2] == 0xFF {
+			if start >= 0 {
+				emit(i)
+			}
+			start = i
+			i += 2
+		}
+	}
+	if start >= 0 {
+		emit(len(raw))
+	}
+	return out
 }
 
 // internalSource feeds ffmpeg: loopback callers with a live segment token only.

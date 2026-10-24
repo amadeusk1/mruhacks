@@ -224,3 +224,11 @@ func TestSegmentValidationAndLoopbackSource(t *testing.T) {
 		t.Fatal("non-loopback source must 404", w.Code)
 	}
 }
+
+func TestFrameJPEGs(t *testing.T) {
+	a, b := []byte{0xFF, 0xD8, 0xFF, 1, 2, 0xFF, 0xD9}, []byte{0xFF, 0xD8, 0xFF, 3, 0xFF, 0xD9}
+	out := frameJPEGs(append(append([]byte{}, a...), b...))
+	if len(out) != 8+len(a)+len(b) || out[0] != byte(len(a)) || out[4+len(a)] != byte(len(b)) {
+		t.Fatal("framing", out)
+	}
+}
