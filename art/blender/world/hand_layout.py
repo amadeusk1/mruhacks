@@ -125,6 +125,7 @@ def plaza():
     mark("Spawn", 0, -3.0, 180)
     mark("BusArrival", 2.2, -5.2, 200)
     mark("BusStop", 3.4, -7.3, 200, kind="bus")
+    mark("DanceFloor", 7.6, 0.0, 0, kind="activity", activity="dance", clear_r=2.7)   # scripts/world/dance_floor.gd reads it; r 2.3 floor
     # south gate: map board with a bench beside it, notice board, signpost and a bin
     place("world_misc/world_map_board", -3.95, -11.03, 160, tags=BLOCK, name="MapBoard")
     place("plaza/bench", -2.05, -11.63, 160, tags=BLOCK)

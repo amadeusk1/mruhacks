@@ -349,6 +349,8 @@ def walk_violation(asset, x, y, yaw, scale, tags, rects=None):
     if "coast" not in tags and any(stream_d(p) < STREAM_W + 0.6 for p in pts):
         return "stream"
     for m in MARKERS:
+        if m.get("clear_r") and any((p - Vector(m["pos"][:2])).length < m["clear_r"] for p in pts):
+            return f"clear zone {m['name']}"
         if m["kind"] in ("door", "activity", "spawn", "bus"):
             c = Vector(m["pos"][:2])
             if any((p - c).length < 1.3 for p in pts):

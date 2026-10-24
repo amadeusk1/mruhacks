@@ -18875,6 +18875,18 @@
    "kind": "bus"
   },
   {
+   "name": "DanceFloor",
+   "pos": [
+    7.6,
+    0.0,
+    -0.0
+   ],
+   "rot_y_deg": 0.0,
+   "kind": "activity",
+   "activity": "dance",
+   "clear_r": 2.7
+  },
+  {
    "name": "CinemaDoor",
    "pos": [
     0.0,
