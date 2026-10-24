@@ -17,6 +17,13 @@ func _ready() -> void:
 				model = n
 		if model and nav:
 			WalkSurface.build(model, nav, model.global_position.y - 0.3, model_name + "_walk")
+	var lobby_model: Node3D = null
+	for n in find_children("cinema_lobby*", "Node3D", true, false):
+		if n.get_parent().name == "PackProps":
+			lobby_model = n
+	if lobby_model and nav:
+		await get_tree().physics_frame  # floors registered for the footprint's ground rays
+		Footprint.blocker(nav, lobby_model, "cinema_lobby/cinema_lobby", 1.0, get_world_3d().direct_space_state)
 	if nav and nav.has_method("rebake"):
 		nav.call("rebake")
 	var hall := find_child("cinema_auditorium", true, false) as Node3D  # claimable, net-safe seats

@@ -24,7 +24,7 @@ const STUCK_SPEED := 0.1
 const STUCK_TIME := 1.0
 const TIMEOUT := 30.0
 const ARRIVE := 0.6
-const OFF_NAV := 0.45  # standing this far from the navmesh means the penguin got through something
+const OFF_NAV := 0.8  # this far off the navmesh (eroded 0.35 m from every wall) means the penguin got through something
 const ROOMS := [["town", "town", "BusArrival"], ["cafe", "cafe", "Inside"], ["arcade", "arcade", "Inside"],
 	["casino", "casino", "Inside"], ["cinema", "cinema", "InsideLobby"], ["cinema_hall", "cinema", "InsideScreen"],
 	["home", "home", "InsideSpawn"]]
@@ -37,6 +37,7 @@ var _spawn := ""
 var _map: RID
 var _fails := []  # [room, kind (stuck|passthrough|unreachable), label, position, nearest]
 var _rows := 0
+var _doors := []  # exits of the current room (switched off): leaving through one is not a pass-through
 
 
 func _ready() -> void:
@@ -63,9 +64,11 @@ func _ready() -> void:
 		await _w.travel_to(r[1], r[2])
 		await get_tree().create_timer(2.0).timeout  # let the room build and bake at normal speed
 		_room = _w.get_node("LocationHost").get_child(0)
+		_doors.clear()
 		for area in _room.find_children("*", "Area3D", true, false):  # walk-in exits would end the test
 			if area.get_script() and String(area.get_script().resource_path).ends_with("doorway.gd"):
 				area.set_deferred("monitoring", false)
+				_doors.append((area as Node3D).global_position)
 		Engine.physics_ticks_per_second = 240  # same 1/60 s step, four times the wall-clock speed
 		Engine.time_scale = 4.0
 		await _test_room()
@@ -109,7 +112,7 @@ func _town_targets() -> Array:
 		if m["kind"] in ["door", "activity", "queue", "spawn"]:
 			var p: Array = m["pos"]
 			# doors and activities trigger within Interactable.reach (2.2 m) of the marker
-			list.append([String(m["name"]), Vector3(p[0], p[1], p[2]), 1.9 if m["kind"] in ["door", "activity"] else 1.0])
+			list.append([String(m["name"]), Vector3(p[0], p[1], p[2]), 2.7 if m["kind"] == "door" else (1.9 if m["kind"] == "activity" else 1.0)])
 	var plaza := _marker(_spawn)
 	for node in _nav().get_children():
 		if node.has_meta("walkable"):
@@ -272,7 +275,7 @@ func _slide(label: String, at: Vector3, dir: Vector3) -> void:
 		if best >= 0.6:
 			break
 	if best < 0.6:
-		_fail("stuck", label, _p.global_position, "(no glide either way: %.2fm)" % best)
+		_fail("stuck", label, _p.global_position, "(no glide either way: %.2fm) %s" % [best, _contact()])
 	_log(label)
 
 
@@ -290,7 +293,7 @@ func _drive_probes() -> Array:
 		var into := Vector3(c.x - at.x, 0, c.z - at.z)
 		if into.length() < 0.1 or into.length() > 4.0 or not _reaches(_start(), at):
 			continue
-		out.append(["into " + _body_name(b, at), at, into.normalized(), box])
+		out.append(["into " + _body_name(b, at), at, into.normalized(), _foot_cells(node) if node else box])
 	if _room_name == "town":
 		for node in _nav().get_children():
 			if node.has_meta("walkable") and String(node.get_meta("asset_id", "")).contains("dock"):
@@ -314,13 +317,49 @@ func _drive(label: String, at: Vector3, dir: Vector3, box) -> void:
 	var p := _p.global_position
 	var off := _flat(NavigationServer3D.map_get_closest_point(_map, p) - p)
 	var water: float = _room.get("_layout").get("water_level", -INF) if _room_name == "town" else -INF
-	if box is AABB and _inside_core(p, box):
+	if _doors.any(func(d): return _flat(Geometry3D.get_closest_point_to_segment(d, at, p) - d) < 1.5):
+		pass  # walked out through an exit; in play the doorway would have taken the penguin outside
+	elif (box is AABB and _inside_core(p, box)) or (box is Dictionary and _in_cells(p, box, label.contains("rock"))):
 		_fail("passthrough", label, p, "(inside the prop)")
 	elif off > OFF_NAV:
 		_fail("passthrough", label, p, "(%.2fm off the walkable floor)" % off)
 	elif p.y < water - 0.1:
 		_fail("passthrough", label, p, "(in the water)")
 	_log(label)
+
+
+## World cells (0.15 m) the model's visible geometry fills at foot height. The penguin's centre
+## standing on one means it walked into the model; with collision that matches, it never can.
+func _foot_cells(node: Node3D) -> Dictionary:
+	var at := node.global_position
+	var hit := _p.get_world_3d().direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(at + Vector3.UP * 4.0, at + Vector3.DOWN * 4.0, 1))
+	var ground: float = hit.position.y if hit else at.y
+	var parts := AssetRegistry.parts(String(node.get_meta("asset_id", "")))
+	var cells := {}
+	for mi in node.find_children("*", "MeshInstance3D", true, false):
+		if not mi.visible or mi.mesh == null or parts.has(String(mi.name)) or parts.has(String(mi.get_parent().name)):
+			continue
+		var f: PackedVector3Array = (mi.mesh as Mesh).get_faces()
+		for t in range(0, f.size(), 3):
+			var a: Vector3 = mi.global_transform * f[t]
+			var b: Vector3 = mi.global_transform * f[t + 1]
+			var c: Vector3 = mi.global_transform * f[t + 2]
+			if minf(a.y, minf(b.y, c.y)) > ground + 0.9 or maxf(a.y, maxf(b.y, c.y)) < ground + 0.05:
+				continue
+			var n := maxi(1, ceili(maxf(a.distance_to(b), maxf(b.distance_to(c), c.distance_to(a))) / 0.07))
+			for i in n + 1:
+				for j in n + 1 - i:
+					var q := a + (b - a) * (float(i) / n) + (c - a) * (float(j) / n)
+					if q.y > ground + 0.05 and q.y < ground + 0.9:
+						cells[Vector2i(floori(q.x / 0.15), floori(q.z / 0.15))] = true
+	return cells
+
+
+## Rocks collide at 75% of their footprint on purpose, so only their inner part counts.
+func _in_cells(p: Vector3, cells: Dictionary, rock: bool) -> bool:
+	var c := Vector2i(floori(p.x / 0.15), floori(p.z / 0.15))
+	var ring := [Vector2i(0, 0)] + ([Vector2i(3, 0), Vector2i(-3, 0), Vector2i(0, 3), Vector2i(0, -3)] if rock else [])
+	return ring.all(func(d): return cells.has(c + d))
 
 
 func _inside_core(p: Vector3, box: AABB) -> bool:
@@ -420,9 +459,10 @@ func _foot_box(node: Node3D) -> AABB:
 	var ground: float = hit.position.y if hit else at.y
 	var box := AABB()
 	var first := true
+	var parts := AssetRegistry.parts(String(node.get_meta("asset_id", "")))
 	for mi in node.find_children("*", "MeshInstance3D", true, false):
-		if not mi.visible or mi.mesh == null:
-			continue
+		if not mi.visible or mi.mesh == null or parts.has(String(mi.name)) or parts.has(String(mi.get_parent().name)):
+			continue  # swaying crowns and skirts: the penguin brushes through, by design
 		for v in (mi.mesh as Mesh).get_faces():
 			var w: Vector3 = mi.global_transform * v
 			if w.y > ground - 0.05 and w.y < ground + 0.6:

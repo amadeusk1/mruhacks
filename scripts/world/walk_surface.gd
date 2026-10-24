@@ -222,6 +222,7 @@ static func stair_ramps(nodes: Array, parent: Node) -> int:
 		var along := (b - a).normalized()
 		var low := clampf(0.25 / maxf(along.y, 0.05), 0.45, 1.5)
 		ramp(parent, a - along * low, b + along * 0.15, 1.4, "FlightRamp")
+		_cheeks(parent, a + along * 0.7, b + along * 0.15, 1.4)  # the foot stays open to diagonal approaches
 		made += 1
 	return made
 
@@ -238,3 +239,21 @@ static func _below(mods: Array, i: int) -> int:
 		if k != i and (mods[k][1] as Vector3).distance_to(mods[i][0]) < 0.6:
 			return k
 	return -1
+
+
+## Low walls along both sides of a flight (layer 2): the stairs are entered at the foot or the
+## top, never over the side of the ramp, where the capsule wedged against lamp posts.
+static func _cheeks(parent: Node, a: Vector3, b: Vector3, width: float) -> void:
+	var basis := Basis.looking_at((b - a).normalized(), Vector3.UP)
+	for side in [-1.0, 1.0]:
+		var body := StaticBody3D.new()
+		body.name = "FlightCheek"
+		body.collision_layer = 2
+		body.collision_mask = 0
+		var shape := BoxShape3D.new()
+		shape.size = Vector3(0.15, 1.2, a.distance_to(b))
+		var col := CollisionShape3D.new()
+		col.shape = shape
+		body.add_child(col)
+		parent.add_child(body)
+		body.global_transform = Transform3D(basis, (a + b) * 0.5 + basis.x * side * (width * 0.5 + 0.075) + basis.y * 0.5)
