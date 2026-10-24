@@ -2,6 +2,8 @@ extends Control
 
 ## A place marker on the bus map. The current place does not travel.
 
+const _FONT := preload("res://fonts/Fredoka-Bold.ttf")
+
 signal chosen(location_id: String)
 
 var location_id := ""
@@ -33,7 +35,7 @@ func _draw() -> void:
 	draw_arc(dot, radius, 0.0, TAU, 28, Color(1, 1, 1), 2.5, true)
 	if here:
 		draw_circle(dot, 5.0, Color(0.12, 0.18, 0.28))
-	var font := ThemeDB.fallback_font
+	var font := _FONT
 	var title_size := font.get_string_size(place_title, HORIZONTAL_ALIGNMENT_LEFT, -1, 18)
 	draw_string(
 		font,

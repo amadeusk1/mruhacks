@@ -5,6 +5,7 @@ extends Control
 signal place_chosen(location_id: String)
 
 const _PIN := preload("res://scripts/map_pin.gd")
+const _FONT := preload("res://fonts/Fredoka-Bold.ttf")
 
 var _current_id := ""
 var _pins: Array = []
@@ -62,7 +63,7 @@ func _draw() -> void:
 	_draw_town_blocks()
 	_draw_hill()
 	_draw_route()
-	var font := ThemeDB.fallback_font
+	var font := _FONT
 	draw_string(font, Vector2(size.x * 0.5 - 6.0, 22), "N", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(0.1, 0.25, 0.4))
 
 

@@ -1,0 +1,8 @@
+[gd_resource type="Theme" format=3]
+
+[ext_resource type="FontFile" path="res://fonts/Fredoka-Bold.ttf" id="1_rstb8"]
+
+[resource]
+default_font = ExtResource("1_rstb8")
+default_font_size = 16
+Label3D/fonts/font = ExtResource("1_rstb8")
