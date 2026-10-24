@@ -55,3 +55,8 @@ Every activity must pass happy path, early cancel, occupied slot, invalid reques
 ## Cross-platform activity acceptance
 
 The eventual browser client must share activity state with native players. Verify cinema playback and voice integration early, then test every activity with mixed native/browser participants. Browser suspension must not pause server timers or leave stale input active. See [Dev Handoff - Self Hosting and Browser Release](Dev%20Handoff%20-%20Self%20Hosting%20and%20Browser%20Release.md).
+
+
+## Plex cinema integration update
+
+The user selected plex-watchparty as the base for the first Plex integration. See [Cinema - Plex Watchparty Integration Plan](Cinema%20-%20Plex%20Watchparty%20Integration%20Plan.md) for verified source behavior, required adaptations and implementation gates. Playback adapters and deployment remain to implement.

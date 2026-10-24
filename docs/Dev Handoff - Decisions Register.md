@@ -17,7 +17,7 @@ Waddle World is the placeholder title. Simple original UI. Modular penguins, int
 | Initial world capacity | Small measured playtest group | Capacity labels and load-test acceptance |
 | Server authority model | Authoritative contested actions; plan server movement | Multiplayer activities and validation |
 | Voice provider/stack | Prove native and browser integration and remote connectivity | Proximity voice implementation |
-| Media provider/player | One verified end-to-end source | Cinema integration and export platform choice |
+| Media playback adapters | plex-watchparty is the base; first live source can be Plex, Emby or Jellyfin; prove native and browser players | Cinema integration and export platform choice |
 | Basketball mode | Shooting contest first; full possession remains visible | Final input/UI and gameplay implementation |
 | Sled format/collisions | Time trial first, nonblocking racers if shared | Race logic and collision tuning |
 | Snowball numbers | Configurable 2v2/timer/hit target proposal | Final balance and lobby limits |
@@ -29,3 +29,8 @@ Waddle World is the placeholder title. Simple original UI. Modular penguins, int
 | Performance target | Set device/capacity budgets from measurements | Release gate |
 
 These are deliberate implementation choices, not reasons to block unrelated work. Continue shared UI, schema tests, asset inspection and baseline cleanup while provider/hosting choices are pending. Do not invent paid services or API capabilities to make the plan look complete.
+
+
+## Plex cinema integration update
+
+The user selected plex-watchparty as the base for the first Plex integration. See [Cinema - Plex Watchparty Integration Plan](Cinema%20-%20Plex%20Watchparty%20Integration%20Plan.md) for verified source behavior, required adaptations and implementation gates. Playback adapters and deployment remain to implement.
