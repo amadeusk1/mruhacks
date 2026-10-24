@@ -24,19 +24,38 @@ static func make(e: Dictionary) -> UIModal:
 	if st[2] != "":
 		col.add_child(UIKit.label(st[2], "Muted"))
 	var id := int(e.get("id", 0))
+	var mine := id == Net.local_id()
 	var visit := UIKit.button("Visit home", "primary", "home", Vector2(0, 66))
 	visit.pressed.connect(func() -> void:
 		var w := m.get_tree().get_first_node_in_group("world")
 		UIRouter.close_all()
-		if w and w.has_method("go_to_homes"):
-			w.call("go_to_homes"))
+		if w == null:
+			return
+		if mine or not Net.is_online():
+			w.call("go_to_homes")
+		else:
+			w.call("travel_to", "home", "InsideSpawn", id))
+	if not mine and str(e.get("visitors", "friends")) == "only_me":
+		visit.disabled = true
+		visit.tooltip_text = "Their home is invite-only."
 	col.add_child(visit)
+	var who_name := str(e.get("name", "them"))
 	var invite := UIKit.button("Invite to my igloo", "outline", "door", Vector2(0, 60))
 	invite.pressed.connect(func() -> void:
-		Net.invite_home(id)
-		UIWidgets.toast(m, "Invite sent to %s." % str(e.get("name", "them")), "check"))
-	invite.disabled = not Net.is_online()
+		Net.invite(id, "home")
+		UIWidgets.toast(m, "Invite sent to %s." % who_name, "check"))
+	invite.disabled = not Net.is_online() or mine
 	col.add_child(invite)
+	var w0 := (Engine.get_main_loop() as SceneTree).get_first_node_in_group("world")
+	if w0 and str(w0.call("current_location_id")) == "cinema" and not mine and Net.is_online():
+		var movie := UIKit.button("Invite to the movie", "outline", "film", Vector2(0, 60))
+		movie.pressed.connect(func() -> void:
+			UIWidgets.toast(m, "Invite sent to %s." % who_name, "check")
+			if not CinemaService.client.signed_in:
+				Net.invite(id, "cinema")
+				return
+			CinemaService.client.view_ticket(func(ticket: String) -> void: Net.invite(id, "cinema", ticket)))
+		col.add_child(movie)
 	var who := str(e.get("name", ""))
 	var mute := UIKit.button("Unmute voice" if Voice.is_muted(who) else "Mute voice", "outline", "mic_off", Vector2(0, 60))
 	mute.pressed.connect(func() -> void:
