@@ -1,0 +1,48 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      background: #071a26;
+      font-family: "Nunito", sans-serif;
+      display: grid;
+      place-content: center;
+      text-align: center;
+    }
+    #cd-event {
+      color: #f5f9fc;
+      font-size: 170px;
+      font-weight: 900;
+      line-height: 1;
+    }
+    #cd-theme {
+      margin-top: 40px;
+      color: #ffc24b;
+      font-size: 56px;
+      font-weight: 800;
+    }
+    #cd-fine {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 110px;
+      color: rgba(220, 235, 243, 0.5);
+      font-size: 28px;
+      font-weight: 600;
+    }
+  </style>
+  <div data-hf-id="hf-czah" id="root" data-composition-id="card" data-width="1920" data-height="1080">
+    <div data-hf-id="hf-4f3f" id="cd-block" class="clip" data-start="0" data-duration="2.26667" data-track-index="1">
+      <div data-hf-id="hf-0s5n" id="cd-event">MRUHacks 2026</div>
+      <div data-hf-id="hf-52qq" id="cd-theme">Theme: Revitalize</div>
+    </div>
+    <div data-hf-id="hf-7v3w" id="cd-fine" class="clip" data-start="0" data-duration="2.26667" data-track-index="2">Concept art is AI-generated. Not all of it is in the game yet.</div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    tl.fromTo("#cd-event", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.18, ease: "power4.out" }, 0);
+    tl.fromTo("#cd-theme", { opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.13, ease: "power4.out" }, 0.25);
+    window.__timelines["card"] = tl;
+  </script>
+</template>
