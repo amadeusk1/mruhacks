@@ -4,13 +4,13 @@
 
 ## Confirmed requirements and implementation status
 
-The game will run on the team's own server. An eventual browser client on its own domain is required. Desktop-first delivery is a proposed sequence, not permission to defer browser compatibility decisions. Mobile browser support is not yet confirmed. This is a deployment and implementation specification; no server, DNS record, certificate or browser build has been provisioned by this document.
+The game will run on the team's own server. An eventual browser client at `https://pengloo.party` is required. The game domain `pengloo.party` is confirmed. Desktop-first delivery is a proposed sequence, not permission to defer browser compatibility decisions. Mobile browser support is not yet confirmed. This is a deployment and implementation specification; no server, DNS record, certificate or browser build has been provisioned by this document.
 
 ## Proposed deployment
 
 Use one public HTTPS entry point with a reverse proxy, a static web client, application API, authoritative headless Godot world process, and private persistent database. Keep these components separately restartable. Start on one host if measured capacity permits. Voice may need a separate signaling/relay service; cinema needs an authorized media delivery path.
 
-Illustrative routes on `game.example.com` (placeholder, not a selected domain): `/` serves the web export; `/api/` routes to the application service; `/game/` upgrades to WSS if WebSocket is selected. Keep the API and game connection same-origin where practical. Expose neither the database nor internal administration endpoints publicly. The proxy must support WebSocket upgrade and appropriate idle timeouts. Retained ENet traffic or voice relay traffic requires its own explicitly configured network path.
+Proposed routes on the confirmed domain `pengloo.party` (route layout remains a proposal): `/` serves the web export; `/api/` routes to the application service; `/game/` upgrades to WSS if WebSocket is selected. Keep the API and game connection same-origin where practical. Expose neither the database nor internal administration endpoints publicly. The proxy must support WebSocket upgrade and appropriate idle timeouts. Retained ENet traffic or voice relay traffic requires its own explicitly configured network path.
 
 The server owns world state, activity clocks, contested actions and saves. Closing or suspending a browser tab must never stop the world or promote a client to server authority.
 
@@ -40,7 +40,7 @@ The proof must include one desktop and one browser client sharing the same world
 
 Record the server owner/operator, OS, CPU, RAM, storage, available uplink, public connectivity and intended simultaneous players before sizing the deployment. Establish whether inbound connectivity is possible through the actual router/firewall and whether CGNAT or a changing public IP needs a deliberate solution. A domain alone does not make a private server reachable.
 
-Select the domain and who controls DNS. Configure correct A/AAAA records only for working network paths, automated TLS renewal and external HTTPS/WSS checks. Use exact trusted origins where cross-origin requests are needed. Keep secrets outside the client and repository. Document every exposed TCP/UDP port and its purpose after the transport and voice stack are selected.
+The selected domain is `pengloo.party`; establish who controls its DNS and deployment access. Configure correct A/AAAA records only for working network paths, automated TLS renewal and external HTTPS/WSS checks. Use exact trusted origins where cross-origin requests are needed. Keep secrets outside the client and repository. Document every exposed TCP/UDP port and its purpose after the transport and voice stack are selected.
 
 Run services unprivileged with restart supervision, bounded logs and persistent volumes outside release directories. Back up durable data to a separate location and rehearse restoration. Record disk/resource monitoring, readiness checks, restart/drain procedures and the incident contact. One host is a single point of failure; state expected downtime honestly.
 
@@ -58,4 +58,4 @@ Use staging before the live domain. Acceptance includes: fresh visit over HTTPS;
 2. Build the shared authoritative server, API and persistence on the team's own server; preserve cross-platform contracts throughout native feature work.
 3. Complete web download/performance, browser UI/input, supported-browser QA, domain/TLS, staged releases and recovery testing before public browser launch.
 
-Domain name, server specifications, initial capacity, supported browser versions and provider/relay choices remain implementation decisions. Self-hosting and the future browser release are confirmed requirements.
+Server specifications, DNS access/configuration, initial capacity, supported browser versions and provider/relay choices remain implementation decisions. Self-hosting and the future browser release are confirmed requirements.
