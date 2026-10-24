@@ -255,7 +255,6 @@ const DOORS := {
 	"cafe_interior": ["cafe", "Inside", "Café"],
 	"arcade_interior": ["arcade", "Inside", "Arcade"],
 	"casino_interior": ["casino", "Inside", "Casino"],
-	"home": ["home", "InsideSpawn", "your igloo"],
 }
 const ACTIVITY_TITLES := {"sled": "Sled Hill", "snowballs": "Snowball Arena", "basketball": "Basketball Court", "sketch": "Sketch Club"}
 

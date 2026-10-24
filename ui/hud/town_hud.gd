@@ -322,8 +322,8 @@ func _open_outfit() -> void:
 
 func _go_home() -> void:
 	var w := get_tree().get_first_node_in_group("world")
-	if w and w.has_method("travel_to"):
-		w.call("travel_to", "home", "BusArrival")
+	if w and w.has_method("go_to_homes"):
+		w.call("go_to_homes")
 
 
 func _open_friends() -> void:
