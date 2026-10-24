@@ -22,6 +22,7 @@ var _saved_height := 8.0
 var _saved_distance := 6.0
 var _saved_look := 0.7
 var _saved_smooth := 6.0
+var _ground_y := 0.0  # the penguin's height on the last floor it stood on: hills and decks lift the frame, a jump does not
 
 
 func set_frame(center: Vector3, next_limit_x: float, next_limit_z: float, next_height: float = -1.0, next_distance: float = -1.0) -> void:
@@ -67,6 +68,7 @@ func unpin_focus() -> void:
 
 func _ready() -> void:
 	_target = get_node(target_path) as Node3D
+	_ground_y = _target.global_position.y if _target else 0.0
 	camera.fov = 35.0
 	camera.current = true
 	camera.position = Vector3(0.0, height, distance)
@@ -80,8 +82,13 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if _target == null:
 		return
+	if not (_target is CharacterBody3D) or (_target as CharacterBody3D).is_on_floor():
+		_ground_y = _target.global_position.y
 	var blend := 1.0 - exp(-follow_smooth * delta)
-	global_position = global_position.lerp(_clamped_focus(), blend)
+	var focus := _clamped_focus()
+	var y := lerpf(global_position.y, focus.y, 1.0 - exp(-follow_smooth * 0.6 * delta))  # a little softer on steps
+	global_position = global_position.lerp(focus, blend)
+	global_position.y = y
 	if _pin_on:
 		_aim()
 
@@ -95,9 +102,9 @@ func _aim() -> void:
 
 func _clamped_focus() -> Vector3:
 	if _pin_on:
-		return Vector3(_pin.x, 0.0, _pin.z)
+		return Vector3(_pin.x, 0.0, _pin.z)  # callers aim with look_y from the floor
 	var focus := _target.global_position
 	focus.x = clampf(focus.x, _center.x - limit_x, _center.x + limit_x)
-	focus.y = 0.0
+	focus.y = _ground_y
 	focus.z = clampf(focus.z, _center.z - limit_z, _center.z + limit_z)
 	return focus

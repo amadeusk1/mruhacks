@@ -35,32 +35,34 @@ def C(px, py):
 
 PLAZA_C, PLAZA_R = Vector((0.0, 0.0)), 9.5
 ISLAND_C, ISLAND_HALF, ISLAND_N = Vector((0.0, 1.3)), Vector((38.5, 35.5)), 4.0
-ARENA_C, ARENA_HALF, ARENA_Z = Vector((28.5, 23.7)), Vector((7.4, 6.1)), 1.5
+ARENA_C, ARENA_HALF, ARENA_Z = Vector((29.9, 23.7)), Vector((6.5, 6.1)), 1.5   # plateau x 23.4..36.4, y 17.6..29.8
+ARENA_S, ARENA_O = 0.9, Vector((24.4, 20.3))   # blockout scale and origin: its spectator band starts at the plateau's south edge
+ARENA_GATE_X = ARENA_O.x + 6.0 * ARENA_S        # blockout socket_gate (6, 0): the stairs climb straight to it
 SKETCH_C, SKETCH_Z = C(1050, 595), 0.0
 COURT_C = Vector((25.5, -19.2))
 COVE = [(Vector((-16.5, -22.0)), Vector((12.0, 9.0))), (Vector((-24.0, -31.0)), Vector((9.0, 5.5)))]
 CAFE_SHIFT = Vector((2.2, -1.0))   # keeps the cafe clear of the sled stair foot and the path to it
-CINEMA_P, CAFE_P, ARCADE_P = C(575, 200), C(455, 370) + CAFE_SHIFT, Vector((8.8, 12.8))
-ARCADE_YAW, ARCADE_S = -15.0, 0.85   # the 13 x 11 m exterior only fits the NE pocket (plaza/stream/cinema path) at 0.85
+CINEMA_P, CAFE_P, ARCADE_P = C(575, 200), C(455, 370) + CAFE_SHIFT, Vector((9.6, 12.2))
+ARCADE_YAW, ARCADE_S = -15.0, 0.8   # the 13 x 11 m exterior only fits the NE pocket (plaza/stream/cinema path) at 0.85
 CASINO_P = Vector((23.2, 8.4))   # Images/World Map - Casino Placement.png: east of the arcade, across the stream
 
 # streets (metres) for the homes grid
 HX, HY = (-35.0, -23.5, -12.0), (9.5, 0.0, -9.5)
 
 PATHS = [  # (polyline, width)
-    ([C(575, 440), C(575, 290)], 3.0),                                  # N spoke -> cinema
+    ([C(575, 440), Vector((0.0, 17.8))], 3.0),                          # N spoke -> cinema steps
     ([Vector((-4.6, 7.9)), C(470, 425) + CAFE_SHIFT], 2.6),                                  # NW spoke -> cafe
-    ([Vector((6.2, 6.3)), Vector((7.55, 8.12))], 2.6),     # starts at the plaza rim: the inner ring is garden                         # NE spoke -> arcade door
+    ([Vector((6.2, 6.3)), Vector((8.42, 7.8))], 2.6),     # starts at the plaza rim: the inner ring is garden                         # NE spoke -> arcade door
     ([Vector((-PLAZA_R + 0.4, 0)), Vector((HX[0], 0))], 2.8),           # W spoke = homes main street
     ([Vector((PLAZA_R - 0.4, 0)), C(1000, 595)], 2.8),                  # E spoke -> sketch club
     ([Vector((0, -PLAZA_R + 0.4)), C(600, 1030)], 2.8),                 # S spoke -> south pier
     ([Vector((-6.2, -7.2)), Vector((-11.4, -11.7))], 2.6),              # SW spoke -> cove
     ([Vector((6.2, -7.2)), C(760, 760), Vector((19.2, -14.3))], 2.6),   # SE spoke -> court
     ([C(470, 425) + CAFE_SHIFT, Vector((-7.4, 8.6)), Vector((-11.6, 9.6))], 2.4),   # cafe door -> homes/sled-stairs path, round the cafe's west side
-    ([C(575, 290), C(700, 230), C(880, 230), Vector((24.7, 14.4))], 2.4),   # cinema -> arena stairs foot
-    ([Vector((24.7, 14.4)), Vector((30.4, 12.6)), Vector((30.4, 4.0)), C(1000, 595)], 2.4),  # arena -> east loop -> sketch
+    ([Vector((0.0, 17.8)), Vector((3.9, 17.8)), C(700, 230), C(880, 230), Vector((21.1, 18.6)), Vector((22.0, 15.4)), Vector((ARENA_GATE_X, 14.4))], 2.4),   # cinema -> arena stairs foot, round the plateau
+    ([Vector((ARENA_GATE_X, 14.4)), Vector((30.4, 12.6)), Vector((30.4, 3.2))], 2.4),   # ends at the pavilion's north side (the E spoke is its door)  # arena -> east loop -> sketch
     ([Vector((23.2, 4.2)), Vector((23.2, -0.6))], 2.6),               # casino forecourt -> east spoke
-    ([C(1000, 595), C(1010, 760), Vector((29.6, -14.6))], 2.4),         # sketch -> court
+    ([C(1000, 595), Vector((26.4, -4.2)), C(1010, 760), Vector((29.6, -14.6))], 2.4),   # sketch -> court, clear of the pavilion
     ([Vector((HX[0], HY[0])), Vector((HX[2], HY[0]))], 2.2),            # homes grid
     ([Vector((HX[0], HY[2])), Vector((HX[2], HY[2]))], 2.2),
     ([Vector((HX[0], HY[0])), Vector((HX[0], HY[2]))], 2.2),
@@ -73,7 +75,7 @@ PATHS = [  # (polyline, width)
 
 PATHS += sled_hill.PATHS
 
-STREAM = [Vector((15.4, 33.15)), Vector((16.2, 21.45)), Vector((19.3, 16.25)), Vector((16.1, 8.45)), C(780, 580),   # NE bends pushed east to clear the arcade
+STREAM = [Vector((15.4, 33.15)), Vector((16.2, 21.45)), Vector((18.6, 16.25)), Vector((16.1, 8.45)), C(780, 580),   # NE bends pushed east to clear the arcade
           C(760, 700), C(700, 800),
           C(690, 920), C(700, 1080)]
 STREAM_W, STREAM_BED = 1.05, -1.05
@@ -122,6 +124,7 @@ def island_d(p):
     a = math.atan2(p.y - ISLAND_C.y, p.x - ISLAND_C.x)
     r += 0.035 * math.sin(5 * a) + 0.02 * math.sin(11 * a + 1.3)
     d = (r - 1.0) * min(ISLAND_HALF)
+    d = min(d, ellipse_d(p, Vector((30.5, 24.0)), 8.5, 7.5))   # NE headland under the arena plateau
     for c, rad in COVE:
         d = max(d, -ellipse_d(p, c, rad.x, rad.y))
     return d
@@ -156,7 +159,7 @@ def _height(p):
     h = max(h, 1.2 * (1 - smoothstep(-2.0, 2.5, ellipse_d(p, Vector((8.0, 32.0)), 12.0, 4.5))))
     # snowball arena plateau (rounded rectangle, firm edge)
     q = Vector((max(abs(p.x - ARENA_C.x) - ARENA_HALF.x, 0), max(abs(p.y - ARENA_C.y) - ARENA_HALF.y, 0)))
-    h = max(h, ARENA_Z * (1 - smoothstep(0.2, 1.6, q.length)))
+    h = max(h, ARENA_Z * (1 - smoothstep(0.1, 0.6, q.length)))          # firm edge: the paths pass close
     # stairs runs: terrain rises with them
     for (a, b, z0, z1) in stair_runs():
         dv = (b - a).normalized()
@@ -184,7 +187,7 @@ def _height(p):
 PADS = [(CINEMA_P, Vector((4.2, 4.8)), 0.0), (CAFE_P, Vector((3.2, 3.0)), 0.0), (ARCADE_P, Vector((5.6, 4.6)), 0.0),
         (COURT_C, Vector((9.6, 5.4)), 0.0), (SKETCH_C, Vector((3.6, 3.6)), 0.0), (CASINO_P, Vector((4.6, 4.2)), 0.0)] + \
        [(Vector((x, y)), Vector((4.4, 4.0)), 0.0) for x in (-29.25, -17.75) for y in (4.75, -4.75)] + \
-       [(Vector((-22.5, 13.6)), Vector((4.0, 3.6)), 0.0), (Vector((-33.0, 13.0)), Vector((4.2, 3.9)), 0.0),
+       [(Vector((-22.5, 14.3)), Vector((4.0, 3.6)), 0.0), (Vector((-32.4, 14.6)), Vector((4.2, 3.9)), 0.0),
         ]
 
 
@@ -200,14 +203,14 @@ def pad_w(p):
 
 
 # stair flights: (foot xy, climb direction, modules). stone_stairs_snow mesh is 1.0 m per 0.5 m rise.
-STAIR_FLIGHTS = [(Vector((24.7, 14.6)), Vector((0, 1)), 3, 0.0)]          # snowball arena plateau (sled stairs: sled_hill.py)
+STAIR_FLIGHTS = [(Vector((ARENA_GATE_X, 14.6)), Vector((0, 1)), 3, 0.0)]          # snowball arena plateau (sled stairs: sled_hill.py)
 STAIR_CHAINS = []
 for _foot, _u, _n, _z0 in STAIR_FLIGHTS:
     _mods = [(_foot + _u * (k + 0.5), _z0 + 0.5 * k) for k in range(_n)]
     STAIR_CHAINS.append({"mods": _mods, "dir": _u, "foot": (_foot, _z0), "top": (_foot + _u * _n, _z0 + 0.5 * _n)})
 PADS += [(Vector((-10.1, 13.9)), Vector((1.2, 1.9)), 0.0),                   # approach to the sled stair foot (sled_hill's mound buried it)
-         (Vector((24.7, 18.6)), Vector((1.2, 0.6)), ARENA_Z),                 # arena stair top
-         (Vector((24.7, 14.1)), Vector((1.2, 0.6)), 0.0)]                     # arena stair foot
+         (Vector((ARENA_GATE_X, 18.6)), Vector((1.2, 0.6)), ARENA_Z),                 # arena stair top
+         (Vector((ARENA_GATE_X, 14.1)), Vector((1.2, 0.6)), 0.0)]                     # arena stair foot
 
 
 def stair_runs():
@@ -372,12 +375,58 @@ def put(asset, x, y, yaw=0.0, z=None, name=None, tags=("prop",), tints=None, sca
     return True
 
 
+# measured mesh bounds (min x, min y, max x, max y) for footprints that are not centred on their origin
+BOUNDS = {"winter/snowball_arena_blockout": (-0.73, -2.81, 12.73, 8.1), "activities/sketch_pavilion": (-2.81, -3.25, 2.8, 2.81),
+          "casino/casino_exterior": (-4.53, -4.85, 4.53, 3.67), "cinema/cinema_exterior": (-3.46, -5.39, 3.46, 2.86),
+          "arcade/arcade_exterior": (-6.64, -5.87, 6.64, 5.14), "cafe/cafe_exterior": (-2.58, -2.58, 2.58, 2.03),
+          "homes/treehouse_exterior": (-3.81, -3.59, 3.79, 3.59), "homes/aframe_cabin_exterior": (-4.03, -3.98, 4.13, 3.75),
+          "cottage/cottage_exterior": (-2.21, -2.22, 2.2, 2.0), "homes/round_cottage_exterior": (-3.65, -3.41, 3.63, 3.53),
+          "homes/snow_dome_exterior": (-3.68, -3.54, 3.72, 3.51), "homes/houseboat_exterior": (-4.5, -4.1, 4.5, 2.9),
+          "homes/lighthouse_loft_exterior": (-4.08, -3.3, 4.04, 3.42)}
+
+
+def footprint_overlaps():
+    """Buildings and activity prefabs whose footprint reaches into a path ribbon (the arena keeps 1 m clear).
+    Points within 2 m of a door or activity marker are skipped: that is where a path is meant to arrive."""
+    out = []
+    doors = [Vector(m["pos"][:2]) for m in MARKERS if m["kind"] in ("door", "activity")]
+    for q in PLACE:
+        if not ("building" in q["tags"] or "arena_blockout" in q["id"]) or "walkable" in q["tags"] or "homes_arch" in q["id"]:
+            continue
+        sz = manifest(q["id"]).get("size_m") or [1, 1, 1]
+        x0, y0, x1, y1 = BOUNDS.get(q["id"], (-sz[0] / 2, -sz[1] / 2, sz[0] / 2, sz[1] / 2))
+        clear = 1.0 if "arena_blockout" in q["id"] else 0.0
+        a, s = math.radians(q["yaw"]), q["scale"]
+        ca, sa = math.cos(a), math.sin(a)
+        nx, ny = max(2, int((x1 - x0) / 0.5) + 1), max(2, int((y1 - y0) / 0.5) + 1)
+        hit = None
+        for i in range(nx):
+            for j in range(ny):
+                u, v = (x0 + (x1 - x0) * i / (nx - 1)) * s, (y0 + (y1 - y0) * j / (ny - 1)) * s
+                p = Vector((q["pos"][0] + u * ca - v * sa, q["pos"][1] + u * sa + v * ca))
+                if any((p - d).length < 2.0 for d in doors):
+                    continue
+                for k, (pts, w) in enumerate(PATHS):
+                    if poly_dist(p, pts) < w * 0.5 + clear:
+                        hit = (q["id"], [round(p.x, 1), round(p.y, 1)], f"path {k}")
+                        break
+                if hit:
+                    break
+            if hit:
+                break
+        if hit:
+            out.append(hit)
+    return out
+
+
 def validate():
     """Export gate: authored props must never stand on a walkable surface; walkable seams must meet."""
     rects = walk_rects()
     flagged = [(q, (q["id"], [round(v, 1) for v in q["pos"][:2]], why)) for q in PLACE
                for why in [walk_violation(q["id"], q["pos"][0], q["pos"][1], q["yaw"], q["scale"], q["tags"], rects)] if why]
     seams = check_seams()
+    for o in footprint_overlaps():
+        flagged.append(({"tags": ["sled"] if o[0].startswith("sled") else []}, (o[0], o[1], "footprint on " + o[2])))
     sled = [b for q, b in flagged if "sled" in q["tags"]]      # judged per placement, not per asset id
     bad = [b for q, b in flagged if "sled" not in q["tags"]]
     for b in sled:

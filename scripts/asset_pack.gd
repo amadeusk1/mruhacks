@@ -319,11 +319,7 @@ static func _place_cinema_lobby(room: Node3D, props: Node3D, nav: Node3D) -> voi
 	var into_room := Vector3(max_p.x + 0.05, 0.0, screen_at.z)
 	_set_door(room.get_node("LobbyScreenDoor") as Area3D, lobby.global_transform * into_room, Vector3(1.0, 0.0, 0.0), 2.6)
 	_aim_marker(room.get_node("ScreenReturn") as Node3D, lobby.global_transform * Vector3(screen_at.x - 1.6, 0.0, screen_at.z), lobby.global_position)
-	_blocker_at(nav, lobby, "counter", Vector3(-2.35, 0.55, -1.45), Vector3(2.6, 1.1, 1.2), Vector3(0.0, 0.5, -0.45))
-	_blocker_at(nav, lobby, "kiosk", Vector3(1.0, 0.5, -0.95), Vector3(1.05, 1.0, 0.7), Vector3(0.0, 0.45, 0.0))
-	# lounge: table with two armchairs, and the two-seat sofa by the left wall (cinema_lobby.py layout)
-	_axis_box(nav, Vector3(3.0, 0.7, 0.9), lobby.position + Vector3(-3.6, 0.35, 2.6), 2)
-	_axis_box(nav, Vector3(0.85, 0.7, 2.2), lobby.position + Vector3(-5.2, 0.35, 0.2), 2)
+	# counter, kiosk and lounge collide from the model's own footprint (cinema.gd, Footprint.blocker)
 	_glow(lobby, Vector3(0.0, 2.35, 0.2), Color(1.0, 0.84, 0.68), 1.15, 9.0)
 
 
@@ -359,11 +355,12 @@ static func _place_cinema_hall(room: Node3D, props: Node3D, nav: Node3D) -> void
 	for s in hall.find_children("socket_seat*", "Node3D", true, false):
 		var p := hall.to_local((s as Node3D).global_position)
 		var key := snappedf(p.z, 0.1)
-		var span: Vector2 = rows.get(key, Vector2(p.x, p.x))
-		rows[key] = Vector2(minf(span.x, p.x), maxf(span.y, p.x))
+		var span: Vector3 = rows.get(key, Vector3(p.x, p.x, p.y))
+		rows[key] = Vector3(minf(span.x, p.x), maxf(span.y, p.x), span.z)
 	for key in rows:
-		var span: Vector2 = rows[key]
-		_axis_box(nav, Vector3(span.y - span.x + 1.2, 0.55, 0.8), hall.position + Vector3((span.x + span.y) * 0.5, 0.28, key + 0.09), 2)
+		var span: Vector3 = rows[key]  # x..y across the row, z = the seats' tier height
+		# 0.55 m deep at the back of the 1.4 m tier, so a walkway stays clear in front of each row
+		_axis_box(nav, Vector3(span.y - span.x + 1.2, 0.55, 0.55), hall.position + Vector3((span.x + span.y) * 0.5, span.z + 0.28, key + 0.2), 2)
 	# full-width stage under the screen
 	_axis_box(nav, Vector3(bounds.size.x - 0.4, 1.5, 1.0), hall.position + Vector3(0.0, 0.75, screen_at.z + 0.25), 2)
 	_glow(hall, Vector3(0.2, 2.5, 0.4), Color(0.55, 0.72, 0.78), 0.7, 8.0)
@@ -447,16 +444,27 @@ static func _furnish(parent: Node3D, kit: String, asset: String, at: Vector3, ya
 
 
 static func _wall_ring(nav: Node3D, center: Vector3, radius: float, door_dir: Vector2, half_gap: float) -> void:
-	var count := 18
+	# overlapping upright posts: a smooth round wall to glide along (tangent boxes left notches at
+	# every joint that caught the penguin); the dome floor's edge already bounds the navmesh
+	var count := ceili(TAU * radius / 0.3)
 	var door_angle := door_dir.angle()
-	var tangent_len := TAU * radius / float(count) + 0.14
+	var body := StaticBody3D.new()
+	body.collision_layer = 2
+	body.collision_mask = 0
+	body.set_meta("nav_keep", true)
+	var post := CylinderShape3D.new()
+	post.radius = 0.25
+	post.height = 2.2
 	for i in count:
 		var angle := TAU * float(i) / float(count)
 		if absf(wrapf(angle - door_angle, -PI, PI)) < half_gap:
 			continue
-		var radial := Vector3(cos(angle), 0.0, sin(angle))
-		var side := Vector3(-radial.z, 0.0, radial.x)
-		_oriented_box(nav, Vector3(tangent_len, 2.2, 0.46), center + radial * radius + Vector3(0.0, 1.1, 0.0), side, radial)
+		var col := CollisionShape3D.new()
+		col.shape = post
+		col.position = Vector3(cos(angle), 0.0, sin(angle)) * (radius + 0.02) + Vector3(0.0, 1.1, 0.0)
+		body.add_child(col)
+	nav.add_child(body)
+	body.global_position = center
 
 
 static func _tunnel(nav: Node3D, origin: Vector3, door_local: Vector3, outward: Vector3) -> void:
