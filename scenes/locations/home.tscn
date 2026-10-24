@@ -366,7 +366,8 @@ transform = Transform3D(1.75, 0, 0, 0, 1.7, 0, 0, 0, 0.8, 80, 0.85, 3.55)
 collision_layer = 0
 collision_mask = 4
 script = ExtResource("3_door")
-spawn_name = "OutsideSpawn"
+spawn_name = "Home2DoorOut"
+location = "town"
 
 [node name="Shape" type="CollisionShape3D" parent="InsideDoor"]
 shape = SubResource("BoxShape3D_unit")

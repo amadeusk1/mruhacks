@@ -99,6 +99,7 @@ func _ready() -> void:
 		sb.content_margin_bottom = 8
 		_action.add_theme_stylebox_override(st, sb)
 	_action.add_theme_font_size_override("font_size", 22)
+	_action.focus_mode = Control.FOCUS_NONE
 	_action.visible = false
 	_action.pressed.connect(_do_action)
 	add_child(_action)
@@ -284,7 +285,8 @@ func _update_action(player: Node3D) -> void:
 	if best == null:
 		return
 	_action_kind = "interactable"
-	_action.set_caption(str(best.call("prompt_text")) if best.has_method("prompt_text") else "Enter")
+	var prompt := str(best.call("prompt_text")) if best.has_method("prompt_text") else "Enter"
+	_action.set_caption("F  " + prompt)
 	var key := str(best.get("activity")) if str(best.get("activity")) != "" else str(best.get("location"))
 	_action._icon_rect.texture = UIKit.icon(ICONS.get(key, ICONS.get(str(best.get("title")).to_lower(), "door")))
 	_place_action.call_deferred()
@@ -299,6 +301,17 @@ func _do_action() -> void:
 
 func _flat(v: Vector3) -> float:
 	return Vector2(v.x, v.z).length()
+
+
+func _input(event: InputEvent) -> void:
+	if not event.is_action_pressed("interact"):
+		return
+	if UIRouter.is_open() or get_viewport().gui_get_focus_owner() is LineEdit:
+		return
+	if not _action.visible or _action_target == null:
+		return
+	_do_action()
+	get_viewport().set_input_as_handled()
 
 
 func _unhandled_input(event: InputEvent) -> void:

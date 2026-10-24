@@ -147,12 +147,12 @@ func travel_to(location_id: String, spawn_name: String = "BusArrival", igloo_id:
 	_refresh_presence()
 
 
-## Homes are the cottages on the town island, not a separate place.
+## Stand outside the player's snow dome on the town island.
 func go_to_homes() -> void:
 	if _current_id == LocationCatalog.MAIN:
-		shift_to_marker("HomesGate")
+		shift_to_marker("Home2DoorOut")
 	else:
-		travel_to(LocationCatalog.MAIN, "HomesGate")
+		travel_to(LocationCatalog.MAIN, "Home2DoorOut")
 
 
 ## Door trip inside the current room. The landing marker is outside the door volume.

@@ -172,8 +172,11 @@ func _place(nav: Node, p: Dictionary) -> void:
 		if walk:
 			_walks.append([node, walk])
 	if tags.has("blocker"):
-		var size := AssetRegistry.size(id) * float(p.get("scale", 1.0))
-		_box_body(nav, node.position + Vector3(0, size.y * 0.5, 0), size, float(p.get("rot_y_deg", 0.0)), BLOCK_LAYER)
+		if id == "world_misc/homes_arch":
+			_arch_posts(node)  # posts only, so the gateway stays open
+		else:
+			var size := AssetRegistry.size(id) * float(p.get("scale", 1.0))
+			_box_body(nav, node.position + Vector3(0, size.y * 0.5, 0), size, float(p.get("rot_y_deg", 0.0)), BLOCK_LAYER)
 	_start_ambient(node)
 	if id == "activities/communal_table":  # Sketch Club: sitting here joins the table's game
 		SeatSpot.from_sockets(nav, node, "sketch", node.global_position, "sketch")
@@ -288,6 +291,9 @@ func _door(marker: Marker3D, target: String) -> void:
 	out.name = marker.name + "Out"
 	out.transform = Transform3D(marker.basis.rotated(Vector3.UP, PI), marker.position + marker.basis.z * 1.6)
 	add_child(out)
+	if marker.name == "Home2Door":  # the snow dome on the island is the player's house
+		_anchor(marker, "your house", "Enter", "", "home", "InsideSpawn")
+		return
 	if not DOORS.has(target):
 		return
 	var d: Array = DOORS[target]
@@ -459,6 +465,22 @@ func _trimesh_body(mi: MeshInstance3D, layer: int) -> void:
 	shape.shape = mi.mesh.create_trimesh_shape()
 	body.add_child(shape)
 	mi.add_child(body)
+
+
+## The homes arch's full-size blocker filled the opening. Two posts leave a walkway between them.
+func _arch_posts(arch: Node3D) -> void:
+	var body := StaticBody3D.new()
+	body.name = "ArchPosts"
+	body.collision_layer = BLOCK_LAYER
+	body.collision_mask = 0
+	arch.add_child(body)
+	for side in [-1.0, 1.0]:
+		var shape := CollisionShape3D.new()
+		var box := BoxShape3D.new()
+		box.size = Vector3(0.5, 2.6, 0.5)
+		shape.shape = box
+		shape.position = Vector3(side * 1.35, 1.3, 0.0)
+		body.add_child(shape)
 
 
 func _box_body(parent: Node, center: Vector3, size: Vector3, rot_y: float, layer: int) -> StaticBody3D:

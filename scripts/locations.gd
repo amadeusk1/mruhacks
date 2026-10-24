@@ -9,6 +9,11 @@ const ORDER: Array[String] = ["town", "plaza", "cinema", "sled_hill", "court"]
 const MAIN := "town"
 
 const _PLACES := {
+	"home": {
+		"title": "Your House",
+		"scene": "res://scenes/locations/home.tscn",
+		"map": Vector2(0.3, 0.28),
+	},
 	"town": {
 		"title": "Town",
 		"scene": "res://scenes/locations/town.tscn",
