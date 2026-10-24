@@ -34,6 +34,8 @@ enum Mode { OFF, SOLO, HOST, CLIENT }
 
 var _mode := Mode.OFF
 var _players: Dictionary = {}
+## Headless dedicated server (deploy): peer 1 is authority only, never a player in _players/roster.
+var dedicated := OS.get_cmdline_user_args().has("--dedicated")
 var _roster: Array = []
 var _local_name := "Penguin"
 var _local_color := 0
@@ -186,7 +188,8 @@ func host_game(player_name: String) -> String:
 	_local_name = _clean_name(player_name)
 	_local_color = _take_color() if preferred_color < 0 else preferred_color
 	_place_hidden = true
-	_players[local_id()] = _blank(local_id(), _local_name, _local_color)
+	if not dedicated:  # a listen-server host plays; a dedicated one never joins its own roster
+		_players[local_id()] = _blank(local_id(), _local_name, _local_color)
 	_session_open = true
 	print("Net hosting on %s:%s as peer %s (%s)" % [ADDRESS, PORT, local_id(), _local_name])
 	_broadcast()
