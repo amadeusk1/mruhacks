@@ -11371,16 +11371,6 @@
    "rot_y_deg": 200
   },
   {
-   "name": "BusStop",
-   "kind": "bus",
-   "pos": [
-    3.4,
-    0.0,
-    7.3
-   ],
-   "rot_y_deg": 200
-  },
-  {
    "name": "CinemaDoor",
    "kind": "door",
    "target": "cinema_lobby",
