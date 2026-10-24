@@ -24,6 +24,7 @@ Net="*res://scripts/net.gd"
 AssetRegistry="*res://scripts/assets/asset_registry.gd"
 UIRouter="*res://ui/ui_router.gd"
 Activities="*res://scripts/world/activities.gd"
+ActivityScreens="*res://ui/activities/activity_screens.gd"
 
 [display]
 
