@@ -13,7 +13,7 @@ SD_R = 1.17                     # screen-door arch radius: leaves open to a 2.0 
 SD_RECT = 1.7                    # screen-door leaf height (arch springs here)
 DOOR_TOP = SD_RECT + SD_R + 0.38 # lintel height of the screen-door wall opening
 ENTRANCE = 2.4                   # front entrance gap
-SOFA_PITCH = 1.15
+SOFA_PITCH = 1.155               # 1.15 m minimum plus float margin
 
 
 # ------------------------------------------------------------------ furniture

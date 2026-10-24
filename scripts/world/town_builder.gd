@@ -143,8 +143,11 @@ func _place(nav: Node, p: Dictionary) -> void:
 		Tints.apply(node, colors)
 	var tags: Array = p.get("tags", [])
 	if tags.has("walkable"):
-		for mi in node.find_children("*", "MeshInstance3D", true, false):
-			_trimesh_body(mi, FLOOR_LAYER)
+		if id == "world_misc/footbridge":
+			_bridge_crossing(node)  # deck and ramps only; the visual rails are not a wall
+		else:
+			for mi in node.find_children("*", "MeshInstance3D", true, false):
+				_trimesh_body(mi, FLOOR_LAYER)
 	if tags.has("blocker"):
 		var size := AssetRegistry.size(id) * float(p.get("scale", 1.0))
 		_box_body(nav, node.position + Vector3(0, size.y * 0.5, 0), size, float(p.get("rot_y_deg", 0.0)), BLOCK_LAYER)
@@ -281,6 +284,8 @@ func _activity_anchor(marker: Marker3D, activity: String) -> void:
 			add_child(spot)
 		"sled":
 			_anchor(marker, "Sled Hill", "Ride", "", "sled_hill", "BusArrival")
+		"basketball":
+			_anchor(marker, "The Court", "Play", "", "court", "BusArrival")
 		"sled_finish":
 			pass
 		_:
@@ -315,6 +320,113 @@ func _start_ambient(node: Node) -> void:
 				var d := m.duplicate() as BaseMaterial3D
 				mi.set_surface_override_material(s, d)
 				_glows.append([d, d.emission_energy_multiplier, randf() * TAU, randf_range(2.5, 4.0)])
+
+
+## Walk line of world_misc/footbridge: span along local X, arch springing at 0.30 m,
+## crown 0.45 m higher. Plank tops sit a few centimetres above this, flush with the
+## approach-landing sockets, so the ramps meet the deck without a step.
+func _bridge_deck_y(along: float) -> float:
+	var half := 1.8
+	var x := clampf(along, -half, half)
+	return 0.30 + 0.45 * (1.0 - (x / half) * (x / half))
+
+
+func _bridge_crossing(bridge: Node3D) -> void:
+	_bridge_approaches(bridge)
+	var pts := PackedVector3Array()
+	pts.append(Vector3(-5.2, 0.07, 0.0))  # flat lip on the path paving (top is +0.07)
+	pts.append(Vector3(-4.5, 0.07, 0.0))
+	for i in 17:
+		var x := lerpf(-2.4, 2.4, float(i) / 16.0)
+		pts.append(Vector3(x, _bridge_deck_y(x), 0.0))
+	pts.append(Vector3(4.5, 0.07, 0.0))
+	pts.append(Vector3(5.2, 0.07, 0.0))
+	_ribbon_floor(bridge, pts, 1.2)
+	_bridge_rails(bridge)
+
+
+## Visible ramps from the path (0.07 m) up to each deck end. Collision is the ribbon,
+## not the cobble mesh, so the kerbs cannot catch the capsule.
+func _bridge_approaches(bridge: Node3D) -> void:
+	for end_name in ["end_e", "end_w"]:
+		var landing := _spawn("town_connections/footbridge_approach_landing")
+		if landing == null:
+			continue
+		landing.name = "Approach"
+		bridge.add_child(landing)
+		if end_name == "end_w":
+			landing.rotation.y = PI
+		var seam := Sockets.find(landing, "seam_bridge")
+		var end := Sockets.find(bridge, end_name)
+		if seam != null and end != null:
+			landing.position += bridge.to_local(end.global_position) - bridge.to_local(seam.global_position)
+		else:
+			landing.position = Vector3(3.4 if end_name == "end_e" else -3.4, 0.0, 0.0)
+
+
+func _ribbon_floor(parent: Node3D, pts: PackedVector3Array, width: float) -> void:
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var half := width * 0.5
+	var drop := 0.2
+	for i in pts.size() - 1:
+		var a: Vector3 = pts[i]
+		var b: Vector3 = pts[i + 1]
+		var a0 := a + Vector3(0.0, 0.0, -half)
+		var a1 := a + Vector3(0.0, 0.0, half)
+		var b0 := b + Vector3(0.0, 0.0, -half)
+		var b1 := b + Vector3(0.0, 0.0, half)
+		var a0d := a0 + Vector3(0.0, -drop, 0.0)
+		var a1d := a1 + Vector3(0.0, -drop, 0.0)
+		var b0d := b0 + Vector3(0.0, -drop, 0.0)
+		var b1d := b1 + Vector3(0.0, -drop, 0.0)
+		_tri(st, a0, a1, b1)       # top
+		_tri(st, a0, b1, b0)
+		_tri(st, a0d, b1d, a1d)    # underside
+		_tri(st, a0d, b0d, b1d)
+		_tri(st, a0, b0, b0d)      # sides, so the slab has thickness
+		_tri(st, a0, b0d, a0d)
+		_tri(st, a1, b1d, b1)
+		_tri(st, a1, a1d, b1d)
+	var body := StaticBody3D.new()
+	body.name = "DeckWalk"
+	body.collision_layer = FLOOR_LAYER
+	body.collision_mask = 0
+	var shape := CollisionShape3D.new()
+	shape.shape = st.commit().create_trimesh_shape()
+	body.add_child(shape)
+	parent.add_child(body)
+
+
+func _tri(st: SurfaceTool, a: Vector3, b: Vector3, c: Vector3) -> void:
+	st.add_vertex(a)
+	st.add_vertex(b)
+	st.add_vertex(c)
+
+
+## Side rails block a fall into the stream. Not a BoxShape3D, and marked nav_keep, so
+## room_nav does not carve them out of the deck (a carved rail erases the only crossing).
+func _bridge_rails(bridge: Node3D) -> void:
+	var body := StaticBody3D.new()
+	body.name = "BridgeRails"
+	body.collision_layer = BLOCK_LAYER
+	body.collision_mask = 0
+	body.set_meta("nav_keep", true)
+	bridge.add_child(body)
+	for side in [-1.0, 1.0]:
+		var shape := CollisionShape3D.new()
+		var box := ConvexPolygonShape3D.new()
+		var h := Vector3(4.3, 0.75, 0.08)
+		box.points = PackedVector3Array([
+			Vector3(-h.x, -h.y, -h.z), Vector3(h.x, -h.y, -h.z),
+			Vector3(h.x, h.y, -h.z), Vector3(-h.x, h.y, -h.z),
+			Vector3(-h.x, -h.y, h.z), Vector3(h.x, -h.y, h.z),
+			Vector3(h.x, h.y, h.z), Vector3(-h.x, h.y, h.z),
+		])
+		shape.shape = box
+		# Bottom sits at the snow so the corner cannot catch a foot. Inner face at ±0.64.
+		shape.position = Vector3(0.0, 0.75, side * 0.72)
+		body.add_child(shape)
 
 
 func _trimesh_body(mi: MeshInstance3D, layer: int) -> void:

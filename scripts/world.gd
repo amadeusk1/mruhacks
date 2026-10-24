@@ -51,6 +51,12 @@ func _ready() -> void:
 	Net.host_lost.connect(_on_host_lost)
 	Net.chat_received.connect(_on_chat)
 	Net.home_invite.connect(_on_home_invite)
+	var arcade := preload("res://scripts/arcade_session.gd").new()
+	arcade.name = "ArcadeSession"
+	add_child(arcade)
+	var roulette := preload("res://scripts/roulette_session.gd").new()
+	roulette.name = "RouletteSession"
+	add_child(roulette)
 	_apply_launch_args()
 
 
@@ -154,7 +160,7 @@ func shift_to_marker(marker_name: String) -> void:
 	_traveling = true
 	_penguin.set_travel_locked(true)
 	_penguin.halt()
-	_penguin.global_position = Vector3(marker.global_position.x, 0.2, marker.global_position.z)
+	_penguin.global_position = _ground_at(marker.global_position)
 	_penguin.rotation.y = marker.rotation.y
 	_penguin.velocity = Vector3.ZERO
 	_penguin.halt()
@@ -173,12 +179,22 @@ func shift_to_marker(marker_name: String) -> void:
 	_sync_puppets()
 
 
+## Floor under a spawn marker: raycast down from 2 m above it onto walkable floor (layer 1),
+## so arrivals on raised floors (cinema tiers, hills, docks) don't sink. Falls back to the
+## marker's own height when there is no floor under it.
+func _ground_at(at: Vector3) -> Vector3:
+	var query := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 2.0, at + Vector3.DOWN * 3.0, 1)
+	var hit := get_world_3d().direct_space_state.intersect_ray(query)
+	var y: float = (hit.position.y if not hit.is_empty() else at.y) + 0.05
+	return Vector3(at.x, y, at.z)
+
+
 func _place_penguin(room: Node, spawn_name: String) -> void:
 	var arrival := room.get_node(spawn_name) as Node3D
 	var extra := 0.0
 	if spawn_name == "BusArrival" and Net.is_online():
 		extra = float(posmod(Net.local_id(), 4)) * 0.65
-	_penguin.global_position = Vector3(arrival.global_position.x + extra, 0.2, arrival.global_position.z)
+	_penguin.global_position = _ground_at(arrival.global_position + Vector3(extra, 0.0, 0.0))
 	_penguin.velocity = Vector3.ZERO
 	_penguin.process_mode = Node.PROCESS_MODE_INHERIT
 	_penguin.visible = true

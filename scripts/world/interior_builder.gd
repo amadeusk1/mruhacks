@@ -72,9 +72,9 @@ const ROOMS := {
 			["arcade/arcade_rug", [0.0, 0.07, 0.11], 0.0],
 			["arcade/arcade_bench", "socket_bench_0", 90.0],
 		],
-		"games": [["socket_cabinet_solo_0", "", "arcade", "arcade", "socket_player"], ["socket_cabinet_solo_1", "", "arcade", "arcade", "socket_player"],
-			["socket_cabinet_solo_2", "", "arcade", "arcade", "socket_player"], ["socket_cabinet_solo_3", "", "arcade", "arcade", "socket_player"],
-			["socket_cabinet_solo_4", "", "arcade", "arcade", "socket_player"], ["socket_cabinet_duo", "", "arcade", "arcade", "socket_player"]],
+		"games": [["socket_cabinet_solo_0", "", "pac", "arcade", "socket_player"], ["socket_cabinet_solo_1", "", "tetris", "arcade", "socket_player"],
+			["socket_cabinet_solo_2", "", "dino", "arcade", "socket_player"], ["socket_cabinet_solo_3", "", "tetris", "arcade", "socket_player"],
+			["socket_cabinet_solo_4", "", "pac", "arcade", "socket_player"], ["socket_cabinet_duo", "", "arcade", "arcade", "socket_player"]],
 		"tints": {"socket_cabinet_solo_0": {"body": "#7B4FC4"}, "socket_cabinet_solo_1": {"body": "#3FB3B5"},
 			"socket_cabinet_solo_2": {"body": "#D9473B"}, "socket_cabinet_solo_3": {"body": "#E3A92B"},
 			"socket_cabinet_solo_4": {"body": "#3D7BD9"}},
@@ -224,7 +224,11 @@ func _seats(nav: Node, table: Array, g: Array) -> void:
 		var yaw := atan2(away.x, away.y) if away.length() > 0.05 else deg_to_rad(table[3])  # forward -Z faces the table
 		if seat_id != "":
 			AssetPack.place(nav, seat_id.get_base_dir(), seat_id.get_file(), floor_pos, yaw)
-		_make_seat("%s_%s" % [t_node.name, String(sname).trim_prefix("socket_")], floor_pos, yaw, seat_h, g[3], g[2])
+		var seat := _make_seat("%s_%s" % [t_node.name, String(sname).trim_prefix("socket_")], floor_pos, yaw, seat_h, g[3], g[2])
+		seat.set_meta("table", t_node)
+		var screen_sockets := AssetRegistry.sockets(table[1])
+		if screen_sockets.has("socket_screen"):
+			seat.set_meta("screen_local", _socket(screen_sockets, "socket_screen"))
 
 
 ## Seats authored in the shell: a seat prop plus a SeatSpot at every socket_<anchor>_seat_<k>,
@@ -251,7 +255,7 @@ func _make_seat(seat_name: String, floor_pos: Vector3, yaw: float, seat_h: float
 	seat.name = seat_name
 	seat.kit = kit
 	seat.activity = game
-	seat.title = game.capitalize() if game != "" else ""
+	seat.title = {"pac": "Pac-Man", "tetris": "Tetris", "dino": "Dino Run", "arcade": "Puck Rally"}.get(game, game.capitalize() if game != "" else "")
 	seat.verb = "Play" if game != "" else "Sit"
 	seat.position = floor_pos
 	add_child(seat)

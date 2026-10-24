@@ -79,7 +79,20 @@ static func dock_button(text: String, icon_name: String) -> Button:
 	b.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	b.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
 	b.expand_icon = false
-	b.custom_minimum_size = Vector2(150, 104)
+	b.custom_minimum_size = Vector2(112, 88)
+	b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	b.add_theme_font_size_override("font_size", 18)
+	b.add_theme_constant_override("icon_max_width", 32)
+	for state in ["normal", "hover", "pressed", "focus"]:
+		var src := THEME.get_stylebox(state, "DockButton") as StyleBoxFlat
+		if src == null:
+			continue
+		var box := src.duplicate() as StyleBoxFlat
+		box.content_margin_left = 6
+		box.content_margin_right = 6
+		box.content_margin_top = 6
+		box.content_margin_bottom = 4
+		b.add_theme_stylebox_override(state, box)
 	return b
 
 

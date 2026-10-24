@@ -191,6 +191,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("interact"):
 		if _try_interact():
 			get_viewport().set_input_as_handled()
+		elif _court_press("pass") or _court_press("steal"):
+			get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("click_walk"):
 		_try_click(event)
@@ -227,7 +229,8 @@ func _physics_process(delta: float) -> void:
 		return
 
 	var planar := Vector3(velocity.x, 0.0, velocity.z)
-	planar = planar.move_toward(direction * walk_speed, acceleration * delta)
+	var speed := 3.2 if Net.court_carrying() else walk_speed
+	planar = planar.move_toward(direction * speed, acceleration * delta)
 	velocity.x = planar.x
 	velocity.z = planar.z
 	if not is_on_floor():
@@ -330,6 +333,9 @@ func _try_click(event: InputEvent = null) -> void:
 			return
 		_pending_bench = collider
 		_begin_click(_closest_nav_point(collider.call("approach_point")))
+		return
+	if not _sitting and _court_press("shoot"):
+		_cancel_click()
 		return
 	if _sitting:
 		stand_up()
@@ -515,7 +521,31 @@ func _step_remote(delta: float) -> void:
 func _publish_pose() -> void:
 	if _remote_peer != 0:
 		return
-	Net.note_pose(global_position, rotation.y, Vector2(velocity.x, velocity.z).length(), _sitting)
+	Net.note_pose(global_position, rotation.y, court_speed(), _sitting)
+
+
+func court_speed() -> float:
+	if _remote_peer != 0:
+		return _net_speed
+	return Vector2(velocity.x, velocity.z).length()
+
+
+func _court_press(action: String) -> bool:
+	var world := get_tree().get_first_node_in_group("world")
+	if world == null or not world.has_method("current_location_id"):
+		return false
+	if str(world.call("current_location_id")) != "court":
+		return false
+	if action == "shoot" or action == "pass":
+		if not Net.court_carrying():
+			return false
+	elif action == "steal":
+		if Net.court_carrying():
+			return false
+	else:
+		return false
+	Net.court_action(action)
+	return true
 
 
 func _tint(mesh: MeshInstance3D, color: Color) -> void:

@@ -9,12 +9,15 @@ const _INSIDE_CENTER := Vector3(80.0, 0.0, 0.0)
 
 func _ready() -> void:
 	AssetPack.dress_home(self)
-	var dome := find_child("snow_dome_interior", true, false) as Node3D
+	var dome: Node3D = null  # the furnished interior (dress_home can leave a second, empty copy)
+	for d in find_children("snow_dome_interior*", "Node3D", true, false):
+		if d.get_parent().name == "PackProps" and d.find_child("bed*", false, false):
+			dome = d
 	if dome:
 		# somewhere for visiting friends to sit together, then every seat socket is claimable
 		AssetPack._furnish(dome, "room_kit", "sofa_2seat", Vector3(-0.3, 0.12, 1.25), PI)
 		AssetPack._furnish(dome, "room_kit", "armchair", Vector3(1.35, 0.12, -0.25), -PI * 0.5)
-		SeatSpot.from_sockets(self, dome, "armchair")
+		SeatSpot.from_sockets.call_deferred(self, dome, "armchair")  # after dress_home finishes furnishing
 
 
 func camera_for_spawn(spawn_name: String) -> Dictionary:

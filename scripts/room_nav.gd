@@ -4,7 +4,7 @@ extends NavigationRegion3D
 ## Floor colliders (physics layer 1) are the only walkable surface.
 ## Blockers (physics layer 2) carve holes so paths go around the ice, not over it.
 
-const AGENT_RADIUS := 0.5
+const AGENT_RADIUS := 0.36  # footbridge deck is 1.2 m between the rails
 const AGENT_HEIGHT := 1.25
 
 
@@ -27,7 +27,7 @@ func _bake() -> void:
 	mesh.agent_radius = AGENT_RADIUS
 	mesh.agent_height = AGENT_HEIGHT
 	mesh.agent_max_climb = 0.25
-	mesh.agent_max_slope = 25.0
+	mesh.agent_max_slope = 28.0  # bridge arch is about 27 degrees at the springing
 	mesh.cell_size = 0.25
 	mesh.cell_height = 0.25
 	mesh.geometry_parsed_geometry_type = NavigationMesh.PARSED_GEOMETRY_STATIC_COLLIDERS
@@ -44,7 +44,7 @@ func _bake() -> void:
 func _carve_blockers() -> void:
 	for node in find_children("*", "StaticBody3D", true, false):
 		var body := node as StaticBody3D
-		if body.collision_layer & 2 == 0:
+		if body.has_meta("nav_keep") or body.collision_layer & 2 == 0:
 			continue
 		for child in body.get_children():
 			if not (child is CollisionShape3D):
