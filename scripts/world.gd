@@ -279,7 +279,7 @@ func _on_host_pressed() -> void:
 
 func _on_join_pressed() -> void:
 	_lobby.set_busy(true)
-	_lobby.set_status("Connecting to 127.0.0.1:7777…")
+	_lobby.set_status("Joining the shared island…" if Net.use_websocket() else "Connecting to 127.0.0.1:7777…")
 	var error := Net.join_game(_lobby.player_name())
 	if error != "":
 		_lobby.set_busy(false)
@@ -307,6 +307,10 @@ func _on_session_started() -> void:
 	_penguin.apply_identity(str(profile["name"]), int(profile["color"]))
 	DisplayServer.window_set_title("%s — %s" % [Net.role_label(), str(profile["name"])])
 	await travel_to(LocationCatalog.MAIN, "BusArrival")
+	if OS.get_cmdline_user_args().has("--dedicated"):
+		Net.hide_presence()
+		_penguin.visible = false
+		_penguin.process_mode = Node.PROCESS_MODE_DISABLED
 	_refresh_presence()
 
 
