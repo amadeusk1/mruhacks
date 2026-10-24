@@ -1,0 +1,129 @@
+[
+  {
+    "id": "anim_cinema/avatar_base",
+    "file": "anim_cinema/avatar_base.glb",
+    "category": "animation",
+    "size_m": [
+      0.977,
+      0.654,
+      0.9
+    ],
+    "sockets": {
+      "socket_back": [
+        0.0,
+        -0.16,
+        -0.302
+      ],
+      "socket_face": [
+        0.0,
+        -0.2,
+        0.239
+      ],
+      "socket_hand_R": [
+        -0.003,
+        -0.02,
+        0.003
+      ],
+      "socket_head": [
+        0.0,
+        -0.18,
+        0.0
+      ],
+      "socket_neck": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "socket_seat": [
+        0.0,
+        -0.08,
+        0.0
+      ]
+    },
+    "tints": {
+      "body": "#3E7DD6"
+    },
+    "fps": 30,
+    "bones": [
+      "root",
+      "body",
+      "head",
+      "flipper.L",
+      "flipper.R",
+      "foot.L",
+      "foot.R"
+    ],
+    "morphs": [
+      "eyes_closed",
+      "eyes_happy",
+      "eyes_wide",
+      "beak_open",
+      "blush"
+    ],
+    "clips": {
+      "cinema_sit": {
+        "duration_s": 0.5,
+        "frames": 15,
+        "loop": false,
+        "events": {
+          "seated": 0.42
+        },
+        "cancel": "none",
+        "gltf_name": "cinema_sit",
+        "note": "snap socket_seat to the seat's socket_seat(_N), facing the screen"
+      },
+      "cinema_watch": {
+        "duration_s": 4.0,
+        "frames": 120,
+        "loop": true,
+        "events": {},
+        "cancel": "none",
+        "gltf_name": "cinema_watch_loop"
+      },
+      "cinema_snack": {
+        "duration_s": 1.6,
+        "frames": 48,
+        "loop": false,
+        "events": {
+          "munch": [
+            0.61,
+            0.78
+          ]
+        },
+        "cancel": "none",
+        "gltf_name": "cinema_snack",
+        "note": "optional; popcorn_tub or drink_cup in socket_hand_R"
+      },
+      "cinema_reaction_laugh": {
+        "duration_s": 1.4,
+        "frames": 42,
+        "loop": false,
+        "events": {},
+        "cancel": "none",
+        "gltf_name": "cinema_reaction_laugh",
+        "note": "user-triggered, seated"
+      },
+      "cinema_reaction_surprised": {
+        "duration_s": 1.0,
+        "frames": 30,
+        "loop": false,
+        "events": {},
+        "cancel": "none",
+        "gltf_name": "cinema_reaction_surprised",
+        "note": "user-triggered, seated"
+      },
+      "cinema_stand": {
+        "duration_s": 0.5,
+        "frames": 15,
+        "loop": false,
+        "events": {
+          "stand": 0.36
+        },
+        "cancel": "none",
+        "gltf_name": "cinema_stand"
+      }
+    },
+    "rig": "avatar_base (same node and bone names as avatar/avatar_base.glb)",
+    "root_motion": "none: clips play in place; only hop moves the root vertically"
+  }
+]

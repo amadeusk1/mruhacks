@@ -8,11 +8,12 @@ MODELS = os.path.join(VAULT, "Models")
 
 GROUPS = [  # (heading, kits) in the order a reader cares about
     ("Characters", ["avatar"]),
-    ("Town", ["plaza", "nature_dock", "buildings", "cafe", "cottage", "world_misc"]),
+    ("Town", ["plaza", "nature_dock", "town_connections", "buildings", "cafe", "cottage", "building_finishing", "world_misc"]),
     ("Cinema", ["cinema", "cinema_lobby", "cinema_auditorium"]),
     ("Arcade", ["arcade"]),
-    ("Activities", ["fishing", "winter", "activities"]),
-    ("Housing", ["homes", "room_kit", "home_themes"]),
+    ("Activities", ["fishing", "winter", "activities", "interaction_props"]),
+    ("Casino", ["casino"]),
+    ("Housing", ["homes", "room_kit", "home_themes", "interior_finishing"]),
     ("Effects", ["fx"]),
 ]
 

@@ -15,6 +15,7 @@ const PENGUIN := preload("res://scenes/penguin.tscn")
 @onready var _world_camera: Camera3D = $CameraRig/Camera3D
 
 var _current_id := ""
+var _igloo_id := 0
 var _traveling := false
 var _activity := false
 var _in_game := false
@@ -24,7 +25,10 @@ var _penguin_mask := 0
 var _puppets: Dictionary = {}
 var _poses: Dictionary = {}
 var _place_sig: Dictionary = {}
-var _presence: Label
+var _rows: VBoxContainer
+var _invite: PanelContainer
+var _invite_text: Label
+var _invite_from := 0
 
 
 func _ready() -> void:
@@ -46,11 +50,22 @@ func _ready() -> void:
 	Net.connect_failed.connect(_on_connect_failed)
 	Net.host_lost.connect(_on_host_lost)
 	Net.chat_received.connect(_on_chat)
+	Net.home_invite.connect(_on_home_invite)
+	var arcade := preload("res://scripts/arcade_session.gd").new()
+	arcade.name = "ArcadeSession"
+	add_child(arcade)
+	var roulette := preload("res://scripts/roulette_session.gd").new()
+	roulette.name = "RouletteSession"
+	add_child(roulette)
 	_apply_launch_args()
 
 
 func current_location_id() -> String:
 	return _current_id
+
+
+func home_owner_id() -> int:
+	return _igloo_id
 
 
 func is_bus_menu_open() -> bool:
@@ -60,7 +75,10 @@ func is_bus_menu_open() -> bool:
 func open_bus_menu() -> void:
 	if _traveling or _current_id == "" or not _in_game:
 		return
-	_menu.open_for(_current_id)
+	var here := _current_id
+	if _current_id == "home" and _igloo_id != Net.local_id():
+		here = ""
+	_menu.open_for(here, _describe_place(_current_id, false, _igloo_id, Net.local_id()))
 	_penguin.set_travel_locked(true)
 
 
@@ -74,8 +92,11 @@ func is_traveling() -> bool:
 	return _traveling
 
 
-func travel_to(location_id: String, spawn_name: String = "BusArrival") -> void:
-	if not _in_game or _traveling or location_id == _current_id:
+func travel_to(location_id: String, spawn_name: String = "BusArrival", igloo_id: int = -1) -> void:
+	var igloo := 0
+	if location_id == "home":
+		igloo = Net.local_id() if igloo_id < 0 else igloo_id
+	if not _in_game or _traveling or (location_id == _current_id and igloo == _igloo_id):
 		return
 	if not LocationCatalog.has_location(location_id):
 		return
@@ -98,12 +119,13 @@ func travel_to(location_id: String, spawn_name: String = "BusArrival") -> void:
 	var room := packed.instantiate()
 	_host.add_child(room)
 	_current_id = location_id
+	_igloo_id = igloo
 	if epoch != _epoch:
 		_traveling = false
 		return
 	if room.is_in_group("activity"):
 		_enter_activity()
-		Net.arrive(location_id, "", true)
+		Net.arrive(location_id, "", false, 0)
 		_traveling = false
 		_sync_puppets()
 		_refresh_presence()
@@ -118,12 +140,19 @@ func travel_to(location_id: String, spawn_name: String = "BusArrival") -> void:
 	if epoch != _epoch:
 		_traveling = false
 		return
-	_refresh_stop(room)
 	_penguin.set_travel_locked(false)
-	Net.arrive(location_id, spawn_name, false)
+	Net.arrive(location_id, spawn_name, false, _igloo_id)
 	_traveling = false
 	_sync_puppets()
 	_refresh_presence()
+
+
+## Stand outside the player's snow dome on the town island.
+func go_to_homes() -> void:
+	if _current_id == LocationCatalog.MAIN:
+		shift_to_marker("Home2DoorOut")
+	else:
+		travel_to(LocationCatalog.MAIN, "Home2DoorOut")
 
 
 ## Door trip inside the current room. The landing marker is outside the door volume.
@@ -139,7 +168,7 @@ func shift_to_marker(marker_name: String) -> void:
 	_traveling = true
 	_penguin.set_travel_locked(true)
 	_penguin.halt()
-	_penguin.global_position = Vector3(marker.global_position.x, 0.2, marker.global_position.z)
+	_penguin.global_position = _ground_at(marker.global_position)
 	_penguin.rotation.y = marker.rotation.y
 	_penguin.velocity = Vector3.ZERO
 	_penguin.halt()
@@ -148,7 +177,6 @@ func shift_to_marker(marker_name: String) -> void:
 	if epoch != _epoch:
 		_traveling = false
 		return
-	_refresh_stop(room)
 	await get_tree().create_timer(0.35).timeout
 	if epoch != _epoch:
 		_traveling = false
@@ -159,21 +187,27 @@ func shift_to_marker(marker_name: String) -> void:
 	_sync_puppets()
 
 
+## Floor under a spawn marker: raycast down from 2 m above it onto walkable floor (layer 1),
+## so arrivals on raised floors (cinema tiers, hills, docks) don't sink. Falls back to the
+## marker's own height when there is no floor under it.
+func _ground_at(at: Vector3) -> Vector3:
+	var query := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 2.0, at + Vector3.DOWN * 3.0, 1)
+	var hit := get_world_3d().direct_space_state.intersect_ray(query)
+	var y: float = (hit.position.y if not hit.is_empty() else at.y) + 0.05
+	return Vector3(at.x, y, at.z)
+
+
 func _place_penguin(room: Node, spawn_name: String) -> void:
 	var arrival := room.get_node(spawn_name) as Node3D
-	var stop := room.get_node("NavigationRegion3D/BusStop") as Node3D
 	var extra := 0.0
-	if spawn_name == "InsideSpawn" and Net.is_online():
-		extra = float(posmod(Net.local_id() - 1, 4)) * 0.7
-	_penguin.global_position = Vector3(arrival.global_position.x + extra, 0.2, arrival.global_position.z)
+	if spawn_name == "BusArrival" and Net.is_online():
+		extra = float(posmod(Net.local_id(), 4)) * 0.65
+	_penguin.global_position = _ground_at(arrival.global_position + Vector3(extra, 0.0, 0.0))
 	_penguin.velocity = Vector3.ZERO
 	_penguin.process_mode = Node.PROCESS_MODE_INHERIT
 	_penguin.visible = true
 	_hud.set_play_visible(true)
-	if spawn_name == "BusArrival":
-		_penguin.face_point(stop.global_position)
-	else:
-		_penguin.rotation.y = arrival.rotation.y
+	_penguin.rotation.y = arrival.rotation.y
 	_penguin.halt()
 	_apply_camera(room, spawn_name)
 
@@ -191,12 +225,6 @@ func _apply_camera(room: Node, spawn_name: String) -> void:
 		)
 	else:
 		_camera_rig.call("set_frame", Vector3.ZERO, 7.5, 5.0)
-
-
-func _refresh_stop(room: Node) -> void:
-	var stop := room.get_node_or_null("NavigationRegion3D/BusStop")
-	if stop != null and stop.has_method("refresh_occupancy"):
-		stop.call("refresh_occupancy")
 
 
 func _enter_activity() -> void:
@@ -278,7 +306,11 @@ func _on_session_started() -> void:
 	var profile := Net.local_profile()
 	_penguin.apply_identity(str(profile["name"]), int(profile["color"]))
 	DisplayServer.window_set_title("%s — %s" % [Net.role_label(), str(profile["name"])])
-	await travel_to("home", "InsideSpawn")
+	await travel_to(LocationCatalog.MAIN, "BusArrival")
+	if OS.get_cmdline_user_args().has("--dedicated"):
+		Net.hide_presence()
+		_penguin.visible = false
+		_penguin.process_mode = Node.PROCESS_MODE_DISABLED
 	_refresh_presence()
 
 
@@ -295,16 +327,21 @@ func _end_session(message: String) -> void:
 	_menu.dismiss()
 	_clear_room()
 	_current_id = ""
+	_igloo_id = 0
+	_hide_invite()
 	_despawn_all()
 	_penguin.set_travel_locked(true)
 	_penguin.visible = false
 	_penguin.process_mode = Node.PROCESS_MODE_DISABLED
 	_camera_rig.set_process(true)
 	_world_camera.current = true
-	if _presence != null:
-		_presence.text = ""
+	_clear_presence()
 	_hud.set_play_visible(false)
 	_lobby.show_lobby(message)
+
+
+func grant_coins(amount: int) -> void:
+	_hud.add_coins(amount)
 
 
 func send_chat(message: String) -> void:
@@ -357,7 +394,9 @@ func _on_seat_denied(key: String) -> void:
 
 
 func _sync_puppets() -> void:
-	if not _in_game or _traveling:
+	if not _in_game or _traveling or _activity:
+		if _activity and not _puppets.is_empty():
+			_despawn_all()
 		return
 	var live: Dictionary = {}
 	for entry in Net.roster():
@@ -367,12 +406,13 @@ func _sync_puppets() -> void:
 			continue
 		var hidden := bool(entry.get("hidden", false))
 		var location := str(entry.get("location", ""))
-		var sig := "%s|%s" % [location, hidden]
+		var igloo := int(entry.get("igloo", 0))
+		var sig := "%s|%s|%s" % [location, hidden, igloo]
 		if str(_place_sig.get(id, "")) != sig:
 			_place_sig[id] = sig
 			_poses.erase(id)
 			_despawn_puppet(id)
-		if hidden or location == "" or location != _current_id:
+		if not _shares_room(location, hidden, igloo):
 			_despawn_puppet(id)
 			continue
 		_ensure_puppet(entry)
@@ -397,6 +437,10 @@ func _ensure_puppet(entry: Dictionary) -> void:
 		puppet.visible = false
 		print("Net avatar %s (%s) entered %s" % [str(entry.get("name", "")), id, str(entry.get("location", ""))])
 	puppet.apply_identity(str(entry.get("name", "Penguin")), int(entry.get("color", 0)))
+	if puppet.has_method("apply_fisher"):
+		puppet.apply_fisher(str(entry.get("fisher", "")))
+	if puppet.has_method("apply_act"):
+		puppet.apply_act(str(entry.get("act", "")))
 	if _poses.has(id):
 		var pose: Dictionary = _poses[id]
 		puppet.present_remote(pose["at"], float(pose["yaw"]), float(pose["speed"]), bool(pose["sitting"]))
@@ -422,52 +466,187 @@ func _despawn_all() -> void:
 	_place_sig.clear()
 
 
+func _shares_room(location: String, hidden: bool, igloo: int) -> bool:
+	if hidden or location == "" or location != _current_id or location == "sled_hill":
+		return false
+	if location == "home" and igloo != _igloo_id:
+		return false
+	return true
+
+
 func _refresh_presence() -> void:
-	if _presence == null:
+	if _rows == null:
 		return
+	_clear_presence()
 	if not _in_game or not Net.is_online():
-		_presence.text = ""
 		return
-	var lines: Array[String] = []
 	var mine := Net.local_profile()
 	var self_place := ""
 	for entry in Net.roster():
 		if int(entry.get("id", 0)) == Net.local_id():
 			self_place = _place_label(entry)
-			continue
-		lines.append("%s — %s" % [str(entry.get("name", "Penguin")), _place_label(entry)])
+			break
 	var head := "You are %s" % str(mine["name"])
 	if self_place != "":
 		head += " — " + self_place
-	lines.insert(0, head)
-	_presence.text = "\n".join(lines)
+	_rows.add_child(_presence_label(head))
+	for entry in Net.roster():
+		var id := int(entry.get("id", 0))
+		if id == Net.local_id():
+			continue
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 8)
+		row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var text := "%s — %s" % [str(entry.get("name", "Penguin")), _place_label(entry)]
+		row.add_child(_presence_label(text))
+		if not _in_their_igloo(entry):
+			var button := Button.new()
+			button.text = "Invite"
+			button.custom_minimum_size = Vector2(72, 28)
+			button.add_theme_font_size_override("font_size", 14)
+			button.pressed.connect(_invite_player.bind(id, str(entry.get("name", "Penguin"))))
+			row.add_child(button)
+		_rows.add_child(row)
+
+
+func _in_their_igloo(entry: Dictionary) -> bool:
+	return str(entry.get("location", "")) == "home" and int(entry.get("igloo", 0)) == Net.local_id() and not bool(entry.get("hidden", false))
 
 
 func _place_label(entry: Dictionary) -> String:
-	var location := str(entry.get("location", ""))
-	var hidden := bool(entry.get("hidden", false))
+	return _describe_place(
+		str(entry.get("location", "")),
+		bool(entry.get("hidden", false)),
+		int(entry.get("igloo", 0)),
+		int(entry.get("id", 0))
+	)
+
+
+func _describe_place(location: String, hidden: bool, igloo: int, who: int) -> String:
 	if location == "":
 		return "Arriving"
-	var title := location
-	if LocationCatalog.has_location(location):
-		title = LocationCatalog.title_of(location)
 	if hidden and location != "sled_hill":
 		return "Traveling"
-	return title
+	if location == "home":
+		if igloo == 0 or igloo == who:
+			return "Home"
+		return "%s's igloo" % _player_name(igloo)
+	if LocationCatalog.has_location(location):
+		return LocationCatalog.title_of(location)
+	return location
+
+
+func _player_name(peer_id: int) -> String:
+	for entry in Net.roster():
+		if int(entry.get("id", 0)) == peer_id:
+			return str(entry.get("name", "Penguin"))
+	if peer_id == Net.local_id():
+		return str(Net.local_profile()["name"])
+	return "Penguin"
+
+
+func _presence_label(text: String) -> Label:
+	var label := Label.new()
+	label.text = text
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.add_theme_font_size_override("font_size", 18)
+	label.add_theme_color_override("font_color", Color(0.08, 0.16, 0.24))
+	label.add_theme_color_override("font_outline_color", Color(0.98, 0.96, 0.92))
+	label.add_theme_constant_override("outline_size", 6)
+	return label
+
+
+func _clear_presence() -> void:
+	if _rows == null:
+		return
+	while _rows.get_child_count() > 0:
+		var child := _rows.get_child(0)
+		_rows.remove_child(child)
+		child.queue_free()
+
+
+func _invite_player(peer_id: int, player_name: String) -> void:
+	Net.invite_home(peer_id)
+	_hud.add_line("You", "Invited %s to your igloo." % player_name)
+
+
+func _on_home_invite(from_id: int, from_name: String) -> void:
+	if not _in_game or from_id == Net.local_id():
+		return
+	_invite_from = from_id
+	_invite_text.text = "%s invited you to their igloo." % from_name
+	_invite.visible = true
+
+
+func _accept_invite() -> void:
+	var host_id := _invite_from
+	_hide_invite()
+	if host_id <= 0:
+		return
+	go_to_homes()
+
+
+func _hide_invite() -> void:
+	_invite_from = 0
+	if _invite != null:
+		_invite.visible = false
 
 
 func _build_presence() -> void:
 	var layer := CanvasLayer.new()
 	layer.layer = 5
 	add_child(layer)
-	_presence = Label.new()
-	_presence.position = Vector2(18, 14)
-	_presence.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_presence.add_theme_font_size_override("font_size", 18)
-	_presence.add_theme_color_override("font_color", Color(0.08, 0.16, 0.24))
-	_presence.add_theme_color_override("font_outline_color", Color(0.98, 0.96, 0.92))
-	_presence.add_theme_constant_override("outline_size", 6)
-	layer.add_child(_presence)
+	var root := Control.new()
+	root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.add_child(root)
+	_rows = VBoxContainer.new()
+	_rows.position = Vector2(18, 14)
+	_rows.add_theme_constant_override("separation", 6)
+	_rows.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(_rows)
+	_invite = PanelContainer.new()
+	_invite.visible = false
+	_invite.mouse_filter = Control.MOUSE_FILTER_STOP
+	_invite.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	_invite.offset_left = -210
+	_invite.offset_top = 16
+	_invite.offset_right = 210
+	_invite.offset_bottom = 92
+	_invite.add_theme_stylebox_override("panel", _invite_style())
+	root.add_child(_invite)
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", 8)
+	_invite.add_child(column)
+	_invite_text = Label.new()
+	_invite_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_invite_text.add_theme_color_override("font_color", Color(0.95, 0.97, 1))
+	column.add_child(_invite_text)
+	var actions := HBoxContainer.new()
+	actions.alignment = BoxContainer.ALIGNMENT_CENTER
+	actions.add_theme_constant_override("separation", 8)
+	column.add_child(actions)
+	var visit := Button.new()
+	visit.text = "Visit"
+	visit.pressed.connect(_accept_invite)
+	actions.add_child(visit)
+	var decline := Button.new()
+	decline.text = "Not now"
+	decline.pressed.connect(_hide_invite)
+	actions.add_child(decline)
+
+
+func _invite_style() -> StyleBoxFlat:
+	var box := StyleBoxFlat.new()
+	box.bg_color = Color(0.08, 0.22, 0.4, 0.96)
+	box.border_color = Color(0.86, 0.93, 0.98)
+	box.set_border_width_all(3)
+	box.set_corner_radius_all(14)
+	box.content_margin_left = 14
+	box.content_margin_right = 14
+	box.content_margin_top = 10
+	box.content_margin_bottom = 10
+	return box
 
 
 func _apply_launch_args() -> void:

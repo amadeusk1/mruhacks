@@ -76,18 +76,18 @@
     "file": "cinema_lobby/lobby_sofa.glb",
     "category": "seat",
     "size_m": [
-      1.626,
+      2.116,
       0.69,
       0.74
     ],
     "sockets": {
       "socket_seat_0": [
-        -0.33,
+        -0.575,
         -0.05,
         0.39
       ],
       "socket_seat_1": [
-        0.33,
+        0.575,
         -0.05,
         0.39
       ]
@@ -145,9 +145,9 @@
     "file": "cinema_lobby/screen_doors.glb",
     "category": "door",
     "size_m": [
-      1.9,
+      2.94,
       0.34,
-      2.39
+      3.25
     ],
     "sockets": {
       "socket_door": [
@@ -156,8 +156,41 @@
         0.0
       ]
     },
+    "parts": {
+      "part_door_l": {
+        "pivot": [
+          -1.05,
+          -0.14,
+          0.0
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 90
+      },
+      "part_door_r": {
+        "pivot": [
+          1.05,
+          -0.14,
+          0.0
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": -90
+      }
+    },
+    "part_clips": {
+      "part_door_l": [
+        "door_l_open",
+        "door_l_close"
+      ],
+      "part_door_r": [
+        "door_r_open",
+        "door_r_close"
+      ]
+    },
     "tints": {
-      "door": "#207D85"
+      "door": "#207D85",
+      "wall": "#F3E2C5"
     },
     "note": "arch sign face insert_sign reads SCREEN 1"
   },
@@ -241,19 +274,19 @@
     "file": "cinema_lobby/lobby_shell.glb",
     "category": "building",
     "size_m": [
-      8.76,
-      6.81,
-      3.06
+      12.76,
+      10.81,
+      3.76
     ],
     "sockets": {
       "socket_entrance": [
         0.0,
-        -3.6,
+        -5.6,
         0.0
       ],
       "socket_screen_door": [
-        3.4,
-        1.6,
+        5.4,
+        2.0,
         0.06
       ]
     },
@@ -261,8 +294,8 @@
       "wall": "#F3E2C5"
     },
     "interior_m": [
-      8.0,
-      6.0
+      12.0,
+      10.0
     ],
     "floor_z": 0.06
   },
@@ -271,50 +304,82 @@
     "file": "cinema_lobby/cinema_lobby.glb",
     "category": "room",
     "size_m": [
-      8.76,
-      6.81,
-      3.06
+      12.76,
+      10.81,
+      3.76
     ],
     "sockets": {
       "socket_counter": [
-        -2.35,
-        0.92,
+        -3.4,
+        2.85,
         0.06
       ],
       "socket_entrance": [
         0.0,
-        -3.6,
+        -5.6,
         0.0
       ],
       "socket_kiosk": [
-        1.0,
-        0.95,
+        1.2,
+        2.5,
         0.06
       ],
       "socket_screen_door": [
-        3.4,
-        1.6,
+        5.4,
+        2.0,
         0.06
       ],
       "socket_seat_0": [
-        -2.75,
-        -1.75,
+        -4.55,
+        -2.6,
         0.45
       ],
       "socket_seat_1": [
-        -1.05,
-        -1.75,
+        -2.65,
+        -2.6,
         0.45
       ],
       "socket_seat_2": [
-        -3.4,
-        -0.18,
+        -5.15,
+        -0.775,
         0.45
       ],
       "socket_seat_3": [
-        -3.4,
-        0.48,
+        -5.15,
+        0.375,
         0.45
+      ]
+    },
+    "parts": {
+      "part_door_l": {
+        "pivot": [
+          6.16,
+          3.05,
+          0.06
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 90
+      },
+      "part_door_r": {
+        "pivot": [
+          6.16,
+          0.95,
+          0.06
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": -90
+      }
+    },
+    "part_clips": {
+      "part_door_l": [
+        "door_l_open",
+        "door_l_close"
+      ],
+      "part_door_r": [
+        "door_r_open",
+        "door_r_close"
       ]
     },
     "tints": {
@@ -329,8 +394,8 @@
     },
     "prefab": true,
     "interior_m": [
-      8.0,
-      6.0
+      12.0,
+      10.0
     ],
     "floor_z": 0.06,
     "note": "screen door on the right wall leads to cinema_auditorium"

@@ -38,6 +38,11 @@ var _foot_r_z := 0.0
 var _flipper_l_x := 0.0
 var _flipper_r_x := 0.0
 var _sitting := false
+var _fishing := false
+var _reel_focus := false
+var _fisher_phase := ""
+var _fish_hud: Node
+var _tackle: Node3D
 var _seat_bench: Node
 var _seat_point := Vector3.ZERO
 var _stand_point := Vector3.ZERO
@@ -50,8 +55,17 @@ var _net_sitting := false
 var _has_net_pose := false
 var _name_label: Label3D
 var _tint_applied := -1
+var _overlay := ""  # emote/activity clip playing until the penguin moves
+var _seat_kit := ""  # "casino": seated clips come from that kit instead of the bench "sit"
+var _hopping := false
+var _left_ground := false
 
 const _GRAVITY := 28.0
+const _JUMP_SPEED := 7.6   # about a metre; the jump clip's tuck sits on top
+const _HOP_TUCK := 0.42    # anim_locomotion hop, used when the jump clip is missing
+const _HOP_LAND := 0.57
+const _JUMP_TUCK := 0.36   # anim_locomotion jump: airborne pose between takeoff and land
+const _JUMP_LAND := 0.53
 const _CLICK_MASK := 3
 const _FLOOR_LAYER := 1
 
@@ -71,8 +85,10 @@ func _ready() -> void:
 	agent.radius = 0.4
 	agent.height = 1.2
 	floor_snap_length = 0.25
+	_mount_pack(Color(0.24, 0.49, 0.84))
 	_pose_placeholder()
 	_clips = _find_clips()
+	PenguinAnims.attach(_clips)
 	marker.hide_marker()
 
 
@@ -97,8 +113,53 @@ func is_sitting() -> bool:
 	return _sitting
 
 
+func is_fishing() -> bool:
+	return _fishing
+
+
 func current_bench() -> Node:
 	return _seat_bench
+
+
+func plant_fish(spot: Node, stand: Vector3, yaw: float) -> bool:
+	if _blocks_play():
+		return false
+	if _fishing and _seat_bench == spot:
+		return true
+	halt()
+	_sitting = true
+	_fishing = true
+	_seat_bench = spot
+	_seat_point = stand
+	_stand_point = stand
+	global_position = stand
+	velocity = Vector3.ZERO
+	rotation.y = yaw
+	if _fish_hud == null:
+		_fish_hud = load("res://scripts/fishing_hud.gd").new()
+		add_child(_fish_hud)
+		_fish_hud.call("open", self)
+	return true
+
+
+func set_fish_phase(phase: String) -> void:
+	_fisher_phase = phase
+	_tackle_node().set_phase(phase)
+	if _remote_peer == 0:
+		Net.note_fisher(phase)
+
+
+func set_reel_focus(locked: bool) -> void:
+	_reel_focus = locked
+
+
+func apply_fisher(phase: String) -> void:
+	if _remote_peer == 0 or phase == _fisher_phase:
+		return
+	_fisher_phase = phase
+	if phase == "" and visual:
+		visual.rotation.x = 0.0
+	_tackle_node().set_phase(phase)
 
 
 func sit_down(bench: Node, seat: Vector3, yaw: float, stand: Vector3) -> void:
@@ -121,6 +182,8 @@ func stand_up() -> void:
 func halt() -> void:
 	_pending_bench = null
 	_cancel_click()
+	_hopping = false
+	_left_ground = false
 	velocity = Vector3.ZERO
 
 
@@ -132,7 +195,13 @@ func face_point(point: Vector3) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if _remote_peer != 0 or _blocks_play():
+	if _remote_peer != 0 or _blocks_play() or _reel_focus:
+		return
+	if event.is_action_pressed("interact"):
+		if _try_interact():
+			get_viewport().set_input_as_handled()
+		elif _court_press("pass") or _court_press("steal"):
+			get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("click_walk"):
 		_try_click(event)
@@ -169,19 +238,28 @@ func _physics_process(delta: float) -> void:
 		return
 
 	var planar := Vector3(velocity.x, 0.0, velocity.z)
-	planar = planar.move_toward(direction * walk_speed, acceleration * delta)
+	var speed := 3.2 if Net.court_carrying() else walk_speed
+	planar = planar.move_toward(direction * speed, acceleration * delta)
 	velocity.x = planar.x
 	velocity.z = planar.z
-	if not is_on_floor():
-		velocity.y -= _GRAVITY * delta
-	else:
+	if Input.is_action_just_pressed("jump"):
+		_try_jump()
+	if is_on_floor() and velocity.y <= 0.0:
 		velocity.y = 0.0
+	else:
+		velocity.y -= _GRAVITY * delta
 
 	var facing := Vector3(velocity.x, 0.0, velocity.z)
 	if facing.length() > 0.15:
 		_turn_toward(facing, delta)
 
+	var before := global_position
+	var intended := Vector3(velocity.x, 0.0, velocity.z)  # move_and_slide zeroes it against the step
+	var rising := velocity.y > 1.0
+	floor_snap_length = 0.0 if rising else 0.25
 	move_and_slide()
+	if not rising:
+		_step_up(before, intended, delta)
 	_plant_shadow()
 	_animate(delta, facing.length())
 	_publish_pose()
@@ -190,6 +268,77 @@ func _physics_process(delta: float) -> void:
 ## Starts a click-walk to a world point, snapped onto the snow mesh.
 func command_walk_to(world_point: Vector3) -> void:
 	_begin_click(_closest_nav_point(world_point))
+
+
+## Uses the nearest bench, fishing spot, or town action whose prompt is showing.
+func _try_interact() -> bool:
+	if _sitting:
+		return false
+	var best: Node = null
+	var best_dist := INF
+	for group in ["bench", "fish_spot", "interactables"]:
+		for node in get_tree().get_nodes_in_group(group):
+			if not node.has_method("can_interact") or not bool(node.call("can_interact")):
+				continue
+			var at := _interact_point(node)
+			var dist := Vector2(global_position.x - at.x, global_position.z - at.z).length()
+			if dist < best_dist:
+				best = node
+				best_dist = dist
+	if best == null:
+		return false
+	if best.has_method("interact"):  # town activity anchors and doors (scripts/world/interactable.gd)
+		return bool(best.call("interact", self))
+	if best.has_method("try_fish"):
+		return bool(best.call("try_fish", true))
+	if best.has_method("try_sit"):
+		return bool(best.call("try_sit", true))
+	if best.has_method("try_open"):
+		return bool(best.call("try_open"))
+	return false
+
+
+func _interact_point(node: Node) -> Vector3:
+	if node.has_method("approach_point"):
+		return node.call("approach_point") as Vector3
+	var stand := node.get_node_or_null("StandArea/Collision") as Node3D
+	if stand != null:
+		return stand.global_position
+	var body := node as Node3D
+	if body != null:
+		return body.global_position
+	return global_position
+
+
+## Step onto stairs, tier risers, bridge lips and kerbs up to STEP_HEIGHT: when the slide was
+## blocked by a wall, retry the horizontal move from STEP_HEIGHT higher and settle down onto
+## the step. (CharacterBody3D only snaps down; without this any vertical edge stops the bird.)
+const STEP_HEIGHT := 0.35
+
+
+func _step_up(before: Vector3, wish: Vector3, delta: float) -> void:
+	if not is_on_wall() or wish.length() < 0.1:
+		return
+	var moved := Vector2(global_position.x - before.x, global_position.z - before.z).length()
+	var want := wish.length() * delta
+	if moved > want * 0.6:
+		return
+	var start := Transform3D(global_basis, before)
+	var up := Vector3.UP * STEP_HEIGHT
+	if test_move(start, up):
+		return
+	var raised := start.translated(up)
+	var ahead := wish * delta
+	if test_move(raised, ahead):
+		return
+	var over := raised.translated(ahead)
+	var col := KinematicCollision3D.new()
+	if not test_move(over, -up, col):
+		return  # nothing to stand on: it's a drop, not a step
+	if col.get_normal().y < 0.7:
+		return
+	global_position = over.origin + col.get_travel()  # settled onto the step
+	velocity = Vector3(wish.x, 0.0, wish.z)
 
 
 func _try_click(event: InputEvent = null) -> void:
@@ -209,9 +358,18 @@ func _try_click(event: InputEvent = null) -> void:
 		return
 	var raw: Vector3 = hit.position
 	var collider := hit.collider as Node
-	if collider != null and collider.is_in_group("bus_stop") and collider.has_method("try_open"):
-		if bool(collider.call("try_open")):
+	if collider != null and collider.is_in_group("fish_spot") and collider.has_method("try_fish"):
+		if _fishing and _seat_bench == collider:
 			return
+		if collider.has_method("bench_key") and Net.bench_held_by_other(str(collider.call("bench_key"))):
+			return
+		if _sitting:
+			stand_up()
+		if bool(collider.call("try_fish")):
+			return
+		_pending_bench = collider
+		_begin_click(_closest_nav_point(collider.call("approach_point")))
+		return
 	if collider != null and collider.is_in_group("bench") and collider.has_method("try_sit"):
 		if _sitting and _seat_bench == collider:
 			return
@@ -223,6 +381,9 @@ func _try_click(event: InputEvent = null) -> void:
 			return
 		_pending_bench = collider
 		_begin_click(_closest_nav_point(collider.call("approach_point")))
+		return
+	if not _sitting and _court_press("shoot"):
+		_cancel_click()
 		return
 	if _sitting:
 		stand_up()
@@ -255,7 +416,9 @@ func _follow_path() -> Vector3:
 		var bench := _pending_bench
 		_pending_bench = null
 		_cancel_click()
-		if bench != null and bench.has_method("try_sit"):
+		if bench != null and bench.has_method("try_fish"):
+			bench.call("try_fish", true)
+		elif bench != null and bench.has_method("try_sit"):
 			bench.call("try_sit", true)
 		return Vector3.ZERO
 	if agent.is_navigation_finished():
@@ -268,6 +431,73 @@ func _follow_path() -> Vector3:
 	if to_next.length() < 0.05:
 		return Vector3.ZERO
 	return to_next.normalized()
+
+
+func _try_jump() -> void:
+	if _sitting or _fishing or _reel_focus or _blocks_play() or not is_on_floor():
+		return
+	if UIRouter.is_open():
+		return
+	velocity.y = _JUMP_SPEED
+	_hopping = true
+	_left_ground = false
+	_overlay = ""
+	_play_jump()
+
+
+func _jump_clip() -> String:
+	if _clips != null and _clips.has_animation("jump"):
+		return "jump"
+	if _clips != null and _clips.has_animation("hop"):
+		return "hop"
+	return ""
+
+
+func _jump_tuck() -> float:
+	return _JUMP_TUCK if _jump_clip() == "jump" else _HOP_TUCK
+
+
+func _jump_land() -> float:
+	return _JUMP_LAND if _jump_clip() == "jump" else _HOP_LAND
+
+
+func _play_jump() -> void:
+	var clip := _jump_clip()
+	if clip == "":
+		return
+	_clips.speed_scale = 1.0
+	_clips.play(clip, 0.06)
+
+
+## Keeps the jump tucked in the air, then plays the landing once the body is back on the ground.
+func _animate_hop() -> bool:
+	var clip := _jump_clip()
+	if not _hopping or clip == "":
+		_hopping = false
+		return false
+	if _clips.current_animation != clip:
+		_play_jump()
+	var anim := _clips.get_animation(clip)
+	var pos := _clips.current_animation_position
+	if not is_on_floor():
+		_left_ground = true
+		if pos >= _jump_land():
+			_clips.seek(_jump_tuck(), true)
+			_clips.pause()
+		return true
+	if not _left_ground:
+		if pos >= anim.length - 0.05:
+			_hopping = false
+			return false
+		return true
+	if pos >= anim.length - 0.05:
+		_hopping = false
+		_left_ground = false
+		return false
+	if pos < _jump_land() or not _clips.is_playing():
+		_clips.play(clip)
+		_clips.seek(_jump_land(), true)
+	return true
 
 
 func _blocks_play() -> bool:
@@ -322,6 +552,14 @@ func _clear_seat(relocate: bool) -> void:
 	if not _sitting:
 		return
 	_sitting = false
+	if _seat_kit != "":
+		var leave: String = PenguinAnims.SEATS.get(_seat_kit, ["", "", ""])[2]
+		_seat_kit = ""
+		if _remote_peer == 0:
+			Net.note_act("")
+		if leave != "":
+			_play_overlay(leave, "")
+	_end_fishing()
 	_seat_bench = null
 	_restore_feet()
 	if relocate:
@@ -359,7 +597,9 @@ func apply_identity(player_name: String, color_index: int) -> void:
 	if _tint_applied == color_index:
 		return
 	_tint_applied = color_index
-	var coat := Net.coat_color(color_index)
+	var coat := Net.coat_color(color_index) if _remote_peer != 0 else Outfit.coat(Outfit.load_look())
+	if AssetPack.recolor_body(visual, coat):
+		return
 	_tint(visual.get_node("Body") as MeshInstance3D, coat)
 	_tint(visual.get_node("FlipperL") as MeshInstance3D, coat)
 	_tint(visual.get_node("FlipperR") as MeshInstance3D, coat)
@@ -371,8 +611,10 @@ func _setup_remote() -> void:
 	agent.debug_enabled = false
 	agent.avoidance_enabled = false
 	marker.hide_marker()
+	_mount_pack(Color(0.24, 0.49, 0.84))
 	_pose_placeholder()
 	_clips = _find_clips()
+	PenguinAnims.attach(_clips)
 
 
 func _step_remote(delta: float) -> void:
@@ -383,6 +625,8 @@ func _step_remote(delta: float) -> void:
 	if _sitting and not _net_sitting:
 		_restore_feet()
 	_sitting = _net_sitting
+	if not _sitting and _seat_kit != "" and _remote_peer != 0:
+		_seat_kit = ""
 	if _sitting:
 		_seat_point = global_position
 	_plant_shadow()
@@ -392,7 +636,49 @@ func _step_remote(delta: float) -> void:
 func _publish_pose() -> void:
 	if _remote_peer != 0:
 		return
-	Net.note_pose(global_position, rotation.y, Vector2(velocity.x, velocity.z).length(), _sitting)
+	Net.note_pose(global_position, rotation.y, court_speed(), _sitting)
+
+
+func _face_near_hoop() -> void:
+	var best: Node3D = null
+	var best_dist := 9999.0
+	for node in get_tree().get_nodes_in_group("town_hoop"):
+		var hoop := node as Node3D
+		if hoop == null:
+			continue
+		var flat := Vector2(hoop.global_position.x - global_position.x, hoop.global_position.z - global_position.z)
+		if flat.length() < best_dist:
+			best_dist = flat.length()
+			best = hoop
+	if best != null:
+		face_point(best.global_position)
+
+
+func court_speed() -> float:
+	if _remote_peer != 0:
+		return _net_speed
+	return Vector2(velocity.x, velocity.z).length()
+
+
+func _court_press(action: String) -> bool:
+	var world := get_tree().get_first_node_in_group("world")
+	if world == null or not world.has_method("current_location_id"):
+		return false
+	if not Net.court_here(global_position):
+		return false
+	if action == "shoot":
+		_face_near_hoop()
+		Net.court_witness(Net.local_id(), global_position, rotation.y, court_speed())
+	if action == "shoot" or action == "pass":
+		if not Net.court_carrying():
+			return false
+	elif action == "steal":
+		if Net.court_carrying():
+			return false
+	else:
+		return false
+	Net.court_action(action)
+	return true
 
 
 func _tint(mesh: MeshInstance3D, color: Color) -> void:
@@ -417,8 +703,99 @@ func _restore_feet() -> void:
 		_foot_r.position.z = _foot_r_z
 
 
+## Seated/station clip sets: [enter, loop, leave] from the anim kits (PenguinAnims.SEATS).
+## "" keeps the bench "sit". Replicated so other players see it (Net.note_act).
+func set_seat_clip(kit: String) -> void:
+	_seat_kit = kit
+	if _remote_peer == 0:
+		Net.note_act(kit)
+	_start_seat_clip()
+
+
+## Remote puppets: the seat style the owner chose.
+func apply_act(kit: String) -> void:
+	if _remote_peer == 0 or kit == _seat_kit:
+		return
+	_seat_kit = kit
+	if kit != "":
+		_start_seat_clip()
+
+
+func _start_seat_clip() -> void:
+	var clips: Array = PenguinAnims.SEATS.get(_seat_kit, [])
+	if _clips == null or clips.is_empty():
+		return
+	var enter := PenguinAnims.resolve(_clips, clips[0], "")
+	var idle := PenguinAnims.resolve(_clips, clips[1], "")
+	if idle == "":
+		idle = PenguinAnims.resolve(_clips, clips[1] + "_loop", "")  # some kits keep the glTF suffix
+	if idle != "":
+		_clips.get_animation(idle).loop_mode = Animation.LOOP_LINEAR
+	_clips.speed_scale = 1.0
+	if enter != "":
+		_clips.play(enter, 0.1)
+		if idle != "":
+			_clips.queue(idle)
+	elif idle != "":
+		_clips.play(idle, 0.15)
+
+
+## Plays an emote ("wave", "dance", "emote_cheer"...) from anim_emotes. Moving cancels it.
+func play_emote(emote_name: String) -> bool:
+	return _play_overlay(emote_name, "emotes")
+
+
+## Plays any activity clip ("fishing/fish_cast", "snow_throw", "arcade_play"...). Moving cancels it.
+func play_activity(clip_name: String) -> bool:
+	return _play_overlay(clip_name, "social")
+
+
+func _play_overlay(clip_name: String, kit: String) -> bool:
+	if _clips == null:
+		return false
+	var clip := PenguinAnims.resolve(_clips, clip_name, kit)
+	if clip == "":
+		return false
+	_overlay = clip
+	_clips.speed_scale = 1.0
+	_clips.play(clip, 0.15)
+	return true
+
+
 func _animate(delta: float, speed: float) -> void:
+	if _overlay != "" and _clips and speed <= 0.25 and not _sitting and _clips.current_animation == _overlay:
+		return
+	_overlay = ""
+	if _fisher_phase != "":
+		var fish_clip := PenguinAnims.fishing_clip(_fisher_phase)
+		if _clips and fish_clip != "" and _clips.has_animation(fish_clip):
+			if _clips.current_animation != fish_clip:
+				_clips.speed_scale = 1.0
+				_clips.play(fish_clip, 0.15)
+			visual.rotation = Vector3.ZERO
+			return
+		if _clips and _clips.has_animation("idle") and _clips.current_animation != "idle":
+			_clips.play("idle")
+		var lean := 12.0
+		if _fisher_phase == "cast" or _fisher_phase == "bite":
+			lean = 20.0
+		elif _fisher_phase.begins_with("catch"):
+			lean = 4.0
+		visual.rotation.x = deg_to_rad(lean)
+		visual.position.y = 0.0
+		return
+	if _sitting and _seat_kit != "":
+		visual.rotation = Vector3.ZERO
+		visual.position.y = 0.0
+		return  # set_seat_clip queued the seated loop
 	if _sitting:
+		if _clips and _clips.has_animation("sit"):
+			_clips.speed_scale = 1.0
+			if _clips.current_animation != "sit":
+				_clips.play("sit")
+			visual.rotation = Vector3.ZERO
+			visual.position.y = 0.0
+			return
 		_phase += delta * 1.4
 		visual.rotation = Vector3(deg_to_rad(12.0), 0.0, 0.0)
 		visual.position.y = -0.08 + sin(_phase) * 0.008
@@ -426,11 +803,15 @@ func _animate(delta: float, speed: float) -> void:
 		_swing_flipper(_flipper_l, _flipper_l_x, 0.0)
 		_swing_flipper(_flipper_r, _flipper_r_x, 0.0)
 		return
+	if _animate_hop():
+		return
 	var moving := speed > 0.25
 	if _clips:
-		var clip := "walk" if moving else "idle"
+		var loco := PenguinAnims.locomotion(speed)
+		var clip: String = loco[0] if _clips.has_animation(loco[0]) else ("walk" if moving else "idle")
+		_clips.speed_scale = loco[1]
 		if _clips.current_animation != clip:
-			_clips.play(clip)
+			_clips.play(clip, 0.15)
 		return
 	if moving:
 		_phase += speed * delta * 7.5
@@ -471,6 +852,38 @@ func _swing_flipper(flipper: Node3D, rest_x: float, wave: float) -> void:
 	flipper.rotation.x = rest_x + wave * 0.55
 
 
+func _end_fishing() -> void:
+	_fishing = false
+	_reel_focus = false
+	if visual:
+		visual.rotation.x = 0.0
+	if _fisher_phase != "":
+		_fisher_phase = ""
+		if _tackle != null and is_instance_valid(_tackle):
+			_tackle.set_phase("")
+		if _remote_peer == 0:
+			Net.note_fisher("")
+	if _fish_hud != null and is_instance_valid(_fish_hud):
+		_fish_hud.queue_free()
+	_fish_hud = null
+
+
+func _tackle_node() -> Node:
+	if _tackle == null or not is_instance_valid(_tackle):
+		_tackle = load("res://scripts/fishing_tackle.gd").new()
+		add_child(_tackle)
+	return _tackle
+
+
+func _mount_pack(body: Color) -> void:
+	if _remote_peer != 0:
+		AssetPack.mount_bird(visual, body, "hoodie", "red_beanie", "head")
+		return
+	# Local look comes from the wardrobe (ui/activities/outfit.gd).
+	AssetPack.mount_bird(visual, body)
+	Outfit.dress(visual.get_node_or_null("PackAvatar") as Node3D, Outfit.load_look())
+
+
 func _pose_placeholder() -> void:
 	var beak := visual.get_node_or_null("Beak") as Node3D
 	if beak:
@@ -506,6 +919,8 @@ func _ensure_actions() -> void:
 	_add_keys("move_back", [KEY_S, KEY_DOWN])
 	_add_keys("move_left", [KEY_A, KEY_LEFT])
 	_add_keys("move_right", [KEY_D, KEY_RIGHT])
+	_add_keys("interact", [KEY_F])
+	_add_keys("jump", [KEY_SPACE])
 	if not InputMap.has_action("click_walk"):
 		InputMap.add_action("click_walk")
 		var mouse := InputEventMouseButton.new()

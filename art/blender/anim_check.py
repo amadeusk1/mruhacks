@@ -13,7 +13,9 @@ from mathutils import Vector, Matrix
 from mathutils.bvhtree import BVHTree
 
 args = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
-KITS = [a for a in args if not a.startswith("--")] or ["anim_locomotion", "anim_emotes", "anim_social"]
+ALL = ["anim_locomotion", "anim_emotes", "anim_social", "anim_fishing", "anim_sledding", "anim_snowballs", "anim_basketball",
+       "anim_arcade", "anim_drawing", "anim_cinema", "anim_home", "anim_everyday", "anim_casino"]
+KITS = [a for a in args if not a.startswith("--")] or ALL
 render = "--no-render" not in args
 
 common.reset_scene()
@@ -33,6 +35,27 @@ for k in KITS:
     for n, i in L.CLIPS.items():
         clipinfo[n] = (k, i)
 dg = lambda: bpy.context.evaluated_depsgraph_get()
+
+# ---- bone scale: every pose-bone scale is exactly 1 in every frame (no stretch from world->local conversion)
+SCALE_ALLOWED = {"body"}  # the body bone carries the intended breath/squash scale
+bad_scale = []
+for n, (k, i) in clipinfo.items():
+    act = bpy.data.actions[L.ACTION.get(n, n)]
+    worst = 0.0
+    for fc in [c for c in act.fcurves if c.data_path.endswith(".scale")] if hasattr(act, "fcurves") else []:
+        bone = fc.data_path.split('"')[1]
+        if bone in SCALE_ALLOWED:
+            continue
+        worst = max([worst] + [abs(kp.co[1] - 1.0) for kp in fc.keyframe_points])
+    if not hasattr(act, "fcurves") or not act.fcurves:
+        for f in range(i["frames"] + 1):
+            L.play(arm, n, f)
+            for pb in arm.pose.bones:
+                if pb.name not in SCALE_ALLOWED:
+                    worst = max(worst, max(abs(c - 1.0) for c in pb.scale))
+    if worst > 1e-4:
+        bad_scale.append((n, round(worst, 4)))
+print(f"SCALE clips={len(clipinfo)} non-body bones off 1.0: {bad_scale or 'none'}")
 
 # ---- loop seams ---------------------------------------------------------------
 for n, (k, i) in clipinfo.items():
@@ -108,7 +131,7 @@ def pokes(bs, it):
     return n
 
 
-for n in ("run", "hop", "emote_cheer", "emote_dance"):
+for n in ("run", "hop", "emote_cheer", "emote_dance", "hop_onto_seat", "reach_table", "pull_lever", "small_cheer_seated"):
     if n not in clipinfo:
         continue
     res = {w: 0 for w in WIDE}
@@ -147,7 +170,8 @@ if render:
             L.play(arm, n, f)
             o = snap(body)
             o.hide_render = False
-            o.matrix_world = Matrix.Translation((j * 1.05, 0, 0)) @ o.matrix_world
+            lift = 0.42 if k == "anim_casino" else 0.0  # seat-frame clips: show them at seat height
+            o.matrix_world = Matrix.Translation((j * 1.05, 0, lift)) @ o.matrix_world
             objs.append(o)
         L.stop(arm)
         path = os.path.join(common.WIP, f"{k}_{n}.png")

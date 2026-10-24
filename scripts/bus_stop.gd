@@ -1,6 +1,6 @@
 extends StaticBody3D
 
-## Shelter the penguin stands in front of. Clicking it opens the bus list.
+## Shelter the penguin stands in front of. F, or a click, opens the bus list.
 
 @onready var _prompt: Label3D = $Prompt
 @onready var _stand: Area3D = $StandArea
@@ -42,6 +42,10 @@ func try_open() -> bool:
 		_refresh_prompt()
 		return true
 	return false
+
+
+func can_interact() -> bool:
+	return _prompt.visible
 
 
 func _process(_delta: float) -> void:

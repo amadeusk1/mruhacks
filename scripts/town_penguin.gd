@@ -31,13 +31,18 @@ var _flipper_l_x := 0.0
 var _flipper_r_x := 0.0
 
 
+var _clips: AnimationPlayer
+
+
 func _ready() -> void:
-	_tint($Visual/Body, coat_color)
-	_tint($Visual/FlipperL, coat_color)
-	_tint($Visual/FlipperR, coat_color)
-	_tint($Visual/Scarf, accent_color)
-	_apply_accessory()
-	_pose()
+	_clips = _mount_pack()
+	if _clips == null:
+		_tint($Visual/Body, coat_color)
+		_tint($Visual/FlipperL, coat_color)
+		_tint($Visual/FlipperR, coat_color)
+		_tint($Visual/Scarf, accent_color)
+		_apply_accessory()
+		_pose()
 	$NameLabel.text = penguin_name
 	$NameLabel.visible = penguin_name != ""
 	_speech.text = greeting
@@ -86,7 +91,24 @@ func _step_route(delta: float) -> void:
 	_moving = true
 
 
+func _mount_pack() -> AnimationPlayer:
+	match accessory:
+		Accessory.APRON:
+			return AssetPack.mount_bird(_visual, coat_color, "cafe_apron", "", "head", accent_color)
+		Accessory.BAND:
+			return AssetPack.mount_bird(_visual, coat_color, "", "headphones", "head", accent_color)
+		_:
+			return AssetPack.mount_bird(_visual, coat_color, "", "scarf", "neck", accent_color)
+
+
 func _animate(delta: float) -> void:
+	if _clips:
+		var clip := "walk" if _moving else ("wave" if _near and _clips.has_animation("wave") else "idle")
+		if _clips.current_animation != clip:
+			_clips.play(clip)
+		_visual.rotation = Vector3.ZERO
+		_visual.position.y = 0.0
+		return
 	if _moving:
 		_phase += delta * 7.5
 		_visual.rotation = Vector3(deg_to_rad(6.0), 0.0, sin(_phase) * 0.16)

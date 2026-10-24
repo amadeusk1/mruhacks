@@ -1,228 +1,428 @@
 [
   {
-    "id": "fx/smoke_puff_s",
-    "file": "fx/smoke_puff_s.glb",
+    "id": "fx/smoke_puff_a",
+    "file": "fx/smoke_puff_a.glb",
     "category": "fx",
     "size_m": [
-      0.166,
-      0.154,
-      0.18
+      0.115,
+      0.121,
+      0.126
     ],
     "sockets": {},
     "tints": {},
-    "socket": "socket_fx_smoke",
-    "rest_size_m": 0.16,
-    "network": "local",
-    "origin": "bottom",
-    "life_s": [
+    "lifetime_s": [
       3,
       5
     ],
-    "emit_s": [
+    "particle_size_m": [
+      0.08,
+      0.2
+    ],
+    "emit_every_s": [
       0.6,
       1.2
-    ]
+    ],
+    "usage": "chimney smoke (socket_fx_smoke): rise, grow 2-3x, drift with wind, fade out"
   },
   {
-    "id": "fx/smoke_puff_m",
-    "file": "fx/smoke_puff_m.glb",
+    "id": "fx/smoke_puff_b",
+    "file": "fx/smoke_puff_b.glb",
     "category": "fx",
     "size_m": [
-      0.324,
-      0.292,
-      0.328
+      0.2,
+      0.125,
+      0.169
     ],
     "sockets": {},
     "tints": {},
-    "socket": "socket_fx_smoke",
-    "rest_size_m": 0.32,
-    "network": "local",
-    "origin": "bottom",
-    "life_s": [
+    "lifetime_s": [
       3,
       5
     ],
-    "emit_s": [
-      0.6,
-      1.2
-    ]
+    "particle_size_m": [
+      0.12,
+      0.3
+    ],
+    "usage": "chimney smoke, mid puff"
   },
   {
-    "id": "fx/smoke_puff_l",
-    "file": "fx/smoke_puff_l.glb",
+    "id": "fx/smoke_puff_c",
+    "file": "fx/smoke_puff_c.glb",
     "category": "fx",
     "size_m": [
-      0.467,
-      0.42,
-      0.492
+      0.246,
+      0.178,
+      0.255
     ],
     "sockets": {},
     "tints": {},
-    "socket": "socket_fx_smoke",
-    "rest_size_m": 0.48,
-    "network": "local",
-    "origin": "bottom",
-    "life_s": [
-      3,
+    "lifetime_s": [
+      4,
       5
     ],
-    "note": "rare; do not emit a column"
+    "particle_size_m": [
+      0.2,
+      0.45
+    ],
+    "usage": "chimney smoke, large late puff"
   },
   {
     "id": "fx/steam_wisp",
     "file": "fx/steam_wisp.glb",
     "category": "fx",
     "size_m": [
-      0.028,
-      0.062,
-      0.22
+      0.069,
+      0.02,
+      0.164
     ],
     "sockets": {},
     "tints": {},
-    "socket": "socket_fx_steam",
-    "rest_size_m": 0.22,
-    "network": "local",
-    "origin": "bottom",
-    "life_s": [
-      1.2,
-      2.0
-    ]
+    "lifetime_s": [
+      1.0,
+      1.8
+    ],
+    "particle_size_m": [
+      0.06,
+      0.14
+    ],
+    "usage": "coffee machine, mugs and cups (socket_fx_steam): rise and fade"
   },
   {
-    "id": "fx/splash_drop",
-    "file": "fx/splash_drop.glb",
+    "id": "fx/snow_flake_a",
+    "file": "fx/snow_flake_a.glb",
     "category": "fx",
     "size_m": [
       0.029,
       0.027,
+      0.032
+    ],
+    "sockets": {},
+    "tints": {},
+    "lifetime_s": [
+      4,
+      8
+    ],
+    "particle_size_m": [
+      0.01,
+      0.03
+    ],
+    "usage": "weather: camera-local bounded field, disabled indoors"
+  },
+  {
+    "id": "fx/snow_flake_b",
+    "file": "fx/snow_flake_b.glb",
+    "category": "fx",
+    "size_m": [
+      0.044,
+      0.02,
+      0.04
+    ],
+    "sockets": {},
+    "tints": {},
+    "lifetime_s": [
+      4,
+      8
+    ],
+    "particle_size_m": [
+      0.02,
       0.05
     ],
-    "sockets": {},
-    "tints": {},
-    "socket": "socket_fx_splash",
-    "rest_size_m": 0.05,
-    "network": "local",
-    "origin": "center",
-    "trigger": "one-shot",
-    "note": "pool the bursts"
+    "usage": "weather, larger hero flakes (sparser)"
   },
   {
-    "id": "fx/foam_blob",
-    "file": "fx/foam_blob.glb",
+    "id": "fx/splash_droplet",
+    "file": "fx/splash_droplet.glb",
     "category": "fx",
     "size_m": [
-      0.197,
-      0.128,
-      0.059
+      0.031,
+      0.036,
+      0.054
     ],
     "sockets": {},
     "tints": {},
-    "socket": "socket_fx_splash",
-    "rest_size_m": 0.22,
-    "network": "local",
-    "origin": "water plane",
-    "trigger": "one-shot"
+    "lifetime_s": [
+      0.4,
+      0.8
+    ],
+    "particle_size_m": [
+      0.015,
+      0.04
+    ],
+    "usage": "fountain/waterfall landing (socket_fx_splash), bobber splash"
   },
   {
-    "id": "fx/snow_flake",
-    "file": "fx/snow_flake.glb",
+    "id": "fx/foam_patch",
+    "file": "fx/foam_patch.glb",
     "category": "fx",
     "size_m": [
-      0.049,
-      0.046,
-      0.055
+      0.251,
+      0.195,
+      0.026
     ],
     "sockets": {},
     "tints": {},
-    "socket": "camera weather",
-    "rest_size_m": 0.05,
-    "network": "local",
-    "origin": "center",
-    "note": "everyday particle; disable indoors and with distance"
+    "lifetime_s": [
+      1.5,
+      3
+    ],
+    "particle_size_m": [
+      0.15,
+      0.35
+    ],
+    "usage": "shoreline and fountain basin foam, flat on the water surface"
   },
   {
-    "id": "fx/snow_clump",
-    "file": "fx/snow_clump.glb",
+    "id": "fx/snow_puff_small",
+    "file": "fx/snow_puff_small.glb",
     "category": "fx",
     "size_m": [
-      0.109,
-      0.084,
-      0.096
+      0.182,
+      0.127,
+      0.133
     ],
     "sockets": {},
     "tints": {},
-    "socket": "socket_fx_spray",
-    "rest_size_m": 0.12,
-    "network": "local",
-    "origin": "center",
-    "note": "close flakes and light sled spray; hits stay winter/snow_puff"
-  },
-  {
-    "id": "fx/snow_star",
-    "file": "fx/snow_star.glb",
-    "category": "fx",
-    "size_m": [
-      0.137,
-      0.158,
-      0.016
+    "lifetime_s": [
+      0.5,
+      0.9
     ],
-    "sockets": {},
-    "tints": {},
-    "socket": "camera weather",
-    "rest_size_m": 0.16,
-    "network": "local",
-    "origin": "center",
-    "note": "occasional, not the default particle"
-  },
-  {
-    "id": "fx/snowflake",
-    "file": "fx/snowflake.glb",
-    "category": "fx",
-    "size_m": [
-      0.28,
-      0.25,
-      0.024
+    "particle_size_m": [
+      0.12,
+      0.3
     ],
-    "sockets": {},
-    "tints": {},
-    "socket": "camera weather",
-    "rest_size_m": 0.28,
-    "network": "local",
-    "origin": "center",
-    "note": "hero shape; everyday particle is snow_flake"
+    "usage": "snowball hit (pooled; winter/snow_puff is the large version)"
   },
   {
-    "id": "fx/flame",
-    "file": "fx/flame.glb",
-    "category": "fx",
-    "size_m": [
-      0.039,
-      0.037,
-      0.088
-    ],
-    "sockets": {},
-    "tints": {},
-    "socket": "socket_fx_flame",
-    "rest_size_m": 0.09,
-    "network": "local",
-    "origin": "bottom",
-    "note": "flicker locally; reduced motion keeps a steady glow"
-  },
-  {
-    "id": "fx/sparkle",
-    "file": "fx/sparkle.glb",
+    "id": "fx/sparkle_star",
+    "file": "fx/sparkle_star.glb",
     "category": "fx",
     "size_m": [
       0.06,
-      0.06,
+      0.004,
       0.06
     ],
     "sockets": {},
     "tints": {},
-    "socket": "socket_fx_sparkle",
-    "rest_size_m": 0.06,
-    "network": "local",
-    "origin": "center",
-    "trigger": "short twinkle"
+    "lifetime_s": [
+      0.3,
+      0.7
+    ],
+    "particle_size_m": [
+      0.02,
+      0.06
+    ],
+    "usage": "arcade marquee, celebrations (socket_fx_sparkle); billboard it"
+  },
+  {
+    "id": "fx/snow_spray_clump",
+    "file": "fx/snow_spray_clump.glb",
+    "category": "fx",
+    "size_m": [
+      0.19,
+      0.114,
+      0.108
+    ],
+    "sockets": {},
+    "tints": {},
+    "lifetime_s": [
+      0.4,
+      0.8
+    ],
+    "particle_size_m": [
+      0.1,
+      0.25
+    ],
+    "usage": "sled brake spray (socket_fx_spray on the sled runners)"
+  },
+  {
+    "id": "fx/confetti_bit",
+    "file": "fx/confetti_bit.glb",
+    "category": "fx",
+    "size_m": [
+      0.03,
+      0.016,
+      0.003
+    ],
+    "sockets": {},
+    "tints": {},
+    "lifetime_s": [
+      1.5,
+      2.5
+    ],
+    "particle_size_m": [
+      0.02,
+      0.04
+    ],
+    "usage": "celebrations; randomise colour per particle in the engine"
+  },
+  {
+    "id": "fx/ripple_ring",
+    "file": "fx/ripple_ring.glb",
+    "category": "fx",
+    "size_m": [
+      0.252,
+      0.252,
+      0.012
+    ],
+    "sockets": {},
+    "tints": {},
+    "lifetime_s": [
+      0.8,
+      1.4
+    ],
+    "particle_size_m": [
+      0.1,
+      0.6
+    ],
+    "usage": "pooled single ring: scale up 3-5x while fading; one per contact, never stacked"
+  },
+  {
+    "id": "fx/fish_tail",
+    "file": "fx/fish_tail.glb",
+    "category": "fx",
+    "size_m": [
+      0.34,
+      0.06,
+      0.26
+    ],
+    "sockets": {},
+    "tints": {},
+    "lifetime_s": [
+      0.6,
+      1.0
+    ],
+    "particle_size_m": [
+      0.18,
+      0.26
+    ],
+    "pivot": "waterline (z=0)",
+    "usage": "fish escape: rise through the water surface, tip, sink back; pair with splash_crown + ripple_ring_wide"
+  },
+  {
+    "id": "fx/splash_crown",
+    "file": "fx/splash_crown.glb",
+    "category": "fx",
+    "size_m": [
+      0.294,
+      0.315,
+      0.103
+    ],
+    "sockets": {},
+    "tints": {},
+    "lifetime_s": [
+      0.35,
+      0.6
+    ],
+    "particle_size_m": [
+      0.16,
+      0.3
+    ],
+    "pivot": "water surface, centre",
+    "usage": "bobber hits water (socket_fx_splash/ripple at the bobber): pop up, then hand over to ripple rings"
+  },
+  {
+    "id": "fx/snow_burst",
+    "file": "fx/snow_burst.glb",
+    "category": "fx",
+    "size_m": [
+      0.289,
+      0.351,
+      0.133
+    ],
+    "sockets": {},
+    "tints": {},
+    "lifetime_s": [
+      0.25,
+      0.45
+    ],
+    "particle_size_m": [
+      0.2,
+      0.4
+    ],
+    "usage": "snowball impact frame 2 (soft burst): spawn at the hit point once per accepted hit, then emit snow_clump_a/b"
+  },
+  {
+    "id": "fx/snow_clump_a",
+    "file": "fx/snow_clump_a.glb",
+    "category": "fx",
+    "size_m": [
+      0.092,
+      0.081,
+      0.076
+    ],
+    "sockets": {},
+    "tints": {},
+    "lifetime_s": [
+      0.8,
+      1.4
+    ],
+    "particle_size_m": [
+      0.03,
+      0.1
+    ],
+    "usage": "scattered/settling clumps after a snowball impact or sled brake: hop out, settle on the ground, fade"
+  },
+  {
+    "id": "fx/snow_clump_b",
+    "file": "fx/snow_clump_b.glb",
+    "category": "fx",
+    "size_m": [
+      0.103,
+      0.074,
+      0.062
+    ],
+    "sockets": {},
+    "tints": {},
+    "lifetime_s": [
+      0.8,
+      1.4
+    ],
+    "particle_size_m": [
+      0.03,
+      0.1
+    ],
+    "usage": "scattered/settling clumps after a snowball impact or sled brake: hop out, settle on the ground, fade"
+  },
+  {
+    "id": "fx/spark_star_big",
+    "file": "fx/spark_star_big.glb",
+    "category": "fx",
+    "size_m": [
+      0.175,
+      0.016,
+      0.175
+    ],
+    "sockets": {},
+    "tints": {},
+    "lifetime_s": [
+      0.5,
+      0.9
+    ],
+    "particle_size_m": [
+      0.12,
+      0.25
+    ],
+    "usage": "small celebration frame 1: one spark that scales in, then fades as confetti_bit spreads; billboard it"
+  },
+  {
+    "id": "fx/ripple_ring_wide",
+    "file": "fx/ripple_ring_wide.glb",
+    "category": "fx",
+    "size_m": [
+      0.407,
+      0.407,
+      0.007
+    ],
+    "sockets": {},
+    "tints": {},
+    "lifetime_s": [
+      1.0,
+      1.8
+    ],
+    "particle_size_m": [
+      0.2,
+      1.0
+    ],
+    "usage": "widening ring (bobber splash frame 3, fish escape frame 3): thinner and wider than ripple_ring; scale up while fading"
   }
 ]

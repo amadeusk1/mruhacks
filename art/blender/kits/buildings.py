@@ -87,12 +87,13 @@ def masonry_wall(b, L, H=WALL_H, openings=(), quoins=(False, False), base=True, 
 
 
 def door_unit(b, cx, w=0.86, h=1.6, z=0.0, y=0.0, mat=DOOR_T, surround=TRIM_T, heavy=False, socket=True,
-              open_deg=100, part_name="door_leaf"):
-    """Door set in a wall of thickness T centred on y: deep static frame, threshold and a
-    plank leaf with a 4-pane glowing light and gold knobs. The leaf is a hinge part
-    'part_door_leaf' pivoting on its back (+Y) face at the left (-X) jamb; positive open_deg
-    swings it toward +Y (into the wall's back side) and it clears the frame through the arc.
-    Front is -Y."""
+              open_deg=100, part_name="door_leaf", double=False):
+    """Door set in a wall of thickness T centred on y: deep static frame, threshold and plank
+    leaves with glowing lights and gold knobs. w is the clear width between the jamb linings.
+    Single: one hinge part 'part_<part_name>' pivoting on its back (+Y) face at the left (-X)
+    jamb; positive open_deg swings it toward +Y. double=True: two leaves '<part_name>_l' and
+    '<part_name>_r' hinged at both jambs, both swinging toward +Y. Leaves clear the frame through
+    the arc. Front is -Y."""
     fy = y - T / 2
     # frame lining through the wall
     for s in (-1, 1):
@@ -106,23 +107,37 @@ def door_unit(b, cx, w=0.86, h=1.6, z=0.0, y=0.0, mat=DOOR_T, surround=TRIM_T, h
           cx, fy - 0.05, z + h + 0.04, surround, bevel=0.025)
     # threshold
     b.box(w + 0.2, T + 0.12, 0.05, cx, y - 0.02, z, "stone_dark", bevel=0.012)
-    # leaf: sits on the threshold, 1 cm clear of the jambs and head
-    lw, lz0, lh0 = w - 0.02, z + 0.06, h - 0.08
     back = fy + 0.105
-    with b.part(part_name, pivot=(cx - w / 2, back, lz0), motion="hinge", axis="z", open_deg=open_deg):
-        pw = lw / 3
-        for i in range(3):
-            b.box(pw - 0.012, 0.07, lh0, cx - lw / 2 + pw * (i + 0.5), fy + 0.07, lz0, mat, bevel=0.012)
-        b.box(lw - 0.04, 0.03, 0.07, cx, fy + 0.025, lz0 + 0.2, mat, bevel=0.01)              # rail
-        gw, gh, gz = w * 0.46, h * 0.24, z + h * 0.6
-        b.box(gw + 0.07, 0.04, gh + 0.07, cx, fy + 0.02, gz - 0.035, surround, bevel=0.01)
-        b.box(gw, 0.03, gh, cx, fy + 0.015, gz, "glow_window", bevel=0)
-        b.box(0.025, 0.04, gh, cx, fy + 0.0, gz, surround, bevel=0)
-        b.box(gw, 0.04, 0.025, cx, fy + 0.0, gz + gh / 2 - 0.012, surround, bevel=0)
-        for ky in (fy + 0.0, back + 0.035):                                                     # knobs both faces
-            b.sphere(0.04, cx + w * 0.34, ky, z + h * 0.46, "gold", u=6, v=4)
+    lz0, lh0 = z + 0.06, h - 0.08
+    if double:
+        lw = w / 2 - 0.015
+        for side, sgn in (("l", -1), ("r", 1)):
+            lcx = cx + sgn * (w / 4 + 0.0025)
+            with b.part(f"{part_name}_{side}", pivot=(cx + sgn * w / 2, back, lz0), motion="hinge", axis="z",
+                        open_deg=-sgn * open_deg):
+                _leaf(b, lcx, lw, lz0, lh0, fy, back, h, z, mat, surround, knob_x=lcx - sgn * lw * 0.36)
+    else:
+        lw = w - 0.02
+        with b.part(part_name, pivot=(cx - w / 2, back, lz0), motion="hinge", axis="z", open_deg=open_deg):
+            _leaf(b, cx, lw, lz0, lh0, fy, back, h, z, mat, surround, knob_x=cx + w * 0.34, glass_w=w * 0.46)
     if socket:
         b.socket("door", (cx, y - T / 2 - 0.55, z), rotz=180)
+
+
+def _leaf(b, cx, lw, lz0, lh0, fy, back, h, z, mat, surround, knob_x, glass_w=None):
+    """One plank door leaf with a solid core, rail, 4-pane light and knobs on both faces."""
+    pw = lw / 3
+    b.box(lw - 0.03, 0.05, lh0 - 0.004, cx, fy + 0.07, lz0 + 0.002, mat, bevel=0)              # solid core behind the plank grooves
+    for i in range(3):
+        b.box(pw - 0.012, 0.07, lh0, cx - lw / 2 + pw * (i + 0.5), fy + 0.07, lz0, mat, bevel=0.012)
+    b.box(lw - 0.04, 0.03, 0.07, cx, fy + 0.025, lz0 + 0.2, mat, bevel=0.01)                    # rail
+    gw, gh, gz = glass_w or lw * 0.56, h * 0.24, z + h * 0.6
+    b.box(gw + 0.07, 0.04, gh + 0.07, cx, fy + 0.02, gz - 0.035, surround, bevel=0.01)
+    b.box(gw, 0.03, gh, cx, fy + 0.015, gz, "glow_window", bevel=0)
+    b.box(0.025, 0.04, gh, cx, fy + 0.0, gz, surround, bevel=0)
+    b.box(gw, 0.04, 0.025, cx, fy + 0.0, gz + gh / 2 - 0.012, surround, bevel=0)
+    for ky in (fy + 0.0, back + 0.035):                                                         # knobs both faces
+        b.sphere(0.04, knob_x, ky, z + h * 0.46, "gold", u=6, v=4)
 
 
 def window_unit(b, cx, zb, w=0.62, h=0.72, y=0.0, frame=TRIM_T, box=False, flowers=("petal_white", "petal_red"),

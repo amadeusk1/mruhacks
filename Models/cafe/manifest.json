@@ -72,6 +72,17 @@
         "open_deg": 100
       }
     },
+    "icon": "cafe/icons/cafe_exterior.png",
+    "part_clips": {
+      "part_door_leaf": [
+        "door_leaf_open",
+        "door_leaf_close"
+      ],
+      "part_door_leaf_back": [
+        "door_leaf_back_open",
+        "door_leaf_back_close"
+      ]
+    },
     "tints": {
       "wall": "#F3E2C5",
       "trim": "#BC874E",
@@ -92,73 +103,208 @@
     "file": "cafe/cafe_interior_shell.glb",
     "category": "room",
     "size_m": [
-      4.879,
-      4.34,
+      10.91,
+      9.38,
       2.72
     ],
     "sockets": {
       "socket_coffee_station": [
-        1.2,
-        1.23,
+        3.0,
+        3.75,
         0.1
       ],
       "socket_counter": [
-        0.75,
-        0.2,
+        2.9,
+        2.0,
+        0.1
+      ],
+      "socket_counter_seat_0": [
+        1.75,
+        1.275,
+        0.1
+      ],
+      "socket_counter_seat_1": [
+        2.9,
+        1.275,
+        0.1
+      ],
+      "socket_counter_seat_2": [
+        4.05,
+        1.275,
         0.1
       ],
       "socket_door_back": [
-        -0.3,
-        0.98,
+        -0.5,
+        3.5,
         0.1
       ],
       "socket_door_front": [
-        -1.05,
-        -0.98,
+        -0.2,
+        -3.5,
+        0.1
+      ],
+      "socket_entry_zone": [
+        -0.2,
+        -2.75,
+        0.1
+      ],
+      "socket_exit": [
+        -0.2,
+        -3.65,
         0.1
       ],
       "socket_menu_board": [
-        -1.4,
-        1.48,
-        1.3
+        1.5,
+        4.0,
+        1.4
       ],
-      "socket_table_0": [
-        -1.3,
-        0.55,
+      "socket_mug_set": [
+        3.3,
+        3.75,
+        0.98
+      ],
+      "socket_pastry_case": [
+        3.25,
+        2.0,
+        0.96
+      ],
+      "socket_spawn_inside": [
+        -0.2,
+        -2.6,
         0.1
       ],
+      "socket_table_0": [
+        -2.9,
+        1.9,
+        0.1
+      ],
+      "socket_table_0_seat_0": [
+        -2.3,
+        2.5,
+        0.1
+      ],
+      "socket_table_0_seat_1": [
+        -3.5,
+        2.5,
+        0.1
+      ],
+      "socket_table_0_seat_2": [
+        -3.5,
+        1.3,
+        0.1
+      ],
+      "socket_table_0_seat_3": [
+        -2.3,
+        1.3,
+        0.1
+      ],
+      "socket_table_0_top": [
+        -2.9,
+        1.9,
+        0.7
+      ],
       "socket_table_1": [
-        -1.2,
-        -0.6,
+        -2.9,
+        -1.9,
+        0.1
+      ],
+      "socket_table_1_seat_0": [
+        -2.3,
+        -1.3,
+        0.1
+      ],
+      "socket_table_1_seat_1": [
+        -3.5,
+        -1.3,
+        0.1
+      ],
+      "socket_table_1_seat_2": [
+        -3.5,
+        -2.5,
+        0.1
+      ],
+      "socket_table_1_seat_3": [
+        -2.3,
+        -2.5,
+        0.1
+      ],
+      "socket_table_2": [
+        2.6,
+        -1.9,
+        0.1
+      ],
+      "socket_table_2_seat_0": [
+        3.2,
+        -1.3,
+        0.1
+      ],
+      "socket_table_2_seat_1": [
+        2.0,
+        -1.3,
+        0.1
+      ],
+      "socket_table_2_seat_2": [
+        2.0,
+        -2.5,
+        0.1
+      ],
+      "socket_table_2_seat_3": [
+        3.2,
+        -2.5,
         0.1
       ],
       "socket_wall_shelf": [
-        0.9,
-        1.48,
+        4.1,
+        4.0,
         1.45
       ]
     },
     "parts": {
-      "part_door_leaf_front": {
+      "part_door_leaf_front_l": {
         "pivot": [
-          -1.48,
-          -1.595,
+          -1.0,
+          -4.115,
           0.16
         ],
         "motion": "hinge",
         "axis": "z",
         "open_deg": 100
       },
+      "part_door_leaf_front_r": {
+        "pivot": [
+          0.6,
+          -4.115,
+          0.16
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": -100
+      },
       "part_door_leaf_back": {
         "pivot": [
-          -0.73,
-          1.585,
+          -0.93,
+          4.105,
           0.16
         ],
         "motion": "hinge",
         "axis": "z",
         "open_deg": 100
       }
+    },
+    "icon": "cafe/icons/cafe_interior_shell.png",
+    "part_clips": {
+      "part_door_leaf_front_l": [
+        "door_leaf_front_l_open",
+        "door_leaf_front_l_close"
+      ],
+      "part_door_leaf_front_r": [
+        "door_leaf_front_r_open",
+        "door_leaf_front_r_close"
+      ],
+      "part_door_leaf_back": [
+        "door_leaf_back_open",
+        "door_leaf_back_close"
+      ]
     },
     "tints": {
       "wall": "#F3E2C5",
@@ -169,11 +315,22 @@
       "door": "#207D85"
     },
     "footprint_m": [
-      4.4,
-      3.4
+      10.44,
+      8.44
+    ],
+    "interior_m": [
+      10.0,
+      8.0
     ],
     "floor_z": 0.1,
-    "cutaway_child": "cafe_interior_shell_cutaway"
+    "cutaway_child": "cafe_interior_shell_cutaway",
+    "doorway_clear_m": 1.6,
+    "entry_zone_m": [
+      2.5,
+      2.5
+    ],
+    "main_aisle_m": 2.0,
+    "seat_anchor_rule": "socket_<anchor>_seat_<k> faces socket_<anchor>"
   },
   {
     "id": "cafe/cafe_counter",
@@ -196,6 +353,7 @@
         0.0
       ]
     },
+    "icon": "cafe/icons/cafe_counter.png",
     "tints": {
       "counter_panel": "#F3E2C5"
     },
@@ -222,6 +380,7 @@
         0.0
       ]
     },
+    "icon": "cafe/icons/coffee_station.png",
     "tints": {}
   },
   {
@@ -234,6 +393,7 @@
       0.495
     ],
     "sockets": {},
+    "icon": "cafe/icons/wall_shelf.png",
     "tints": {},
     "note": "origin on the wall face at the bracket bottoms; shelf top at 0.41 m"
   },
@@ -258,6 +418,7 @@
         0.06
       ]
     },
+    "icon": "cafe/icons/mug.png",
     "tints": {},
     "slot": "held"
   },
@@ -287,6 +448,7 @@
         0.13
       ]
     },
+    "icon": "cafe/icons/mug_set.png",
     "tints": {}
   },
   {
@@ -299,6 +461,7 @@
       0.41
     ],
     "sockets": {},
+    "icon": "cafe/icons/pastry_case.png",
     "tints": {}
   },
   {
@@ -311,6 +474,7 @@
       0.67
     ],
     "sockets": {},
+    "icon": "cafe/icons/menu_board.png",
     "tints": {},
     "note": "origin at the centre of the back face (wall layer)",
     "placement": {
@@ -332,11 +496,18 @@
     "file": "cafe/croissant.glb",
     "category": "prop",
     "size_m": [
-      0.186,
+      0.153,
       0.099,
-      0.082
+      0.07
     ],
-    "sockets": {},
+    "sockets": {
+      "socket_grip": [
+        0.0,
+        -0.005,
+        0.03
+      ]
+    },
+    "icon": "cafe/icons/croissant.png",
     "tints": {},
     "placement": {
       "layer": "surface",
@@ -353,20 +524,28 @@
       ],
       "clearance_front": 0,
       "recolor": true
-    }
+    },
+    "slot": "held"
   },
   {
     "id": "cafe/muffin",
     "file": "cafe/muffin.glb",
     "category": "prop",
     "size_m": [
-      0.116,
-      0.124,
-      0.097
+      0.107,
+      0.11,
+      0.096
     ],
-    "sockets": {},
+    "sockets": {
+      "socket_grip": [
+        0.0,
+        0.0,
+        0.04
+      ]
+    },
+    "icon": "cafe/icons/muffin.png",
     "tints": {
-      "muffin_case": "#E86D58"
+      "muffin_case": "#9C6A3C"
     },
     "placement": {
       "layer": "surface",
@@ -383,21 +562,64 @@
       ],
       "clearance_front": 0,
       "recolor": true
-    }
+    },
+    "slot": "held"
+  },
+  {
+    "id": "cafe/cookie",
+    "file": "cafe/cookie.glb",
+    "category": "prop",
+    "size_m": [
+      0.111,
+      0.108,
+      0.036
+    ],
+    "sockets": {
+      "socket_grip": [
+        0.04,
+        0.0,
+        0.014
+      ]
+    },
+    "icon": "cafe/icons/cookie.png",
+    "tints": {},
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "slot": "held"
   },
   {
     "id": "cafe/cake_slice",
     "file": "cafe/cake_slice.glb",
     "category": "prop",
     "size_m": [
-      0.1,
-      0.135,
-      0.113
+      0.104,
+      0.13,
+      0.12
     ],
-    "sockets": {},
+    "sockets": {
+      "socket_grip": [
+        0.0,
+        0.03,
+        0.02
+      ]
+    },
+    "icon": "cafe/icons/cake_slice.png",
     "tints": {
-      "cake_filling": "#F2A0B5",
-      "cake_frosting": "#F7F4EE"
+      "cake_cream": "#FAF1DD"
     },
     "placement": {
       "layer": "surface",
@@ -421,19 +643,27 @@
     "file": "cafe/plate.glb",
     "category": "prop",
     "size_m": [
-      0.217,
-      0.217,
-      0.027
+      0.24,
+      0.24,
+      0.024
     ],
     "sockets": {
+      "socket_grip": [
+        0.114,
+        0.0,
+        0.02
+      ],
       "socket_surface_0": [
         0.0,
         0.0,
-        0.018
+        0.006
       ]
     },
+    "icon": "cafe/icons/plate.png",
     "tints": {
-      "plate": "#F7F4EE"
+      "ceramic": "#FAF1DD",
+      "ceramic_rim": "#207D85",
+      "ceramic_accent": "#E86D58"
     },
     "placement": {
       "layer": "surface",
@@ -450,26 +680,33 @@
       ],
       "clearance_front": 0,
       "recolor": true
-    },
-    "surfaces": {
-      "surface_0": [
-        0.16,
-        0.16
-      ]
     }
   },
   {
-    "id": "cafe/plate_with_pastry",
-    "file": "cafe/plate_with_pastry.glb",
+    "id": "cafe/saucer",
+    "file": "cafe/saucer.glb",
     "category": "prop",
     "size_m": [
-      0.217,
-      0.217,
-      0.092
+      0.17,
+      0.17,
+      0.02
     ],
-    "sockets": {},
+    "sockets": {
+      "socket_grip": [
+        0.081,
+        0.0,
+        0.018
+      ],
+      "socket_surface_0": [
+        0.0,
+        0.0,
+        0.005
+      ]
+    },
+    "icon": "cafe/icons/saucer.png",
     "tints": {
-      "plate": "#F7F4EE"
+      "ceramic": "#FAF1DD",
+      "ceramic_rim": "#207D85"
     },
     "placement": {
       "layer": "surface",
@@ -487,32 +724,102 @@
       "clearance_front": 0,
       "recolor": true
     }
+  },
+  {
+    "id": "cafe/teacup",
+    "file": "cafe/teacup.glb",
+    "category": "prop",
+    "size_m": [
+      0.113,
+      0.1,
+      0.056
+    ],
+    "sockets": {
+      "socket_fx_steam": [
+        0.0,
+        0.0,
+        0.062
+      ],
+      "socket_grip": [
+        0.057,
+        0.0,
+        0.032
+      ]
+    },
+    "icon": "cafe/icons/teacup.png",
+    "tints": {
+      "ceramic_rim": "#207D85",
+      "ceramic": "#FAF1DD",
+      "ceramic_accent": "#E86D58"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "slot": "held"
   },
   {
     "id": "cafe/takeaway_cup",
     "file": "cafe/takeaway_cup.glb",
     "category": "prop",
     "size_m": [
-      0.091,
-      0.094,
-      0.15
+      0.096,
+      0.096,
+      0.14
     ],
     "sockets": {
       "socket_fx_steam": [
         0.0,
-        -0.026,
-        0.152
+        -0.03,
+        0.15
       ],
-      "socket_hold": [
+      "socket_grip": [
         0.0,
-        0.0,
+        -0.044,
         0.06
       ]
     },
+    "parts": {
+      "part_lid": {
+        "pivot": [
+          0.0,
+          0.0,
+          0.12
+        ],
+        "motion": "slide",
+        "dir": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "dist": 0.06
+      }
+    },
+    "icon": "cafe/icons/takeaway_cup.png",
+    "part_clips": {
+      "part_lid": [
+        "lid_open",
+        "lid_close"
+      ]
+    },
     "tints": {
-      "cup": "#F7F4EE",
+      "cup": "#FAF1DD",
       "cup_sleeve": "#D4A46A",
-      "cup_lid": "#3A3D44"
+      "ceramic_accent": "#E86D58",
+      "ceramic_rim": "#207D85",
+      "cup_lid": "#207D85"
     },
     "placement": {
       "layer": "surface",
@@ -537,13 +844,44 @@
     "file": "cafe/sugar_jar.glb",
     "category": "prop",
     "size_m": [
-      0.087,
-      0.09,
-      0.124
+      0.092,
+      0.093,
+      0.12
     ],
-    "sockets": {},
+    "sockets": {
+      "socket_grip": [
+        0.0,
+        -0.045,
+        0.04
+      ]
+    },
+    "parts": {
+      "part_lid": {
+        "pivot": [
+          0.0,
+          0.0,
+          0.074
+        ],
+        "motion": "slide",
+        "dir": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "dist": 0.05
+      }
+    },
+    "icon": "cafe/icons/sugar_jar.png",
+    "part_clips": {
+      "part_lid": [
+        "lid_open",
+        "lid_close"
+      ]
+    },
     "tints": {
-      "jar_lid": "#207D85"
+      "ceramic": "#FAF1DD",
+      "ceramic_rim": "#207D85",
+      "ceramic_accent": "#E86D58"
     },
     "placement": {
       "layer": "surface",
@@ -561,5 +899,514 @@
       "clearance_front": 0,
       "recolor": true
     }
+  },
+  {
+    "id": "cafe/teapot",
+    "file": "cafe/teapot.glb",
+    "category": "prop",
+    "size_m": [
+      0.237,
+      0.156,
+      0.18
+    ],
+    "sockets": {
+      "socket_fx_steam": [
+        -0.132,
+        0.0,
+        0.102
+      ],
+      "socket_grip": [
+        0.092,
+        0.0,
+        0.07
+      ]
+    },
+    "parts": {
+      "part_lid": {
+        "pivot": [
+          0.0,
+          0.0,
+          0.124
+        ],
+        "motion": "slide",
+        "dir": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "dist": 0.05
+      }
+    },
+    "icon": "cafe/icons/teapot.png",
+    "part_clips": {
+      "part_lid": [
+        "lid_open",
+        "lid_close"
+      ]
+    },
+    "tints": {
+      "ceramic_rim": "#207D85",
+      "ceramic": "#FAF1DD",
+      "ceramic_accent": "#E86D58"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "cafe/milk_jug",
+    "file": "cafe/milk_jug.glb",
+    "category": "prop",
+    "size_m": [
+      0.115,
+      0.084,
+      0.103
+    ],
+    "sockets": {
+      "socket_grip": [
+        0.055,
+        0.0,
+        0.058
+      ]
+    },
+    "icon": "cafe/icons/milk_jug.png",
+    "tints": {
+      "ceramic": "#FAF1DD",
+      "ceramic_rim": "#207D85"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "cafe/serving_tray",
+    "file": "cafe/serving_tray.glb",
+    "category": "prop",
+    "size_m": [
+      0.52,
+      0.34,
+      0.08
+    ],
+    "sockets": {
+      "socket_grip_l": [
+        -0.249,
+        0.0,
+        0.048
+      ],
+      "socket_grip_r": [
+        0.249,
+        0.0,
+        0.048
+      ],
+      "socket_surface_0": [
+        0.0,
+        0.0,
+        0.016
+      ]
+    },
+    "icon": "cafe/icons/serving_tray.png",
+    "tints": {
+      "tray": "#BC874E"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "cafe/napkin_holder",
+    "file": "cafe/napkin_holder.glb",
+    "category": "prop",
+    "size_m": [
+      0.144,
+      0.089,
+      0.098
+    ],
+    "sockets": {
+      "socket_grip": [
+        0.0,
+        0.0,
+        0.05
+      ]
+    },
+    "icon": "cafe/icons/napkin_holder.png",
+    "tints": {
+      "napkin_holder": "#BC874E",
+      "ceramic_accent": "#E86D58",
+      "ceramic_rim": "#207D85",
+      "napkin": "#FAF1DD"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "cafe/spoon",
+    "file": "cafe/spoon.glb",
+    "category": "prop",
+    "size_m": [
+      0.152,
+      0.027,
+      0.012
+    ],
+    "sockets": {
+      "socket_grip": [
+        0.045,
+        0.0,
+        0.008
+      ]
+    },
+    "icon": "cafe/icons/spoon.png",
+    "tints": {
+      "ceramic_rim": "#207D85"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "slot": "held"
+  },
+  {
+    "id": "cafe/pastry_tongs",
+    "file": "cafe/pastry_tongs.glb",
+    "category": "prop",
+    "size_m": [
+      0.236,
+      0.05,
+      0.012
+    ],
+    "sockets": {
+      "socket_grip": [
+        0.05,
+        0.0,
+        0.008
+      ]
+    },
+    "icon": "cafe/icons/pastry_tongs.png",
+    "tints": {},
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "cafe/cake_dome",
+    "file": "cafe/cake_dome.glb",
+    "category": "prop",
+    "size_m": [
+      0.236,
+      0.23,
+      0.19
+    ],
+    "sockets": {
+      "socket_grip": [
+        0.0,
+        0.0,
+        0.18
+      ]
+    },
+    "icon": "cafe/icons/cake_dome.png",
+    "tints": {},
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "cafe/cake_base",
+    "file": "cafe/cake_base.glb",
+    "category": "prop",
+    "size_m": [
+      0.28,
+      0.273,
+      0.024
+    ],
+    "sockets": {
+      "socket_dome_seat": [
+        0.0,
+        0.0,
+        0.016
+      ],
+      "socket_grip": [
+        0.14,
+        0.0,
+        0.012
+      ],
+      "socket_surface_0": [
+        0.0,
+        0.0,
+        0.016
+      ]
+    },
+    "icon": "cafe/icons/cake_base.png",
+    "tints": {
+      "cake_base": "#BC874E"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "cafe/plate_with_pastry",
+    "file": "cafe/plate_with_pastry.glb",
+    "category": "prop",
+    "size_m": [
+      0.24,
+      0.24,
+      0.071
+    ],
+    "sockets": {},
+    "icon": "cafe/icons/plate_with_pastry.png",
+    "tints": {
+      "ceramic": "#FAF1DD",
+      "ceramic_rim": "#207D85",
+      "ceramic_accent": "#E86D58"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "note": "convenience combo; the plate and croissant also exist separately"
+  },
+  {
+    "id": "cafe/tray_breakfast_preset_preview",
+    "file": "cafe/tray_breakfast_preset_preview.glb",
+    "category": "preset",
+    "size_m": [
+      0.52,
+      0.34,
+      0.114
+    ],
+    "sockets": {
+      "socket_grip_l": [
+        -0.249,
+        0.0,
+        0.048
+      ],
+      "socket_grip_r": [
+        0.249,
+        0.0,
+        0.048
+      ]
+    },
+    "icon": "cafe/icons/tray_breakfast_preset_preview.png",
+    "tints": {
+      "tray": "#BC874E",
+      "ceramic": "#FAF1DD",
+      "ceramic_rim": "#207D85",
+      "ceramic_accent": "#E86D58",
+      "napkin_holder": "#BC874E",
+      "napkin": "#FAF1DD"
+    },
+    "preview_only": true,
+    "preset": [
+      {
+        "asset_id": "cafe/serving_tray",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "asset_id": "cafe/plate",
+        "offset": [
+          -0.06,
+          -0.045,
+          0.016
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "asset_id": "cafe/croissant",
+        "offset": [
+          -0.06,
+          -0.045,
+          0.022
+        ],
+        "rot": [
+          0,
+          0,
+          15
+        ]
+      },
+      {
+        "asset_id": "cafe/teacup",
+        "offset": [
+          0.15,
+          0.07,
+          0.016
+        ],
+        "rot": [
+          0,
+          0,
+          20
+        ]
+      },
+      {
+        "asset_id": "cafe/napkin_holder",
+        "offset": [
+          -0.168,
+          0.105,
+          0.016
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "asset_id": "cafe/spoon",
+        "offset": [
+          0.15,
+          -0.09,
+          0.016
+        ],
+        "rot": [
+          0,
+          0,
+          35
+        ]
+      }
+    ],
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "note": "fused preview; spawn the parts listed in tray_breakfast_preset.preset.json"
   }
 ]

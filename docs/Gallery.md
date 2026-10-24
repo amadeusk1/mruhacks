@@ -2,7 +2,7 @@
 
 Design reference: [Game Design Context](GAME_DESIGN_CONTEXT.md)
 
-3D asset pack: [Art Pipeline](Art%20Pipeline.md) (how it's built) · [Renders](../Renders) (all model renders) · [Engine Specs - Index](Engine%20Specs/Engine%20Specs%20-%20Index.md) (what to build in Godot)
+3D asset pack: [Art Pipeline](Art%20Pipeline.md) (how it's built) · [Renders](Renders.md) (all model renders) · [Engine Specs - Index](Engine%20Specs/Engine%20Specs%20-%20Index.md) (what to build in Godot)
 
 ## Reference gallery
 
@@ -112,7 +112,6 @@ Reference for later world layout.
 
 - [Animation Kits - Index](Animation%20Kits%20-%20Index.md)
 - [Prop Kits - Master Plan](Prop%20Kits%20-%20Master%20Plan.md)
-- [Prop Kit - Effect Shapes](Prop%20Kit%20-%20Effect%20Shapes.md)
 
 All animation sheets: [Animation Mockups - Gallery](Animation%20Mockups%20-%20Gallery.md).
 
@@ -135,3 +134,15 @@ All animation sheets: [Animation Mockups - Gallery](Animation%20Mockups%20-%20Ga
 
 - [Waddle World - UI Mockups](Waddle%20World%20-%20UI%20Mockups.md)
 - [Waddle World - UI System and Flows](Waddle%20World%20-%20UI%20System%20and%20Flows.md)
+
+## Developer implementation guide
+
+[Dev Handoff - Start Here](Dev%20Handoff%20-%20Start%20Here.md)
+
+## Island map concepts
+
+[World Map - Island Concepts](World%20Map%20-%20Island%20Concepts.md) — angled overview and overhead layout.
+
+## Casino concepts
+
+[Casino - Concept Index](Casino%20-%20Concept%20Index.md) — six prop/UI/motion boards and updated island map.

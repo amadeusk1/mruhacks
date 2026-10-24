@@ -20,6 +20,11 @@
         "amp_deg": 2.0
       }
     },
+    "part_clips": {
+      "part_crown": [
+        "crown_sway"
+      ]
+    },
     "tints": {},
     "collision_radius": 0.3
   },
@@ -49,6 +54,11 @@
         "motion": "sway",
         "amp_deg": 2.0
       }
+    },
+    "part_clips": {
+      "part_crown": [
+        "crown_sway"
+      ]
     },
     "tints": {
       "petal": "#FFFDF6",
@@ -93,6 +103,11 @@
         "amp_deg": 2.0
       }
     },
+    "part_clips": {
+      "part_crown": [
+        "crown_sway"
+      ]
+    },
     "tints": {},
     "collision_radius": 0.3
   },
@@ -117,6 +132,11 @@
         "amp_deg": 2.5
       }
     },
+    "part_clips": {
+      "part_crown": [
+        "crown_sway"
+      ]
+    },
     "tints": {},
     "collision_radius": 0.2
   },
@@ -140,6 +160,11 @@
         "motion": "sway",
         "amp_deg": 2.5
       }
+    },
+    "part_clips": {
+      "part_crown": [
+        "crown_sway"
+      ]
     },
     "tints": {
       "petal": "#FFFDF6",
@@ -184,6 +209,11 @@
         "amp_deg": 2.5
       }
     },
+    "part_clips": {
+      "part_crown": [
+        "crown_sway"
+      ]
+    },
     "tints": {},
     "collision_radius": 0.2
   },
@@ -208,6 +238,11 @@
         "amp_deg": 3.0
       }
     },
+    "part_clips": {
+      "part_top": [
+        "top_sway"
+      ]
+    },
     "tints": {}
   },
   {
@@ -231,6 +266,11 @@
         "amp_deg": 3.0
       }
     },
+    "part_clips": {
+      "part_top": [
+        "top_sway"
+      ]
+    },
     "tints": {}
   },
   {
@@ -253,6 +293,11 @@
         "motion": "sway",
         "amp_deg": 3.0
       }
+    },
+    "part_clips": {
+      "part_top": [
+        "top_sway"
+      ]
     },
     "tints": {
       "petal": "#FFFDF6",
@@ -594,6 +639,17 @@
         "axis": "x"
       }
     },
+    "part_clips": {
+      "part_flag_0": [
+        "flag_0_flutter"
+      ],
+      "part_flag_1": [
+        "flag_1_flutter"
+      ],
+      "part_flag_2": [
+        "flag_2_flutter"
+      ]
+    },
     "tints": {
       "flag_a": "#E86D58",
       "flag_c": "#FAF1DD",
@@ -627,7 +683,7 @@
     "size_m": [
       2.0,
       2.0,
-      0.028
+      0.006
     ],
     "sockets": {},
     "tints": {},
@@ -688,5 +744,515 @@
     "corner": true,
     "water_z": -0.5,
     "water_side": "-Y,+X"
+  },
+  {
+    "id": "nature_dock/shore_bank_sloped",
+    "file": "nature_dock/shore_bank_sloped.glb",
+    "category": "modular",
+    "size_m": [
+      2.0,
+      2.0,
+      1.082
+    ],
+    "sockets": {
+      "socket_seam_e": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "socket_seam_w": [
+        -1.0,
+        0.0,
+        0.0
+      ]
+    },
+    "parts": {
+      "part_foam": {
+        "pivot": [
+          0.0,
+          0.0,
+          -0.496
+        ],
+        "motion": "flow"
+      },
+      "part_water": {
+        "pivot": [
+          0.0,
+          0.0,
+          -0.5
+        ],
+        "motion": "flow"
+      }
+    },
+    "tints": {
+      "shore_sand": "#E6D3AA",
+      "cliff_rock": "#B9B4AC"
+    },
+    "seam_grid": {
+      "module_m": 2.0,
+      "subgrid_m": 1.0,
+      "path_top_z": 0.07,
+      "path_width_m": 1.6,
+      "height_step_m": 0.5,
+      "stair_step_m": 0.25,
+      "max_ramp_deg": 20,
+      "water_z": -0.5
+    },
+    "module": "shore",
+    "shore_type": "straight",
+    "seams": [
+      "w",
+      "e"
+    ],
+    "water_z": -0.5,
+    "land_top_z": 0.0,
+    "snow_overlay": "snow_overlay_shore_bank_sloped",
+    "walkable": "land top only (d >= 0.7); sand and water are not traversable by default"
+  },
+  {
+    "id": "nature_dock/snow_overlay_shore_bank_sloped",
+    "file": "nature_dock/snow_overlay_shore_bank_sloped.glb",
+    "category": "overlay",
+    "size_m": [
+      2.0,
+      0.776,
+      0.275
+    ],
+    "sockets": {},
+    "tints": {},
+    "seam_grid": {
+      "module_m": 2.0,
+      "subgrid_m": 1.0,
+      "path_top_z": 0.07,
+      "path_width_m": 1.6,
+      "height_step_m": 0.5,
+      "stair_step_m": 0.25,
+      "max_ramp_deg": 20,
+      "water_z": -0.5
+    },
+    "overlay_for": "shore_bank_sloped",
+    "layer": "snow"
+  },
+  {
+    "id": "nature_dock/shore_inner_corner",
+    "file": "nature_dock/shore_inner_corner.glb",
+    "category": "modular",
+    "size_m": [
+      2.0,
+      2.0,
+      1.093
+    ],
+    "sockets": {
+      "socket_seam_e": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "socket_seam_s": [
+        0.0,
+        -1.0,
+        -0.5
+      ]
+    },
+    "parts": {
+      "part_foam": {
+        "pivot": [
+          0.0,
+          0.0,
+          -0.496
+        ],
+        "motion": "flow"
+      },
+      "part_water": {
+        "pivot": [
+          0.0,
+          0.0,
+          -0.5
+        ],
+        "motion": "flow"
+      }
+    },
+    "tints": {
+      "shore_sand": "#E6D3AA",
+      "cliff_rock": "#B9B4AC"
+    },
+    "seam_grid": {
+      "module_m": 2.0,
+      "subgrid_m": 1.0,
+      "path_top_z": 0.07,
+      "path_width_m": 1.6,
+      "height_step_m": 0.5,
+      "stair_step_m": 0.25,
+      "max_ramp_deg": 20,
+      "water_z": -0.5
+    },
+    "module": "shore",
+    "shore_type": "inner",
+    "seams": [
+      "s",
+      "e"
+    ],
+    "water_z": -0.5,
+    "land_top_z": 0.0,
+    "snow_overlay": "snow_overlay_shore_inner_corner",
+    "walkable": "land top only (d >= 0.7); sand and water are not traversable by default"
+  },
+  {
+    "id": "nature_dock/snow_overlay_shore_inner_corner",
+    "file": "nature_dock/snow_overlay_shore_inner_corner.glb",
+    "category": "overlay",
+    "size_m": [
+      2.0,
+      2.0,
+      0.298
+    ],
+    "sockets": {},
+    "tints": {},
+    "seam_grid": {
+      "module_m": 2.0,
+      "subgrid_m": 1.0,
+      "path_top_z": 0.07,
+      "path_width_m": 1.6,
+      "height_step_m": 0.5,
+      "stair_step_m": 0.25,
+      "max_ramp_deg": 20,
+      "water_z": -0.5
+    },
+    "overlay_for": "shore_inner_corner",
+    "layer": "snow"
+  },
+  {
+    "id": "nature_dock/shore_outer_corner",
+    "file": "nature_dock/shore_outer_corner.glb",
+    "category": "modular",
+    "size_m": [
+      2.0,
+      2.0,
+      1.047
+    ],
+    "sockets": {
+      "socket_seam_n": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "socket_seam_w": [
+        -1.0,
+        0.0,
+        0.0
+      ]
+    },
+    "parts": {
+      "part_foam": {
+        "pivot": [
+          0.0,
+          0.0,
+          -0.496
+        ],
+        "motion": "flow"
+      },
+      "part_water": {
+        "pivot": [
+          0.0,
+          0.0,
+          -0.5
+        ],
+        "motion": "flow"
+      }
+    },
+    "tints": {
+      "shore_sand": "#E6D3AA",
+      "cliff_rock": "#B9B4AC"
+    },
+    "seam_grid": {
+      "module_m": 2.0,
+      "subgrid_m": 1.0,
+      "path_top_z": 0.07,
+      "path_width_m": 1.6,
+      "height_step_m": 0.5,
+      "stair_step_m": 0.25,
+      "max_ramp_deg": 20,
+      "water_z": -0.5
+    },
+    "module": "shore",
+    "shore_type": "outer",
+    "seams": [
+      "w",
+      "n"
+    ],
+    "water_z": -0.5,
+    "land_top_z": 0.0,
+    "snow_overlay": "snow_overlay_shore_outer_corner",
+    "walkable": "land top only (d >= 0.7); sand and water are not traversable by default"
+  },
+  {
+    "id": "nature_dock/snow_overlay_shore_outer_corner",
+    "file": "nature_dock/snow_overlay_shore_outer_corner.glb",
+    "category": "overlay",
+    "size_m": [
+      0.846,
+      0.668,
+      0.202
+    ],
+    "sockets": {},
+    "tints": {},
+    "seam_grid": {
+      "module_m": 2.0,
+      "subgrid_m": 1.0,
+      "path_top_z": 0.07,
+      "path_width_m": 1.6,
+      "height_step_m": 0.5,
+      "stair_step_m": 0.25,
+      "max_ramp_deg": 20,
+      "water_z": -0.5
+    },
+    "overlay_for": "shore_outer_corner",
+    "layer": "snow"
+  },
+  {
+    "id": "nature_dock/pebble_cluster",
+    "file": "nature_dock/pebble_cluster.glb",
+    "category": "nature",
+    "size_m": [
+      1.271,
+      0.763,
+      0.468
+    ],
+    "sockets": {},
+    "tints": {},
+    "collision": "none (decor)"
+  },
+  {
+    "id": "nature_dock/pebble_cluster_snow",
+    "file": "nature_dock/pebble_cluster_snow.glb",
+    "category": "nature",
+    "size_m": [
+      1.264,
+      0.762,
+      0.486
+    ],
+    "sockets": {},
+    "tints": {},
+    "collision": "none (decor)"
+  },
+  {
+    "id": "nature_dock/shallow_water_patch",
+    "file": "nature_dock/shallow_water_patch.glb",
+    "category": "modular",
+    "size_m": [
+      2.0,
+      2.0,
+      0.335
+    ],
+    "sockets": {},
+    "parts": {
+      "part_water": {
+        "pivot": [
+          0.0,
+          0.0,
+          -0.5
+        ],
+        "motion": "flow"
+      }
+    },
+    "tints": {
+      "shore_sand": "#E6D3AA",
+      "water_shallow": "#8FDCE2"
+    },
+    "seam_grid": {
+      "module_m": 2.0,
+      "subgrid_m": 1.0,
+      "path_top_z": 0.07,
+      "path_width_m": 1.6,
+      "height_step_m": 0.5,
+      "stair_step_m": 0.25,
+      "max_ramp_deg": 20,
+      "water_z": -0.5
+    },
+    "module": "water",
+    "surface_z": -0.5,
+    "shallow": true,
+    "walkable": false,
+    "note": "visual only; shallow tint does not make it traversable"
+  },
+  {
+    "id": "nature_dock/foam_edge_strip",
+    "file": "nature_dock/foam_edge_strip.glb",
+    "category": "overlay",
+    "size_m": [
+      2.0,
+      0.109,
+      0.496
+    ],
+    "sockets": {},
+    "parts": {
+      "part_foam": {
+        "pivot": [
+          0.0,
+          0.0,
+          -0.496
+        ],
+        "motion": "flow"
+      }
+    },
+    "tints": {},
+    "seam_grid": {
+      "module_m": 2.0,
+      "subgrid_m": 1.0,
+      "path_top_z": 0.07,
+      "path_width_m": 1.6,
+      "height_step_m": 0.5,
+      "stair_step_m": 0.25,
+      "max_ramp_deg": 20,
+      "water_z": -0.5
+    },
+    "layer": "foam",
+    "surface_z": -0.496,
+    "spreads": "-Y from the origin line"
+  },
+  {
+    "id": "nature_dock/dock_end_cap",
+    "file": "nature_dock/dock_end_cap.glb",
+    "category": "modular",
+    "size_m": [
+      2.04,
+      0.615,
+      1.74
+    ],
+    "sockets": {
+      "socket_seam_n": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "socket_stand_0": [
+        0.0,
+        -0.3,
+        0.0
+      ]
+    },
+    "tints": {},
+    "module": "dock",
+    "grid": 2.0,
+    "deck_z": 0.0,
+    "water_z": -0.5,
+    "connects": [
+      "+Y"
+    ]
+  },
+  {
+    "id": "nature_dock/dock_ladder",
+    "file": "nature_dock/dock_ladder.glb",
+    "category": "prop",
+    "size_m": [
+      0.54,
+      0.285,
+      1.35
+    ],
+    "sockets": {},
+    "tints": {},
+    "decorative": true,
+    "climbable": false,
+    "mount": "dock side edge (origin on the deck edge, hangs -Y)",
+    "note": "keep clear of fishing sockets"
+  },
+  {
+    "id": "nature_dock/mooring_cleat",
+    "file": "nature_dock/mooring_cleat.glb",
+    "category": "prop",
+    "size_m": [
+      0.42,
+      0.2,
+      0.169
+    ],
+    "sockets": {
+      "socket_rope": [
+        0.0,
+        0.0,
+        0.12
+      ]
+    },
+    "tints": {},
+    "decorative": true
+  },
+  {
+    "id": "nature_dock/coiled_rope",
+    "file": "nature_dock/coiled_rope.glb",
+    "category": "prop",
+    "size_m": [
+      0.693,
+      0.517,
+      0.25
+    ],
+    "sockets": {},
+    "tints": {
+      "rope_band": "#207D85"
+    },
+    "decorative": true,
+    "color_variants": {
+      "rope_band": [
+        "teal",
+        "navy",
+        "red"
+      ]
+    }
+  },
+  {
+    "id": "nature_dock/boat_fender",
+    "file": "nature_dock/boat_fender.glb",
+    "category": "prop",
+    "size_m": [
+      0.754,
+      0.26,
+      0.26
+    ],
+    "sockets": {
+      "socket_rope_a": [
+        -0.36,
+        0.0,
+        0.13
+      ],
+      "socket_rope_b": [
+        0.36,
+        0.0,
+        0.13
+      ]
+    },
+    "tints": {
+      "fender": "#FAF1DD",
+      "fender_cap": "#207D85"
+    },
+    "decorative": true,
+    "color_variants": {
+      "fender": [
+        "cream",
+        "white",
+        "red"
+      ],
+      "fender_cap": [
+        "teal",
+        "navy"
+      ]
+    }
+  },
+  {
+    "id": "nature_dock/dock_lantern_bracket",
+    "file": "nature_dock/dock_lantern_bracket.glb",
+    "category": "light",
+    "size_m": [
+      0.248,
+      0.805,
+      1.66
+    ],
+    "sockets": {
+      "socket_light": [
+        0.0,
+        -0.56,
+        1.0
+      ]
+    },
+    "tints": {},
+    "light_color": "#FFC76B",
+    "mount": "dock deck or plaza edge"
   }
 ]

@@ -1,0 +1,165 @@
+[
+  {
+    "id": "anim_everyday/avatar_base",
+    "file": "anim_everyday/avatar_base.glb",
+    "category": "animation",
+    "size_m": [
+      0.977,
+      0.654,
+      0.9
+    ],
+    "sockets": {
+      "socket_back": [
+        0.0,
+        -0.16,
+        -0.302
+      ],
+      "socket_face": [
+        0.0,
+        -0.2,
+        0.239
+      ],
+      "socket_hand_R": [
+        -0.003,
+        -0.02,
+        0.003
+      ],
+      "socket_head": [
+        0.0,
+        -0.18,
+        0.0
+      ],
+      "socket_neck": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "socket_seat": [
+        0.0,
+        -0.08,
+        0.0
+      ]
+    },
+    "tints": {
+      "body": "#3E7DD6"
+    },
+    "fps": 30,
+    "bones": [
+      "root",
+      "body",
+      "head",
+      "flipper.L",
+      "flipper.R",
+      "foot.L",
+      "foot.R"
+    ],
+    "morphs": [
+      "eyes_closed",
+      "eyes_happy",
+      "eyes_wide",
+      "beak_open",
+      "blush"
+    ],
+    "clips": {
+      "pick_up": {
+        "duration_s": 1.2,
+        "frames": 36,
+        "loop": false,
+        "events": {
+          "grasp": 0.55
+        },
+        "cancel": "none",
+        "gltf_name": "pick_up",
+        "note": "attach the prop to the 'carry' point at grasp; ends on the carry_hold pose"
+      },
+      "carry_hold": {
+        "duration_s": 0.8,
+        "frames": 24,
+        "loop": true,
+        "events": {},
+        "cancel": "none",
+        "gltf_name": "carry_hold_loop",
+        "note": "upper-body layer: blend over walk/idle with a body+head+flipper bone mask",
+        "layer": "upper"
+      },
+      "place": {
+        "duration_s": 1.2,
+        "frames": 36,
+        "loop": false,
+        "events": {
+          "release": 0.6
+        },
+        "cancel": "none",
+        "gltf_name": "place",
+        "note": "from carry_hold; detach the prop onto the validated surface (0.45-0.6 m) at release"
+      },
+      "stool_back_up_sit": {
+        "duration_s": 1.0,
+        "frames": 30,
+        "loop": false,
+        "events": {
+          "seated": 0.85
+        },
+        "cancel": "none",
+        "gltf_name": "stool_back_up_sit",
+        "note": "seat height 0.44 m (plaza/stool socket_seat); ends seated: continue with anim_social sit_idle / sit_exit",
+        "seat_height_m": 0.44
+      },
+      "step_up": {
+        "duration_s": 0.8,
+        "frames": 24,
+        "loop": false,
+        "events": {
+          "foot_contact": [
+            0.3,
+            0.7
+          ]
+        },
+        "cancel": "none",
+        "gltf_name": "step_up",
+        "note": "one 0.25 m stone step (town_connections stone_step); root rises only, gameplay owns travel",
+        "rise_m": 0.25
+      },
+      "sip": {
+        "duration_s": 1.6,
+        "frames": 48,
+        "loop": false,
+        "events": {
+          "sip": 0.75
+        },
+        "cancel": "move",
+        "gltf_name": "sip",
+        "note": "mug stays in socket_hand_R; starts and ends on hold_item_idle"
+      },
+      "drawer_open": {
+        "duration_s": 2.0,
+        "frames": 60,
+        "loop": false,
+        "events": {
+          "pull": 0.4,
+          "push": 1.25
+        },
+        "cancel": "move",
+        "gltf_name": "drawer_open",
+        "note": "room_kit writing_desk: stand at socket_use; slide part_drawer 0.25 m between pull and push",
+        "target": {
+          "asset": "room_kit/writing_desk",
+          "part": "part_drawer",
+          "handle_height_m": 0.45
+        }
+      }
+    },
+    "rig": "avatar_base (same node and bone names as avatar/avatar_base.glb)",
+    "root_motion": "none: clips play in place; only hop moves the root vertically",
+    "carry_socket": {
+      "position": [
+        0.0,
+        -0.262,
+        0.374
+      ],
+      "space": "avatar local (Blender Z-up)",
+      "parent": "body",
+      "note": "prop origin between both flipper tips in carry_hold"
+    }
+  }
+]

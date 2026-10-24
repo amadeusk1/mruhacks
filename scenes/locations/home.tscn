@@ -1,7 +1,6 @@
-[gd_scene load_steps=19 format=3]
+[gd_scene load_steps=18 format=3]
 
 [ext_resource type="Script" path="res://scripts/room_nav.gd" id="1_nav"]
-[ext_resource type="PackedScene" path="res://scenes/bus_stop.tscn" id="2_bus"]
 [ext_resource type="Script" path="res://scripts/doorway.gd" id="3_door"]
 [ext_resource type="Script" path="res://scripts/home.gd" id="4_home"]
 
@@ -225,9 +224,6 @@ cast_shadow = 0
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = SubResource("Mat_path")
 
-[node name="BusStop" parent="NavigationRegion3D" instance=ExtResource("2_bus")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 2.0, 0, 0.2)
-
 [node name="InFloor" type="StaticBody3D" parent="NavigationRegion3D"]
 transform = Transform3D(7.6, 0, 0, 0, 0.4, 0, 0, 0, 7.6, 80, -0.2, 0)
 collision_layer = 1
@@ -370,7 +366,8 @@ transform = Transform3D(1.75, 0, 0, 0, 1.7, 0, 0, 0, 0.8, 80, 0.85, 3.55)
 collision_layer = 0
 collision_mask = 4
 script = ExtResource("3_door")
-spawn_name = "OutsideSpawn"
+spawn_name = "Home2DoorOut"
+location = "town"
 
 [node name="Shape" type="CollisionShape3D" parent="InsideDoor"]
 shape = SubResource("BoxShape3D_unit")

@@ -1,0 +1,1387 @@
+[
+  {
+    "id": "casino/casino_exterior",
+    "file": "casino/casino_exterior.glb",
+    "category": "building",
+    "size_m": [
+      9.064,
+      8.523,
+      5.154
+    ],
+    "sockets": {
+      "socket_fx_smoke": [
+        2.4,
+        1.2,
+        5.254
+      ],
+      "socket_door": [
+        0.0,
+        -4.9,
+        0.0
+      ],
+      "socket_fx_sparkle": [
+        0.0,
+        -4.14,
+        3.77
+      ],
+      "socket_spawn_inside": [
+        0.0,
+        -2.4,
+        0.12
+      ]
+    },
+    "parts": {
+      "part_door_l": {
+        "pivot": [
+          -0.95,
+          -3.74,
+          0.18
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 95
+      },
+      "part_door_r": {
+        "pivot": [
+          0.95,
+          -3.74,
+          0.18
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": -95
+      }
+    },
+    "icon": "casino/icons/casino_exterior.png",
+    "part_clips": {
+      "part_door_l": [
+        "door_l_open",
+        "door_l_close"
+      ],
+      "part_door_r": [
+        "door_r_open",
+        "door_r_close"
+      ]
+    },
+    "tints": {
+      "wall": "#F3E2C5",
+      "trim": "#BC874E",
+      "roof": "#F07E66",
+      "door": "#207D85"
+    },
+    "footprint_m": [
+      8.4,
+      7.199999999999999
+    ],
+    "floor_z": 0.12,
+    "roof_child": "casino_exterior_roof",
+    "interior": "casino/casino_interior_shell"
+  },
+  {
+    "id": "casino/casino_interior_shell",
+    "file": "casino/casino_interior_shell.glb",
+    "category": "building",
+    "size_m": [
+      16.4,
+      12.561,
+      3.22
+    ],
+    "sockets": {
+      "socket_blackjack": [
+        4.3,
+        -1.4,
+        0.12
+      ],
+      "socket_entry_zone": [
+        0.0,
+        -4.5,
+        0.12
+      ],
+      "socket_exit": [
+        0.0,
+        -5.7,
+        0.12
+      ],
+      "socket_lounge_0": [
+        -6.5,
+        -4.6,
+        0.12
+      ],
+      "socket_lounge_1": [
+        6.5,
+        -4.6,
+        0.12
+      ],
+      "socket_poker": [
+        -4.5,
+        -2.4,
+        0.12
+      ],
+      "socket_roulette": [
+        -4.5,
+        3.4,
+        0.12
+      ],
+      "socket_slot_stool_0": [
+        2.6,
+        4.74,
+        0.12
+      ],
+      "socket_slot_stool_1": [
+        3.75,
+        4.74,
+        0.12
+      ],
+      "socket_slot_stool_2": [
+        4.9,
+        4.74,
+        0.12
+      ],
+      "socket_slot_stool_3": [
+        6.05,
+        4.74,
+        0.12
+      ],
+      "socket_slots_0": [
+        2.6,
+        5.44,
+        0.12
+      ],
+      "socket_slots_1": [
+        3.75,
+        5.44,
+        0.12
+      ],
+      "socket_slots_2": [
+        4.9,
+        5.44,
+        0.12
+      ],
+      "socket_slots_3": [
+        6.05,
+        5.44,
+        0.12
+      ],
+      "socket_spawn_inside": [
+        0.0,
+        -4.6,
+        0.12
+      ]
+    },
+    "icon": "casino/icons/casino_interior_shell.png",
+    "tints": {
+      "wall": "#F3E2C5",
+      "trim": "#2F7F86",
+      "cushion": "#2F7F86"
+    },
+    "footprint_m": [
+      16.0,
+      12.0
+    ],
+    "floor_z": 0.12,
+    "ceiling_child": "casino_interior_shell_ceiling",
+    "spacing": "Art Docs/Interior Spacing Standard.md: seats >= 1.15 m apart, 2.0 m main aisle, 2.5 m entry zone, 1.5 m spectator bands, 1.4 m slot standing zones",
+    "layout_sockets": "roulette, poker, blackjack, slots_0..3 (+ slot_stool_0..3), lounge_*, entry_zone",
+    "slot_row": {
+      "slots_0": {
+        "asset": "casino/slot_machine",
+        "tint": {
+          "body": "#E86D58"
+        },
+        "stool": "slot_stool_0"
+      },
+      "slots_1": {
+        "asset": "casino/slot_machine",
+        "tint": {
+          "body": "#207D85"
+        },
+        "stool": "slot_stool_1"
+      },
+      "slots_2": {
+        "asset": "casino/slot_machine",
+        "tint": {
+          "body": "#7A3A6B"
+        },
+        "stool": "slot_stool_2"
+      },
+      "slots_3": {
+        "asset": "casino/slot_machine",
+        "tint": {
+          "body": "#E86D58"
+        },
+        "stool": "slot_stool_3"
+      }
+    }
+  },
+  {
+    "id": "casino/roulette_table",
+    "file": "casino/roulette_table.glb",
+    "category": "furniture",
+    "size_m": [
+      3.911,
+      2.042,
+      0.924
+    ],
+    "sockets": {
+      "socket_ball_track": [
+        -0.881,
+        0.0,
+        0.724
+      ],
+      "socket_bet_surface": [
+        0.55,
+        0.0,
+        0.646
+      ],
+      "socket_seat_0": [
+        -1.74,
+        -1.07,
+        0.42
+      ],
+      "socket_seat_1": [
+        -0.58,
+        -1.07,
+        0.42
+      ],
+      "socket_seat_2": [
+        0.58,
+        -1.07,
+        0.42
+      ],
+      "socket_seat_3": [
+        1.74,
+        -1.07,
+        0.42
+      ],
+      "socket_spectator_0": [
+        -2.6,
+        -0.2,
+        0.0
+      ],
+      "socket_spectator_1": [
+        2.6,
+        -0.2,
+        0.0
+      ],
+      "socket_wheel_center": [
+        -1.2,
+        0.0,
+        0.758
+      ]
+    },
+    "parts": {
+      "part_rotor": {
+        "pivot": [
+          -1.2,
+          0.0,
+          0.725
+        ],
+        "motion": "spin",
+        "axis": "z"
+      }
+    },
+    "icon": "casino/icons/roulette_table.png",
+    "part_clips": {
+      "part_rotor": [
+        "rotor_spin"
+      ]
+    },
+    "tints": {
+      "trim": "#2F7F86",
+      "felt": "#1F6B66",
+      "rail": "#225C63",
+      "cushion": "#2F7F86"
+    },
+    "game": "roulette",
+    "seats": 4,
+    "felt_insert": "insert_felt",
+    "rotor_insert": "insert_rotor",
+    "notes": "single-zero layout authored as texture"
+  },
+  {
+    "id": "casino/roulette_ball",
+    "file": "casino/roulette_ball.glb",
+    "category": "prop",
+    "size_m": [
+      0.034,
+      0.036,
+      0.036
+    ],
+    "sockets": {},
+    "icon": "casino/icons/roulette_ball.png",
+    "tints": {},
+    "origin": "centre-bottom; engine drives its orbit toward the server result"
+  },
+  {
+    "id": "casino/table_marker",
+    "file": "casino/table_marker.glb",
+    "category": "prop",
+    "size_m": [
+      0.067,
+      0.067,
+      0.14
+    ],
+    "sockets": {},
+    "icon": "casino/icons/table_marker.png",
+    "tints": {},
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "casino/roulette_stool",
+    "file": "casino/roulette_stool.glb",
+    "category": "furniture",
+    "size_m": [
+      0.324,
+      0.324,
+      0.43
+    ],
+    "sockets": {
+      "socket_seat": [
+        0.0,
+        0.0,
+        0.42
+      ]
+    },
+    "icon": "casino/icons/roulette_stool.png",
+    "tints": {
+      "cushion": "#2F7F86"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "casino/slot_machine",
+    "file": "casino/slot_machine.glb",
+    "category": "furniture",
+    "size_m": [
+      0.918,
+      0.82,
+      1.634
+    ],
+    "sockets": {
+      "socket_player_1": [
+        0.0,
+        -0.83,
+        0.0
+      ],
+      "socket_screen": [
+        0.0,
+        -0.1,
+        1.0
+      ],
+      "socket_seat_0": [
+        0.0,
+        -0.7,
+        0.42
+      ]
+    },
+    "parts": {
+      "part_button": {
+        "pivot": [
+          0.0,
+          -0.33,
+          0.75
+        ],
+        "motion": "press",
+        "depth": 0.012,
+        "dir": [
+          0.0,
+          0.21,
+          -0.98
+        ]
+      },
+      "part_lever": {
+        "pivot": [
+          0.45,
+          0.02,
+          0.98
+        ],
+        "motion": "hinge",
+        "axis": "x",
+        "open_deg": -55
+      },
+      "part_reel_0": {
+        "pivot": [
+          -0.167,
+          -0.1,
+          1.0
+        ],
+        "motion": "spin",
+        "axis": "x"
+      },
+      "part_reel_1": {
+        "pivot": [
+          0.0,
+          -0.1,
+          1.0
+        ],
+        "motion": "spin",
+        "axis": "x"
+      },
+      "part_reel_2": {
+        "pivot": [
+          0.167,
+          -0.1,
+          1.0
+        ],
+        "motion": "spin",
+        "axis": "x"
+      }
+    },
+    "icon": "casino/icons/slot_machine.png",
+    "part_clips": {
+      "part_button": [
+        "button_press"
+      ],
+      "part_lever": [
+        "lever_open",
+        "lever_close"
+      ],
+      "part_reel_0": [
+        "reel_0_spin"
+      ],
+      "part_reel_1": [
+        "reel_1_spin"
+      ],
+      "part_reel_2": [
+        "reel_2_spin"
+      ]
+    },
+    "tints": {
+      "body": "#E86D58",
+      "trim": "#2F7F86"
+    },
+    "game": "slots",
+    "color_variants": {
+      "body": {
+        "coral": "#E86D58",
+        "teal": "#207D85",
+        "plum": "#7A3A6B"
+      }
+    },
+    "reel_insert": "insert_reels (cylindrical UV: u = angle around X, 4 symbols: fish, snowflake, star, footprint)",
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        2,
+        2
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 2,
+      "recolor": true
+    }
+  },
+  {
+    "id": "casino/slot_stool",
+    "file": "casino/slot_stool.glb",
+    "category": "furniture",
+    "size_m": [
+      0.324,
+      0.324,
+      0.43
+    ],
+    "sockets": {
+      "socket_seat": [
+        0.0,
+        0.0,
+        0.42
+      ]
+    },
+    "icon": "casino/icons/slot_stool.png",
+    "tints": {
+      "cushion": "#E86D58"
+    },
+    "color_variants": {
+      "cushion": {
+        "coral": "#E86D58",
+        "teal": "#207D85",
+        "plum": "#7A3A6B"
+      }
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "casino/poker_table",
+    "file": "casino/poker_table.glb",
+    "category": "furniture",
+    "size_m": [
+      3.879,
+      3.042,
+      0.83
+    ],
+    "sockets": {
+      "socket_board_0": [
+        -0.44,
+        0.0,
+        0.642
+      ],
+      "socket_board_1": [
+        -0.22,
+        0.0,
+        0.642
+      ],
+      "socket_board_2": [
+        0.0,
+        0.0,
+        0.642
+      ],
+      "socket_board_3": [
+        0.22,
+        0.0,
+        0.642
+      ],
+      "socket_board_4": [
+        0.44,
+        0.0,
+        0.642
+      ],
+      "socket_deck": [
+        0.0,
+        -0.24,
+        0.64
+      ],
+      "socket_hand_0": [
+        0.0,
+        -0.477,
+        0.64
+      ],
+      "socket_hand_1": [
+        0.725,
+        -0.239,
+        0.64
+      ],
+      "socket_hand_2": [
+        0.725,
+        0.239,
+        0.64
+      ],
+      "socket_hand_3": [
+        0.0,
+        0.477,
+        0.64
+      ],
+      "socket_hand_4": [
+        -0.725,
+        0.239,
+        0.64
+      ],
+      "socket_hand_5": [
+        -0.725,
+        -0.239,
+        0.64
+      ],
+      "socket_pot": [
+        0.0,
+        0.24,
+        0.64
+      ],
+      "socket_seat_0": [
+        0.0,
+        -1.3,
+        0.42
+      ],
+      "socket_seat_1": [
+        1.689,
+        -0.65,
+        0.42
+      ],
+      "socket_seat_2": [
+        1.689,
+        0.65,
+        0.42
+      ],
+      "socket_seat_3": [
+        0.0,
+        1.3,
+        0.42
+      ],
+      "socket_seat_4": [
+        -1.689,
+        0.65,
+        0.42
+      ],
+      "socket_seat_5": [
+        -1.689,
+        -0.65,
+        0.42
+      ]
+    },
+    "icon": "casino/icons/poker_table.png",
+    "tints": {
+      "rail": "#225C63",
+      "upholstery": "#E86D58"
+    },
+    "game": "poker",
+    "seats": 6,
+    "felt_insert": "insert_felt"
+  },
+  {
+    "id": "casino/casino_chair",
+    "file": "casino/casino_chair.glb",
+    "category": "furniture",
+    "size_m": [
+      0.38,
+      0.411,
+      0.83
+    ],
+    "sockets": {
+      "socket_seat": [
+        0.0,
+        0.0,
+        0.42
+      ]
+    },
+    "icon": "casino/icons/casino_chair.png",
+    "tints": {
+      "upholstery": "#E86D58"
+    },
+    "color_variants": {
+      "upholstery": [
+        "#E86D58",
+        "#207D85"
+      ]
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "casino/dealer_button",
+    "file": "casino/dealer_button.glb",
+    "category": "prop",
+    "size_m": [
+      0.098,
+      0.098,
+      0.016
+    ],
+    "sockets": {},
+    "icon": "casino/icons/dealer_button.png",
+    "tints": {},
+    "label": "DEALER",
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "casino/small_blind_button",
+    "file": "casino/small_blind_button.glb",
+    "category": "prop",
+    "size_m": [
+      0.098,
+      0.098,
+      0.016
+    ],
+    "sockets": {},
+    "icon": "casino/icons/small_blind_button.png",
+    "tints": {},
+    "label": "SMALL BLIND",
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "casino/big_blind_button",
+    "file": "casino/big_blind_button.glb",
+    "category": "prop",
+    "size_m": [
+      0.098,
+      0.098,
+      0.016
+    ],
+    "sockets": {},
+    "icon": "casino/icons/big_blind_button.png",
+    "tints": {},
+    "label": "BIG BLIND",
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "casino/blackjack_table",
+    "file": "casino/blackjack_table.glb",
+    "category": "furniture",
+    "size_m": [
+      4.106,
+      2.221,
+      0.83
+    ],
+    "sockets": {
+      "socket_bet_0": [
+        -0.904,
+        -0.294,
+        0.64
+      ],
+      "socket_bet_1": [
+        -0.558,
+        -0.769,
+        0.64
+      ],
+      "socket_bet_2": [
+        -0.0,
+        -0.95,
+        0.64
+      ],
+      "socket_bet_3": [
+        0.558,
+        -0.769,
+        0.64
+      ],
+      "socket_bet_4": [
+        0.904,
+        -0.294,
+        0.64
+      ],
+      "socket_dealer_hand": [
+        0.0,
+        -0.36,
+        0.64
+      ],
+      "socket_hand_0": [
+        -0.723,
+        -0.235,
+        0.64
+      ],
+      "socket_hand_1": [
+        -0.447,
+        -0.615,
+        0.64
+      ],
+      "socket_hand_2": [
+        -0.0,
+        -0.76,
+        0.64
+      ],
+      "socket_hand_3": [
+        0.447,
+        -0.615,
+        0.64
+      ],
+      "socket_hand_4": [
+        0.723,
+        -0.235,
+        0.64
+      ],
+      "socket_seat_0": [
+        -1.807,
+        -0.587,
+        0.42
+      ],
+      "socket_seat_1": [
+        -1.117,
+        -1.537,
+        0.42
+      ],
+      "socket_seat_2": [
+        -0.0,
+        -1.9,
+        0.42
+      ],
+      "socket_seat_3": [
+        1.117,
+        -1.537,
+        0.42
+      ],
+      "socket_seat_4": [
+        1.807,
+        -0.587,
+        0.42
+      ]
+    },
+    "icon": "casino/icons/blackjack_table.png",
+    "tints": {
+      "rail": "#225C63",
+      "upholstery": "#E86D58"
+    },
+    "game": "blackjack",
+    "seats": 5,
+    "felt_insert": "insert_felt"
+  },
+  {
+    "id": "casino/card_shoe",
+    "file": "casino/card_shoe.glb",
+    "category": "prop",
+    "size_m": [
+      0.21,
+      0.135,
+      0.15
+    ],
+    "sockets": {},
+    "icon": "casino/icons/card_shoe.png",
+    "tints": {},
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "casino/discard_tray",
+    "file": "casino/discard_tray.glb",
+    "category": "prop",
+    "size_m": [
+      0.185,
+      0.145,
+      0.054
+    ],
+    "sockets": {},
+    "icon": "casino/icons/discard_tray.png",
+    "tints": {},
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "casino/card",
+    "file": "casino/card.glb",
+    "category": "prop",
+    "size_m": [
+      0.09,
+      0.125,
+      0.009
+    ],
+    "sockets": {},
+    "icon": "casino/icons/card.png",
+    "tints": {},
+    "face_atlas": "insert_card_face UV is 0..1 over the face (portrait, top = +Y). Map a 13 x 4 atlas with uv1_scale = (1/13, 1/4) and uv1_offset = ((rank-1)/13, suit/4); ranks A..K, suits spades, hearts, diamonds, clubs.",
+    "private": "never send unrevealed faces to unauthorised clients; show card_back until revealed",
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "casino/deck_stack",
+    "file": "casino/deck_stack.glb",
+    "category": "prop",
+    "size_m": [
+      0.091,
+      0.125,
+      0.065
+    ],
+    "sockets": {},
+    "icon": "casino/icons/deck_stack.png",
+    "tints": {},
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "casino/chip",
+    "file": "casino/chip.glb",
+    "category": "prop",
+    "size_m": [
+      0.066,
+      0.063,
+      0.014
+    ],
+    "sockets": {},
+    "icon": "casino/icons/chip.png",
+    "tints": {
+      "chip": "#D9473B"
+    },
+    "color_variants": {
+      "chip": {
+        "1": "#D9473B",
+        "5": "#3D7BD9",
+        "10": "#3E9A5B",
+        "25": "#7B4FC4",
+        "100": "#F4EFE6"
+      }
+    },
+    "denominations": [
+      "1",
+      "5",
+      "10",
+      "25",
+      "100"
+    ],
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "casino/chip_stack",
+    "file": "casino/chip_stack.glb",
+    "category": "prop",
+    "size_m": [
+      0.069,
+      0.067,
+      0.1
+    ],
+    "sockets": {},
+    "icon": "casino/icons/chip_stack.png",
+    "tints": {
+      "chip": "#D9473B"
+    },
+    "color_variants": {
+      "chip": {
+        "1": "#D9473B",
+        "5": "#3D7BD9",
+        "10": "#3E9A5B",
+        "25": "#7B4FC4",
+        "100": "#F4EFE6"
+      }
+    },
+    "count": 10,
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "casino/chip_rack",
+    "file": "casino/chip_rack.glb",
+    "category": "prop",
+    "size_m": [
+      0.62,
+      0.168,
+      0.1
+    ],
+    "sockets": {},
+    "icon": "casino/icons/chip_rack.png",
+    "tints": {},
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        2,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "casino/lounge_chair",
+    "file": "casino/lounge_chair.glb",
+    "category": "furniture",
+    "size_m": [
+      0.92,
+      0.784,
+      0.76
+    ],
+    "sockets": {
+      "socket_seat_0": [
+        0.0,
+        -0.06,
+        0.32
+      ]
+    },
+    "icon": "casino/icons/lounge_chair.png",
+    "tints": {
+      "cushion": "#2F7F86",
+      "upholstery": "#E86D58"
+    },
+    "color_variants": {
+      "cushion": [
+        "#207D85",
+        "#E86D58"
+      ]
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        2,
+        2
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 1,
+      "recolor": true
+    }
+  },
+  {
+    "id": "casino/side_table",
+    "file": "casino/side_table.glb",
+    "category": "furniture",
+    "size_m": [
+      0.448,
+      0.455,
+      0.63
+    ],
+    "sockets": {
+      "socket_surface_0": [
+        0.1,
+        0.0,
+        0.49
+      ]
+    },
+    "icon": "casino/icons/side_table.png",
+    "tints": {},
+    "surfaces": {
+      "surface_0": [
+        0.2,
+        0.2
+      ]
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "casino/card_suit_plaque",
+    "file": "casino/card_suit_plaque.glb",
+    "category": "decor",
+    "size_m": [
+      0.32,
+      0.065,
+      0.528
+    ],
+    "sockets": {},
+    "icon": "casino/icons/card_suit_plaque.png",
+    "tints": {},
+    "placement": {
+      "layer": "wall",
+      "cell_m": 0.5,
+      "footprint": null,
+      "rotations": [
+        0
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "casino/casino_wall_lamp",
+    "file": "casino/casino_wall_lamp.glb",
+    "category": "decor",
+    "size_m": [
+      0.18,
+      0.366,
+      0.36
+    ],
+    "sockets": {},
+    "icon": "casino/icons/casino_wall_lamp.png",
+    "tints": {},
+    "placement": {
+      "layer": "wall",
+      "cell_m": 0.5,
+      "footprint": null,
+      "rotations": [
+        0
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "casino/standing_lamp",
+    "file": "casino/standing_lamp.glb",
+    "category": "decor",
+    "size_m": [
+      0.48,
+      0.48,
+      1.5
+    ],
+    "sockets": {},
+    "icon": "casino/icons/standing_lamp.png",
+    "tints": {
+      "shade": "#F6E4B8"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "casino/casino_planter",
+    "file": "casino/casino_planter.glb",
+    "category": "decor",
+    "size_m": [
+      0.701,
+      0.708,
+      0.812
+    ],
+    "sockets": {},
+    "icon": "casino/icons/casino_planter.png",
+    "tints": {
+      "trim": "#2F7F86"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        2,
+        2
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "casino/coat_stand",
+    "file": "casino/coat_stand.glb",
+    "category": "decor",
+    "size_m": [
+      0.342,
+      0.354,
+      1.63
+    ],
+    "sockets": {},
+    "icon": "casino/icons/coat_stand.png",
+    "tints": {},
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "casino/card_mat",
+    "file": "casino/card_mat.glb",
+    "category": "decor",
+    "size_m": [
+      1.6,
+      0.9,
+      0.012
+    ],
+    "sockets": {},
+    "icon": "casino/icons/card_mat.png",
+    "tints": {},
+    "placement": {
+      "layer": "rug",
+      "cell_m": 0.5,
+      "footprint": [
+        4,
+        2
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  }
+]

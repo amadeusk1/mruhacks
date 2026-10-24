@@ -7,11 +7,19 @@ VAULT=${HERE:h:h}
 P="$HOME/Library/Caches/club_penguin_godot_check"
 G="$HOME/Library/Application Support/Steam/steamapps/common/Godot Engine/Godot.app/Contents/MacOS/Godot"
 mkdir -p "$P"
+# one run at a time: builders run this concurrently and share the import cache
+LOCK="$P.lock"
+until mkdir "$LOCK" 2>/dev/null; do
+  [ -n "$(find "$LOCK" -maxdepth 0 -mmin +20 2>/dev/null)" ] && rmdir "$LOCK"  # stale lock from a killed run
+  sleep 5
+done
+trap 'rmdir "$LOCK" 2>/dev/null' EXIT
 rsync -a --delete --include='*/' --include='*.glb' --exclude='*' "$VAULT/Models/" "$P/models/"
 cp "$HERE"/*.gd "$HERE"/tests/*.gd "$P/"
 printf 'config_version=5\n\n[application]\nconfig/name="asset_check"\n' > "$P/project.godot"
 cd "$P"
 "$G" --headless --path . --import > import.log 2>&1 || true
-for t in import_report shade_flags tint_helpers anim_kits; do
-  "$G" --headless --path . --script "$t.gd" 2>&1 | grep -E "REPORT|RESULT|SHADED|TINT_TEST|ROLES|ANIM |RETARGET|SCRIPT ERROR" || true
+for t in import_report shade_flags tint_helpers anim_kits part_clips; do
+  # a script error before quit() leaves Godot running forever: cap each test at 10 minutes
+  ( "$G" --headless --path . --script "$t.gd" & gp=$!; ( sleep 600; kill $gp 2>/dev/null && echo "TIMEOUT $t" ) & wp=$!; wait $gp; kill $wp 2>/dev/null ) 2>&1 | grep -E "TIMEOUT|REPORT|RESULT|SHADED|TINT_TEST|ROLES|ANIM |RETARGET|PART_CLIPS|LOAD_FAILED|SCRIPT ERROR" || true
 done

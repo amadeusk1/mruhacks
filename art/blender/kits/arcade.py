@@ -102,17 +102,18 @@ def build_cabinet():
 def build_duo():
     b = Builder("arcade_cabinet_duo")
     s1, s2 = tint("station_1", "coral"), tint("station_2", "teal_light")
-    cabinet(b, tint("body", "navy"), width=1.25, coin_doors=(-0.3, 0.3), stations=[
-        dict(x=-0.31, plate=s1, stick="red", buttons=("yellow", "red")),
-        dict(x=0.31, plate=s2, stick="sky", buttons=("yellow", "sky")),
+    d = DUO_STATION                    # stations 1.15 m apart (Interior Spacing Standard)
+    cabinet(b, tint("body", "navy"), width=1.9, coin_doors=(-d, d), stations=[
+        dict(x=-d, plate=s1, stick="red", buttons=("yellow", "red")),
+        dict(x=d, plate=s2, stick="sky", buttons=("yellow", "sky")),
     ])
     # colour-coded floor pads for the two stations
-    for x, c in ((-0.32, s1), (0.32, s2)):
-        b.box(0.54, 0.46, 0.018, x, -0.63, 0, c, bevel=0.008)
-        b.box(0.44, 0.36, 0.022, x, -0.63, 0, "cream", bevel=0.006)
-        b.box(0.4, 0.32, 0.026, x, -0.63, 0, c, bevel=0.006)
-    b.socket("player_1", (-0.32, -0.72, 0), rotz=180)
-    b.socket("player_2", (0.32, -0.72, 0), rotz=180)
+    for x, c in ((-d, s1), (d, s2)):
+        b.box(0.8, 0.5, 0.018, x, -0.65, 0, c, bevel=0.008)
+        b.box(0.7, 0.4, 0.022, x, -0.65, 0, "cream", bevel=0.006)
+        b.box(0.66, 0.36, 0.026, x, -0.65, 0, c, bevel=0.006)
+    b.socket("player_1", (-d, -0.72, 0), rotz=180)
+    b.socket("player_2", (d, -0.72, 0), rotz=180)
     return b.finish(KIT, "arcade_cabinet", {"slots": 2, **variants(body=("navy", "purple"), station_1=("coral",), station_2=("teal_light",))})
 
 
@@ -199,8 +200,23 @@ def marquee(b, w=1.8):
 
 
 # --- building ------------------------------------------------------------
-SW, SD, SH, ST = 6.4, 5.0, 2.5, 0.3      # shell width, depth, wall height, wall thickness
-DOOR_W, DOOR_H = 1.6, 2.0
+# Interior Spacing Standard: about 12 x 9 m of floor, 2.0 m clear double doors.
+IW, ID = 12.0, 9.0                        # interior floor
+ST, SH = 0.3, 2.8                         # wall thickness, wall height
+SW, SD = IW + 2 * ST, ID + 2 * ST         # outer shell width, depth
+DOOR_W, DOOR_H = 2.1, 2.1                 # opening; 2.02 m clear between the frame posts
+IX, IY = IW / 2, ID / 2                   # interior half extents (inner wall faces)
+CAB_Y = IY - 0.33                         # cabinet origin: plinth back against the back wall
+SOLO_X = (-4.6, -3.2, -1.8, -0.4, 1.0)    # 1.4 m pitch, players never closer than 1.15 m
+DUO_X = 3.6                               # duo stations at 3.025 and 4.175
+DUO_STATION = 0.575                       # half of the 1.15 m station spacing
+# zones as [x0, y0, x1, y1] in shell coordinates
+ZONES = {
+    "standing": [-IX, IY - 0.71 - 1.4, IX, IY - 0.71],    # 1.4 m deep in front of the cabinet decks
+    "spectator": [-IX, IY - 0.71 - 2.9, IX, IY - 0.71 - 1.4],
+    "aisle": [-IX, IY - 0.71 - 4.9, IX, IY - 0.71 - 2.9],  # 2.0 m main aisle
+    "entry": [-1.25, -IY, 1.25, -IY + 2.5],
+}
 
 
 def door_leaf(b, w, h, s=1):
@@ -213,83 +229,106 @@ def door_leaf(b, w, h, s=1):
     b.torus(0.07, 0.014, s * w * 0.82, -0.075, h * 0.45, "gold", segs=10, ring=4, rot=(90, 0, 0))
 
 
-def shell(b, roofed=False):
-    rng = b.rng
+def pilaster(b, x, y, top, roofed):
+    z, k = 0, 0
+    while z < top - 0.05:
+        hh = min(0.42, top - z)
+        s = 0.46 if k % 2 == 0 else 0.4
+        b.box(s, s, hh - 0.02, x, y, z, pick(("stone", "paving_b"), k), bevel=0.03)
+        z += hh
+        k += 1
+    if not roofed:
+        snow_cap(b, 0.5, 0.5, x, y, top - 0.02, h=0.07, lumps=False)
+
+
+def front_wall(b, roofed):
+    """Front wall with doors, windows, planters and lanterns: the cutaway the camera can hide."""
     hx, hy = SW / 2, SD / 2
-    # foundation slab and checker floor
-    b.box(SW + 0.4, SD + 0.4, 0.12, 0, 0, -0.08, "stone_dark", bevel=0.03)
-    iw, idp = SW - 2 * ST, SD - 2 * ST
-    nx, ny = math.ceil(iw / 0.5), math.ceil(idp / 0.5)
-    tx, ty = iw / nx, idp / ny
-    for i in range(nx):
-        for j in range(ny):
-            x = -hx + ST + tx * (i + 0.5)
-            y = -hy + ST + ty * (j + 0.5)
-            b.box(tx - 0.02, ty - 0.02, 0.06, x, y, 0, "paving" if (i + j) % 2 else "paving_b", bevel=0.01)
-    b.box(DOOR_W - 0.04, ST, 0.06, 0, -hy + ST / 2, 0, "stone", bevel=0.015)
-    # walls
-    b.box(SW, ST, SH, 0, hy - ST / 2, 0, "plaster", bevel=0.03)
+    top = SH + 0.12
     for sx in (-1, 1):
-        b.box(ST, SD - 2 * ST, SH, sx * (hx - ST / 2), 0, 0, "plaster", bevel=0.03)
         seg = hx - DOOR_W / 2
         b.box(seg, ST, SH, sx * (DOOR_W / 2 + seg / 2), -hy + ST / 2, 0, "plaster", bevel=0.03)
     b.box(DOOR_W, ST, SH - DOOR_H, 0, -hy + ST / 2, DOOR_H, "plaster", bevel=0.03)
-    # timber top beam (the social-scene concept shows a honey wood cap)
-    for y, w, d in ((hy - ST / 2, SW + 0.06, ST + 0.06), (-hy + ST / 2, SW + 0.06, ST + 0.06)):
-        b.box(w, d, 0.12, 0, y, SH, "wood", bevel=0.02)
-    for sx in (-1, 1):
-        b.box(ST + 0.06, SD - 2 * ST, 0.12, sx * (hx - ST / 2), 0, SH, "wood", bevel=0.02)
-    # stone base course (front and sides)
+    b.box(SW + 0.06, ST + 0.06, 0.12, 0, -hy + ST / 2, SH, "wood", bevel=0.02)
     for x0, L in ((-hx, hx - DOOR_W / 2 - 0.1), (DOOR_W / 2 + 0.1, hx - DOOR_W / 2 - 0.1)):
         stone_row(b, L, 0.42, 0.1, x0=x0, y=-hy - 0.03, z=0)
     for sx in (-1, 1):
-        with b.at((sx * (hx + 0.03), 0, 0), rotz=90 * sx):
-            stone_row(b, SD, 0.42, 0.1, x0=-hy, y=0, z=0)
-    # corner pilasters of stacked blocks
-    for sx in (-1, 1):
-        for sy in (-1, 1):
-            z = 0
-            k = 0
-            while z < SH + 0.12 - 0.05:
-                hh = min(0.42, SH + 0.12 - z)
-                s = 0.46 if k % 2 == 0 else 0.4
-                b.box(s, s, hh - 0.02, sx * (hx - 0.12), sy * (hy - 0.12), z, pick(("stone", "paving_b"), k), bevel=0.03)
-                z += hh
-                k += 1
-            if not roofed:
-                snow_cap(b, 0.5, 0.5, sx * (hx - 0.12), sy * (hy - 0.12), SH + 0.1, h=0.07, lumps=False)
-    # door frame, steps and leaves
+        pilaster(b, sx * (hx - 0.12), -hy + 0.12, top, roofed)
+    # door frame and leaves (hinge parts rest closed, swing outward)
     for sx in (-1, 1):
         b.box(0.14, ST + 0.1, DOOR_H, sx * (DOOR_W / 2 + 0.03), -hy + ST / 2, 0, "wood", bevel=0.02)
     b.box(DOOR_W + 0.3, ST + 0.12, 0.16, 0, -hy + ST / 2, DOOR_H, "wood", bevel=0.02)
-    b.box(DOOR_W + 0.4, 0.5, 0.1, 0, -hy - 0.25, -0.04, "stone", bevel=0.03)
-    b.box(DOOR_W + 0.1, 0.4, 0.08, 0, -hy - 0.65, -0.04, "paving_b", bevel=0.03)
     lw = DOOR_W / 2 - 0.02
     for sx in (-1, 1):
-        # leaves rest closed; hinge just in front of the frame post, clear of the entrance step,
-        # swinging outward (open_deg sign) so they never pass through the frame
         with b.at((sx * (DOOR_W / 2 - 0.04), -hy - 0.1, 0.07)):
             with b.part("door_l" if sx < 0 else "door_r", pivot=(0, 0, 0), motion="hinge", axis="z", open_deg=sx * 72):
                 door_leaf(b, lw - 0.035, DOOR_H - 0.1, s=-sx)
-    # windows, flower boxes, lanterns on the front
+    # outside: windows with flower boxes, lanterns by the door
     for sx in (-1, 1):
-        window(b, 0.75, 0.75, x=sx * 2.1, y=-hy, z=1.05)
-        planter_box(b, 0.95, 0.26, 0.2, x=sx * 2.1, y=-hy - 0.19, z=0.52)
-        wall_lantern(b, sx * 1.2, -hy, 1.85)
-    # interior back-wall lanterns and side window
-    for x in (-1.6, 1.6):
-        wall_lantern(b, x, hy - ST, 1.85)
-    with b.at((hx, 0.6, 0), rotz=90):
-        window(b, 0.7, 0.7, x=0, y=0, z=1.1)
-    b.socket("door", (0, -hy - 0.9, 0), rotz=0)
-    b.socket("door_inside", (0, -hy + 0.8, 0), rotz=0)
-    for i in range(7):
-        b.socket(f"cabinet_{i}", (-2.4 + i * 0.8, hy - ST - 0.36, 0), rotz=0)
-    b.socket("token_machine", (hx - ST - 0.4, -0.6, 0), rotz=90)
+        for wx in (2.4, 4.6):
+            window(b, 0.85, 0.85, x=sx * wx, y=-hy, z=1.15)
+            planter_box(b, 1.05, 0.26, 0.2, x=sx * wx, y=-hy - 0.19, z=0.62)
+        wall_lantern(b, sx * 1.5, -hy, 2.0)
+    # inside: chair rail either side of the door
+    for sx in (-1, 1):
+        L = IX - DOOR_W / 2 - 0.1
+        b.box(L, 0.04, 0.06, sx * (DOOR_W / 2 + 0.1 + L / 2), -IY + 0.02, 0.95, "wood", bevel=0.01)
+
+
+def shell(b, roofed=False, front=None):
+    """Arcade interior shell. The front wall goes into `front` (the cutaway child) when given."""
+    hx, hy = SW / 2, SD / 2
+    top = SH + 0.12
+    # foundation slab, checker floor, doorway threshold
+    b.box(SW + 0.4, SD + 0.4, 0.12, 0, 0, -0.08, "stone_dark", bevel=0.03)
+    nx, ny = math.ceil(IW / 0.5), math.ceil(ID / 0.5)
+    tx, ty = IW / nx, ID / ny
+    for i in range(nx):
+        for j in range(ny):
+            b.box(tx - 0.02, ty - 0.02, 0.06, -IX + tx * (i + 0.5), -IY + ty * (j + 0.5), 0,
+                  "paving" if (i + j) % 2 else "paving_b", bevel=0.01)
+    b.box(DOOR_W - 0.04, ST, 0.06, 0, -hy + ST / 2, 0, "stone", bevel=0.015)
+    b.box(DOOR_W + 0.4, 0.5, 0.1, 0, -hy - 0.25, -0.04, "stone", bevel=0.03)
+    b.box(DOOR_W + 0.1, 0.4, 0.08, 0, -hy - 0.65, -0.04, "paving_b", bevel=0.03)
+    # back and side walls with their timber caps and stone courses
+    b.box(SW, ST, SH, 0, hy - ST / 2, 0, "plaster", bevel=0.03)
+    b.box(SW + 0.06, ST + 0.06, 0.12, 0, hy - ST / 2, SH, "wood", bevel=0.02)
+    for sx in (-1, 1):
+        b.box(ST, SD - 2 * ST, SH, sx * (hx - ST / 2), 0, 0, "plaster", bevel=0.03)
+        b.box(ST + 0.06, SD - 2 * ST, 0.12, sx * (hx - ST / 2), 0, SH, "wood", bevel=0.02)
+        with b.at((sx * (hx + 0.03), 0, 0), rotz=90 * sx):
+            stone_row(b, SD, 0.42, 0.1, x0=-hy, y=0, z=0)
+        pilaster(b, sx * (hx - 0.12), hy - 0.12, top, roofed)
+        # side windows, outside and inside faces
+        for wy in (-2.2, 1.8):
+            with b.at((sx * hx, wy, 0), rotz=90 * sx):
+                window(b, 0.8, 0.8, x=0, y=0, z=1.2)
+            with b.at((sx * IX, wy, 0), rotz=-90 * sx):
+                window(b, 0.8, 0.8, x=0, y=0, z=1.2, sill=False)
+        with b.at((sx * IX, 0, 0), rotz=-90 * sx):
+            wall_lantern(b, 0, 0, 2.3)
+            b.box(ID, 0.04, 0.06, 0, -0.02, 0.95, "wood", bevel=0.01)      # chair rail
+    for x in (-4.5, -1.5, 1.5, 4.5):
+        wall_lantern(b, x, IY, 2.35)
+    b.box(IW, 0.04, 0.06, 0, IY - 0.02, 0.95, "wood", bevel=0.01)
+    front_wall(front or b, roofed)
+
+    # anchors: cabinets face -Y with their backs to the back wall; avatars face +Y (rotz 180)
+    b.socket("door", (0, -hy - 0.9, 0))
+    b.socket("door_inside", (0, -IY + 1.25, 0))
+    for i, x in enumerate(SOLO_X):
+        b.socket(f"cabinet_solo_{i}", (x, CAB_Y, 0))
+    b.socket("cabinet_duo", (DUO_X, CAB_Y, 0))
+    spect = list(SOLO_X) + [DUO_X - DUO_STATION, DUO_X + DUO_STATION]
+    for i, x in enumerate(spect):
+        b.socket(f"spectate_{i}", (x, (ZONES["spectator"][1] + ZONES["spectator"][3]) / 2, 0), rotz=180)
+    b.socket("token_machine", (IX - 0.24, -2.2, 0), rotz=-90)       # faces into the room (-X)
+    b.socket("bench_0", (-IX + 0.25, -2.2, 0), rotz=90)             # seats face +X
+    b.socket("rug", (0, (ZONES["aisle"][1] + ZONES["aisle"][3]) / 2, 0))
 
 
 def roof(b):
-    rise, ov = 1.6, 0.28
+    rise, ov = 2.4, 0.32
     gable_roof(b, SW, SD, rise, 0.0, overhang=ov, tile=0.36)
     half = SD / 2 + ov
     ang = math.degrees(math.atan2(rise, half))
@@ -301,7 +340,7 @@ def roof(b):
             for k in range(2):
                 b.blob(L * 0.22, 0.12, 0.08, (k - 0.5) * L * 0.45, rng.uniform(-0.04, 0.04), 0.1, "snow", subdiv=1, jitter=0.01)
     for side in (-1, 1):
-        for i in range(10):
+        for i in range(18):
             t = rng.uniform(0.2, 0.8)
             pillow(rng.uniform(-SW / 2, SW / 2) * 0.85, side * half * (1 - t), rise * t + 0.04, rng.uniform(0.35, 0.65), side)
         x = -SW / 2 - ov + 0.3
@@ -313,10 +352,12 @@ def roof(b):
                 pillow(x + L / 2, side * (half - 0.25), rise * 0.25 / half + 0.02, L, side)
             x += L + 0.1
     b.box(SW + 0.55, 0.36, 0.14, 0, 0, rise + 0.03, "snow", bevel=0.06, jitter=0.01)
-    for x in (-2.4, -1.1, 0.2, 1.4, 2.6):
+    for x in [(-SW / 2 + 0.6) + k * (SW - 1.2) / 8 for k in range(9)]:
         b.blob(rng.uniform(0.3, 0.45), 0.2, 0.1, x, 0, rise + 0.15, "snow", subdiv=1, jitter=0.02)
-    chimney(b, 1.9, 0.9, rise * 0.4, h=1.1, snow=True)
-    b.socket("fx_smoke", (1.9, 0.9, rise * 0.4 + 1.1 + 0.16 + 0.08))   # above the snowy cap
+    cx, cy = SW * 0.3, SD * 0.18
+    cz = rise * (1 - cy / half) - 0.25                                  # base tucked under the tiles
+    chimney(b, cx, cy, cz, h=1.0, snow=True)
+    b.socket("fx_smoke", (cx, cy, cz + 1.0 + 0.16 + 0.08))              # above the snowy cap
 
 
 def lantern_post(b, x, y, h=1.8):
@@ -350,12 +391,12 @@ def build():
 
     b = Builder("arcade_bench")
     for i, y in enumerate((-0.12, 0.0, 0.12)):
-        b.box(1.4, 0.115, 0.07, 0, y, 0.35, pick(WOOD, i), bevel=0.015)
-    for sx in (-1, 1):
-        b.box(0.12, 0.38, 0.35, sx * 0.55, 0, 0, "wood_b", bevel=0.02)
-        b.box(0.16, 0.42, 0.04, sx * 0.55, 0, 0, "wood_dark", bevel=0.01)
-    b.socket("seat_0", (-0.33, 0, 0.42))
-    b.socket("seat_1", (0.33, 0, 0.42))
+        b.box(1.9, 0.115, 0.07, 0, y, 0.35, pick(WOOD, i), bevel=0.015)
+    for x in (-0.78, 0, 0.78):
+        b.box(0.12, 0.38, 0.35, x, 0, 0, "wood_b", bevel=0.02)
+        b.box(0.16, 0.42, 0.04, x, 0, 0, "wood_dark", bevel=0.01)
+    b.socket("seat_0", (-0.575, 0, 0.42))   # 1.15 m apart
+    b.socket("seat_1", (0.575, 0, 0.42))
     b.finish(KIT, "furniture")
 
     b = Builder("arcade_marquee")
@@ -377,8 +418,13 @@ def build():
     b.finish(KIT, "prop")
 
     b = Builder("arcade_shell")
-    shell(b)
-    b.finish(KIT, "building", {"module": "shell", "wall_height": SH, "roof": "arcade_roof"})
+    c = Builder("arcade_shell_cutaway", seed=1502)
+    shell(b, front=c)
+    sh = b.finish(KIT, "building", {"module": "shell", "wall_height": SH, "roof": "arcade_roof",
+                                    "interior_m": [IW, ID], "door_clear_m": round(DOOR_W - 0.08, 2),
+                                    "zones": ZONES, "cutaway_child": "arcade_shell_cutaway"})
+    c.finish(KIT, "building").parent = sh
+    ASSETS[:] = [a for a in ASSETS if a["obj"].name != "arcade_shell_cutaway"]
 
     b = Builder("arcade_roof")
     roof(b)
@@ -389,15 +435,15 @@ def build():
     shell(b, roofed=True)
     with b.at((0, 0, SH + 0.12)):
         roof(b)
-    with b.at((0, -SD / 2 - 0.36, 2.18)):
-        marquee(b, 2.3)
+    with b.at((0, -SD / 2 - 0.4, DOOR_H + 0.2)):
+        marquee(b, 3.0)
     for sx in (-1, 1):
-        b.box(0.08, 0.36, 0.08, sx * 0.8, -SD / 2 - 0.18, 2.3, "iron", bevel=0.01)
-    for x, c in ((-1.0, "purple"), (0.0, "teal_light"), (0.9, "red")):
-        with b.at((x, SD / 2 - ST - 0.36, 0)):
+        b.box(0.08, 0.4, 0.08, sx * 1.0, -SD / 2 - 0.2, DOOR_H + 0.35, "iron", bevel=0.01)
+    for x, c in ((SOLO_X[0], "purple"), (SOLO_X[2], "teal_light"), (SOLO_X[4], "red")):
+        with b.at((x, CAB_Y, 0)):
             cabinet(b, tint(f"cabinet_{c}", c), static=True)
     for sx in (-1, 1):
-        lantern_post(b, sx * 1.55, -SD / 2 - 0.9)
-    chalkboard(b, -2.6, -SD / 2 - 0.85, rotz=-15)
+        lantern_post(b, sx * 1.9, -SD / 2 - 0.9)
+    chalkboard(b, -3.2, -SD / 2 - 0.85, rotz=-15)
     b.socket("door", (0, -SD / 2 - 0.9, 0))
     b.finish(KIT, "building", {"module": "prefab", "interior": "arcade_shell"})

@@ -14,27 +14,29 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 
 [application]
 
-config/name="Club Penguin Movement"
-run/main_scene="res://scenes/main_menu.tscn"
+config/name="Pengloo"
+run/main_scene="res://scenes/startup.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")
 
 [autoload]
 
-Travel="*res://scripts/travel.gd"
 Net="*res://scripts/net.gd"
+AssetRegistry="*res://scripts/assets/asset_registry.gd"
+Activities="*res://scripts/world/activities.gd"
+SketchClub="*res://scripts/activities/sketch_club.gd"
+UIRouter="*res://ui/ui_router.gd"
+ActivityScreens="*res://ui/activities/activity_screens.gd"
 
 [display]
 
 window/size/viewport_width=1280
 window/size/viewport_height=720
-
-[filesystem]
-
-import/blender/enabled=false
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
 
 [gui]
 
-theme/custom="res://fonts/game_theme.tres"
+theme/custom="res://ui/theme/pengloo_theme.tres"
 
 [input]
 
@@ -67,6 +69,16 @@ click_walk={
 "events": [Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"button_mask":0,"position":Vector2(0, 0),"global_position":Vector2(0, 0),"factor":1.0,"button_index":1,"canceled":false,"pressed":false,"double_click":false,"script":null)
 ]
 }
+interact={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":70,"key_label":0,"unicode":102,"location":0,"echo":false,"script":null)
+]
+}
+jump={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":32,"key_label":0,"unicode":32,"location":0,"echo":false,"script":null)
+]
+}
 
 [layer_names]
 
@@ -74,3 +86,29 @@ click_walk={
 3d_physics/layer_2="blockers"
 3d_physics/layer_3="penguin"
 3d_physics/layer_4="hazards"
+
+[shader_globals]
+
+occlusion_target={
+"type": "vec3",
+"value": Vector3(0, 0, 0)
+}
+occlusion_radius={
+"type": "float",
+"value": 0.0
+}
+
+[rendering]
+
+renderer/rendering_method.web="gl_compatibility"
+textures/default_filters/use_nearest_mipmap_filter=false
+
+[navigation]
+
+world/map_use_async_iterations=false
+world/region_use_async_iterations=false
+
+[pengloo]
+
+cinema/service_enabled=false
+cinema/service_url="http://127.0.0.1:8095/cinema/"

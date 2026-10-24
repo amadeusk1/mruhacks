@@ -1,8 +1,8 @@
 extends StaticBody3D
 
 ## A town bench with one open seat beside whoever is already there.
-## Click the seat while you are close, or click it from across the square
-## and the walk ends by sitting down.
+## Press F while the prompt is showing, or click the seat from across
+## the square and the walk ends by sitting down.
 
 @export var seat_side := 1.0
 @export var face_yaw := 0.0
@@ -21,7 +21,7 @@ func _ready() -> void:
 	collision_mask = 0
 	_prompt = Label3D.new()
 	_prompt.name = "SitPrompt"
-	_prompt.text = "Click to sit"
+	_prompt.text = "F to sit"
 	_prompt.font_size = 42
 	_prompt.outline_size = 8
 	_prompt.pixel_size = 0.005
@@ -48,6 +48,8 @@ func bench_key() -> String:
 	var world := get_tree().get_first_node_in_group("world")
 	if world != null and world.has_method("current_location_id"):
 		location = str(world.call("current_location_id"))
+		if location == "home" and world.has_method("home_owner_id"):
+			location = "home:%s" % int(world.call("home_owner_id"))
 	var room: Node = self
 	while room != null:
 		var parent := room.get_parent()
@@ -78,6 +80,10 @@ func try_sit(force := false) -> bool:
 	return true
 
 
+func can_interact() -> bool:
+	return _prompt.visible and _prompt.text != "Taken"
+
+
 func _process(_delta: float) -> void:
 	var player := _local_player() as Node3D
 	if player == null:
@@ -89,7 +95,7 @@ func _process(_delta: float) -> void:
 	var stand := approach_point()
 	var flat := Vector2(player.global_position.x - stand.x, player.global_position.z - stand.z)
 	var taken := Net.bench_held_by_other(bench_key())
-	_prompt.text = "Taken" if taken else "Click to sit"
+	_prompt.text = "Taken" if taken else "F to sit"
 	_prompt.visible = not here and flat.length() < 1.7
 
 

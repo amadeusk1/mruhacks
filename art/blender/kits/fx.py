@@ -1,162 +1,166 @@
-"""Detached effect shapes. The game parents these to socket_fx_* and scales, fades, and moves them.
-
-Concept: docs/concepts/Effect Shapes Prop Kit.jpg. Spec: docs/Prop Kit - Effect Shapes.md.
-Ripples stay fishing/ripple. Snowball hits and sled-brake puffs stay winter/snow_puff.
-Each mesh origin is the attachment point. Local +Z is up. No motion is baked in.
-"""
-import math
+"""Effect mesh shapes (sheet: Ambient Effects Prop Kit; note: Animation Kit - Ambient World).
+Tiny low-poly particle meshes, origin at their centre, materials named fx_<name> with a soft
+emission and alpha blending. Emit them from socket_fx_<kind> sockets (Art Docs/Movable Parts and Effects)."""
 from common import *
 
 KIT = "fx"
 PREVIEW_WIDTH = 4.0
 
+PALETTE.update({
+    "fx_smoke": ("#E8E2D8", 1.0, 0.25), "fx_steam": ("#F6F3EE", 1.0, 0.3), "fx_snow": ("#F4F8FB", 0.9, 0.35),
+    "fx_water": ("#8FDDE8", 0.3, 0.35), "fx_foam": ("#F2FBFC", 0.8, 0.35), "fx_sparkle": ("#FFE08A", 0.5, 2.5),
+    "fx_confetti": ("#E86D58", 0.8, 0.2), "fx_fishtail": ("#2E7F8C", 0.7, 0.0), "fx_fishtail_b": ("#3C98A4", 0.7, 0.0),
+})
+ALPHA = {"fx_smoke": 0.75, "fx_steam": 0.55, "fx_snow": 0.95, "fx_water": 0.7, "fx_foam": 0.85, "fx_sparkle": 1.0, "fx_confetti": 1.0}
 
-def done(b, socket, size, **meta):
-    return b.finish(KIT, "fx", {"socket": socket, "rest_size_m": size, "network": "local", **meta})
+
+def fx(b, **meta):
+    return b.finish(KIT, "fx", meta)
 
 
-def smoke_puff(name, size, seed):
-    """Lumpy cream puff. `size` is the width; the bottom sits on the origin."""
+def puff(name, blobs, seed):
     b = Builder(name, seed=seed)
-    r = size * 0.42
-    with b.at((0, 0, 0), scale=(1.32, 1.32, 1.32)):
-        b.blob(r, r * 0.92, r * 0.86, 0, 0, r * 0.9, "smoke", subdiv=1, jitter=0.012)
-        b.blob(r * 0.55, r * 0.5, r * 0.48, r * 0.35, r * 0.08, r * 1.35, "smoke_b", subdiv=1, jitter=0.01)
-        if size >= 0.3:
-            b.blob(r * 0.4, r * 0.38, r * 0.36, -r * 0.28, -r * 0.1, r * 0.55, "smoke", subdiv=1)
-    meta = {"origin": "bottom", "life_s": [3, 5]}
-    if name != "smoke_puff_l":
-        meta["emit_s"] = [0.6, 1.2]
-    else:
-        meta["note"] = "rare; do not emit a column"
-    return done(b, "socket_fx_smoke", size, **meta)
-
-
-def steam_wisp():
-    b = Builder("steam_wisp", seed=4)
-    for i in range(5):
-        t = i / 4
-        y = 0.016 * math.sin(t * math.pi * 2)
-        z = 0.018 + t * 0.18
-        r = 0.022 * (1.0 - 0.4 * t)
-        b.blob(r * 0.7, r, r * 1.15, 0, y, z, "steam" if i % 2 == 0 else "white", subdiv=1)
-    return done(b, "socket_fx_steam", 0.22, origin="bottom", life_s=[1.2, 2.0])
-
-
-def splash_drop():
-    b = Builder("splash_drop", seed=5)
-    b.blob(0.016, 0.016, 0.02, 0, 0, -0.004, "water", subdiv=1)
-    b.blob(0.007, 0.007, 0.01, 0, 0, 0.016, "ice", subdiv=0)
-    return done(b, "socket_fx_splash", 0.05, origin="center", trigger="one-shot", note="pool the bursts")
-
-
-def foam_blob():
-    b = Builder("foam_blob", seed=6)
-    b.blob(0.11, 0.07, 0.028, 0, 0, 0.028, "foam", subdiv=1, jitter=0.008)
-    b.blob(0.035, 0.025, 0.016, 0.04, 0.015, 0.04, "white", subdiv=1)
-    return done(b, "socket_fx_splash", 0.22, origin="water plane", trigger="one-shot")
-
-
-def snow_flake():
-    b = Builder("snow_flake", seed=8)
-    b.blob(0.025, 0.025, 0.025, 0, 0, 0, "snow", subdiv=0, jitter=0.004)
-    return done(b, "camera weather", 0.05, origin="center",
-                note="everyday particle; disable indoors and with distance")
-
-
-def snow_clump():
-    b = Builder("snow_clump", seed=9)
-    b.blob(0.055, 0.05, 0.048, 0, 0, 0, "snow", subdiv=1, jitter=0.008)
-    b.blob(0.028, 0.024, 0.024, 0.038, 0.012, 0.022, "white", subdiv=0)
-    return done(b, "socket_fx_spray", 0.12, origin="center",
-                note="close flakes and light sled spray; hits stay winter/snow_puff")
-
-
-def _star_pts(radius, inner=0.4, points=6):
-    pts = []
-    for i in range(points * 2):
-        ang = math.pi * i / points - math.pi / 2
-        r = radius if i % 2 == 0 else radius * inner
-        pts.append((r * math.cos(ang), r * math.sin(ang)))
-    return pts
-
-
-def snow_star():
-    b = Builder("snow_star", seed=10)
-    b.prism(_star_pts(0.08), 0.016, z=-0.008, mat="snow", plane="xy", bevel=0.001)
-    return done(b, "camera weather", 0.16, origin="center", note="occasional, not the default particle")
-
-
-def _box(x0, x1, y0, y1, z0, z1):
-    return [
-        (x0, y0, z0), (x1, y0, z0), (x1, y1, z0), (x0, y1, z0),
-        (x0, y0, z1), (x1, y0, z1), (x1, y1, z1), (x0, y1, z1),
-    ]
-
-
-def _rotz(v, deg):
-    a = math.radians(deg)
-    c, s = math.cos(a), math.sin(a)
-    x, y, z = v
-    return (c * x - s * y, s * x + c * y, z)
-
-
-def snowflake():
-    """Hero flake, about 0.28 m across. Arms start clear of the centre so faces do not stack."""
-    b = Builder("snowflake", seed=11)
-    thick = 0.008
-    verts, faces = [], []
-    quads = [
-        (0, 1, 2, 3), (4, 7, 6, 5), (0, 4, 5, 1),
-        (1, 5, 6, 2), (2, 6, 7, 3), (3, 7, 4, 0),
-    ]
-
-    def add(corners, ang):
-        base = len(verts)
-        verts.extend(_rotz(v, ang) for v in corners)
-        faces.extend(tuple(i + base for i in f) for f in quads)
-
-    for ang in range(0, 360, 60):
-        add(_box(0.03, 0.14, -0.008, 0.008, -thick, thick), ang)
-        for side in (-1, 1):
-            twig = []
-            for v in _box(0.0, 0.045, -0.005, 0.005, -thick * 0.7, thick * 0.7):
-                x, y, z = _rotz(v, side * 48)
-                twig.append((x + 0.085, y, z))
-            add(twig, ang)
-    b.mesh(verts, faces, mat="snow")
-    b.blob(0.02, 0.02, 0.012, 0, 0, 0, "white", subdiv=0)
-    return done(b, "camera weather", 0.28, origin="center", note="hero shape; everyday particle is snow_flake")
-
-
-def flame():
-    b = Builder("flame", seed=12)
-    b.blob(0.022, 0.022, 0.032, 0, 0, 0.034, "orange", subdiv=1)
-    b.blob(0.012, 0.012, 0.02, 0, 0, 0.058, "glow", subdiv=1)
-    b.blob(0.006, 0.006, 0.01, 0, 0, 0.08, "bulb", subdiv=0)
-    return done(b, "socket_fx_flame", 0.09, origin="bottom",
-                note="flicker locally; reduced motion keeps a steady glow")
-
-
-def sparkle():
-    b = Builder("sparkle", seed=13)
-    for rot in ((0, 0, 0), (0, 0, 90), (0, 90, 0)):
-        with b.at((0, 0, 0), rot=rot):
-            b.box(0.06, 0.01, 0.01, 0, 0, 0, "bulb", bevel=0.002, center=True)
-    b.blob(0.008, 0.008, 0.008, 0, 0, 0, "gold", subdiv=0)
-    return done(b, "socket_fx_sparkle", 0.06, origin="center", trigger="short twinkle")
+    for (x, y, z, r) in blobs:
+        b.blob(r, r * 0.95, r * 0.9, x, y, z, "fx_smoke", subdiv=1, jitter=r * 0.08)
+    return b
 
 
 def build():
-    smoke_puff("smoke_puff_s", 0.16, 1)
-    smoke_puff("smoke_puff_m", 0.32, 2)
-    smoke_puff("smoke_puff_l", 0.48, 3)
-    steam_wisp()
-    splash_drop()
-    foam_blob()
-    snow_flake()
-    snow_clump()
-    snow_star()
-    snowflake()
-    flame()
-    sparkle()
+    fx(puff("smoke_puff_a", [(0, 0, 0, 0.07)], 1), lifetime_s=[3, 5], particle_size_m=[0.08, 0.2], emit_every_s=[0.6, 1.2],
+       usage="chimney smoke (socket_fx_smoke): rise, grow 2-3x, drift with wind, fade out")
+    fx(puff("smoke_puff_b", [(-0.04, 0, -0.02, 0.06), (0.04, 0.01, 0.025, 0.075)], 2), lifetime_s=[3, 5], particle_size_m=[0.12, 0.3],
+       usage="chimney smoke, mid puff")
+    fx(puff("smoke_puff_c", [(-0.06, 0, -0.04, 0.07), (0.05, 0.02, -0.02, 0.08), (0.0, -0.01, 0.06, 0.095)], 3),
+       lifetime_s=[4, 5], particle_size_m=[0.2, 0.45], usage="chimney smoke, large late puff")
+
+    b = Builder("steam_wisp", seed=4)
+    for i in range(6):  # S-curve of shrinking flattened blobs
+        t = i / 5
+        b.blob(0.018 * (1 - t * 0.5), 0.012, 0.022, 0.025 * math.sin(t * math.pi * 1.4), 0, -0.06 + 0.12 * t, "fx_steam", subdiv=1)
+    fx(b, lifetime_s=[1.0, 1.8], particle_size_m=[0.06, 0.14], usage="coffee machine, mugs and cups (socket_fx_steam): rise and fade")
+
+    b = Builder("snow_flake_a", seed=5)
+    b.blob(0.016, 0.016, 0.016, 0, 0, 0, "fx_snow", subdiv=0)
+    fx(b, lifetime_s=[4, 8], particle_size_m=[0.01, 0.03], usage="weather: camera-local bounded field, disabled indoors")
+
+    b = Builder("snow_flake_b", seed=6)
+    arm = [(0.0, -0.004), (0.022, -0.002), (0.022, 0.002), (0.0, 0.004)]
+    for k in range(6):
+        with b.at((0, 0, 0), rot=(0, 60 * k, 0)):
+            b.prism(arm, 0.004, mat="fx_snow")
+    b.blob(0.006, 0.003, 0.006, 0, 0, 0, "fx_snow", subdiv=0)
+    fx(b, lifetime_s=[4, 8], particle_size_m=[0.02, 0.05], usage="weather, larger hero flakes (sparser)")
+
+    b = Builder("splash_droplet", seed=7)
+    b.sphere(0.018, 0, 0, -0.006, "fx_water", u=6, v=4)
+    b.cyl(0.015, 0.03, 0, 0, 0.0, "fx_water", segs=6, r2=0.0)
+    fx(b, lifetime_s=[0.4, 0.8], particle_size_m=[0.015, 0.04], usage="fountain/waterfall landing (socket_fx_splash), bobber splash")
+
+    b = Builder("foam_patch", seed=8)
+    for i in range(7):
+        a = 2 * math.pi * i / 7
+        r = b.rng.uniform(0.04, 0.07)
+        b.blob(r, r * 0.8, 0.01, 0.08 * math.cos(a), 0.06 * math.sin(a), 0, "fx_foam", subdiv=1, jitter=0.004)
+    b.blob(0.07, 0.06, 0.012, 0, 0, 0.002, "fx_foam", subdiv=1)
+    fx(b, lifetime_s=[1.5, 3], particle_size_m=[0.15, 0.35], usage="shoreline and fountain basin foam, flat on the water surface")
+
+    b = Builder("snow_puff_small", seed=9)
+    for (x, y, z, r) in [(0, 0, 0, 0.06), (0.05, 0.02, -0.01, 0.045), (-0.045, 0.01, 0.0, 0.05), (0.0, -0.03, 0.04, 0.04)]:
+        b.blob(r, r, r * 0.9, x, y, z, "fx_snow", subdiv=1, jitter=r * 0.1)
+    fx(b, lifetime_s=[0.5, 0.9], particle_size_m=[0.12, 0.3], usage="snowball hit (pooled; winter/snow_puff is the large version)")
+
+    b = Builder("sparkle_star", seed=10)
+    star = []
+    for k in range(8):
+        r = 0.03 if k % 2 == 0 else 0.009
+        a = math.pi / 2 + k * math.pi / 4
+        star.append((r * math.cos(a), r * math.sin(a)))
+    b.prism(star, 0.004, mat="fx_sparkle")
+    fx(b, lifetime_s=[0.3, 0.7], particle_size_m=[0.02, 0.06], usage="arcade marquee, celebrations (socket_fx_sparkle); billboard it")
+
+    b = Builder("snow_spray_clump", seed=11)
+    for i in range(7):  # fan of blobs thrown up and back from a runner
+        t = i / 6
+        r = 0.022 + 0.02 * t
+        b.blob(r, r, r * 0.8, -0.04 + 0.13 * t, 0.03 * math.sin(i * 1.7), -0.02 + 0.07 * t * (1 - t) * 2.5, "fx_snow", subdiv=1, jitter=r * 0.1)
+    fx(b, lifetime_s=[0.4, 0.8], particle_size_m=[0.1, 0.25], usage="sled brake spray (socket_fx_spray on the sled runners)")
+
+    b = Builder("confetti_bit", seed=12)
+    b.box(0.03, 0.016, 0.003, 0, 0, 0, "fx_confetti", bevel=0, center=True)
+    fx(b, lifetime_s=[1.5, 2.5], particle_size_m=[0.02, 0.04], usage="celebrations; randomise colour per particle in the engine")
+
+    b = Builder("ripple_ring", seed=13)
+    b.torus(0.12, 0.006, 0, 0, 0, "fx_water", segs=24, ring=4, rot=(0, 0, 0))
+    fx(b, lifetime_s=[0.8, 1.4], particle_size_m=[0.1, 0.6], usage="pooled single ring: scale up 3-5x while fading; one per contact, never stacked")
+
+    gameplay()
+
+    # alpha-blended particle materials (exported as glTF alphaMode BLEND)
+    for m in bpy.data.materials:
+        if m.name in ALPHA:
+            bsdf = next(n for n in m.node_tree.nodes if n.type == "BSDF_PRINCIPLED")
+            bsdf.inputs["Alpha"].default_value = ALPHA[m.name]
+            if ALPHA[m.name] < 1:
+                m.surface_render_method = "BLENDED"
+
+
+def gameplay():
+    """Shapes for the Gameplay Effects sheet (bobber splash, fish escape, snowball impact,
+    small celebration). The game sequences and pools them; see Animation Kit - Gameplay Effects."""
+    b = Builder("fish_tail", seed=21)  # origin = waterline; only the tail rises above it
+    b.cyl(0.03, 0.09, 0, 0, -0.04, "fx_fishtail", segs=6, r2=0.022)                  # wrist under the surface
+    for s in (-1, 1):  # two forked lobes, faceted, slightly cupped
+        lobe = [(0.0, 0.035), (s * 0.07, 0.07), (s * 0.15, 0.16), (s * 0.17, 0.22), (s * 0.1, 0.19), (s * 0.03, 0.15), (0.0, 0.12)]
+        b.prism(lobe, 0.022, mat="fx_fishtail" if s < 0 else "fx_fishtail_b", rot=(0, 0, s * 6))
+    b.blob(0.032, 0.02, 0.035, 0, 0, 0.05, "fx_fishtail", subdiv=1)
+    b.finish(KIT, "fx", {"lifetime_s": [0.6, 1.0], "particle_size_m": [0.18, 0.26], "pivot": "waterline (z=0)",
+                         "usage": "fish escape: rise through the water surface, tip, sink back; pair with splash_crown + ripple_ring_wide"})
+
+    b = Builder("splash_crown", seed=22)
+    b.torus(0.07, 0.012, 0, 0, 0.006, "fx_water", segs=16, ring=4)
+    for i in range(9):  # droplets leaning outward round the rim
+        a = 2 * math.pi * i / 9
+        r = 0.08 + 0.01 * (i % 2)
+        with b.at((r * math.cos(a), r * math.sin(a), 0.01), rot=(0, 0, math.degrees(a))):
+            with b.at((0, 0, 0), rot=(0, 28 + 8 * (i % 3), 0)):
+                b.cyl(0.011, 0.05 + 0.015 * (i % 3), 0, 0, 0, "fx_water", segs=5, r2=0.004)
+                b.sphere(0.012, 0, 0, 0.075 + 0.015 * (i % 3), "fx_water", u=6, v=4)
+    b.finish(KIT, "fx", {"lifetime_s": [0.35, 0.6], "particle_size_m": [0.16, 0.3], "pivot": "water surface, centre",
+                         "usage": "bobber hits water (socket_fx_splash/ripple at the bobber): pop up, then hand over to ripple rings"})
+
+    b = Builder("snow_burst", seed=23)
+    b.blob(0.075, 0.075, 0.065, 0, 0, 0, "fx_snow", subdiv=1, jitter=0.006)
+    for i in range(10):
+        a = 2 * math.pi * i / 10 + 0.3 * (i % 2)
+        d = 0.1 + 0.03 * (i % 3)
+        r = 0.016 + 0.012 * ((i * 7) % 3) / 2
+        b.blob(r, r, r * 0.9, d * math.cos(a), d * math.sin(a), 0.02 * ((i % 4) - 1.5), "fx_snow", subdiv=1, jitter=r * 0.1)
+    b.finish(KIT, "fx", {"lifetime_s": [0.25, 0.45], "particle_size_m": [0.2, 0.4],
+                         "usage": "snowball impact frame 2 (soft burst): spawn at the hit point once per accepted hit, then emit snow_clump_a/b"})
+
+    for nm, seed, specs in (("snow_clump_a", 24, [(0, 0, 0.0, 0.045)]),
+                            ("snow_clump_b", 25, [(0, 0, 0.0, 0.035), (0.035, 0.01, -0.01, 0.025), (-0.02, 0.025, -0.012, 0.02)])):
+        b = Builder(nm, seed=seed)
+        for (x, y, z, r) in specs:
+            b.blob(r * 1.15, r, r * 0.8, x, y, z, "fx_snow", subdiv=1, jitter=r * 0.14)
+        b.finish(KIT, "fx", {"lifetime_s": [0.8, 1.4], "particle_size_m": [0.03, 0.1],
+                             "usage": "scattered/settling clumps after a snowball impact or sled brake: hop out, settle on the ground, fade"})
+
+    b = Builder("spark_star_big", seed=26)
+    star = []
+    for k in range(8):
+        r = 0.08 if k % 2 == 0 else 0.022
+        a = math.pi / 2 + k * math.pi / 4
+        star.append((r * math.cos(a), r * math.sin(a)))
+    b.prism(star, 0.016, mat="fx_sparkle", bevel=0.003)
+    for k in range(4):  # short rays between the points, like the sheet
+        a = math.pi / 4 + k * math.pi / 2
+        with b.at((0.105 * math.cos(a), 0, 0.105 * math.sin(a)), rot=(0, -math.degrees(a), 0)):
+            b.box(0.03, 0.008, 0.008, 0, 0, 0, "fx_sparkle", bevel=0, center=True)
+    b.finish(KIT, "fx", {"lifetime_s": [0.5, 0.9], "particle_size_m": [0.12, 0.25],
+                         "usage": "small celebration frame 1: one spark that scales in, then fades as confetti_bit spreads; billboard it"})
+
+    b = Builder("ripple_ring_wide", seed=27)
+    b.torus(0.2, 0.0035, 0, 0, 0, "fx_water", segs=36, ring=4)
+    b.finish(KIT, "fx", {"lifetime_s": [1.0, 1.8], "particle_size_m": [0.2, 1.0],
+                         "usage": "widening ring (bobber splash frame 3, fish escape frame 3): thinner and wider than ripple_ring; scale up while fading"})

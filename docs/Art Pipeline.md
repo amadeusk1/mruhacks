@@ -1,6 +1,6 @@
 # Art Pipeline
 
-How the 3D asset pack is made, the conventions every model follows, and things worth knowing when the game uses it. Visuals live in [Renders](../Renders), and every model is listed in [Models](../Models). Design source: [GAME_DESIGN_CONTEXT](GAME_DESIGN_CONTEXT.md), [Gallery](Gallery.md), [Player Housing - Grid Decoration](Player%20Housing%20-%20Grid%20Decoration.md).
+How the 3D asset pack is made, the conventions every model follows, and things worth knowing when the game uses it. Visuals live in [Renders](Renders.md), and every model is listed in [Models](Models.md). Design source: [GAME_DESIGN_CONTEXT](GAME_DESIGN_CONTEXT.md), [Gallery](Gallery.md), [Player Housing - Grid Decoration](Player%20Housing%20-%20Grid%20Decoration.md).
 
 ## Where things are
 
@@ -10,9 +10,10 @@ How the 3D asset pack is made, the conventions every model follows, and things w
 | `art/blender/kits/<kit>.py` | One script per kit. The code is the source of truth for every model |
 | `Models/<kit>/*.glb` | One GLB per asset, for any engine. Obsidian shows them because "Detect all file extensions" is on |
 | `Models/<kit>/manifest.json` | Per-asset size, sockets, tint roles, colour variants, placement data |
-| `Renders/Kits`, `Renders/Details` | Kit contact sheets and close-ups, shown in [Renders](../Renders) |
+| `Renders/Kits`, `Renders/Details` | Kit contact sheets and close-ups, shown in [Renders](Renders.md) |
 | `Models/all_assets.blend` | Every kit in one Blender file, laid out as labelled blocks |
 | `art/blender/showcase.py` | Loads kits into the open Blender as labelled blocks |
+| `Models/<kit>/icons/` | 256 px transparent thumbnails for UI item cards (`art/blender/render_icons.py`), linked from each manifest entry's `icon` |
 | `art/godot/` | Godot helper scripts (`tints.gd`, `sockets.gd`) and `verify_in_godot.sh`, which imports the whole pack in Godot and checks it |
 
 Rebuild one or more kits (headless, about 3 s per kit):
@@ -31,6 +32,14 @@ Blender is the Steam install, 5.2 LTS. The Blender MCP add-on must be started in
 - **Graphic inserts:** screens, posters, sign faces and chalkboards use `insert_*` materials. Lettering is a texture the game supplies, not geometry, per the brief.
 - **Modularity:** roofs and cutaway walls of buildings are separate child meshes (`*_roof`, `*_cutaway`) so the camera can hide them.
 
+## Game repository
+
+The Godot game is `~/Documents/Codex/2026-10-23/make-a-new-obsidian-vault-on/mruhacks` (GitHub `amadeusk1/mruhacks`, Godot 4.7, Forward Plus). It holds committed snapshots of this vault's `Models/`, `Renders/` and `art/` and mirrors the notes in `docs/`. The vault is the live source: as of 2026-10-24 the repo snapshot (commit `73dd97d`) has 327 GLBs and the vault 531. The game's scenes don't load any pack models yet. Per [Dev Handoff - Client UI Housing and Assets](Dev%20Handoff%20-%20Client%20UI%20Housing%20and%20Assets.md), wire assets through the manifests and keep Godot's `.import`/UID files when syncing.
+
+## Engine work
+
+Sheets, or parts of sheets, that belong in Godot (particles, shaders, triggers) get a written spec in `Engine Specs/`: [Engine Specs - Index](Engine%20Specs/Engine%20Specs%20-%20Index.md).
+
 ## Systems (detailed notes in `Art Docs/`)
 
 | Note | Covers |
@@ -41,6 +50,8 @@ Blender is the Steam install, 5.2 LTS. The Blender MCP add-on must be started in
 | [Avatar Rig and Animation](Art%20Docs/Avatar%20Rig%20and%20Animation.md) | Skeleton, clothing rebinding, current clips, animation kit conventions |
 | [Housing Placement Data](Art%20Docs/Housing%20Placement%20Data.md) | Grid cells, placement layers, surfaces, interior cell masks, saved layout record |
 | [Movable Parts and Effects](Art%20Docs/Movable%20Parts%20and%20Effects.md) | `part_*` children with pivots and motion data (doors, curtains, crowns, flags, rims), `socket_fx_*` effect emitters |
+| [Game Setup](Art%20Docs/Game%20Setup.md) | How the Godot game loads the art pack: autoloads, the layout-driven town, penguin visuals, environments, branches, screenshots |
+| [UI Implementation](Art%20Docs/UI%20Implementation.md) | Pengloo Party UI in Godot: theme tokens, components, UIRouter, every core screen and its mockup comparison |
 | [Godot Integration](Art%20Docs/Godot%20Integration.md) | Verified Godot 4.7 import results, `Tints` and `Sockets` helper scripts, animation library and clothing setup |
 | [Kit Authoring Guide](Art%20Docs/Kit%20Authoring%20Guide.md) | How to add or change a model, Builder parts and helpers, the quality checks |
 
@@ -57,7 +68,7 @@ Blender is the Steam install, 5.2 LTS. The Blender MCP add-on must be started in
 
 ## Kits
 
-The town, activity and character pack has 238 assets; per-kit counts are in [Models](../Models). Housing kits (`homes`, `home_themes`, and `room_kit` as the decoration catalogue) are being built from the Player Housing sheets.
+The town, activity and character pack has 238 assets; per-kit counts are in [Models](Models.md). Housing kits (`homes`, `home_themes`, and `room_kit` as the decoration catalogue) are being built from the Player Housing sheets.
 
 | Group | Kits |
 | --- | --- |
@@ -66,5 +77,4 @@ The town, activity and character pack has 238 assets; per-kit counts are in [Mod
 | Cinema | cinema (exterior modules), cinema_lobby, cinema_auditorium |
 | Arcade | arcade (solo and duo cabinets, building) |
 | Activities | fishing, winter (sledding and snowball arena), activities (basketball, Sketch Club) |
-| Effects | fx (smoke, steam, splash, snow, flame, sparkle) |
 | Housing | room_kit, home_themes, homes |

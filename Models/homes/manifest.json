@@ -9,23 +9,54 @@
       3.45
     ],
     "sockets": {
+      "socket_fx_smoke": [
+        0.95,
+        0.85,
+        3.17
+      ],
       "socket_door": [
         0.0,
         -3.45,
         0.0
       ]
     },
+    "parts": {
+      "part_door_leaf": {
+        "pivot": [
+          -0.4,
+          -2.79,
+          0.0
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 100
+      }
+    },
+    "part_clips": {
+      "part_door_leaf": [
+        "door_leaf_open",
+        "door_leaf_close"
+      ]
+    },
     "tints": {
       "wall": "#CDEFF5",
-      "door": "#207D85",
-      "trim": "#BC874E"
+      "trim": "#BC874E",
+      "door": "#207D85"
     },
     "interior": "snow_dome_interior",
     "roof_child": "snow_dome_exterior_roof",
     "footprint_m": [
       7.0,
       6.4
-    ]
+    ],
+    "color_variants": {
+      "roof": [
+        "#F07E66",
+        "#2F8F8A",
+        "#3D6E8F",
+        "#7A9A4A"
+      ]
+    }
   },
   {
     "id": "homes/snow_dome_interior",
@@ -34,7 +65,7 @@
     "size_m": [
       5.172,
       5.172,
-      2.524
+      2.527
     ],
     "sockets": {
       "socket_ceiling_0": [
@@ -68,19 +99,42 @@
         1.3
       ],
       "socket_wall_slot_1": [
-        -1.15,
-        1.992,
+        -0.972,
+        2.085,
         1.3
       ],
       "socket_wall_slot_2": [
-        -2.161,
-        -0.787,
+        -1.696,
+        1.554,
         1.3
       ],
       "socket_wall_slot_3": [
-        -1.626,
-        -1.626,
+        -2.298,
+        -0.1,
         1.3
+      ],
+      "socket_wall_slot_4": [
+        -2.085,
+        -0.972,
+        1.3
+      ]
+    },
+    "parts": {
+      "part_door_leaf": {
+        "pivot": [
+          -2.351,
+          0.441,
+          0.0
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 100
+      }
+    },
+    "part_clips": {
+      "part_door_leaf": [
+        "door_leaf_open",
+        "door_leaf_close"
       ]
     },
     "tints": {
@@ -336,35 +390,46 @@
       },
       "wall_slot_1": {
         "pos": [
-          -1.15,
-          1.992,
+          -0.972,
+          2.085,
           1.3
         ],
         "facing": [
-          0.5,
-          -0.866
+          0.423,
+          -0.906
         ]
       },
       "wall_slot_2": {
         "pos": [
-          -2.161,
-          -0.787,
+          -1.696,
+          1.554,
           1.3
         ],
         "facing": [
-          0.94,
-          0.342
+          0.737,
+          -0.676
         ]
       },
       "wall_slot_3": {
         "pos": [
-          -1.626,
-          -1.626,
+          -2.298,
+          -0.1,
           1.3
         ],
         "facing": [
-          0.707,
-          0.707
+          0.999,
+          0.044
+        ]
+      },
+      "wall_slot_4": {
+        "pos": [
+          -2.085,
+          -0.972,
+          1.3
+        ],
+        "facing": [
+          0.906,
+          0.423
         ]
       }
     },
@@ -387,7 +452,11 @@
     },
     "shape": "round",
     "radius_m": 2.3,
-    "exterior": "snow_dome_exterior"
+    "exterior": "snow_dome_exterior",
+    "modules": [
+      "mod_wall_curved_r2.52_n16_*",
+      "mod_floor_sector_r2.41_45"
+    ]
   },
   {
     "id": "homes/aframe_cabin_exterior",
@@ -399,17 +468,61 @@
       6.178
     ],
     "sockets": {
+      "socket_fx_smoke": [
+        -1.15,
+        1.0,
+        5.1
+      ],
       "socket_door": [
         0.0,
         -3.5,
         0.0
       ]
     },
+    "parts": {
+      "part_crown": {
+        "pivot": [
+          2.75,
+          1.2,
+          0.322
+        ],
+        "motion": "sway",
+        "amp_deg": 2.5
+      },
+      "part_crown__park": {
+        "pivot": [
+          -2.7,
+          1.6,
+          0.364
+        ],
+        "motion": "sway",
+        "amp_deg": 2.5
+      },
+      "part_door_leaf": {
+        "pivot": [
+          -0.45,
+          -2.14,
+          0.2
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 100
+      }
+    },
+    "part_clips": {
+      "part_crown": [
+        "crown_sway"
+      ],
+      "part_door_leaf": [
+        "door_leaf_open",
+        "door_leaf_close"
+      ]
+    },
     "tints": {
       "wall": "#F3E2C5",
-      "door": "#207D85",
       "trim": "#BC874E",
-      "roof": "#F07E66"
+      "roof": "#F07E66",
+      "door": "#207D85"
     },
     "interior": "aframe_cabin_interior",
     "roof_child": "aframe_cabin_exterior_roof",
@@ -417,7 +530,15 @@
       4.4,
       4.4
     ],
-    "floor_z": 0.2
+    "floor_z": 0.2,
+    "color_variants": {
+      "roof": [
+        "#F07E66",
+        "#2F8F8A",
+        "#3D6E8F",
+        "#7A9A4A"
+      ]
+    }
   },
   {
     "id": "homes/aframe_cabin_interior",
@@ -449,10 +570,20 @@
         1.75,
         0.12
       ],
+      "socket_fx_flame": [
+        -1.35,
+        -1.2,
+        0.42
+      ],
       "socket_spawn_inside": [
         -1.0,
         1.25,
         0.12
+      ],
+      "socket_stair_top": [
+        0.525,
+        0.8,
+        1.97
       ],
       "socket_wall_slot_0": [
         0.3,
@@ -480,10 +611,28 @@
         0.72
       ]
     },
+    "parts": {
+      "part_door_leaf": {
+        "pivot": [
+          -1.41,
+          2.06,
+          0.12
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 100
+      }
+    },
+    "part_clips": {
+      "part_door_leaf": [
+        "door_leaf_open",
+        "door_leaf_close"
+      ]
+    },
     "tints": {
       "wall": "#F3E2C5",
-      "door": "#207D85",
-      "trim": "#BC874E"
+      "trim": "#BC874E",
+      "door": "#207D85"
     },
     "cells": [
       [
@@ -783,27 +932,27 @@
         7
       ],
       [
-        5,
+        4,
         2
       ],
       [
-        5,
+        4,
         3
       ],
       [
-        5,
+        4,
         4
       ],
       [
-        6,
+        5,
         2
       ],
       [
-        6,
+        5,
         3
       ],
       [
-        6,
+        5,
         4
       ]
     ],
@@ -933,7 +1082,24 @@
         7
       ]
     ],
-    "loft_z": 2.12,
+    "blocked_cells_loft": [
+      [
+        4,
+        5
+      ],
+      [
+        5,
+        5
+      ]
+    ],
+    "loft_z": 1.97,
+    "headroom": {
+      "penguin_m": 0.9,
+      "loft_min_headroom_m": 0.959,
+      "under_loft_m": 1.55,
+      "stair_min_headroom_m": 1.293,
+      "door_clear_of_loft_m": 0.03
+    },
     "headroom_note": "roof height at x = floor_z + 0.9 + (2.0 - |x|) * 1.909"
   },
   {
@@ -946,16 +1112,51 @@
       4.52
     ],
     "sockets": {
+      "socket_fx_smoke": [
+        0.85,
+        0.7,
+        4.24
+      ],
       "socket_door": [
         0.0,
         -3.1,
         0.0
       ]
     },
+    "parts": {
+      "part_crown": {
+        "pivot": [
+          2.6,
+          1.4,
+          0.28
+        ],
+        "motion": "sway",
+        "amp_deg": 2.5
+      },
+      "part_door_leaf": {
+        "pivot": [
+          -0.39,
+          -2.14,
+          0.22
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 100
+      }
+    },
+    "part_clips": {
+      "part_crown": [
+        "crown_sway"
+      ],
+      "part_door_leaf": [
+        "door_leaf_open",
+        "door_leaf_close"
+      ]
+    },
     "tints": {
       "trim": "#BC874E",
-      "door": "#207D85",
       "wall": "#F3E2C5",
+      "door": "#207D85",
       "roof": "#F07E66"
     },
     "interior": "round_cottage_interior",
@@ -964,7 +1165,18 @@
       4.4,
       4.4
     ],
-    "floor_z": 0.22
+    "floor_z": 0.22,
+    "modules": [
+      "mod_wall_curved_r2.2_n14_*"
+    ],
+    "color_variants": {
+      "roof": [
+        "#F07E66",
+        "#2F8F8A",
+        "#3D6E8F",
+        "#7A9A4A"
+      ]
+    }
   },
   {
     "id": "homes/round_cottage_interior",
@@ -973,7 +1185,7 @@
     "size_m": [
       4.987,
       4.987,
-      2.112
+      2.114
     ],
     "sockets": {
       "socket_ceiling_0": [
@@ -1002,30 +1214,48 @@
         0.12
       ],
       "socket_wall_slot_0": [
-        0.569,
+        -0.569,
         2.125,
         1.35
       ],
       "socket_wall_slot_1": [
-        -0.93,
-        1.994,
+        -1.339,
+        1.745,
         1.35
       ],
       "socket_wall_slot_2": [
-        -2.125,
-        0.569,
+        -2.181,
+        0.287,
         1.35
       ],
       "socket_wall_slot_3": [
-        -1.685,
-        -1.414,
+        -1.745,
+        -1.339,
         1.35
+      ]
+    },
+    "parts": {
+      "part_door_leaf": {
+        "pivot": [
+          -2.082,
+          -0.962,
+          0.0
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 100
+      }
+    },
+    "part_clips": {
+      "part_door_leaf": [
+        "door_leaf_open",
+        "door_leaf_close"
       ]
     },
     "tints": {
       "trim": "#BC874E",
-      "door": "#207D85",
-      "wall": "#F3E2C5"
+      "wall": "#F3E2C5",
+      "door": "#207D85"
     },
     "cells": [
       [
@@ -1232,46 +1462,46 @@
     "wall_slots": {
       "wall_slot_0": {
         "pos": [
-          0.569,
+          -0.569,
           2.125,
           1.35
         ],
         "facing": [
-          -0.259,
+          0.259,
           -0.966
         ]
       },
       "wall_slot_1": {
         "pos": [
-          -0.93,
-          1.994,
+          -1.339,
+          1.745,
           1.35
         ],
         "facing": [
-          0.423,
-          -0.906
+          0.609,
+          -0.793
         ]
       },
       "wall_slot_2": {
         "pos": [
-          -2.125,
-          0.569,
+          -2.181,
+          0.287,
           1.35
         ],
         "facing": [
-          0.966,
-          -0.259
+          0.991,
+          -0.131
         ]
       },
       "wall_slot_3": {
         "pos": [
-          -1.685,
-          -1.414,
+          -1.745,
+          -1.339,
           1.35
         ],
         "facing": [
-          0.766,
-          0.643
+          0.793,
+          0.609
         ]
       }
     },
@@ -1294,7 +1524,11 @@
     },
     "shape": "round",
     "radius_m": 2.2,
-    "exterior": "round_cottage_exterior"
+    "exterior": "round_cottage_exterior",
+    "modules": [
+      "mod_wall_curved_r2.42_n16_*",
+      "mod_floor_sector_r2.31_45"
+    ]
   },
   {
     "id": "homes/treehouse_exterior",
@@ -1312,15 +1546,50 @@
         0.0
       ],
       "socket_door": [
-        0.0,
+        0.2,
         -1.35,
         1.9
+      ],
+      "socket_fx_smoke": [
+        -0.1,
+        0.7,
+        5.47
+      ]
+    },
+    "parts": {
+      "part_door_leaf": {
+        "pivot": [
+          -0.19,
+          -0.69,
+          1.9
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 100
+      },
+      "part_hanging_lantern": {
+        "pivot": [
+          0.25,
+          0.65,
+          1.45
+        ],
+        "motion": "sway",
+        "amp_deg": 5
+      }
+    },
+    "part_clips": {
+      "part_door_leaf": [
+        "door_leaf_open",
+        "door_leaf_close"
+      ],
+      "part_hanging_lantern": [
+        "hanging_lantern_sway"
       ]
     },
     "tints": {
-      "wall": "#F3E2C5",
-      "door": "#207D85",
       "trim": "#BC874E",
+      "door": "#207D85",
+      "wall": "#F3E2C5",
       "roof": "#F07E66"
     },
     "interior": "treehouse_interior",
@@ -1329,7 +1598,21 @@
     "footprint_m": [
       7.2,
       6.6
-    ]
+    ],
+    "modules": [
+      "mod_treehouse_support",
+      "mod_treehouse_deck",
+      "mod_stairs_2m",
+      "mod_wall_straight_*"
+    ],
+    "color_variants": {
+      "roof": [
+        "#F07E66",
+        "#2F8F8A",
+        "#3D6E8F",
+        "#7A9A4A"
+      ]
+    }
   },
   {
     "id": "homes/treehouse_interior",
@@ -1338,7 +1621,7 @@
     "size_m": [
       3.535,
       3.035,
-      2.319
+      2.321
     ],
     "sockets": {
       "socket_ceiling_0": [
@@ -1358,33 +1641,46 @@
       ],
       "socket_exit": [
         -1.3,
-        -0.5,
+        0.25,
         0.12
       ],
       "socket_spawn_inside": [
         -0.8,
-        -0.5,
+        0.25,
         0.12
       ],
       "socket_wall_slot_0": [
-        -1.15,
+        -0.25,
         1.25,
         1.42
       ],
       "socket_wall_slot_1": [
-        -0.65,
         1.25,
-        1.42
-      ],
-      "socket_wall_slot_2": [
-        -0.15,
         1.25,
         1.42
       ]
     },
+    "parts": {
+      "part_door_leaf": {
+        "pivot": [
+          -1.56,
+          -0.14,
+          0.12
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 100
+      }
+    },
+    "part_clips": {
+      "part_door_leaf": [
+        "door_leaf_open",
+        "door_leaf_close"
+      ]
+    },
     "tints": {
-      "wall": "#F3E2C5",
       "trim": "#BC874E",
+      "wall": "#F3E2C5",
       "door": "#207D85"
     },
     "cells": [
@@ -1518,15 +1814,11 @@
     "blocked_cells": [
       [
         0,
-        0
-      ],
-      [
-        0,
-        1
-      ],
-      [
-        0,
         2
+      ],
+      [
+        0,
+        3
       ],
       [
         0,
@@ -1534,21 +1826,17 @@
       ],
       [
         1,
-        0
-      ],
-      [
-        1,
-        1
-      ],
-      [
-        1,
         2
+      ],
+      [
+        1,
+        3
       ]
     ],
     "wall_slots": {
       "wall_slot_0": {
         "pos": [
-          -1.15,
+          -0.25,
           1.25,
           1.42
         ],
@@ -1559,18 +1847,7 @@
       },
       "wall_slot_1": {
         "pos": [
-          -0.65,
           1.25,
-          1.42
-        ],
-        "facing": [
-          0,
-          -1
-        ]
-      },
-      "wall_slot_2": {
-        "pos": [
-          -0.15,
           1.25,
           1.42
         ],
@@ -1602,7 +1879,11 @@
       3.0,
       2.5
     ],
-    "exterior": "treehouse_exterior"
+    "exterior": "treehouse_exterior",
+    "modules": [
+      "mod_floor_tile_wood",
+      "mod_wall_straight_*"
+    ]
   },
   {
     "id": "homes/lighthouse_loft_exterior",
@@ -1615,16 +1896,46 @@
     ],
     "sockets": {
       "socket_door": [
-        1.7,
-        -2.2,
+        1.6,
+        -2.1,
         0.0
+      ]
+    },
+    "parts": {
+      "part_crown": {
+        "pivot": [
+          -2.6,
+          1.6,
+          0.336
+        ],
+        "motion": "sway",
+        "amp_deg": 2.5
+      },
+      "part_door_leaf": {
+        "pivot": [
+          1.21,
+          -1.19,
+          0.18
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 100
+      }
+    },
+    "part_clips": {
+      "part_crown": [
+        "crown_sway"
+      ],
+      "part_door_leaf": [
+        "door_leaf_open",
+        "door_leaf_close"
       ]
     },
     "tints": {
       "stripe": "#207D85",
-      "wall": "#F3E2C5",
       "trim": "#BC874E",
       "door": "#207D85",
+      "wall": "#F3E2C5",
       "roof": "#F07E66"
     },
     "interior": "lighthouse_loft_interior",
@@ -1632,7 +1943,19 @@
     "footprint_m": [
       7.4,
       6.4
-    ]
+    ],
+    "modules": [
+      "mod_wall_straight_*",
+      "mod_lighthouse_lantern"
+    ],
+    "color_variants": {
+      "roof": [
+        "#F07E66",
+        "#2F8F8A",
+        "#3D6E8F",
+        "#7A9A4A"
+      ]
+    }
   },
   {
     "id": "homes/lighthouse_loft_interior",
@@ -1675,29 +1998,32 @@
         2.22
       ],
       "socket_wall_slot_0": [
-        -0.417,
-        2.364,
+        -2.255,
+        0.821,
         1.4
       ],
       "socket_wall_slot_1": [
-        -1.377,
-        1.966,
+        -2.255,
+        -0.821,
         1.4
-      ],
-      "socket_wall_slot_2": [
-        -2.175,
-        1.014,
-        1.4
-      ],
-      "socket_wall_slot_3": [
-        -2.175,
-        -1.014,
-        1.4
-      ],
-      "socket_wall_slot_4": [
-        -1.543,
-        -1.839,
-        1.4
+      ]
+    },
+    "parts": {
+      "part_door_leaf": {
+        "pivot": [
+          -2.46,
+          -0.39,
+          0.0
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 100
+      }
+    },
+    "part_clips": {
+      "part_door_leaf": [
+        "door_leaf_open",
+        "door_leaf_close"
       ]
     },
     "tints": {
@@ -1959,57 +2285,24 @@
     "wall_slots": {
       "wall_slot_0": {
         "pos": [
-          -0.417,
-          2.364,
+          -2.255,
+          0.821,
           1.4
         ],
         "facing": [
-          0.174,
-          -0.985
+          0.94,
+          -0.342
         ]
       },
       "wall_slot_1": {
         "pos": [
-          -1.377,
-          1.966,
+          -2.255,
+          -0.821,
           1.4
         ],
         "facing": [
-          0.574,
-          -0.819
-        ]
-      },
-      "wall_slot_2": {
-        "pos": [
-          -2.175,
-          1.014,
-          1.4
-        ],
-        "facing": [
-          0.906,
-          -0.423
-        ]
-      },
-      "wall_slot_3": {
-        "pos": [
-          -2.175,
-          -1.014,
-          1.4
-        ],
-        "facing": [
-          0.906,
-          0.423
-        ]
-      },
-      "wall_slot_4": {
-        "pos": [
-          -1.543,
-          -1.839,
-          1.4
-        ],
-        "facing": [
-          0.643,
-          0.766
+          0.94,
+          0.342
         ]
       }
     },
@@ -2032,7 +2325,11 @@
     },
     "shape": "round",
     "radius_m": 2.4,
-    "exterior": "lighthouse_loft_exterior"
+    "exterior": "lighthouse_loft_exterior",
+    "modules": [
+      "mod_lighthouse_floor",
+      "mod_wall_curved_r2.62_n18_*"
+    ]
   },
   {
     "id": "homes/houseboat_exterior",
@@ -2041,23 +2338,59 @@
     "size_m": [
       9.0,
       7.0,
-      4.59
+      4.84
     ],
     "sockets": {
+      "socket_fx_smoke": [
+        0.45,
+        0.45,
+        3.74
+      ],
       "socket_door": [
-        0.1,
+        -0.45,
         -2.4,
         0.0
+      ]
+    },
+    "parts": {
+      "part_door_leaf": {
+        "pivot": [
+          -0.84,
+          -0.94,
+          0.24
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 100
+      },
+      "part_flag": {
+        "pivot": [
+          -2.55,
+          0.0,
+          1.82
+        ],
+        "motion": "flutter",
+        "amp_deg": 12
+      }
+    },
+    "part_clips": {
+      "part_door_leaf": [
+        "door_leaf_open",
+        "door_leaf_close"
+      ],
+      "part_flag": [
+        "flag_flutter"
       ]
     },
     "tints": {
       "hull": "#A9743F",
       "trim": "#BC874E",
-      "wall": "#F3E2C5",
-      "door": "#207D85",
-      "flag": "#FAF1DD",
+      "hull_band": "#207D85",
       "ring": "#E86D58",
-      "roof": "#F07E66"
+      "wall": "#F3E2C5",
+      "roof": "#F07E66",
+      "door": "#207D85",
+      "flag": "#FAF1DD"
     },
     "interior": "houseboat_interior",
     "roof_child": "houseboat_exterior_roof",
@@ -2066,7 +2399,20 @@
     "footprint_m": [
       9.0,
       7.0
-    ]
+    ],
+    "modules": [
+      "mod_houseboat_hull",
+      "mod_houseboat_deck",
+      "mod_wall_straight_*"
+    ],
+    "color_variants": {
+      "roof": [
+        "#F07E66",
+        "#2F8F8A",
+        "#3D6E8F",
+        "#7A9A4A"
+      ]
+    }
   },
   {
     "id": "homes/houseboat_interior",
@@ -2075,59 +2421,67 @@
     "size_m": [
       4.035,
       3.035,
-      2.14
+      2.24
     ],
     "sockets": {
       "socket_ceiling_0": [
         -0.8,
         0.0,
-        1.95
+        2.05
       ],
       "socket_ceiling_1": [
         0.8,
         0.0,
-        1.95
+        2.05
       ],
       "socket_exit": [
         -1.55,
-        0.4,
+        -0.25,
         0.12
       ],
       "socket_spawn_inside": [
         -1.05,
-        0.4,
+        -0.25,
         0.12
       ],
       "socket_wall_slot_0": [
-        -1.5,
+        -0.25,
         1.25,
-        1.67
+        1.42
       ],
       "socket_wall_slot_1": [
-        -0.5,
-        1.25,
-        1.67
-      ],
-      "socket_wall_slot_2": [
-        0.5,
-        1.25,
-        1.67
-      ],
-      "socket_wall_slot_3": [
         1.5,
         1.25,
-        1.67
+        1.42
       ],
-      "socket_wall_slot_4": [
+      "socket_wall_slot_2": [
         -1.75,
-        -0.2,
+        -1.0,
         1.42
       ]
     },
+    "parts": {
+      "part_door_leaf": {
+        "pivot": [
+          -1.81,
+          -0.64,
+          0.12
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 100
+      }
+    },
+    "part_clips": {
+      "part_door_leaf": [
+        "door_leaf_open",
+        "door_leaf_close"
+      ]
+    },
     "tints": {
+      "trim": "#BC874E",
       "wall": "#F3E2C5",
-      "door": "#207D85",
-      "trim": "#BC874E"
+      "door": "#207D85"
     },
     "cells": [
       [
@@ -2280,6 +2634,293 @@
     "blocked_cells": [
       [
         0,
+        1
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        2
+      ]
+    ],
+    "wall_slots": {
+      "wall_slot_0": {
+        "pos": [
+          -0.25,
+          1.25,
+          1.42
+        ],
+        "facing": [
+          0,
+          -1
+        ]
+      },
+      "wall_slot_1": {
+        "pos": [
+          1.5,
+          1.25,
+          1.42
+        ],
+        "facing": [
+          0,
+          -1
+        ]
+      },
+      "wall_slot_2": {
+        "pos": [
+          -1.75,
+          -1.0,
+          1.42
+        ],
+        "facing": [
+          1,
+          0
+        ]
+      }
+    },
+    "ceiling_anchors": {
+      "ceiling_0": [
+        -0.8,
+        0.0,
+        2.05
+      ],
+      "ceiling_1": [
+        0.8,
+        0.0,
+        2.05
+      ]
+    },
+    "shape": "rect",
+    "room_m": [
+      3.5,
+      2.5
+    ],
+    "exterior": "houseboat_exterior",
+    "modules": [
+      "mod_floor_tile_wood",
+      "mod_wall_straight_*"
+    ]
+  },
+  {
+    "id": "homes/homes_room_example",
+    "file": "homes/homes_room_example.glb",
+    "category": "room",
+    "size_m": [
+      3.535,
+      3.535,
+      2.139
+    ],
+    "sockets": {
+      "socket_spawn_inside": [
+        -0.8,
+        0.0,
+        0.12
+      ],
+      "socket_wall_slot_0": [
+        -1.0,
+        1.5,
+        1.42
+      ],
+      "socket_wall_slot_1": [
+        1.0,
+        1.5,
+        1.42
+      ],
+      "socket_wall_slot_2": [
+        -1.5,
+        -1.0,
+        1.42
+      ],
+      "socket_wall_slot_3": [
+        -1.5,
+        1.0,
+        1.42
+      ]
+    },
+    "parts": {
+      "part_door_leaf": {
+        "pivot": [
+          -1.56,
+          -0.39,
+          0.12
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 100
+      }
+    },
+    "part_clips": {
+      "part_door_leaf": [
+        "door_leaf_open",
+        "door_leaf_close"
+      ]
+    },
+    "tints": {
+      "trim": "#BC874E",
+      "wall": "#F3E2C5",
+      "door": "#207D85"
+    },
+    "cells": [
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        0,
+        3
+      ],
+      [
+        0,
+        4
+      ],
+      [
+        0,
+        5
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        1,
+        4
+      ],
+      [
+        1,
+        5
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        2,
+        5
+      ],
+      [
+        3,
+        0
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        3,
+        2
+      ],
+      [
+        3,
+        3
+      ],
+      [
+        3,
+        4
+      ],
+      [
+        3,
+        5
+      ],
+      [
+        4,
+        0
+      ],
+      [
+        4,
+        1
+      ],
+      [
+        4,
+        2
+      ],
+      [
+        4,
+        3
+      ],
+      [
+        4,
+        4
+      ],
+      [
+        4,
+        5
+      ],
+      [
+        5,
+        0
+      ],
+      [
+        5,
+        1
+      ],
+      [
+        5,
+        2
+      ],
+      [
+        5,
+        3
+      ],
+      [
+        5,
+        4
+      ],
+      [
+        5,
+        5
+      ]
+    ],
+    "cell_origin": [
+      -1.5,
+      -1.5
+    ],
+    "cell_m": 0.5,
+    "floor_z": 0.12,
+    "blocked_cells": [
+      [
+        0,
         2
       ],
       [
@@ -2298,9 +2939,9 @@
     "wall_slots": {
       "wall_slot_0": {
         "pos": [
-          -1.5,
-          1.25,
-          1.67
+          -1.0,
+          1.5,
+          1.42
         ],
         "facing": [
           0,
@@ -2309,9 +2950,9 @@
       },
       "wall_slot_1": {
         "pos": [
-          -0.5,
-          1.25,
-          1.67
+          1.0,
+          1.5,
+          1.42
         ],
         "facing": [
           0,
@@ -2320,30 +2961,19 @@
       },
       "wall_slot_2": {
         "pos": [
-          0.5,
-          1.25,
-          1.67
+          -1.5,
+          -1.0,
+          1.42
         ],
         "facing": [
-          0,
-          -1
+          1,
+          0
         ]
       },
       "wall_slot_3": {
         "pos": [
-          1.5,
-          1.25,
-          1.67
-        ],
-        "facing": [
-          0,
-          -1
-        ]
-      },
-      "wall_slot_4": {
-        "pos": [
-          -1.75,
-          -0.2,
+          -1.5,
+          1.0,
           1.42
         ],
         "facing": [
@@ -2352,23 +2982,1468 @@
         ]
       }
     },
-    "ceiling_anchors": {
-      "ceiling_0": [
-        -0.8,
-        0.0,
-        1.95
-      ],
-      "ceiling_1": [
-        0.8,
-        0.0,
-        1.95
-      ]
-    },
+    "ceiling_anchors": {},
     "shape": "rect",
     "room_m": [
-      3.5,
-      2.5
+      3.0,
+      3.0
     ],
-    "exterior": "houseboat_exterior"
+    "example": true,
+    "modules": [
+      "mod_floor_tile_stone",
+      "mod_wall_straight_*",
+      "mod_wall_lip_*"
+    ]
+  },
+  {
+    "id": "homes/mod_floor_tile_wood",
+    "file": "homes/mod_floor_tile_wood.glb",
+    "category": "module",
+    "size_m": [
+      0.5,
+      0.5
+    ],
+    "sockets": {},
+    "tints": {},
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "floor_tile",
+    "pivot": "min corner (cell corner)",
+    "top_z": 0.12,
+    "floor_mask": "one tile per valid cell in the room's cells list"
+  },
+  {
+    "id": "homes/mod_floor_tile_stone",
+    "file": "homes/mod_floor_tile_stone.glb",
+    "category": "module",
+    "size_m": [
+      0.5,
+      0.5
+    ],
+    "sockets": {},
+    "tints": {},
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "floor_tile",
+    "pivot": "min corner (cell corner)",
+    "top_z": 0.12,
+    "floor_mask": "one tile per valid cell in the room's cells list"
+  },
+  {
+    "id": "homes/mod_floor_tile_snow",
+    "file": "homes/mod_floor_tile_snow.glb",
+    "category": "module",
+    "size_m": [
+      0.5,
+      0.5
+    ],
+    "sockets": {},
+    "tints": {},
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "floor_tile",
+    "pivot": "min corner (cell corner)",
+    "top_z": 0.12,
+    "floor_mask": "one tile per valid cell in the room's cells list"
+  },
+  {
+    "id": "homes/mod_floor_sector_r2.41_45",
+    "file": "homes/mod_floor_sector_r2.41_45.glb",
+    "category": "module",
+    "size_m": [
+      2.41,
+      1.845,
+      0.128
+    ],
+    "sockets": {},
+    "tints": {},
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "floor_sector",
+    "family": "snow_dome",
+    "radius": 2.41,
+    "arc_deg": 45,
+    "top_z": 0.12,
+    "pivot": "circle centre; spans +-arc/2 about +X; rotate by k*45+22.5",
+    "floor_mask": "room cells are the 0.5 m cells inside radius 2.27"
+  },
+  {
+    "id": "homes/mod_floor_sector_r2.31_45",
+    "file": "homes/mod_floor_sector_r2.31_45.glb",
+    "category": "module",
+    "size_m": [
+      2.31,
+      1.768,
+      0.128
+    ],
+    "sockets": {},
+    "tints": {},
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "floor_sector",
+    "family": "round_cottage",
+    "radius": 2.31,
+    "arc_deg": 45,
+    "top_z": 0.12,
+    "pivot": "circle centre; spans +-arc/2 about +X; rotate by k*45+22.5",
+    "floor_mask": "room cells are the 0.5 m cells inside radius 2.17"
+  },
+  {
+    "id": "homes/mod_floor_sector_r2.51_45",
+    "file": "homes/mod_floor_sector_r2.51_45.glb",
+    "category": "module",
+    "size_m": [
+      2.51,
+      1.921,
+      0.128
+    ],
+    "sockets": {},
+    "tints": {},
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "floor_sector",
+    "family": "lighthouse",
+    "radius": 2.51,
+    "arc_deg": 45,
+    "top_z": 0.12,
+    "pivot": "circle centre; spans +-arc/2 about +X; rotate by k*45+22.5",
+    "floor_mask": "room cells are the 0.5 m cells inside radius 2.37"
+  },
+  {
+    "id": "homes/mod_wall_straight_plain_0.5m",
+    "file": "homes/mod_wall_straight_plain_0.5m.glb",
+    "category": "module",
+    "size_m": [
+      0.62,
+      0.35,
+      2.004
+    ],
+    "sockets": {},
+    "tints": {
+      "trim": "#BC874E",
+      "wall": "#F3E2C5"
+    },
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "wall_plain",
+    "length": 0.5,
+    "height": 2.0,
+    "thickness": 0.22,
+    "pivot": "left seam (x=0) on the wall centre line; front -Y",
+    "seams": [
+      0.0,
+      0.5
+    ],
+    "opening": null
+  },
+  {
+    "id": "homes/mod_wall_straight_plain_1m",
+    "file": "homes/mod_wall_straight_plain_1m.glb",
+    "category": "module",
+    "size_m": [
+      1.12,
+      0.35,
+      2.004
+    ],
+    "sockets": {},
+    "tints": {
+      "trim": "#BC874E",
+      "wall": "#F3E2C5"
+    },
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "wall_plain",
+    "length": 1.0,
+    "height": 2.0,
+    "thickness": 0.22,
+    "pivot": "left seam (x=0) on the wall centre line; front -Y",
+    "seams": [
+      0.0,
+      1.0
+    ],
+    "opening": null
+  },
+  {
+    "id": "homes/mod_wall_straight_door_1m",
+    "file": "homes/mod_wall_straight_door_1m.glb",
+    "category": "module",
+    "size_m": [
+      1.12,
+      0.425,
+      2.004
+    ],
+    "sockets": {},
+    "parts": {
+      "part_door_leaf": {
+        "pivot": [
+          0.11,
+          -0.05,
+          0.0
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 100
+      }
+    },
+    "part_clips": {
+      "part_door_leaf": [
+        "door_leaf_open",
+        "door_leaf_close"
+      ]
+    },
+    "tints": {
+      "trim": "#BC874E",
+      "wall": "#F3E2C5",
+      "door": "#207D85"
+    },
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "wall_door",
+    "length": 1.0,
+    "height": 2.0,
+    "thickness": 0.22,
+    "pivot": "left seam (x=0) on the wall centre line; front -Y",
+    "seams": [
+      0.0,
+      1.0
+    ],
+    "opening": [
+      0.98,
+      1.68
+    ]
+  },
+  {
+    "id": "homes/mod_wall_straight_window_1m",
+    "file": "homes/mod_wall_straight_window_1m.glb",
+    "category": "module",
+    "size_m": [
+      1.28,
+      0.375,
+      2.004
+    ],
+    "sockets": {},
+    "tints": {
+      "trim": "#BC874E",
+      "door": "#207D85",
+      "wall": "#F3E2C5"
+    },
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "wall_window",
+    "length": 1.0,
+    "height": 2.0,
+    "thickness": 0.22,
+    "pivot": "left seam (x=0) on the wall centre line; front -Y",
+    "seams": [
+      0.0,
+      1.0
+    ],
+    "opening": [
+      0.62,
+      0.8,
+      1.52
+    ]
+  },
+  {
+    "id": "homes/mod_wall_straight_window_round_1m",
+    "file": "homes/mod_wall_straight_window_round_1m.glb",
+    "category": "module",
+    "size_m": [
+      1.12,
+      0.373,
+      2.004
+    ],
+    "sockets": {},
+    "tints": {
+      "trim": "#BC874E",
+      "wall": "#F3E2C5"
+    },
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "wall_window_round",
+    "length": 1.0,
+    "height": 2.0,
+    "thickness": 0.22,
+    "pivot": "left seam (x=0) on the wall centre line; front -Y",
+    "seams": [
+      0.0,
+      1.0
+    ],
+    "opening": null
+  },
+  {
+    "id": "homes/mod_wall_lip_0.5m",
+    "file": "homes/mod_wall_lip_0.5m.glb",
+    "category": "module",
+    "size_m": [
+      0.52,
+      0.28,
+      0.515
+    ],
+    "sockets": {},
+    "tints": {
+      "wall": "#F3E2C5"
+    },
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "wall_lip",
+    "length": 0.5,
+    "height": 0.42,
+    "thickness": 0.22,
+    "pivot": "left seam",
+    "seams": [
+      0.0,
+      0.5
+    ]
+  },
+  {
+    "id": "homes/mod_wall_lip_1m",
+    "file": "homes/mod_wall_lip_1m.glb",
+    "category": "module",
+    "size_m": [
+      1.02,
+      0.28,
+      0.515
+    ],
+    "sockets": {},
+    "tints": {
+      "wall": "#F3E2C5"
+    },
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "wall_lip",
+    "length": 1.0,
+    "height": 0.42,
+    "thickness": 0.22,
+    "pivot": "left seam",
+    "seams": [
+      0.0,
+      1.0
+    ]
+  },
+  {
+    "id": "homes/mod_wall_curved_r2.20_n14_plain",
+    "file": "homes/mod_wall_curved_r2.20_n14_plain.glb",
+    "category": "module",
+    "size_m": [
+      0.3,
+      1.024,
+      1.9
+    ],
+    "sockets": {},
+    "tints": {
+      "trim": "#BC874E",
+      "wall": "#F3E2C5"
+    },
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "wall_curved_plain",
+    "family": "round_cottage",
+    "radius": 2.2,
+    "arc_deg": 25.714,
+    "height": 1.9,
+    "thickness": 0.22,
+    "facing": "out",
+    "pivot": "circle centre; segment centred on +X; rotate by its centre angle"
+  },
+  {
+    "id": "homes/mod_wall_curved_r2.20_n14_door",
+    "file": "homes/mod_wall_curved_r2.20_n14_door.glb",
+    "category": "module",
+    "size_m": [
+      0.4,
+      1.1,
+      1.9
+    ],
+    "sockets": {},
+    "parts": {
+      "part_door_leaf": {
+        "pivot": [
+          2.14,
+          -0.39,
+          0.0
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 100
+      }
+    },
+    "part_clips": {
+      "part_door_leaf": [
+        "door_leaf_open",
+        "door_leaf_close"
+      ]
+    },
+    "tints": {
+      "trim": "#BC874E",
+      "wall": "#F3E2C5",
+      "door": "#207D85"
+    },
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "wall_curved_door",
+    "family": "round_cottage",
+    "radius": 2.2,
+    "arc_deg": 25.714,
+    "height": 1.9,
+    "thickness": 0.22,
+    "facing": "out",
+    "pivot": "circle centre; segment centred on +X; rotate by its centre angle"
+  },
+  {
+    "id": "homes/mod_wall_curved_r2.20_n14_window",
+    "file": "homes/mod_wall_curved_r2.20_n14_window.glb",
+    "category": "module",
+    "size_m": [
+      0.42,
+      1.024,
+      1.9
+    ],
+    "sockets": {},
+    "tints": {
+      "trim": "#BC874E",
+      "wall": "#F3E2C5"
+    },
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "wall_curved_window",
+    "family": "round_cottage",
+    "radius": 2.2,
+    "arc_deg": 25.714,
+    "height": 1.9,
+    "thickness": 0.22,
+    "facing": "out",
+    "pivot": "circle centre; segment centred on +X; rotate by its centre angle"
+  },
+  {
+    "id": "homes/mod_wall_curved_r2.20_n14_lip",
+    "file": "homes/mod_wall_curved_r2.20_n14_lip.glb",
+    "category": "module",
+    "size_m": [
+      0.27,
+      1.024,
+      0.515
+    ],
+    "sockets": {},
+    "tints": {
+      "wall": "#F3E2C5"
+    },
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "wall_curved_lip",
+    "family": "round_cottage",
+    "radius": 2.2,
+    "arc_deg": 25.714,
+    "height": 0.45,
+    "pivot": "circle centre"
+  },
+  {
+    "id": "homes/mod_wall_curved_r2.42_n16_plain",
+    "file": "homes/mod_wall_curved_r2.42_n16_plain.glb",
+    "category": "module",
+    "size_m": [
+      0.3,
+      0.983,
+      2.095
+    ],
+    "sockets": {},
+    "tints": {
+      "trim": "#BC874E",
+      "wall": "#F3E2C5"
+    },
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "wall_curved_plain",
+    "family": "round_cottage_room",
+    "radius": 2.42,
+    "arc_deg": 22.5,
+    "height": 2.1,
+    "thickness": 0.22,
+    "facing": "in",
+    "pivot": "circle centre; segment centred on +X; rotate by its centre angle"
+  },
+  {
+    "id": "homes/mod_wall_curved_r2.42_n16_door",
+    "file": "homes/mod_wall_curved_r2.42_n16_door.glb",
+    "category": "module",
+    "size_m": [
+      0.4,
+      1.1,
+      2.1
+    ],
+    "sockets": {},
+    "parts": {
+      "part_door_leaf": {
+        "pivot": [
+          2.26,
+          0.39,
+          0.0
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 100
+      }
+    },
+    "part_clips": {
+      "part_door_leaf": [
+        "door_leaf_open",
+        "door_leaf_close"
+      ]
+    },
+    "tints": {
+      "trim": "#BC874E",
+      "wall": "#F3E2C5",
+      "door": "#207D85"
+    },
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "wall_curved_door",
+    "family": "round_cottage_room",
+    "radius": 2.42,
+    "arc_deg": 22.5,
+    "height": 2.1,
+    "thickness": 0.22,
+    "facing": "in",
+    "pivot": "circle centre; segment centred on +X; rotate by its centre angle"
+  },
+  {
+    "id": "homes/mod_wall_curved_r2.42_n16_window",
+    "file": "homes/mod_wall_curved_r2.42_n16_window.glb",
+    "category": "module",
+    "size_m": [
+      0.42,
+      0.983,
+      2.095
+    ],
+    "sockets": {},
+    "tints": {
+      "trim": "#BC874E",
+      "wall": "#F3E2C5"
+    },
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "wall_curved_window",
+    "family": "round_cottage_room",
+    "radius": 2.42,
+    "arc_deg": 22.5,
+    "height": 2.1,
+    "thickness": 0.22,
+    "facing": "in",
+    "pivot": "circle centre; segment centred on +X; rotate by its centre angle"
+  },
+  {
+    "id": "homes/mod_wall_curved_r2.42_n16_lip",
+    "file": "homes/mod_wall_curved_r2.42_n16_lip.glb",
+    "category": "module",
+    "size_m": [
+      0.27,
+      0.983,
+      0.515
+    ],
+    "sockets": {},
+    "tints": {
+      "wall": "#F3E2C5"
+    },
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "wall_curved_lip",
+    "family": "round_cottage_room",
+    "radius": 2.42,
+    "arc_deg": 22.5,
+    "height": 0.45,
+    "pivot": "circle centre"
+  },
+  {
+    "id": "homes/mod_wall_curved_r2.52_n16_plain",
+    "file": "homes/mod_wall_curved_r2.52_n16_plain.glb",
+    "category": "module",
+    "size_m": [
+      0.3,
+      1.023,
+      1.995
+    ],
+    "sockets": {},
+    "tints": {
+      "trim": "#BC874E",
+      "wall": "#F3E2C5"
+    },
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "wall_curved_plain",
+    "family": "snow_dome_room",
+    "radius": 2.52,
+    "arc_deg": 22.5,
+    "height": 2.0,
+    "thickness": 0.22,
+    "facing": "in",
+    "pivot": "circle centre; segment centred on +X; rotate by its centre angle"
+  },
+  {
+    "id": "homes/mod_wall_curved_r2.52_n16_door",
+    "file": "homes/mod_wall_curved_r2.52_n16_door.glb",
+    "category": "module",
+    "size_m": [
+      0.4,
+      1.1,
+      2.0
+    ],
+    "sockets": {},
+    "parts": {
+      "part_door_leaf": {
+        "pivot": [
+          2.36,
+          0.39,
+          0.0
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 100
+      }
+    },
+    "part_clips": {
+      "part_door_leaf": [
+        "door_leaf_open",
+        "door_leaf_close"
+      ]
+    },
+    "tints": {
+      "trim": "#BC874E",
+      "wall": "#F3E2C5",
+      "door": "#207D85"
+    },
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "wall_curved_door",
+    "family": "snow_dome_room",
+    "radius": 2.52,
+    "arc_deg": 22.5,
+    "height": 2.0,
+    "thickness": 0.22,
+    "facing": "in",
+    "pivot": "circle centre; segment centred on +X; rotate by its centre angle"
+  },
+  {
+    "id": "homes/mod_wall_curved_r2.52_n16_window",
+    "file": "homes/mod_wall_curved_r2.52_n16_window.glb",
+    "category": "module",
+    "size_m": [
+      0.42,
+      1.023,
+      1.995
+    ],
+    "sockets": {},
+    "tints": {
+      "trim": "#BC874E",
+      "wall": "#F3E2C5"
+    },
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "wall_curved_window",
+    "family": "snow_dome_room",
+    "radius": 2.52,
+    "arc_deg": 22.5,
+    "height": 2.0,
+    "thickness": 0.22,
+    "facing": "in",
+    "pivot": "circle centre; segment centred on +X; rotate by its centre angle"
+  },
+  {
+    "id": "homes/mod_wall_curved_r2.52_n16_lip",
+    "file": "homes/mod_wall_curved_r2.52_n16_lip.glb",
+    "category": "module",
+    "size_m": [
+      0.27,
+      1.023,
+      0.515
+    ],
+    "sockets": {},
+    "tints": {
+      "wall": "#F3E2C5"
+    },
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "wall_curved_lip",
+    "family": "snow_dome_room",
+    "radius": 2.52,
+    "arc_deg": 22.5,
+    "height": 0.45,
+    "pivot": "circle centre"
+  },
+  {
+    "id": "homes/mod_wall_curved_r2.62_n18_plain",
+    "file": "homes/mod_wall_curved_r2.62_n18_plain.glb",
+    "category": "module",
+    "size_m": [
+      0.3,
+      0.944,
+      2.304
+    ],
+    "sockets": {},
+    "tints": {
+      "wall": "#F3E2C5",
+      "trim": "#BC874E"
+    },
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "wall_curved_plain",
+    "family": "lighthouse_room",
+    "radius": 2.62,
+    "arc_deg": 20.0,
+    "height": 2.3,
+    "thickness": 0.22,
+    "facing": "in",
+    "pivot": "circle centre; segment centred on +X; rotate by its centre angle"
+  },
+  {
+    "id": "homes/mod_wall_curved_r2.62_n18_door",
+    "file": "homes/mod_wall_curved_r2.62_n18_door.glb",
+    "category": "module",
+    "size_m": [
+      0.4,
+      1.1,
+      2.304
+    ],
+    "sockets": {},
+    "parts": {
+      "part_door_leaf": {
+        "pivot": [
+          2.46,
+          0.39,
+          0.0
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 100
+      }
+    },
+    "part_clips": {
+      "part_door_leaf": [
+        "door_leaf_open",
+        "door_leaf_close"
+      ]
+    },
+    "tints": {
+      "wall": "#F3E2C5",
+      "trim": "#BC874E",
+      "door": "#207D85"
+    },
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "wall_curved_door",
+    "family": "lighthouse_room",
+    "radius": 2.62,
+    "arc_deg": 20.0,
+    "height": 2.3,
+    "thickness": 0.22,
+    "facing": "in",
+    "pivot": "circle centre; segment centred on +X; rotate by its centre angle"
+  },
+  {
+    "id": "homes/mod_wall_curved_r2.62_n18_window",
+    "file": "homes/mod_wall_curved_r2.62_n18_window.glb",
+    "category": "module",
+    "size_m": [
+      0.42,
+      0.944,
+      2.304
+    ],
+    "sockets": {},
+    "tints": {
+      "wall": "#F3E2C5",
+      "trim": "#BC874E"
+    },
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "wall_curved_window",
+    "family": "lighthouse_room",
+    "radius": 2.62,
+    "arc_deg": 20.0,
+    "height": 2.3,
+    "thickness": 0.22,
+    "facing": "in",
+    "pivot": "circle centre; segment centred on +X; rotate by its centre angle"
+  },
+  {
+    "id": "homes/mod_wall_curved_r2.62_n18_lip",
+    "file": "homes/mod_wall_curved_r2.62_n18_lip.glb",
+    "category": "module",
+    "size_m": [
+      0.27,
+      0.944,
+      0.52
+    ],
+    "sockets": {},
+    "tints": {
+      "wall": "#F3E2C5"
+    },
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "wall_curved_lip",
+    "family": "lighthouse_room",
+    "radius": 2.62,
+    "arc_deg": 20.0,
+    "height": 0.45,
+    "pivot": "circle centre"
+  },
+  {
+    "id": "homes/mod_roof_snow_dome",
+    "file": "homes/mod_roof_snow_dome.glb",
+    "category": "module",
+    "size_m": [
+      3.459,
+      3.225,
+      1.917
+    ],
+    "sockets": {
+      "socket_fx_smoke": [
+        0.95,
+        0.85,
+        3.17
+      ]
+    },
+    "tints": {
+      "wall": "#CDEFF5"
+    },
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "roof_section",
+    "family": "snow_dome",
+    "color_variants": {
+      "roof": [
+        "#F07E66",
+        "#2F8F8A",
+        "#3D6E8F",
+        "#7A9A4A"
+      ]
+    },
+    "pivot": "same origin as the family's exterior shell (drop in place)"
+  },
+  {
+    "id": "homes/mod_roof_aframe_cabin",
+    "file": "homes/mod_roof_aframe_cabin.glb",
+    "category": "module",
+    "size_m": [
+      5.391,
+      5.14,
+      5.16
+    ],
+    "sockets": {
+      "socket_fx_smoke": [
+        -1.15,
+        1.0,
+        5.1
+      ]
+    },
+    "tints": {
+      "wall": "#F3E2C5",
+      "trim": "#BC874E",
+      "roof": "#F07E66"
+    },
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "roof_section",
+    "family": "aframe_cabin",
+    "color_variants": {
+      "roof": [
+        "#F07E66",
+        "#2F8F8A",
+        "#3D6E8F",
+        "#7A9A4A"
+      ]
+    },
+    "pivot": "same origin as the family's exterior shell (drop in place)"
+  },
+  {
+    "id": "homes/mod_roof_round_cottage",
+    "file": "homes/mod_roof_round_cottage.glb",
+    "category": "module",
+    "size_m": [
+      5.336,
+      5.34,
+      2.476
+    ],
+    "sockets": {
+      "socket_fx_smoke": [
+        0.85,
+        0.7,
+        4.24
+      ]
+    },
+    "tints": {
+      "trim": "#BC874E",
+      "roof": "#F07E66"
+    },
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "roof_section",
+    "family": "round_cottage",
+    "color_variants": {
+      "roof": [
+        "#F07E66",
+        "#2F8F8A",
+        "#3D6E8F",
+        "#7A9A4A"
+      ]
+    },
+    "pivot": "same origin as the family's exterior shell (drop in place)"
+  },
+  {
+    "id": "homes/mod_roof_treehouse",
+    "file": "homes/mod_roof_treehouse.glb",
+    "category": "module",
+    "size_m": [
+      3.22,
+      2.7,
+      1.68
+    ],
+    "sockets": {
+      "socket_fx_smoke": [
+        -0.1,
+        0.7,
+        5.47
+      ]
+    },
+    "tints": {
+      "wall": "#F3E2C5",
+      "roof": "#F07E66"
+    },
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "roof_section",
+    "family": "treehouse",
+    "color_variants": {
+      "roof": [
+        "#F07E66",
+        "#2F8F8A",
+        "#3D6E8F",
+        "#7A9A4A"
+      ]
+    },
+    "pivot": "same origin as the family's exterior shell (drop in place)"
+  },
+  {
+    "id": "homes/mod_roof_lighthouse_loft",
+    "file": "homes/mod_roof_lighthouse_loft.glb",
+    "category": "module",
+    "size_m": [
+      1.699,
+      1.699,
+      2.05
+    ],
+    "sockets": {},
+    "tints": {
+      "wall": "#F3E2C5",
+      "roof": "#E86D58"
+    },
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "roof_section",
+    "family": "lighthouse_loft",
+    "color_variants": {
+      "roof": [
+        "#F07E66",
+        "#2F8F8A",
+        "#3D6E8F",
+        "#7A9A4A"
+      ]
+    },
+    "pivot": "same origin as the family's exterior shell (drop in place)"
+  },
+  {
+    "id": "homes/mod_roof_lighthouse_cottage",
+    "file": "homes/mod_roof_lighthouse_cottage.glb",
+    "category": "module",
+    "size_m": [
+      3.16,
+      2.685,
+      1.375
+    ],
+    "sockets": {},
+    "tints": {
+      "wall": "#F3E2C5",
+      "roof": "#F07E66"
+    },
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "roof_section",
+    "family": "lighthouse_cottage",
+    "color_variants": {
+      "roof": [
+        "#F07E66",
+        "#2F8F8A",
+        "#3D6E8F",
+        "#7A9A4A"
+      ]
+    },
+    "pivot": "same origin as the family's exterior shell (drop in place)"
+  },
+  {
+    "id": "homes/mod_roof_houseboat",
+    "file": "homes/mod_roof_houseboat.glb",
+    "category": "module",
+    "size_m": [
+      3.74,
+      2.761,
+      1.564
+    ],
+    "sockets": {
+      "socket_fx_smoke": [
+        0.45,
+        0.45,
+        3.74
+      ]
+    },
+    "tints": {
+      "wall": "#F3E2C5",
+      "roof": "#F07E66"
+    },
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "roof_section",
+    "family": "houseboat",
+    "color_variants": {
+      "roof": [
+        "#F07E66",
+        "#2F8F8A",
+        "#3D6E8F",
+        "#7A9A4A"
+      ]
+    },
+    "pivot": "same origin as the family's exterior shell (drop in place)"
+  },
+  {
+    "id": "homes/mod_stairs_1m",
+    "file": "homes/mod_stairs_1m.glb",
+    "category": "module",
+    "size_m": [
+      1.04,
+      1.64,
+      1.94
+    ],
+    "sockets": {},
+    "tints": {},
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "stairs",
+    "length": 1.5,
+    "height": 1.0,
+    "width": 0.78,
+    "steps": 5,
+    "pivot": "centre of the foot; climbs toward +Y"
+  },
+  {
+    "id": "homes/mod_stairs_landing_1m",
+    "file": "homes/mod_stairs_landing_1m.glb",
+    "category": "module",
+    "size_m": [
+      1.05,
+      2.605,
+      2.76
+    ],
+    "sockets": {},
+    "parts": {
+      "part_landing_lantern": {
+        "pivot": [
+          -0.17,
+          2.44,
+          2.6
+        ],
+        "motion": "sway",
+        "amp_deg": 4
+      }
+    },
+    "part_clips": {
+      "part_landing_lantern": [
+        "landing_lantern_sway"
+      ]
+    },
+    "tints": {},
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "stairs_landing",
+    "length": 2.5,
+    "height": 1.0,
+    "width": 1.0,
+    "pivot": "centre of the foot"
+  },
+  {
+    "id": "homes/mod_stairs_2m",
+    "file": "homes/mod_stairs_2m.glb",
+    "category": "module",
+    "size_m": [
+      1.04,
+      2.89,
+      2.839
+    ],
+    "sockets": {},
+    "tints": {},
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "stairs",
+    "length": 2.75,
+    "height": 1.9,
+    "width": 0.78,
+    "steps": 10,
+    "pivot": "centre of the foot; climbs toward +Y"
+  },
+  {
+    "id": "homes/mod_stairs_landing_2m",
+    "file": "homes/mod_stairs_landing_2m.glb",
+    "category": "module",
+    "size_m": [
+      1.05,
+      3.855,
+      3.659
+    ],
+    "sockets": {},
+    "parts": {
+      "part_landing_lantern": {
+        "pivot": [
+          -0.17,
+          3.69,
+          3.5
+        ],
+        "motion": "sway",
+        "amp_deg": 4
+      }
+    },
+    "part_clips": {
+      "part_landing_lantern": [
+        "landing_lantern_sway"
+      ]
+    },
+    "tints": {},
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "stairs_landing",
+    "length": 3.75,
+    "height": 1.9,
+    "width": 1.0,
+    "pivot": "centre of the foot"
+  },
+  {
+    "id": "homes/mod_treehouse_support",
+    "file": "homes/mod_treehouse_support.glb",
+    "category": "module",
+    "size_m": [
+      2.896,
+      2.514,
+      5.053
+    ],
+    "sockets": {},
+    "parts": {
+      "part_hanging_lantern": {
+        "pivot": [
+          1.5,
+          0.0,
+          1.45
+        ],
+        "motion": "sway",
+        "amp_deg": 5
+      }
+    },
+    "part_clips": {
+      "part_hanging_lantern": [
+        "hanging_lantern_sway"
+      ]
+    },
+    "tints": {},
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "support",
+    "height": 4.6,
+    "pivot": "trunk base centre"
+  },
+  {
+    "id": "homes/mod_treehouse_deck",
+    "file": "homes/mod_treehouse_deck.glb",
+    "category": "module",
+    "size_m": [
+      4.05,
+      3.05
+    ],
+    "sockets": {},
+    "tints": {},
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "deck",
+    "deck_z": 1.9,
+    "pivot": "deck centre on the ground"
+  },
+  {
+    "id": "homes/mod_lighthouse_floor",
+    "file": "homes/mod_lighthouse_floor.glb",
+    "category": "module",
+    "size_m": [
+      5.675,
+      5.675,
+      0.82
+    ],
+    "sockets": {},
+    "tints": {},
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "floor_round",
+    "radius": 2.51,
+    "sectors": 8,
+    "top_z": 0.12,
+    "pivot": "circle centre",
+    "rim": "stone blocks + rope rail on 8 posts",
+    "floor_mask": "room cells inside radius 2.37"
+  },
+  {
+    "id": "homes/mod_houseboat_hull",
+    "file": "homes/mod_houseboat_hull.glb",
+    "category": "module",
+    "size_m": [
+      5.607,
+      2.78,
+      1.457
+    ],
+    "sockets": {},
+    "tints": {
+      "hull": "#A9743F",
+      "trim": "#BC874E",
+      "hull_band": "#207D85",
+      "ring": "#E86D58"
+    },
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "hull",
+    "length": 5.55,
+    "beam": 2.64,
+    "water_z": -0.5,
+    "pivot": "boat centre (world z)"
+  },
+  {
+    "id": "homes/mod_houseboat_deck",
+    "file": "homes/mod_houseboat_deck.glb",
+    "category": "module",
+    "size_m": [
+      5.125,
+      2.65,
+      1.66
+    ],
+    "sockets": {},
+    "parts": {
+      "part_flag": {
+        "pivot": [
+          -2.55,
+          0.0,
+          1.82
+        ],
+        "motion": "flutter",
+        "amp_deg": 12
+      }
+    },
+    "part_clips": {
+      "part_flag": [
+        "flag_flutter"
+      ]
+    },
+    "tints": {
+      "flag": "#FAF1DD"
+    },
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "deck",
+    "deck_z": 0.24,
+    "pivot": "boat centre"
+  },
+  {
+    "id": "homes/mod_door_insert_arched",
+    "file": "homes/mod_door_insert_arched.glb",
+    "category": "module",
+    "size_m": [
+      1.08,
+      0.36,
+      1.675
+    ],
+    "sockets": {},
+    "parts": {
+      "part_door_leaf": {
+        "pivot": [
+          -0.39,
+          0.06,
+          0.0
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 100
+      }
+    },
+    "part_clips": {
+      "part_door_leaf": [
+        "door_leaf_open",
+        "door_leaf_close"
+      ]
+    },
+    "tints": {
+      "trim": "#BC874E",
+      "door": "#207D85"
+    },
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "door_insert",
+    "opening": [
+      0.98,
+      1.68
+    ],
+    "pivot": "opening bottom centre on the wall's front face"
+  },
+  {
+    "id": "homes/mod_door_insert_square",
+    "file": "homes/mod_door_insert_square.glb",
+    "category": "module",
+    "size_m": [
+      1.08,
+      0.36,
+      1.74
+    ],
+    "sockets": {},
+    "parts": {
+      "part_door_leaf": {
+        "pivot": [
+          -0.39,
+          0.06,
+          0.0
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 100
+      }
+    },
+    "part_clips": {
+      "part_door_leaf": [
+        "door_leaf_open",
+        "door_leaf_close"
+      ]
+    },
+    "tints": {
+      "door": "#E86D58",
+      "trim": "#BC874E"
+    },
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "door_insert",
+    "opening": [
+      0.98,
+      1.7
+    ],
+    "pivot": "opening bottom centre on the wall's front face"
+  },
+  {
+    "id": "homes/mod_window_insert_arched",
+    "file": "homes/mod_window_insert_arched.glb",
+    "category": "module",
+    "size_m": [
+      0.8,
+      0.258,
+      0.866
+    ],
+    "sockets": {},
+    "tints": {
+      "trim": "#BC874E"
+    },
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "window_insert",
+    "style": "arched, mullions",
+    "pivot": "on the wall's front face, opening bottom centre"
+  },
+  {
+    "id": "homes/mod_window_insert_square",
+    "file": "homes/mod_window_insert_square.glb",
+    "category": "module",
+    "size_m": [
+      1.28,
+      0.325,
+      0.89
+    ],
+    "sockets": {},
+    "tints": {
+      "trim": "#BC874E",
+      "door": "#207D85"
+    },
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "window_insert",
+    "style": "square, shutters",
+    "opening": [
+      0.62,
+      0.8,
+      1.52
+    ],
+    "pivot": "wall centre line, opening centre x"
+  },
+  {
+    "id": "homes/mod_window_insert_round",
+    "file": "homes/mod_window_insert_round.glb",
+    "category": "module",
+    "size_m": [
+      0.61,
+      0.178,
+      0.61
+    ],
+    "sockets": {},
+    "tints": {
+      "trim": "#BC874E"
+    },
+    "module": true,
+    "seam_grid_m": 0.5,
+    "authoring_only": "shell variants; player structural building not implied",
+    "kind": "window_insert",
+    "radius": 0.22,
+    "centre_z": 1.15,
+    "pivot": "wall centre line"
   }
 ]

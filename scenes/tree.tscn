@@ -1,4 +1,6 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="PackedScene" uid="uid://dgwp0bqko8i4c" path="res://Models/winter/fir_tree_medium.glb" id="1_fir"]
 
 [sub_resource type="StandardMaterial3D" id="Mat_trunk"]
 albedo_color = Color(0.38, 0.24, 0.13, 1)
@@ -38,17 +40,22 @@ height = 2.7
 collision_layer = 2
 collision_mask = 0
 
+[node name="Model" parent="." instance=ExtResource("1_fir")]
+
 [node name="Trunk" type="MeshInstance3D" parent="."]
+visible = false
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
 mesh = SubResource("CylinderMesh_trunk")
 surface_material_override/0 = SubResource("Mat_trunk")
 
 [node name="LeavesLow" type="MeshInstance3D" parent="."]
+visible = false
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.55, 0)
 mesh = SubResource("CylinderMesh_leaf_low")
 surface_material_override/0 = SubResource("Mat_leaves")
 
 [node name="LeavesHigh" type="MeshInstance3D" parent="."]
+visible = false
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.35, 0)
 mesh = SubResource("CylinderMesh_leaf_high")
 surface_material_override/0 = SubResource("Mat_leaves")

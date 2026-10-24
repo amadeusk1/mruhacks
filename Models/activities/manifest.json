@@ -6,13 +6,13 @@
     "size_m": [
       8.7,
       7.7,
-      0.089
+      0.084
     ],
     "sockets": {
       "socket_hoop": [
         0.0,
         3.75,
-        0.061
+        0.06
       ],
       "socket_scoreboard": [
         4.9,
@@ -22,22 +22,22 @@
       "socket_shoot_0": [
         -2.078,
         1.8,
-        0.061
+        0.06
       ],
       "socket_shoot_1": [
         -1.014,
         0.825,
-        0.061
+        0.06
       ],
       "socket_shoot_2": [
         1.014,
         0.825,
-        0.061
+        0.06
       ],
       "socket_shoot_3": [
         2.078,
         1.8,
-        0.061
+        0.06
       ],
       "socket_spectator_0": [
         -1.8,
@@ -58,12 +58,17 @@
         1.8,
         -4.4,
         0.0
+      ],
+      "socket_target": [
+        0.0,
+        3.0,
+        1.67
       ]
     },
     "tints": {
       "court": "#207D85",
       "court_key": "#E86D58",
-      "court_spot": "#E3A92B"
+      "court_line": "#FAF1DD"
     },
     "activity": "basketball",
     "court_m": [
@@ -75,31 +80,185 @@
       3.0
     ],
     "rim_z": 1.72,
-    "note": "place basketball_hoop at socket_hoop; keep snowbanks outside the paving apron"
+    "collider": "flat plane at z=0.06",
+    "reuse": {
+      "spectator_seat": "plaza/bench"
+    },
+    "note": "place basketball_hoop at socket_hoop and shooting_spot props at socket_shoot_*; snow stays outside"
+  },
+  {
+    "id": "activities/court_tile_plain",
+    "file": "activities/court_tile_plain.glb",
+    "category": "court",
+    "size_m": [
+      2.0,
+      2.0,
+      0.06
+    ],
+    "sockets": {
+      "socket_tile_centre": [
+        0.0,
+        0.0,
+        0.06
+      ]
+    },
+    "tints": {
+      "court": "#207D85"
+    },
+    "grid_m": 2.0,
+    "collider": "box 2.0x2.0x0.06, flat top",
+    "paint": "plain",
+    "line_ends": "edge midpoints (chains with neighbours by rotation)"
+  },
+  {
+    "id": "activities/court_tile_straight",
+    "file": "activities/court_tile_straight.glb",
+    "category": "court",
+    "size_m": [
+      2.0,
+      2.0,
+      0.068
+    ],
+    "sockets": {
+      "socket_tile_centre": [
+        0.0,
+        0.0,
+        0.06
+      ]
+    },
+    "tints": {
+      "court": "#207D85",
+      "court_line": "#FAF1DD"
+    },
+    "grid_m": 2.0,
+    "collider": "box 2.0x2.0x0.06, flat top",
+    "paint": "straight",
+    "line_ends": "edge midpoints (chains with neighbours by rotation)"
+  },
+  {
+    "id": "activities/court_tile_corner",
+    "file": "activities/court_tile_corner.glb",
+    "category": "court",
+    "size_m": [
+      2.0,
+      2.004,
+      0.072
+    ],
+    "sockets": {
+      "socket_tile_centre": [
+        0.0,
+        0.0,
+        0.06
+      ]
+    },
+    "tints": {
+      "court": "#207D85",
+      "court_line": "#FAF1DD"
+    },
+    "grid_m": 2.0,
+    "collider": "box 2.0x2.0x0.06, flat top",
+    "paint": "corner",
+    "line_ends": "edge midpoints (chains with neighbours by rotation)"
+  },
+  {
+    "id": "activities/court_tile_arc",
+    "file": "activities/court_tile_arc.glb",
+    "category": "court",
+    "size_m": [
+      2.01,
+      2.01,
+      0.076
+    ],
+    "sockets": {
+      "socket_tile_centre": [
+        0.0,
+        0.0,
+        0.06
+      ]
+    },
+    "tints": {
+      "court": "#207D85",
+      "court_line": "#FAF1DD"
+    },
+    "grid_m": 2.0,
+    "collider": "box 2.0x2.0x0.06, flat top",
+    "paint": "arc",
+    "line_ends": "edge midpoints (chains with neighbours by rotation)"
+  },
+  {
+    "id": "activities/court_tile_key",
+    "file": "activities/court_tile_key.glb",
+    "category": "court",
+    "size_m": [
+      2.0,
+      2.0,
+      0.06
+    ],
+    "sockets": {
+      "socket_tile_centre": [
+        0.0,
+        0.0,
+        0.06
+      ]
+    },
+    "tints": {
+      "court_key": "#E86D58"
+    },
+    "grid_m": 2.0,
+    "collider": "box 2.0x2.0x0.06, flat top",
+    "paint": "key",
+    "line_ends": "edge midpoints (chains with neighbours by rotation)"
   },
   {
     "id": "activities/basketball_hoop",
     "file": "activities/basketball_hoop.glb",
     "category": "activity",
     "size_m": [
-      1.2,
-      1.253,
-      2.4
+      1.22,
+      1.368,
+      2.427
     ],
     "sockets": {
-      "socket_rim": [
+      "socket_target": [
         0.0,
-        -0.65,
-        1.72
+        -0.72,
+        1.67
+      ]
+    },
+    "parts": {
+      "part_net": {
+        "pivot": [
+          0.0,
+          -0.72,
+          1.7
+        ],
+        "motion": "sway",
+        "amp_deg": 5
+      },
+      "part_rim": {
+        "pivot": [
+          0.0,
+          -0.5,
+          1.72
+        ],
+        "motion": "tilt",
+        "axis": "x",
+        "max_deg": 6
+      }
+    },
+    "part_clips": {
+      "part_net": [
+        "net_sway"
       ]
     },
     "tints": {
-      "pole": "#3A3D44",
-      "board_mark": "#E86D58",
+      "pole": "#A9743F",
+      "frame": "#207D85",
       "rim": "#F08A2E"
     },
     "activity": "basketball",
-    "rim_radius_m": 0.21
+    "rim_radius_m": 0.21,
+    "rim_z": 1.72
   },
   {
     "id": "activities/basketball",
@@ -114,205 +273,601 @@
     "tints": {
       "ball": "#F08A2E"
     },
-    "radius_m": 0.12
+    "radius_m": 0.12,
+    "pivot": "ball centre (origin is not on the ground)"
+  },
+  {
+    "id": "activities/shooting_spot",
+    "file": "activities/shooting_spot.glb",
+    "category": "marker",
+    "size_m": [
+      0.72,
+      0.72,
+      0.032
+    ],
+    "sockets": {
+      "socket_shoot": [
+        0.0,
+        0.0,
+        0.028
+      ]
+    },
+    "tints": {
+      "spot": "#E86D58"
+    },
+    "activity": "basketball",
+    "walkable": true,
+    "collider": "none (decal-height)"
+  },
+  {
+    "id": "activities/ready_marker",
+    "file": "activities/ready_marker.glb",
+    "category": "marker",
+    "size_m": [
+      0.8,
+      0.8,
+      0.032
+    ],
+    "sockets": {
+      "socket_ready": [
+        0.0,
+        0.0,
+        0.028
+      ]
+    },
+    "tints": {
+      "ready": "#207D85"
+    },
+    "activity": "basketball",
+    "walkable": true,
+    "color_variants": [
+      "#207D85",
+      "#E86D58"
+    ]
   },
   {
     "id": "activities/scoreboard",
     "file": "activities/scoreboard.glb",
     "category": "activity",
     "size_m": [
-      1.86,
+      2.2,
       0.3,
-      2.12
+      2.275
     ],
     "sockets": {
       "socket_screen": [
         0.0,
-        -0.1,
-        1.43
+        -0.08,
+        1.32
       ]
     },
     "tints": {
-      "frame": "#153447",
-      "trim": "#E86D58"
+      "frame": "#207D85"
     },
-    "activity": "basketball"
+    "activity": "basketball",
+    "insert": "blank score insert, game-driven"
   },
   {
     "id": "activities/ball_rack",
     "file": "activities/ball_rack.glb",
     "category": "activity",
     "size_m": [
-      1.06,
-      0.42,
-      0.869
+      1.3,
+      0.364,
+      1.01
     ],
     "sockets": {},
     "tints": {
+      "frame": "#207D85",
       "ball": "#F08A2E"
     },
     "activity": "basketball"
+  },
+  {
+    "id": "activities/gear_crate",
+    "file": "activities/gear_crate.glb",
+    "category": "prop",
+    "size_m": [
+      0.65,
+      0.66,
+      0.518
+    ],
+    "sockets": {},
+    "tints": {
+      "frame": "#207D85",
+      "ball": "#F08A2E",
+      "cup": "#207D85"
+    },
+    "activity": "basketball",
+    "collider_box": [
+      0.6,
+      0.6,
+      0.46
+    ]
+  },
+  {
+    "id": "activities/court_gate",
+    "file": "activities/court_gate.glb",
+    "category": "fence",
+    "size_m": [
+      2.138,
+      0.36,
+      1.61
+    ],
+    "sockets": {
+      "socket_entry": [
+        0.0,
+        -0.6,
+        0.0
+      ]
+    },
+    "parts": {
+      "part_gate_leaf": {
+        "pivot": [
+          -0.55,
+          0.0,
+          0.1
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 100
+      }
+    },
+    "part_clips": {
+      "part_gate_leaf": [
+        "gate_leaf_open",
+        "gate_leaf_close"
+      ]
+    },
+    "tints": {
+      "frame": "#207D85"
+    },
+    "opening_m": 1.1,
+    "swing": "into the court (+Y side), 100 deg",
+    "clear_swing_radius_m": 1.1
+  },
+  {
+    "id": "activities/low_boundary_fence",
+    "file": "activities/low_boundary_fence.glb",
+    "category": "fence",
+    "size_m": [
+      2.08,
+      0.468,
+      1.019
+    ],
+    "sockets": {},
+    "tints": {
+      "frame": "#207D85"
+    },
+    "module_m": 2.0,
+    "note": "snow stays outside the active court"
   },
   {
     "id": "activities/sketch_pavilion",
     "file": "activities/sketch_pavilion.glb",
     "category": "building",
     "size_m": [
-      5.933,
-      5.284,
-      3.982
+      5.613,
+      6.065,
+      4.64
     ],
     "sockets": {
       "socket_easel": [
-        2.0,
-        1.5,
-        0.22
+        1.58,
+        0.6,
+        0.3
       ],
       "socket_entry": [
         0.0,
-        -2.95,
+        -3.394,
+        0.0
+      ],
+      "socket_notice_board": [
+        -3.5,
+        0.8,
         0.0
       ],
       "socket_table": [
         0.0,
-        0.1,
-        0.22
+        0.05,
+        0.3
+      ]
+    },
+    "parts": {
+      "part_banner_5": {
+        "pivot": [
+          -0.918,
+          -2.329,
+          2.16
+        ],
+        "motion": "flutter",
+        "amp_deg": 8
+      },
+      "part_banner_6": {
+        "pivot": [
+          0.918,
+          -2.329,
+          2.16
+        ],
+        "motion": "flutter",
+        "amp_deg": 8
+      },
+      "part_bunting_0": {
+        "pivot": [
+          -0.633,
+          -2.199,
+          2.192
+        ],
+        "motion": "flutter",
+        "amp_deg": 14
+      },
+      "part_bunting_1": {
+        "pivot": [
+          -0.316,
+          -2.199,
+          2.116
+        ],
+        "motion": "flutter",
+        "amp_deg": 14
+      },
+      "part_bunting_2": {
+        "pivot": [
+          0.0,
+          -2.199,
+          2.09
+        ],
+        "motion": "flutter",
+        "amp_deg": 14
+      },
+      "part_bunting_3": {
+        "pivot": [
+          0.316,
+          -2.199,
+          2.116
+        ],
+        "motion": "flutter",
+        "amp_deg": 14
+      },
+      "part_bunting_4": {
+        "pivot": [
+          0.633,
+          -2.199,
+          2.192
+        ],
+        "motion": "flutter",
+        "amp_deg": 14
+      }
+    },
+    "part_clips": {
+      "part_banner_5": [
+        "banner_5_flutter"
+      ],
+      "part_banner_6": [
+        "banner_6_flutter"
+      ],
+      "part_bunting_0": [
+        "bunting_0_flutter"
+      ],
+      "part_bunting_1": [
+        "bunting_1_flutter"
+      ],
+      "part_bunting_2": [
+        "bunting_2_flutter"
+      ],
+      "part_bunting_3": [
+        "bunting_3_flutter"
+      ],
+      "part_bunting_4": [
+        "bunting_4_flutter"
       ]
     },
     "tints": {
-      "roof": "#E86D58",
-      "pin_a": "#E86D58",
-      "pin_b": "#207D85",
-      "pin_c": "#E3A92B",
-      "sign_frame": "#7A4E2C"
+      "banner": "#E86D58",
+      "pennant_a": "#E86D58",
+      "pennant_b": "#3FB3B5",
+      "pennant_c": "#FAF1DD",
+      "pennant_d": "#E3A92B",
+      "roof": "#F07E66"
     },
     "activity": "drawing_telephone",
-    "floor_z_m": 0.22,
+    "floor_z_m": 0.3,
     "room": "sketch_club",
-    "voice_room": "own audio room (quiet rounds)"
+    "voice_room": "own audio room (quiet rounds)",
+    "roof_child": "sketch_pavilion_roof",
+    "reuse": {
+      "seat": "activities/sketch_stool",
+      "notice_board": "world_misc/notice_board_club"
+    }
+  },
+  {
+    "id": "activities/communal_table",
+    "file": "activities/communal_table.glb",
+    "category": "activity",
+    "size_m": [
+      1.7,
+      1.7,
+      0.6
+    ],
+    "sockets": {
+      "socket_centerpiece": [
+        0.0,
+        0.0,
+        0.6
+      ],
+      "socket_pad_0": [
+        0.0,
+        -0.55,
+        0.6
+      ],
+      "socket_pad_1": [
+        0.476,
+        -0.275,
+        0.6
+      ],
+      "socket_pad_2": [
+        0.476,
+        0.275,
+        0.6
+      ],
+      "socket_pad_3": [
+        0.0,
+        0.55,
+        0.6
+      ],
+      "socket_pad_4": [
+        -0.476,
+        0.275,
+        0.6
+      ],
+      "socket_pad_5": [
+        -0.476,
+        -0.275,
+        0.6
+      ],
+      "socket_seat_0": [
+        0.0,
+        -1.18,
+        0.0
+      ],
+      "socket_seat_1": [
+        1.022,
+        -0.59,
+        0.0
+      ],
+      "socket_seat_2": [
+        1.022,
+        0.59,
+        0.0
+      ],
+      "socket_seat_3": [
+        0.0,
+        1.18,
+        0.0
+      ],
+      "socket_seat_4": [
+        -1.022,
+        0.59,
+        0.0
+      ],
+      "socket_seat_5": [
+        -1.022,
+        -0.59,
+        0.0
+      ]
+    },
+    "tints": {},
+    "activity": "drawing_telephone",
+    "seats": 6,
+    "table_h_m": 0.6,
+    "reuse": {
+      "seat": "activities/sketch_stool",
+      "centerpiece": "activities/table_lantern"
+    },
+    "collider": "cylinder r0.85 h0.6"
   },
   {
     "id": "activities/sketch_table",
     "file": "activities/sketch_table.glb",
     "category": "activity",
     "size_m": [
-      4.469,
-      2.069,
-      0.819
+      3.2,
+      0.988,
+      0.6
     ],
     "sockets": {
       "socket_pad_0": [
         -0.95,
         -0.3,
-        0.606
+        0.6
       ],
       "socket_pad_1": [
         -0.0,
         -0.3,
-        0.606
+        0.6
       ],
       "socket_pad_2": [
         0.95,
         -0.3,
-        0.606
+        0.6
       ],
       "socket_pad_3": [
         0.95,
         0.3,
-        0.606
+        0.6
       ],
       "socket_pad_4": [
         0.0,
         0.3,
-        0.606
+        0.6
       ],
       "socket_pad_5": [
         -0.95,
         0.3,
-        0.606
+        0.6
       ],
       "socket_pad_6": [
         1.3,
         0.0,
-        0.606
+        0.6
       ],
       "socket_pad_7": [
         -1.3,
         0.0,
-        0.606
+        0.6
       ],
       "socket_seat_0": [
         -0.95,
         -0.85,
-        0.42
+        0.0
       ],
       "socket_seat_1": [
         0.0,
         -0.85,
-        0.42
+        0.0
       ],
       "socket_seat_2": [
         0.95,
         -0.85,
-        0.42
+        0.0
       ],
       "socket_seat_3": [
         0.95,
         0.85,
-        0.42
+        0.0
       ],
       "socket_seat_4": [
         0.0,
         0.85,
-        0.42
+        0.0
       ],
       "socket_seat_5": [
         -0.95,
         0.85,
-        0.42
+        0.0
       ],
       "socket_seat_6": [
         2.05,
         0.0,
-        0.42
+        0.0
       ],
       "socket_seat_7": [
         -2.05,
         0.0,
-        0.42
+        0.0
+      ]
+    },
+    "tints": {},
+    "activity": "drawing_telephone",
+    "seats": 8,
+    "table_h_m": 0.6,
+    "reuse": {
+      "seat": "activities/sketch_stool"
+    }
+  },
+  {
+    "id": "activities/sketch_stool",
+    "file": "activities/sketch_stool.glb",
+    "category": "seating",
+    "size_m": [
+      0.389,
+      0.389,
+      0.448
+    ],
+    "sockets": {
+      "socket_seat": [
+        0.0,
+        0.0,
+        0.445
       ]
     },
     "tints": {
-      "seat_a": "#E86D58",
-      "seat_b": "#3FB3B5",
-      "seat_c": "#E3A92B",
-      "seat_d": "#8DAA5B",
-      "cup": "#207D85"
+      "cushion": "#207D85"
     },
+    "seat_h_m": 0.445,
+    "color_variants": [
+      "#207D85",
+      "#E86D58",
+      "#E3A92B"
+    ]
+  },
+  {
+    "id": "activities/table_lantern",
+    "file": "activities/table_lantern.glb",
+    "category": "tool",
+    "size_m": [
+      0.367,
+      0.354,
+      0.336
+    ],
+    "sockets": {
+      "socket_light": [
+        0.0,
+        0.0,
+        0.13
+      ]
+    },
+    "tints": {},
     "activity": "drawing_telephone",
-    "seats": 8,
-    "table_h_m": 0.6
+    "light": "warm glow, pulse emission"
   },
   {
     "id": "activities/drawing_pad",
     "file": "activities/drawing_pad.glb",
     "category": "prop",
     "size_m": [
-      0.412,
-      0.328,
+      0.34,
+      0.26,
       0.048
     ],
-    "sockets": {},
+    "sockets": {
+      "socket_canvas": [
+        0.0,
+        -0.01,
+        0.032
+      ]
+    },
     "tints": {},
+    "activity": "drawing_telephone",
+    "insert": "blank private pad"
+  },
+  {
+    "id": "activities/pencil",
+    "file": "activities/pencil.glb",
+    "category": "tool",
+    "size_m": [
+      0.275,
+      0.023,
+      0.02
+    ],
+    "sockets": {},
+    "tints": {
+      "pencil": "#207D85"
+    },
+    "activity": "drawing_telephone",
+    "length_m": 0.25
+  },
+  {
+    "id": "activities/eraser",
+    "file": "activities/eraser.glb",
+    "category": "tool",
+    "size_m": [
+      0.084,
+      0.044,
+      0.03
+    ],
+    "sockets": {},
+    "tints": {
+      "eraser_sleeve": "#E86D58"
+    },
     "activity": "drawing_telephone"
   },
   {
     "id": "activities/pencil_cup",
     "file": "activities/pencil_cup.glb",
-    "category": "prop",
+    "category": "tool",
     "size_m": [
-      0.112,
-      0.116,
+      0.113,
+      0.121,
       0.217
     ],
     "sockets": {},
@@ -320,6 +875,71 @@
       "cup": "#207D85"
     },
     "activity": "drawing_telephone"
+  },
+  {
+    "id": "activities/paper_tray",
+    "file": "activities/paper_tray.glb",
+    "category": "tool",
+    "size_m": [
+      0.407,
+      0.327,
+      0.086
+    ],
+    "sockets": {
+      "socket_paper": [
+        0.0,
+        0.0,
+        0.065
+      ]
+    },
+    "tints": {
+      "frame": "#207D85"
+    },
+    "activity": "drawing_telephone"
+  },
+  {
+    "id": "activities/table_timer",
+    "file": "activities/table_timer.glb",
+    "category": "tool",
+    "size_m": [
+      0.19,
+      0.071,
+      0.247
+    ],
+    "sockets": {
+      "socket_face": [
+        0.0,
+        -0.037,
+        0.1
+      ]
+    },
+    "tints": {
+      "timer_band": "#E86D58"
+    },
+    "activity": "drawing_telephone",
+    "insert": "blank timer face"
+  },
+  {
+    "id": "activities/easel_display",
+    "file": "activities/easel_display.glb",
+    "category": "tool",
+    "size_m": [
+      0.3,
+      0.149,
+      0.375
+    ],
+    "sockets": {
+      "socket_screen": [
+        0.0,
+        -0.05,
+        0.2
+      ]
+    },
+    "tints": {
+      "frame": "#207D85"
+    },
+    "activity": "drawing_telephone",
+    "insert": "blank reveal canvas"
   },
   {
     "id": "activities/easel_board",

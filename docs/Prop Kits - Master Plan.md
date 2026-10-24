@@ -1,6 +1,6 @@
 # Prop Kits - Master Plan
 
-Reference: [GAME_DESIGN_CONTEXT](GAME_DESIGN_CONTEXT.md) · [Gallery](Gallery.md) · [Models](../Models) · [Animation Kits - Index](Animation%20Kits%20-%20Index.md)
+Reference: [GAME_DESIGN_CONTEXT](GAME_DESIGN_CONTEXT.md) · [Gallery](Gallery.md) · [Models](Models.md) · [Animation Kits - Index](Animation%20Kits%20-%20Index.md)
 
 Initial audit found 295 GLB exports across 16 folders. The commit snapshot includes 327 GLBs across 20 folders, including newly available locomotion, emote and social animation exports, plus `Models/all_assets.blend`. Existing files are preserved as current work, not certified final assets. **Penguins** remain the character direction. No images were remade after the user requested keeping them.
 
@@ -20,7 +20,7 @@ Initial audit found 295 GLB exports across 16 folders. The commit snapshot inclu
 | Player homes | buildings + cottage + home_themes | House variants/interiors and new shell sheet | See [Prop Kit - Modular Houses](Prop%20Kit%20-%20Modular%20Houses.md). |
 | Decoration | room_kit + home_themes | 11 sheet, home decor sheet and interior personalities | Optional curtains, clocks, tabletop food, cushions, storage variants; grid footprints/support slots for every item. |
 | Plaza and waterfront | plaza + nature_dock + world_misc | 05–08 sheets and map | See [Prop Kit - Town Connections](Prop%20Kit%20-%20Town%20Connections.md); inspect cliff/stream seams and elevation links. |
-| Ambient world | multiple kits | New animation and effect component sheets | Host props are in [Prop Kit - Ambient Effects](Prop%20Kit%20-%20Ambient%20Effects.md). The missing `fx` meshes are in [Prop Kit - Effect Shapes](Prop%20Kit%20-%20Effect%20Shapes.md). |
+| Ambient world | multiple kits | New animation and effect component sheets | See [Prop Kit - Ambient Effects](Prop%20Kit%20-%20Ambient%20Effects.md); effects are not implemented by a static prop catalog. |
 
 ## New detailed kit notes
 
@@ -28,7 +28,6 @@ Initial audit found 295 GLB exports across 16 folders. The commit snapshot inclu
 - [Prop Kit - Drawing Club](Prop%20Kit%20-%20Drawing%20Club.md)
 - [Prop Kit - Activity Interactions](Prop%20Kit%20-%20Activity%20Interactions.md)
 - [Prop Kit - Ambient Effects](Prop%20Kit%20-%20Ambient%20Effects.md)
-- [Prop Kit - Effect Shapes](Prop%20Kit%20-%20Effect%20Shapes.md)
 - [Prop Kit - Modular Houses](Prop%20Kit%20-%20Modular%20Houses.md)
 - [Prop Kit - Town Connections](Prop%20Kit%20-%20Town%20Connections.md)
 

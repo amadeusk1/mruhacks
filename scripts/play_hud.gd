@@ -15,6 +15,7 @@ var _lines: PackedStringArray = PackedStringArray()
 
 
 func _ready() -> void:
+	$Root.add_child(TownHud.new())  # UI core: location chip, mic, dock and contextual action
 	_entry.text_submitted.connect(_on_submitted)
 	_entry.focus_entered.connect(_on_focus_entered)
 	_entry.focus_exited.connect(_on_focus_exited)
@@ -46,8 +47,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	if _menu_open():
 		close_chat()
 		return
-	if event.is_action_pressed("ui_accept") and not _entry.has_focus():
-		_entry.grab_focus()
+	if _is_chat_key(event) and not _entry.has_focus():
+		_entry.call_deferred("grab_focus")
 		get_viewport().set_input_as_handled()
 	elif _entry.has_focus() and event.is_action_pressed("ui_cancel"):
 		_entry.release_focus()
@@ -90,16 +91,23 @@ func _on_focus_exited() -> void:
 func _refresh_log() -> void:
 	if _lines.is_empty():
 		_log.text = "Chat with friends here."
-		_log.add_theme_color_override("font_color", Color(0.78, 0.86, 0.92, 0.9))
+		_log.add_theme_color_override("font_color", Color(0.55, 0.56, 0.61, 1))  # UI theme: muted on ivory
 		return
 	_log.text = "\n".join(_lines)
-	_log.add_theme_color_override("font_color", Color(0.95, 0.97, 1, 1))
+	_log.add_theme_color_override("font_color", Color(0.08, 0.15, 0.3, 1))  # UI theme: navy on ivory
 
 
 func _set_typing(active: bool) -> void:
 	var player := get_tree().get_first_node_in_group("player")
 	if player != null and player.has_method("set_typing_locked"):
 		player.call("set_typing_locked", active)
+
+
+func _is_chat_key(event: InputEvent) -> bool:
+	if not event is InputEventKey:
+		return false
+	var key := event as InputEventKey
+	return key.pressed and not key.echo and key.physical_keycode == KEY_T and not key.shift_pressed and not key.ctrl_pressed and not key.alt_pressed and not key.meta_pressed
 
 
 func _menu_open() -> bool:

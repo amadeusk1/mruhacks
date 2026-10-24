@@ -3,14 +3,15 @@ cinema snack props that the existing kits don't cover. The rod, bobber, fish, sl
 ready pads, snowball and duo cabinet already exist in avatar / fishing / winter / arcade."""
 from common import *
 from kits.winter import snow_post, snow_lumps, shade_snow, snowy_rock
+from kits.arcade import _station, DECK_TILT
 
 KIT = "interaction_props"
 PREVIEW_WIDTH = 10.0
 
 PALETTE.update({
     # countdown lamps: one material each so the game can switch them on in sequence
-    "lamp_red": ("#F0574C", 0.4, 3.0), "lamp_amber": ("#F6B23B", 0.4, 3.0), "lamp_green": ("#46D39A", 0.4, 3.0),
-    "team_glow": ("#F08070", 0.5, 1.6),
+    "lamp_red": ("#E8443A", 0.4, 1.4), "lamp_amber": ("#F2A22B", 0.4, 1.4), "lamp_green": ("#2FC283", 0.4, 1.4),
+    "team_glow": ("#F07A68", 0.5, 0.9),
     "popcorn": ("#FBE7A6", 0.9, 0), "popcorn_b": ("#F6D77F", 0.9, 0),
 })
 TEAM = tint("team", "coral")
@@ -97,12 +98,13 @@ def finish_timer():
     b.socket("display", (0, -0.14, 1.26))
     for s in (-1, 1):  # chequered flags on short poles atop the beam
         x = s * 0.55
-        b.cyl(0.018, 0.5, x, 0, 2.06, "iron", segs=6)
-        with b.part(f"flag_{'l' if s < 0 else 'r'}", pivot=(x, 0, 2.5), motion="flutter", amp_deg=10):
-            for i in range(3):
-                for j in range(2):
+        b.cyl(0.02, 0.62, x, 0, 2.06, "iron", segs=6)
+        b.sphere(0.03, x, 0, 2.69, "gold", u=6, v=4)
+        with b.part(f"flag_{'l' if s < 0 else 'r'}", pivot=(x, 0, 2.62), motion="flutter", amp_deg=10):
+            for i in range(4):
+                for j in range(3):
                     m = "black" if (i + j) % 2 else "white"
-                    b.box(0.1, 0.012, 0.1, x + s * (0.05 + 0.1 * i), 0, 2.32 + 0.1 * j, m, bevel=0)
+                    b.box(0.09, 0.012, 0.09, x + s * (0.065 + 0.09 * i), 0, 2.34 + 0.09 * j, m, bevel=0)
     return done(b, "track", {"insert": "display (blank insert_screen; the game draws the time)"})
 
 
@@ -110,7 +112,7 @@ def finish_timer():
 def team_badge():
     """Chest badge worn by arena players. Origin = avatar socket_neck; the shield sits on the chest."""
     b = Builder("team_badge", seed=14)
-    with b.at((0.135, -0.327, -0.132), rot=(-10, 0, 20)):
+    with b.at((0.135, -0.33, -0.13), rot=(-10, 0, 20), scale=1.2):
         shield = [(-0.07, 0.07), (0.07, 0.07), (0.07, -0.01), (0, -0.085), (-0.07, -0.01)]
         inner = [(x * 0.78, y * 0.78 + 0.004) for x, y in shield]
         b.prism(shield, 0.022, mat="gold")
@@ -202,11 +204,63 @@ def catch_display_stand():
     return done(b, "prop", {"insert": "top plaque (insert_sign)", "note": "fish from the fishing kit hang at hook_0..2"})
 
 
+def mooring_post():
+    """Decorative 'line anchor' detail for docks. The fishing line attaches to the rod tip
+    (avatar/fishing_rod socket_line_tip), never to this post."""
+    b = Builder("mooring_post", seed=22)
+    for i, (x, y, r) in enumerate(((0.12, 0.05, 0.2), (-0.14, 0.08, 0.16), (0.02, -0.15, 0.15))):
+        snowy_rock(b, x, y, r * 1.2, r, r * 0.6, i)
+    b.box(0.26, 0.26, 0.82, 0, 0, 0.0, "wood_b", bevel=0.035, jitter=0.004)
+    for k in range(3):  # weathered grain grooves
+        b.box(0.012, 0.01, 0.6, -0.06 + 0.06 * k, -0.132, 0.12, "wood_dark", bevel=0)
+    b.cyl(0.14, 0.05, 0, 0, 0.82, "snow", segs=8, r2=0.12, jitter=0.01)
+    b.blob(0.13, 0.13, 0.07, 0, 0, 0.87, "snow", subdiv=1, jitter=0.012)
+    for k in range(4):  # rope wraps hugging the square post (a round torus clips the corners)
+        z = 0.48 + 0.045 * k
+        for a in (0, 90, 180, 270):
+            with b.at((0, 0, z), rotz=a):
+                b.box(0.3, 0.04, 0.04, 0, -0.145, 0, "rope", bevel=0.012, rot=(0, (k % 2) * 6 - 3, 0), center=True)
+    b.box(0.06, 0.06, 0.06, 0, -0.15, 0.6, "iron", bevel=0.012)                           # ring staple
+    b.torus(0.1, 0.02, 0, -0.19, 0.5, "gold", segs=14, ring=5, rot=(90, 0, 0))            # brass ring
+    return done(b, "prop", {"decorative": True,
+                            "note": "dock dressing only; the fishing line runs rod tip -> bobber"})
+
+
+def double_control_deck():
+    """Standalone two-player control panel: same stations, spacing and grip sockets as
+    arcade_cabinet_duo (socket_grip_<n>_L/R, joystick tilt + button press parts)."""
+    b = Builder("double_control_deck", seed=23)
+    W, D = 1.25, 0.46
+    b.box(W, D, 0.82, 0, 0, 0, "wood", bevel=0.03)                                      # cabinet box
+    for s, c in ((-1, tint("station_1", "coral")), (1, tint("station_2", "teal_light"))):
+        b.box(0.06, D + 0.02, 0.84, s * (W / 2 - 0.02), 0, 0, c, bevel=0.02)               # side trims
+    for x in (-W / 2 + 0.08, W / 2 - 0.08):
+        b.box(0.07, 0.05, 0.7, x, -D / 2, 0.06, "wood_dark", bevel=0.01)                     # corner straps
+        for z in (0.12, 0.7):
+            b.cyl(0.014, 0.012, x, -D / 2 - 0.025, z, "iron", segs=6, rot=(90, 0, 0), center=True)
+    b.box(W - 0.06, 0.06, 0.06, 0, -D / 2 + 0.01, 0, "wood_dark", bevel=0.012)              # kick strip
+    # hexagonal bird emblem on the front
+    hexp = [(0.11 * math.cos(math.radians(30 + 60 * k)), 0.42 + 0.11 * math.sin(math.radians(30 + 60 * k))) for k in range(6)]
+    b.prism(hexp, 0.03, y=-D / 2 - 0.01, mat="charcoal", bevel=0.006)
+    b.blob(0.04, 0.008, 0.026, 0.0, -D / 2 - 0.028, 0.41, "cream", subdiv=1)
+    b.blob(0.02, 0.008, 0.02, 0.035, -D / 2 - 0.028, 0.44, "cream", subdiv=1)
+    b.prism([(-0.03, 0.41), (-0.07, 0.44), (-0.065, 0.395)], 0.008, y=-D / 2 - 0.028, mat="cream")
+    # tilted cream top with the two stations (same layout as the duo cabinet deck)
+    with b.at((0, -0.02, 0.84), rot=(DECK_TILT, 0, 0)):
+        b.box(W + 0.02, D + 0.04, 0.05, 0, 0, -0.05, tint("deck", "cream"), bevel=0.015)
+        _station(b, -0.31, plate=tint("station_1", "coral"), stick="red", buttons=("yellow", "red"), n=1)
+        _station(b, 0.31, plate=tint("station_2", "teal_light"), stick="sky", buttons=("yellow", "sky"), n=2)
+    for n, x in ((1, -0.32), (2, 0.32)):
+        b.socket(f"player_{n}", (x, -0.62, 0), rotz=180)
+    return done(b, "arcade", {"slots": 2, "matches": "arcade/arcade_cabinet_duo control scale and socket names",
+                              "screen": "none (pair with a screen or cabinet; controls are independent)"})
+
+
 # ----------------------------------------------------------------- cinema snacks
 def popcorn_tub():
     """Held at socket_hand_R; origin is the grip, the tub sits inward and in front like the mug."""
     b = Builder("popcorn_tub", seed=19)
-    with b.at((0.075, -0.085, -0.07)):
+    with b.at((0.09, -0.1, -0.09), scale=1.25):
         H, r0, r1 = 0.16, 0.062, 0.082
         b.cyl(r0, H, 0, 0, 0, tint("stripe_b", "cream"), segs=4, r2=r1, rot=(0, 0, 45), bevel=0.004)
         # coral stripes: thin flared slats proud of each face (two per face)
@@ -214,8 +268,8 @@ def popcorn_tub():
             a = math.radians(90 * k)
             for off in (-0.028, 0.028):
                 with b.at((0, 0, 0), rotz=90 * k):
-                    rr = (r0 + r1) / 2 * 0.72
-                    b.box(0.022, 0.006, H * 1.01, off, -rr - 0.004, 0, tint("stripe_a", "coral"), bevel=0, rot=(-7, 0, 0))
+                    flare = math.degrees(math.atan2((r1 - r0) * 0.7071, H))  # face lean of the flared tub
+                    b.box(0.022, 0.005, H, off, -r0 * 0.7071 - 0.003, 0, tint("stripe_a", "coral"), bevel=0, rot=(flare, 0, 0))
         # round bird emblem on the front face
         b.cyl(0.028, 0.006, 0, -0.054, 0.085, "cream", segs=10, rot=(90, 0, 0), center=True)
         b.blob(0.014, 0.004, 0.009, 0.0, -0.059, 0.083, tint("stripe_a", "coral"), subdiv=1)
@@ -276,6 +330,8 @@ def build():
     respawn_pad()
     match_scoreboard()
     catch_display_stand()
+    mooring_post()
+    double_control_deck()
     popcorn_tub()
     drink_cup()
     seat_reservation_marker()
