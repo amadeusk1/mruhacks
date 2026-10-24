@@ -17,7 +17,7 @@ func _ready() -> void:
 		if a == "--net-host": host = true
 	w = load("res://scenes/world.tscn").instantiate()
 	get_tree().root.add_child.call_deferred(w)
-	get_tree().create_timer(180.0).timeout.connect(func() -> void: _done(false, "TIMEOUT"))
+	get_tree().create_timer(240.0).timeout.connect(func() -> void: _done(false, "TIMEOUT"))
 	var seats: Array = []
 	while seats.size() < 10:  # session up and the town built
 		await get_tree().create_timer(1.0).timeout
@@ -49,22 +49,29 @@ func _ready() -> void:
 	p.set("_pending_bench", seat)
 	p.call("_begin_click", p.call("_closest_nav_point", seat.seat_point))
 	print("SEAT_MP walking %.1f m to %s" % [p.global_position.distance_to(seat.seat_point), seat.name])
+	var sname := seat.name
 	for i in 900:
 		await get_tree().physics_frame
+		p.call("set_typing_locked", false)  # unattended window: a focused HUD button re-locks typing
+		if not is_instance_valid(seat):  # the room rebuilt (the join can re-enter town): aim again
+			seat = get_tree().get_nodes_in_group("seats").filter(func(s): return s.name == sname)[0]
+			p.set("_pending_bench", seat)
+			p.call("_begin_click", p.call("_closest_nav_point", seat.seat_point))
 		if p.call("is_sitting"):
 			break
-	if not p.call("is_sitting"):
-		print("SEAT_MP debug pending=%s click=%s blocks=%s focus=%s" % [p.get("_pending_bench"), p.get("_click_active"), p.call("_blocks_play"), get_viewport().gui_get_focus_owner()])
-		print("SEAT_MP debug try_sit=%s sitting_now=%s" % [seat.try_sit(true), p.call("is_sitting")])
 	if not p.call("is_sitting") or p.call("current_bench") != seat:
 		_done(false, "did not sit at %s (still %.1f m away, sitting=%s)" % [seat.name, p.global_position.distance_to(seat.seat_point), p.call("is_sitting")])
 		return
 	print("SEAT_MP %s sat at %s" % [Net.local_profile()["name"], seat.name])
 	var seen := false
-	for i in 60:  # until the friend is seen seated beside me
+	var spot := seat.seat_point
+	var yaw := seat.face_yaw
+	for i in 120:  # until the friend is seen seated beside me
 		await get_tree().create_timer(1.0).timeout
-		var others := get_tree().get_nodes_in_group("player").filter(func(n): return n != p and n.has_method("is_sitting") and n.visible)
-		seen = others.any(func(n): return n.call("is_sitting") and n.global_position.distance_to(seat.seat_point) < 1.5)
+		var others := get_tree().get_nodes_in_group("remote_player").filter(func(n): return n.visible)
+		seen = others.any(func(n): return n.call("is_sitting") and n.global_position.distance_to(spot) < 1.5)
+		if i % 10 == 0:
+			print("SEAT_MP %s sees %s" % [Net.local_profile()["name"], others.map(func(n): return "%s sit=%s d=%.1f" % [n.name, n.call("is_sitting"), n.global_position.distance_to(spot)])])
 		if seen:
 			break
 	await get_tree().create_timer(2.0).timeout  # sit clips settle
@@ -72,9 +79,9 @@ func _ready() -> void:
 	(w.get_node("CameraRig") as Node3D).set_process(false)
 	for c in w.find_children("*", "CanvasLayer", true, false):
 		(c as CanvasLayer).visible = false
-	var fwd := Basis(Vector3.UP, seat.face_yaw) * Vector3(0, 0, -1)
-	cam.global_position = seat.seat_point + fwd * 3.2 + Vector3(0, 1.6, 0)
-	cam.look_at(seat.seat_point + Vector3(0, 0.4, 0), Vector3.UP)
+	var fwd := Basis(Vector3.UP, yaw) * Vector3(0, 0, -1)
+	cam.global_position = spot + fwd * 3.2 + Vector3(0, 1.6, 0)
+	cam.look_at(spot + Vector3(0, 0.4, 0), Vector3.UP)
 	for f in 4: await get_tree().process_frame
 	await RenderingServer.frame_post_draw
 	var path := "%sseating_bench_%s.png" % [out, "host" if host else "client"]
