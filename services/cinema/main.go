@@ -44,15 +44,21 @@ type State struct {
 	ServerNow  int64   `json:"serverNow"`
 }
 type session struct {
-	ID, Name      string
-	Eligible      bool
-	Expires, Seen time.Time
+	ID, Name         string
+	Member, Instance string
+	Eligible         bool
+	Expires, Seen    time.Time
 }
 type mediaURL struct {
 	URL        *url.URL
 	Generation int64
 }
 type Server struct {
+	gameKey                      string
+	instance                     string
+	membersSeen                  time.Time
+	members                      map[string]lobbyMember
+	tickets                      map[string]lobbyTicket
 	mu                           sync.Mutex
 	commands                     sync.Mutex
 	provider                     Provider
@@ -75,7 +81,7 @@ func randomID() string {
 	return hex.EncodeToString(b)
 }
 func newServer(p Provider, origin, host, viewer string) *Server {
-	return &Server{provider: p, origin: origin, hostCode: host, viewerCode: viewer, secure: strings.HasPrefix(origin, "https:"), sessions: map[string]*session{}, resources: map[string]mediaURL{}, reverse: map[string]string{}, seenCommands: map[string]bool{}, attempts: map[string][]time.Time{}}
+	return &Server{members: map[string]lobbyMember{}, tickets: map[string]lobbyTicket{}, provider: p, origin: origin, hostCode: host, viewerCode: viewer, secure: strings.HasPrefix(origin, "https:"), sessions: map[string]*session{}, resources: map[string]mediaURL{}, reverse: map[string]string{}, seenCommands: map[string]bool{}, attempts: map[string][]time.Time{}}
 }
 func jsonOut(w http.ResponseWriter, v any) {
 	w.Header().Set("Content-Type", "application/json")
@@ -98,7 +104,7 @@ func (s *Server) auth(r *http.Request) (session, bool) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	u, ok := s.sessions[c.Value]
-	if !ok || time.Now().After(u.Expires) {
+	if !ok || time.Now().After(u.Expires) || !s.memberValidLocked(u) {
 		return session{}, false
 	}
 	return *u, true
@@ -117,7 +123,7 @@ func (s *Server) snapshot() State {
 	// One controller. Its disconnected browser cannot hold control forever.
 	if s.controller != "" {
 		u := s.sessions[s.controller]
-		if u == nil || now.Sub(u.Seen) > 15*time.Second {
+		if u == nil || now.Sub(u.Seen) > 15*time.Second || !s.memberValidLocked(u) {
 			s.state.Position = s.positionLocked()
 			s.state.Playing = false
 			s.state.Updated = now.UnixMilli()
@@ -129,7 +135,7 @@ func (s *Server) snapshot() State {
 	out := s.state
 	out.ServerNow = now.UnixMilli()
 	for id, u := range s.sessions {
-		if now.After(u.Expires) {
+		if now.After(u.Expires) || !s.memberValidLocked(u) {
 			delete(s.sessions, id)
 		} else if now.Sub(u.Seen) < 15*time.Second {
 			out.Viewers++
@@ -152,6 +158,9 @@ func (s *Server) handler() http.Handler {
 		jsonOut(w, map[string]any{"ok": true, "provider": "emby", "screenings": 1})
 	})
 	mux.HandleFunc("POST /cinema/api/login", s.login)
+	mux.HandleFunc("POST /cinema/api/ticket", s.exchangeTicket)
+	mux.HandleFunc("POST /cinema/internal/roster", s.internal(s.rosterUpdate))
+	mux.HandleFunc("POST /cinema/internal/ticket", s.internal(s.mintTicket))
 	mux.HandleFunc("POST /cinema/api/logout", s.protect(s.logout))
 	mux.HandleFunc("GET /cinema/api/me", s.protect(func(w http.ResponseWriter, r *http.Request, u session) {
 		s.touch(u.ID)
@@ -175,7 +184,7 @@ func (s *Server) handler() http.Handler {
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("Referrer-Policy", "no-referrer")
 		w.Header().Set("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self'; media-src 'self' blob:; connect-src 'self'; worker-src blob:; frame-ancestors 'self'")
-		if r.Method != "GET" && r.Method != "HEAD" && r.Header.Get("Origin") != s.origin {
+		if r.Method != "GET" && r.Method != "HEAD" && r.Header.Get("Origin") != s.origin && !(r.Method == "POST" && (r.URL.Path == "/cinema/internal/roster" || r.URL.Path == "/cinema/internal/ticket")) {
 			fail(w, 403, "Origin rejected")
 			return
 		}
@@ -193,6 +202,10 @@ func (s *Server) protect(fn func(http.ResponseWriter, *http.Request, session)) h
 	}
 }
 func (s *Server) login(w http.ResponseWriter, r *http.Request) {
+	if s.gameKey != "" {
+		fail(w, 403, "Enter the cinema from your game lobby")
+		return
+	}
 	s.mu.Lock()
 	ip := strings.Split(r.RemoteAddr, ":")[0]
 	now := time.Now()
@@ -232,7 +245,7 @@ func (s *Server) login(w http.ResponseWriter, r *http.Request) {
 		fail(w, 503, "Cinema session limit reached")
 		return
 	}
-	u := &session{randomID(), in.Name, host, time.Now().Add(12 * time.Hour), time.Now()}
+	u := &session{ID: randomID(), Name: in.Name, Eligible: host, Expires: time.Now().Add(12 * time.Hour), Seen: time.Now()}
 	s.sessions[u.ID] = u
 	if host && s.controller == "" {
 		s.controller = u.ID
@@ -255,7 +268,7 @@ func (s *Server) claim(w http.ResponseWriter, r *http.Request, u session) {
 	s.snapshot()
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if !u.Eligible || (s.controller != "" && s.controller != u.ID) {
+	if !s.memberValidLocked(&u) || !u.Eligible || (s.controller != "" && s.controller != u.ID) {
 		fail(w, 403, "Another controller is active")
 		return
 	}
@@ -277,7 +290,7 @@ func (s *Server) control(w http.ResponseWriter, r *http.Request, u session) {
 	s.commands.Lock()
 	defer s.commands.Unlock()
 	s.mu.Lock()
-	if s.controller != u.ID {
+	if s.controller != u.ID || !s.memberValidLocked(&u) {
 		s.mu.Unlock()
 		fail(w, 403, "Only the controller can change playback")
 		return
@@ -305,7 +318,7 @@ func (s *Server) control(w http.ResponseWriter, r *http.Request, u session) {
 			return
 		}
 		s.mu.Lock()
-		if s.controller != u.ID {
+		if s.controller != u.ID || !s.memberValidLocked(&u) {
 			s.mu.Unlock()
 			_ = s.provider.Stop(r.Context(), play.SessionID)
 			fail(w, 409, "Controller changed during media load")
@@ -533,12 +546,12 @@ func main() {
 			log.Fatal("Cannot read private configuration")
 		}
 	}
-	for _, key := range []string{"EMBY_URL", "EMBY_API_KEY", "EMBY_USER_ID", "CINEMA_HOST_CODE", "CINEMA_VIEWER_CODE", "CINEMA_ORIGIN"} {
+	for _, key := range []string{"EMBY_URL", "EMBY_API_KEY", "EMBY_USER_ID", "CINEMA_GAME_SERVER_KEY", "CINEMA_ORIGIN"} {
 		if os.Getenv(key) == "" {
 			log.Fatalf("Set %s in private configuration", key)
 		}
 	}
-	if os.Getenv("CINEMA_HOST_CODE") == os.Getenv("CINEMA_VIEWER_CODE") {
+	if os.Getenv("CINEMA_GAME_SERVER_KEY") == "" && os.Getenv("CINEMA_HOST_CODE") == os.Getenv("CINEMA_VIEWER_CODE") {
 		log.Fatal("Host and viewer codes must differ")
 	}
 	p, e := newEmby(os.Getenv("EMBY_URL"), os.Getenv("EMBY_API_KEY"), os.Getenv("EMBY_USER_ID"))
@@ -546,6 +559,7 @@ func main() {
 		log.Fatal(e)
 	}
 	s := newServer(p, os.Getenv("CINEMA_ORIGIN"), os.Getenv("CINEMA_HOST_CODE"), os.Getenv("CINEMA_VIEWER_CODE"))
+	s.gameKey = os.Getenv("CINEMA_GAME_SERVER_KEY")
 	addr := os.Getenv("CINEMA_LISTEN")
 	if addr == "" {
 		addr = "127.0.0.1:8095"

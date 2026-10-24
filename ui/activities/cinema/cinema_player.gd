@@ -9,20 +9,27 @@ var _closing := false
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_show_error("Joining your cinema lobby…")
+
+func authorize(ticket: String) -> void:
+	if _closing:
+		return
+	for child in get_children():
+		child.queue_free()
 	if OS.has_feature("web"):
 		_bridge = JavaScriptBridge.get_interface("PenglooCinema")
 		if _bridge == null:
 			_show_error("Cinema web bridge is missing. Add /cinema/bridge.js to the web export shell.")
 			return
 		_callback = JavaScriptBridge.create_callback(func(_args: Array) -> void: close())
-		_bridge.open(_callback)
+		_bridge.open(ticket, _callback)
 	elif ClassDB.class_exists("WebView") and DisplayServer.get_name() != "headless":
 		_view = ClassDB.instantiate("WebView") as Control
 		_view.set("full_window_size", true)
 		_view.set("autoplay", true)
 		_view.set("forward_input_events", false)
 		_view.set("incognito", true)
-		_view.set("url", service_url())
+		_view.set("url", service_url() + "#ticket=" + ticket.uri_encode())
 		_view.connect("ipc_message", _on_message)
 		add_child(_view)
 	else:

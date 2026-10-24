@@ -145,9 +145,9 @@ func host_game(player_name: String) -> String:
 	if _mode != Mode.OFF:
 		return "Already in a session."
 	var peer := ENetMultiplayerPeer.new()
-	var err := peer.create_server(PORT, 8)
+	var err := peer.create_server(connection_port(), 8)
 	if err != OK:
-		return "Port %s is already in use." % PORT
+		return "Port %s is already in use." % connection_port()
 	_mode = Mode.HOST
 	multiplayer.multiplayer_peer = peer
 	_local_name = _clean_name(player_name)
@@ -155,7 +155,7 @@ func host_game(player_name: String) -> String:
 	_place_hidden = true
 	_players[local_id()] = _blank(local_id(), _local_name, _local_color)
 	_session_open = true
-	print("Net hosting on %s:%s as peer %s (%s)" % [ADDRESS, PORT, local_id(), _local_name])
+	print("Net hosting on %s:%s as peer %s (%s)" % [ADDRESS, connection_port(), local_id(), _local_name])
 	_broadcast()
 	session_started.emit()
 	return ""
@@ -165,14 +165,14 @@ func join_game(player_name: String) -> String:
 	if _mode != Mode.OFF:
 		return "Already in a session."
 	var peer := ENetMultiplayerPeer.new()
-	var err := peer.create_client(ADDRESS, PORT)
+	var err := peer.create_client(ADDRESS, connection_port())
 	if err != OK:
-		return "Couldn't open a connection to %s:%s." % [ADDRESS, PORT]
+		return "Couldn't open a connection to %s:%s." % [ADDRESS, connection_port()]
 	_mode = Mode.CLIENT
 	_local_name = _clean_name(player_name)
 	_place_hidden = true
 	multiplayer.multiplayer_peer = peer
-	print("Net joining %s:%s as %s" % [ADDRESS, PORT, _local_name])
+	print("Net joining %s:%s as %s" % [ADDRESS, connection_port(), _local_name])
 	get_tree().create_timer(6.0).timeout.connect(_on_hello_timeout, CONNECT_ONE_SHOT)
 	return ""
 
@@ -575,7 +575,7 @@ func _on_connection_failed() -> void:
 	if _closing or _mode != Mode.CLIENT:
 		return
 	_force_offline()
-	connect_failed.emit("Couldn't reach a host at %s:%s." % [ADDRESS, PORT])
+	connect_failed.emit("Couldn't reach a host at %s:%s." % [ADDRESS, connection_port()])
 
 
 func _on_server_disconnected() -> void:
@@ -935,3 +935,9 @@ func _roster_has_self() -> bool:
 		if int(entry.get("id", 0)) == local_id():
 			return true
 	return false
+
+
+func connection_port() -> int:
+	var configured := OS.get_environment("PENGLOO_PORT")
+	var port := configured.to_int()
+	return port if port >= 1024 and port <= 65535 else PORT
