@@ -111,7 +111,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if _input_locked:
 		return
 	if event.is_action_pressed("click_walk"):
-		_try_click()
+		_try_click(event)
 
 
 func _physics_process(delta: float) -> void:
@@ -162,13 +162,15 @@ func command_walk_to(world_point: Vector3) -> void:
 	_begin_click(_closest_nav_point(world_point))
 
 
-func _try_click() -> void:
+func _try_click(event: InputEvent = null) -> void:
 	if _camera_wish() != Vector3.ZERO:
 		return
 	var camera := get_viewport().get_camera_3d()
 	if camera == null:
 		return
 	var mouse := get_viewport().get_mouse_position()
+	if event is InputEventMouse:
+		mouse = (event as InputEventMouse).position
 	var origin := camera.project_ray_origin(mouse)
 	var end := origin + camera.project_ray_normal(mouse) * 400.0
 	var query := PhysicsRayQueryParameters3D.create(origin, end, _CLICK_MASK)
