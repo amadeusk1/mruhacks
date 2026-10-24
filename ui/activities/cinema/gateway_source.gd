@@ -13,6 +13,13 @@ func _init() -> void:
 	provider_type = "emby"
 	source_name = "Pengloo cinema"
 	CinemaService.player.state_changed.connect(_on_state)
+	CinemaService.signed_in_changed.connect(_on_signed_in)  # signed in elsewhere (pill, overlay)
+
+
+func _on_signed_in(on: bool) -> void:
+	if on and status in ["signed_out", "connecting"]:
+		_status("connected", "")
+		search("")
 
 
 func connect_source() -> void:
@@ -30,7 +37,7 @@ func _on_health(up: bool) -> void:
 
 func sign_in(code: String) -> void:
 	_status("connecting", "")
-	client.login(str(Net.local_profile().get("name", "Penguin")), code, _on_login)
+	CinemaService.sign_in(code, _on_login)
 
 
 func _on_login(ok: bool, err: String) -> void:
@@ -95,8 +102,9 @@ func _on_state(st: Dictionary) -> void:
 	var s := {"screening_id": "screen1", "media_id": str(media.get("id", "")), "playing": playing, "position_s": pos,
 		"duration_s": float(media.get("duration", 0.0)), "stream_generation": int(st.get("generation", 0)),
 		"controller_player_id": str(Net.local_id()) if ctrl != "" and ctrl == me else ctrl,
-		"phase": "idle" if str(media.get("id", "")) == "" else ("playing" if playing else "paused")}
-	for k in ["media_id", "playing", "controller_player_id"]:
+		"phase": "idle" if str(media.get("id", "")) == "" else ("playing" if playing else "paused"),
+		"viewers": int(st.get("viewers", 0)), "title": str(media.get("title", ""))}
+	for k in ["media_id", "playing", "controller_player_id", "viewers"]:
 		if s[k] != snapshot.get(k):
 			_set_snapshot(s)
 			return
@@ -108,3 +116,8 @@ func _status(s: String, d: String) -> void:
 	status = s
 	detail = d
 	status_changed.emit(s, d)
+
+
+## Signed in with a host code (can pick and control films).
+func can_host() -> bool:
+	return client.signed_in and bool(client.me.get("eligible", false))

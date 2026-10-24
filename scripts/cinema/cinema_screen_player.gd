@@ -40,6 +40,10 @@ func unwatch(view: Node) -> void:
 	_views.erase(view)
 
 
+func has_film() -> bool:
+	return _has_film
+
+
 func has_views() -> bool:
 	for v in _views.keys():
 		if not is_instance_valid(v):
