@@ -555,7 +555,8 @@ def arena():
     def A(u, v):                                            # blockout-local metres -> world
         return o.x + u * sc, o.y + v * sc
     place("winter/snowball_arena_blockout", o.x, o.y, 0, z=az, tags=("prop",), name="SnowballArena", scale=sc)
-    mark("ArenaGate", T.ARENA_GATE_X, 18.2, 0, kind="activity", activity="snowballs", z=az)
+    # inside the gate, past the blockout's spectator bench (socket_spectator_1 at v 18.0) and between the ready pads
+    mark("ArenaGate", T.ARENA_GATE_X, 19.0, 0, kind="activity", activity="snowballs", z=az)
     # team ready pads with foot rings, respawn pads, flags, the snowball pile, scoreboard, spectator benches
     for team, col, u in (("coral", "#E86D58", 4.8), ("teal", "#207D85", 7.3)):
         place("winter/ready_pad", *A(u, 0.3), 0, z=az, tints={"team": col})
