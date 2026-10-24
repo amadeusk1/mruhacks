@@ -33,7 +33,7 @@ func set_hint(text: String) -> void:
 func set_countdown(text: String) -> void:
 	countdown_label.text = text
 	countdown_label.visible = text != ""
-	var color := Color(1, 0.55, 0.16) if text == "Go!" else Color(1, 1, 1)
+	var color := UiKit.CORAL if text == "Go!" else UiKit.NAVY
 	countdown_label.add_theme_color_override("font_color", color)
 
 

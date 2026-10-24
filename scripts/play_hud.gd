@@ -1,6 +1,6 @@
 extends CanvasLayer
 
-## Corner coin count and a local chat box for the town.
+## Compact town HUD: place, coins, map, home, and chat.
 
 const SPEAKER := "You"
 const MAX_LINES := 6
@@ -10,6 +10,7 @@ var coins := 0
 var _lines: PackedStringArray = PackedStringArray()
 
 @onready var _amount: Label = $Root/CoinBadge/Margin/Row/Amount
+@onready var _place: Label = $Root/PlaceChip/Margin/Place
 @onready var _log: Label = $Root/Chat/Log/Margin/Lines
 @onready var _entry: LineEdit = $Root/Chat/Entry
 
@@ -18,8 +19,14 @@ func _ready() -> void:
 	_entry.text_submitted.connect(_on_submitted)
 	_entry.focus_entered.connect(_on_focus_entered)
 	_entry.focus_exited.connect(_on_focus_exited)
+	$Root/Actions/Map.pressed.connect(_on_map)
+	$Root/Actions/Home.pressed.connect(_on_home)
 	set_coins(coins)
 	_refresh_log()
+
+
+func set_place(title: String) -> void:
+	_place.text = title if title != "" else "Town"
 
 
 func set_coins(amount: int) -> void:
@@ -46,7 +53,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if _menu_open():
 		close_chat()
 		return
-	if event.is_action_pressed("ui_accept") and not _entry.has_focus():
+	if _opens_chat(event) and not _entry.has_focus():
 		_entry.grab_focus()
 		get_viewport().set_input_as_handled()
 	elif _entry.has_focus() and event.is_action_pressed("ui_cancel"):
@@ -57,6 +64,14 @@ func _unhandled_input(event: InputEvent) -> void:
 		if mouse.pressed and mouse.button_index == MOUSE_BUTTON_LEFT:
 			_entry.release_focus()
 			get_viewport().set_input_as_handled()
+
+
+func _opens_chat(event: InputEvent) -> bool:
+	if not event.is_action_pressed("ui_accept"):
+		return false
+	if event is InputEventKey and (event as InputEventKey).keycode == KEY_SPACE:
+		return false
+	return true
 
 
 func add_line(speaker: String, message: String) -> void:
@@ -71,7 +86,7 @@ func _on_submitted(text: String) -> void:
 	_entry.clear()
 	if message == "":
 		return
-	var world := get_tree().get_first_node_in_group("world")
+	var world := _world()
 	if world != null and world.has_method("send_chat"):
 		world.call("send_chat", message)
 	else:
@@ -90,10 +105,26 @@ func _on_focus_exited() -> void:
 func _refresh_log() -> void:
 	if _lines.is_empty():
 		_log.text = "Chat with friends here."
-		_log.add_theme_color_override("font_color", Color(0.78, 0.86, 0.92, 0.9))
+		_log.add_theme_color_override("font_color", Color(UiKit.NAVY, 0.55))
 		return
 	_log.text = "\n".join(_lines)
-	_log.add_theme_color_override("font_color", Color(0.95, 0.97, 1, 1))
+	_log.add_theme_color_override("font_color", UiKit.NAVY)
+
+
+func _on_map() -> void:
+	var world := _world()
+	if world != null and world.has_method("open_bus_menu"):
+		world.call("open_bus_menu")
+
+
+func _on_home() -> void:
+	var world := _world()
+	if world != null and world.has_method("travel_to"):
+		world.call("travel_to", "home")
+
+
+func _world() -> Node:
+	return get_tree().get_first_node_in_group("world")
 
 
 func _set_typing(active: bool) -> void:
@@ -103,7 +134,7 @@ func _set_typing(active: bool) -> void:
 
 
 func _menu_open() -> bool:
-	var world := get_tree().get_first_node_in_group("world")
+	var world := _world()
 	if world == null:
 		return false
 	if world.has_method("is_bus_menu_open") and bool(world.call("is_bus_menu_open")):

@@ -8,13 +8,7 @@
       0.32,
       0.441
     ],
-    "sockets": {
-      "socket_collar": [
-        0.0,
-        -0.02,
-        0.28
-      ]
-    },
+    "sockets": {},
     "tints": {
       "body": "#3D7BD9"
     },
@@ -42,17 +36,11 @@
     "file": "pets/pet_puff.glb",
     "category": "pet",
     "size_m": [
-      0.564,
-      0.348,
+      0.565,
+      0.34,
       0.418
     ],
-    "sockets": {
-      "socket_collar": [
-        0.0,
-        -0.021,
-        0.255
-      ]
-    },
+    "sockets": {},
     "tints": {
       "body": "#F2C230"
     },
@@ -80,17 +68,11 @@
     "file": "pets/pet_tuxedo.glb",
     "category": "pet",
     "size_m": [
-      0.43,
-      0.27,
+      0.428,
+      0.261,
       0.48
     ],
-    "sockets": {
-      "socket_collar": [
-        0.0,
-        -0.016,
-        0.305
-      ]
-    },
+    "sockets": {},
     "tints": {
       "body": "#3A3D44"
     },

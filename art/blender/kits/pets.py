@@ -1,9 +1,7 @@
-"""Pet models. Smaller penguins and fish on a leash.
+"""Pet models. Pengi is a baby penguin with no collar or leash.
+Fish wear a collar. The game draws their leash to socket_collar.
 
-Chicks are the player bird, scaled down, with a collar and bell. Fish are the
-fishing-kit bodies, scaled down, with a collar. Front faces -Y. Origin is on the
-ground under the pet. The leash is not baked into the GLB: mockup renders draw it
-from socket_collar to the player, and the game does the same from socket_pet.
+Front faces -Y. Origin is on the ground under the pet.
 """
 import bpy
 from mathutils import Vector
@@ -46,10 +44,6 @@ def add_penguin(b, kind):
     avpart = b.bm.verts.layers.int.get("avpart")
     if avpart is not None:
         b.bm.verts.layers.int.remove(avpart)
-    neck = 0.56 * sz
-    rad = 0.30 * (sx + sy) / 2
-    b.torus(rad, 0.009, 0, -0.02 * sy, neck, "red", segs=12, ring=5)
-    b.sphere(0.014 * sz, 0, -(rad + 0.01), neck - 0.012 * sz, "gold", u=6, v=4)
     if p["cheeks"]:
         for side in (-1, 1):
             b.sphere(0.02 * sz, side * 0.16 * sx, -0.24 * sy, 0.64 * sz, "yellow",
@@ -59,7 +53,6 @@ def add_penguin(b, kind):
                            (0.0, 0.08, 0.88, 0.06), (0.22, 0.04, 0.48, 0.045),
                            (-0.22, 0.02, 0.46, 0.042), (0.0, 0.16, 0.62, 0.04)):
             b.blob(r * sx, r * sy * 0.9, r * sz, x * sx, y * sy, z * sz, "cream", subdiv=1)
-    b.socket("collar", (0, -0.04 * sy, neck + 0.012 * sz))
 
 
 def add_fish(b, kind):
@@ -152,10 +145,8 @@ def _sheets():
     player = player.finish(KIT, "mockup", {"note": "render helper"})
     pebble, minnow = bpy.data.objects["pet_pebble"], bpy.data.objects["pet_minnow"]
     hand = Vector(avatar.SOCKETS["hand_R"][1])
-    hip = Vector((0.22, 0.10, 0.36))
     saved = _place([player, pebble, minnow], [(0, 0, 0), (0.58, 0.36, 0), (-0.62, -0.06, 0)])
     leads = Builder("_pet_leads", seed=2)
-    rope_between(leads, hip, _socket_world(pebble, "collar"), sag=0.04, r=0.008, segs=6, mat="rope")
     rope_between(leads, hand, _socket_world(minnow, "collar"), sag=0.03, r=0.008, segs=6, mat="rope")
     leads = leads.finish(KIT, "mockup", {"note": "render helper"})
     _shot([player, pebble, minnow, leads], os.path.join(DETAILS, "pets_with_player.png"),

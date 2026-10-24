@@ -133,6 +133,8 @@ func travel_to(location_id: String, spawn_name: String = "BusArrival", igloo_id:
 	_traveling = true
 	_menu.dismiss()
 	close_shop()
+	if _penguin.has_method("stand_up"):
+		_penguin.stand_up()
 	_penguin.set_travel_locked(true)
 	_penguin.halt()
 	_despawn_all()
@@ -144,6 +146,8 @@ func travel_to(location_id: String, spawn_name: String = "BusArrival", igloo_id:
 	_host.add_child(room)
 	_current_id = location_id
 	_igloo_id = igloo
+	if LocationCatalog.has_location(location_id):
+		_hud.set_place(LocationCatalog.title_of(location_id))
 	if epoch != _epoch:
 		_traveling = false
 		return
@@ -326,6 +330,8 @@ func _on_session_started() -> void:
 	Music.start()
 	var profile := Net.local_profile()
 	_penguin.apply_identity(str(profile["name"]), int(profile["color"]))
+	if str(profile["name"]).to_lower() == "developer":
+		grant_coins(100)
 	DisplayServer.window_set_title("%s — %s" % [Net.role_label(), str(profile["name"])])
 	await travel_to("plaza", "BusArrival")
 	_refresh_presence()
@@ -505,6 +511,7 @@ func _ensure_puppet(entry: Dictionary) -> void:
 	if puppet == null or not is_instance_valid(puppet):
 		puppet = PENGUIN.instantiate()
 		puppet.set_meta("remote_peer", id)
+		puppet.add_to_group("remote_player")
 		_players.add_child(puppet)
 		_puppets[id] = puppet
 		puppet.visible = false
@@ -672,7 +679,7 @@ func _build_presence() -> void:
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	layer.add_child(root)
 	_rows = VBoxContainer.new()
-	_rows.position = Vector2(18, 14)
+	_rows.position = Vector2(18, 70)
 	_rows.add_theme_constant_override("separation", 6)
 	_rows.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(_rows)
@@ -691,7 +698,8 @@ func _build_presence() -> void:
 	_invite.add_child(column)
 	_invite_text = Label.new()
 	_invite_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_invite_text.add_theme_color_override("font_color", Color(0.95, 0.97, 1))
+	_invite_text.add_theme_color_override("font_color", UiKit.NAVY)
+	_invite_text.add_theme_font_size_override("font_size", 18)
 	column.add_child(_invite_text)
 	var actions := HBoxContainer.new()
 	actions.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -699,24 +707,24 @@ func _build_presence() -> void:
 	column.add_child(actions)
 	var visit := Button.new()
 	visit.text = "Visit"
+	visit.custom_minimum_size = Vector2(120, 42)
+	UiKit.paint(visit, UiKit.TEAL, UiKit.WHITE)
 	visit.pressed.connect(_accept_invite)
 	actions.add_child(visit)
 	var decline := Button.new()
 	decline.text = "Not now"
+	decline.custom_minimum_size = Vector2(120, 42)
+	UiKit.paint(decline, UiKit.QUIET, UiKit.NAVY)
 	decline.pressed.connect(_hide_invite)
 	actions.add_child(decline)
 
 
 func _invite_style() -> StyleBoxFlat:
-	var box := StyleBoxFlat.new()
-	box.bg_color = Color(0.08, 0.22, 0.4, 0.96)
-	box.border_color = Color(0.86, 0.93, 0.98)
-	box.set_border_width_all(3)
-	box.set_corner_radius_all(14)
-	box.content_margin_left = 14
-	box.content_margin_right = 14
-	box.content_margin_top = 10
-	box.content_margin_bottom = 10
+	var box := UiKit.panel(16)
+	box.content_margin_left = 16
+	box.content_margin_right = 16
+	box.content_margin_top = 12
+	box.content_margin_bottom = 12
 	return box
 
 

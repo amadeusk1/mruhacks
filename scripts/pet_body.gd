@@ -4,7 +4,7 @@ extends Node3D
 ## Gameplay treats -Z as forward, so the model is turned around.
 ## Pen mode faces the counter. Follow mode only bobs; the parent moves it.
 
-var kind := "pebble"
+var kind := "pengi"
 var pen_mode := true
 
 var _phase := 0.0

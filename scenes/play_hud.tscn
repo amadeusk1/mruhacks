@@ -1,18 +1,16 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scripts/play_hud.gd" id="1_hud"]
 
 [sub_resource type="StyleBoxFlat" id="Style_coin_panel"]
-bg_color = Color(0.952941, 0.886275, 0.772549, 0.96)
-border_color = Color(0.082353, 0.203922, 0.278431, 1)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
+bg_color = Color(0.980392, 0.945098, 0.866667, 0.96)
 corner_radius_top_left = 16
 corner_radius_top_right = 16
 corner_radius_bottom_right = 16
 corner_radius_bottom_left = 16
+shadow_color = Color(0.082353, 0.141176, 0.203922, 0.18)
+shadow_size = 8
+shadow_offset = Vector2(0, 4)
 
 [sub_resource type="StyleBoxFlat" id="Style_coin_disc"]
 bg_color = Color(1, 0.780392, 0.419608, 1)
@@ -27,44 +25,56 @@ corner_radius_bottom_right = 11
 corner_radius_bottom_left = 11
 
 [sub_resource type="StyleBoxFlat" id="Style_chat_log"]
-bg_color = Color(0.082353, 0.203922, 0.278431, 0.82)
-border_color = Color(0.952941, 0.886275, 0.772549, 0.9)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
+bg_color = Color(0.980392, 0.945098, 0.866667, 0.94)
 corner_radius_top_left = 16
 corner_radius_top_right = 16
 corner_radius_bottom_right = 16
 corner_radius_bottom_left = 16
+shadow_color = Color(0.082353, 0.141176, 0.203922, 0.16)
+shadow_size = 8
+shadow_offset = Vector2(0, 4)
+
+[sub_resource type="StyleBoxFlat" id="Style_quiet"]
+bg_color = Color(0.980392, 0.945098, 0.866667, 0.96)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+content_margin_left = 14.0
+content_margin_top = 6.0
+content_margin_right = 14.0
+content_margin_bottom = 6.0
+shadow_color = Color(0.082353, 0.141176, 0.203922, 0.16)
+shadow_size = 6
+shadow_offset = Vector2(0, 3)
 
 [sub_resource type="StyleBoxFlat" id="Style_entry"]
-bg_color = Color(0.952941, 0.886275, 0.772549, 1)
-border_color = Color(0.952941, 0.886275, 0.772549, 1)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+bg_color = Color(0.988235, 0.976471, 0.952941, 1)
+border_color = Color(0.082353, 0.203922, 0.278431, 0.14)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
 content_margin_left = 12
 content_margin_top = 8
 content_margin_right = 12
 content_margin_bottom = 8
 
 [sub_resource type="StyleBoxFlat" id="Style_entry_focus"]
-bg_color = Color(0.998, 0.965, 0.91, 1)
+bg_color = Color(0.988235, 0.976471, 0.952941, 1)
 border_color = Color(0.12549, 0.490196, 0.521569, 1)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
 content_margin_left = 12
 content_margin_top = 8
 content_margin_right = 12
@@ -152,7 +162,7 @@ theme_override_constants/margin_bottom = 10
 layout_mode = 2
 size_flags_vertical = 3
 mouse_filter = 2
-theme_override_colors/font_color = Color(0.78, 0.86, 0.92, 0.9)
+theme_override_colors/font_color = Color(0.082353, 0.203922, 0.278431, 0.55)
 theme_override_font_sizes/font_size = 16
 text = "Chat with friends here."
 autowrap_mode = 3
@@ -162,7 +172,7 @@ vertical_alignment = 2
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.082353, 0.203922, 0.278431, 1)
-theme_override_colors/font_placeholder_color = Color(0.082353, 0.203922, 0.278431, 0.55)
+theme_override_colors/font_placeholder_color = Color(0.082353, 0.203922, 0.278431, 0.45)
 theme_override_colors/caret_color = Color(0.082353, 0.203922, 0.278431, 1)
 theme_override_font_sizes/font_size = 16
 theme_override_styles/normal = SubResource("Style_entry")
@@ -170,3 +180,69 @@ theme_override_styles/focus = SubResource("Style_entry_focus")
 placeholder_text = "Say something..."
 max_length = 80
 caret_blink = true
+
+[node name="PlaceChip" type="PanelContainer" parent="Root"]
+layout_mode = 1
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 196.0
+offset_bottom = 58.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("Style_coin_panel")
+
+[node name="Margin" type="MarginContainer" parent="Root/PlaceChip"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 6
+
+[node name="Place" type="Label" parent="Root/PlaceChip/Margin"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.082353, 0.203922, 0.278431, 1)
+theme_override_font_sizes/font_size = 18
+text = "Town"
+vertical_alignment = 1
+
+[node name="Actions" type="HBoxContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -132.0
+offset_top = -72.0
+offset_right = 132.0
+offset_bottom = -18.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="Map" type="Button" parent="Root/Actions"]
+custom_minimum_size = Vector2(120, 46)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.082353, 0.203922, 0.278431, 1)
+theme_override_colors/font_hover_color = Color(0.082353, 0.203922, 0.278431, 1)
+theme_override_colors/font_pressed_color = Color(0.082353, 0.203922, 0.278431, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("Style_quiet")
+theme_override_styles/hover = SubResource("Style_quiet")
+theme_override_styles/pressed = SubResource("Style_quiet")
+theme_override_styles/focus = SubResource("Style_entry_focus")
+text = "Map"
+
+[node name="Home" type="Button" parent="Root/Actions"]
+custom_minimum_size = Vector2(120, 46)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.082353, 0.203922, 0.278431, 1)
+theme_override_colors/font_hover_color = Color(0.082353, 0.203922, 0.278431, 1)
+theme_override_colors/font_pressed_color = Color(0.082353, 0.203922, 0.278431, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("Style_quiet")
+theme_override_styles/hover = SubResource("Style_quiet")
+theme_override_styles/pressed = SubResource("Style_quiet")
+theme_override_styles/focus = SubResource("Style_entry_focus")
+text = "Home"

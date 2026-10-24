@@ -69,7 +69,7 @@ func _build() -> void:
 	add_child(center)
 
 	var frame := PanelContainer.new()
-	frame.custom_minimum_size = Vector2(420, 0)
+	frame.custom_minimum_size = Vector2(460, 0)
 	frame.add_theme_stylebox_override("panel", _panel_style())
 	center.add_child(frame)
 
@@ -79,15 +79,15 @@ func _build() -> void:
 
 	var title := Label.new()
 	title.text = "Play together"
-	title.add_theme_font_size_override("font_size", 28)
-	title.add_theme_color_override("font_color", Color(0.95, 0.97, 1))
+	title.add_theme_font_size_override("font_size", 32)
+	title.add_theme_color_override("font_color", UiKit.NAVY)
 	column.add_child(title)
 
 	var hint := Label.new()
 	hint.text = "One window hosts. The other joins 127.0.0.1:7777."
 	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	hint.custom_minimum_size = Vector2(360, 0)
-	hint.add_theme_color_override("font_color", Color(0.84, 0.92, 0.98))
+	hint.custom_minimum_size = Vector2(380, 0)
+	hint.add_theme_color_override("font_color", Color(UiKit.NAVY, 0.78))
 	column.add_child(hint)
 
 	var name_row := HBoxContainer.new()
@@ -95,8 +95,8 @@ func _build() -> void:
 	column.add_child(name_row)
 
 	var name_label := Label.new()
-	name_label.text = "Name"
-	name_label.add_theme_color_override("font_color", Color(0.95, 0.97, 1))
+	name_label.text = "Display name"
+	name_label.add_theme_color_override("font_color", UiKit.NAVY)
 	name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	name_row.add_child(name_label)
 
@@ -104,79 +104,49 @@ func _build() -> void:
 	_name_field.text = "Penguin"
 	_name_field.custom_minimum_size = Vector2(260, 40)
 	_name_field.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_name_field.add_theme_color_override("font_color", Color(0.08, 0.16, 0.24))
-	_name_field.add_theme_stylebox_override("normal", _field_style())
+	_name_field.add_theme_color_override("font_color", UiKit.NAVY)
+	_name_field.add_theme_color_override("font_placeholder_color", Color(UiKit.NAVY, 0.45))
+	_name_field.add_theme_color_override("caret_color", UiKit.NAVY)
+	_name_field.add_theme_stylebox_override("normal", UiKit.field())
+	_name_field.add_theme_stylebox_override("focus", UiKit.field_focus())
 	name_row.add_child(_name_field)
 
 	var actions := HBoxContainer.new()
 	actions.add_theme_constant_override("separation", 10)
 	column.add_child(actions)
 
-	_host_button = _make_button("Host", Color(0.13, 0.49, 0.52), Color(0.95, 0.97, 1))
+	_host_button = _make_button("Host", UiKit.TEAL, UiKit.WHITE)
 	_host_button.pressed.connect(func() -> void: host_requested.emit())
 	actions.add_child(_host_button)
 
-	_join_button = _make_button("Join", Color(0.95, 0.97, 1), Color(0.08, 0.16, 0.24))
+	_join_button = _make_button("Join", UiKit.QUIET, UiKit.NAVY)
 	_join_button.pressed.connect(func() -> void: join_requested.emit())
 	actions.add_child(_join_button)
 
-	_solo_button = _make_button("Play solo", Color(0.14, 0.28, 0.42), Color(0.95, 0.97, 1))
+	_solo_button = _make_button("Play solo", UiKit.TEAL, UiKit.WHITE)
 	_solo_button.pressed.connect(func() -> void: solo_requested.emit())
 	column.add_child(_solo_button)
 
 	_status = Label.new()
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_status.custom_minimum_size = Vector2(360, 36)
-	_status.add_theme_color_override("font_color", Color(0.98, 0.86, 0.55))
+	_status.add_theme_color_override("font_color", UiKit.CORAL)
 	column.add_child(_status)
 
 
 func _make_button(text: String, fill: Color, font: Color) -> Button:
 	var button := Button.new()
 	button.text = text
-	button.custom_minimum_size = Vector2(150, 42)
+	button.custom_minimum_size = Vector2(150, 48)
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	button.add_theme_color_override("font_color", font)
-	button.add_theme_color_override("font_hover_color", font)
-	button.add_theme_color_override("font_pressed_color", font)
-	button.add_theme_color_override("font_disabled_color", Color(font.r, font.g, font.b, 0.45))
-	button.add_theme_stylebox_override("normal", _button_style(fill))
-	button.add_theme_stylebox_override("hover", _button_style(fill.lightened(0.08)))
-	button.add_theme_stylebox_override("pressed", _button_style(fill.darkened(0.08)))
-	button.add_theme_stylebox_override("disabled", _button_style(Color(fill.r, fill.g, fill.b, 0.45)))
+	UiKit.paint(button, fill, font)
 	return button
 
 
 func _panel_style() -> StyleBoxFlat:
-	var box := StyleBoxFlat.new()
-	box.bg_color = Color(0.08, 0.22, 0.4, 0.98)
-	box.border_color = Color(0.86, 0.93, 0.98)
-	box.set_border_width_all(4)
-	box.set_corner_radius_all(18)
+	var box := UiKit.panel(22)
 	box.content_margin_left = 22
 	box.content_margin_right = 22
-	box.content_margin_top = 18
+	box.content_margin_top = 20
 	box.content_margin_bottom = 18
-	return box
-
-
-func _button_style(fill: Color) -> StyleBoxFlat:
-	var box := StyleBoxFlat.new()
-	box.bg_color = fill
-	box.set_corner_radius_all(10)
-	box.content_margin_left = 12
-	box.content_margin_right = 12
-	box.content_margin_top = 8
-	box.content_margin_bottom = 8
-	return box
-
-
-func _field_style() -> StyleBoxFlat:
-	var box := StyleBoxFlat.new()
-	box.bg_color = Color(0.95, 0.97, 1)
-	box.set_corner_radius_all(8)
-	box.content_margin_left = 10
-	box.content_margin_right = 10
-	box.content_margin_top = 8
-	box.content_margin_bottom = 8
 	return box

@@ -3,7 +3,7 @@ class_name LocationCatalog
 
 ## Places the bus can reach. Sled Hill is the downhill run.
 
-const ORDER: Array[String] = ["home", "plaza", "cinema", "sled_hill"]
+const ORDER: Array[String] = ["home", "plaza", "cinema", "casino", "sled_hill", "court"]
 
 const _PLACES := {
 	"home": {
@@ -21,10 +21,20 @@ const _PLACES := {
 		"scene": "res://scenes/locations/cinema.tscn",
 		"map": Vector2(0.56, 0.78),
 	},
+	"casino": {
+		"title": "Casino",
+		"scene": "res://scenes/locations/casino.tscn",
+		"map": Vector2(0.82, 0.58),
+	},
 	"sled_hill": {
 		"title": "Sled Hill",
 		"scene": "res://scenes/sled_run.tscn",
 		"map": Vector2(0.63, 0.4),
+	},
+	"court": {
+		"title": "The Court",
+		"scene": "res://scenes/locations/court.tscn",
+		"map": Vector2(0.2, 0.46),
 	},
 }
 

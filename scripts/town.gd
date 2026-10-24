@@ -29,8 +29,8 @@ func _dress_pet_shop() -> void:
 	root.name = "PetStalls"
 	add_child(root)
 	var ids: Array = PetCatalog.ORDER
-	var start_x := 118.2
-	var step := 0.68
+	var step := 0.95
+	var start_x := 120.0 - step * (ids.size() - 1) * 0.5
 	for i in ids.size():
 		_stall(root, str(ids[i]), Vector3(start_x + step * i, 0.0, 98.25))
 	_pen_post(root, start_x - 0.42)

@@ -1,79 +1,50 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scripts/main_menu.gd" id="1_menu"]
 [ext_resource type="Script" path="res://scripts/menu_backdrop.gd" id="2_back"]
 [ext_resource type="FontFile" uid="uid://c1a2g0wj4j42g" path="res://fonts/Fredoka-Bold.ttf" id="3_font"]
 
-[sub_resource type="StyleBoxFlat" id="Style_card"]
-bg_color = Color(0.952941, 0.886275, 0.772549, 1)
-border_color = Color(0.082353, 0.203922, 0.278431, 1)
-border_width_left = 4
-border_width_top = 4
-border_width_right = 4
-border_width_bottom = 4
-corner_radius_top_left = 22
-corner_radius_top_right = 22
-corner_radius_bottom_right = 22
-corner_radius_bottom_left = 22
-shadow_color = Color(0.082353, 0.160784, 0.243137, 0.28)
-shadow_size = 18
-shadow_offset = Vector2(0, 10)
-
-[sub_resource type="StyleBoxFlat" id="Style_enter"]
+[sub_resource type="StyleBoxFlat" id="Style_play"]
 bg_color = Color(0.12549, 0.490196, 0.521569, 1)
-border_color = Color(0.082353, 0.203922, 0.278431, 1)
-border_width_left = 4
-border_width_top = 4
-border_width_right = 4
-border_width_bottom = 4
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
-content_margin_left = 18.0
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+content_margin_left = 28.0
 content_margin_top = 8.0
-content_margin_right = 18.0
+content_margin_right = 28.0
 content_margin_bottom = 10.0
+shadow_color = Color(0.082353, 0.141176, 0.203922, 0.22)
+shadow_size = 10
+shadow_offset = Vector2(0, 6)
 
-[sub_resource type="StyleBoxFlat" id="Style_enter_hover"]
-bg_color = Color(0.176471, 0.568627, 0.6, 1)
-border_color = Color(0.082353, 0.203922, 0.278431, 1)
-border_width_left = 4
-border_width_top = 4
-border_width_right = 4
-border_width_bottom = 4
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
-content_margin_left = 18.0
+[sub_resource type="StyleBoxFlat" id="Style_play_hover"]
+bg_color = Color(0.176471, 0.560784, 0.592157, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+content_margin_left = 28.0
 content_margin_top = 8.0
-content_margin_right = 18.0
+content_margin_right = 28.0
 content_margin_bottom = 10.0
+shadow_color = Color(0.082353, 0.141176, 0.203922, 0.22)
+shadow_size = 10
+shadow_offset = Vector2(0, 6)
 
-[sub_resource type="StyleBoxFlat" id="Style_enter_pressed"]
+[sub_resource type="StyleBoxFlat" id="Style_play_pressed"]
 bg_color = Color(0.094118, 0.384314, 0.407843, 1)
-border_color = Color(0.082353, 0.203922, 0.278431, 1)
-border_width_left = 4
-border_width_top = 4
-border_width_right = 4
-border_width_bottom = 4
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
-content_margin_left = 18.0
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+content_margin_left = 28.0
 content_margin_top = 10.0
-content_margin_right = 18.0
+content_margin_right = 28.0
 content_margin_bottom = 8.0
 
 [sub_resource type="StyleBoxFlat" id="Style_quit"]
-bg_color = Color(0.998, 0.965, 0.91, 1)
-border_color = Color(0.909804, 0.427451, 0.345098, 1)
-border_width_left = 4
-border_width_top = 4
-border_width_right = 4
-border_width_bottom = 4
+bg_color = Color(0.980392, 0.945098, 0.866667, 1)
 corner_radius_top_left = 16
 corner_radius_top_right = 16
 corner_radius_bottom_right = 16
@@ -82,30 +53,12 @@ content_margin_left = 18.0
 content_margin_top = 6.0
 content_margin_right = 18.0
 content_margin_bottom = 8.0
-
-[sub_resource type="StyleBoxFlat" id="Style_quit_hover"]
-bg_color = Color(1, 0.94, 0.91, 1)
-border_color = Color(0.909804, 0.427451, 0.345098, 1)
-border_width_left = 4
-border_width_top = 4
-border_width_right = 4
-border_width_bottom = 4
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
-content_margin_left = 18.0
-content_margin_top = 6.0
-content_margin_right = 18.0
-content_margin_bottom = 8.0
+shadow_color = Color(0.082353, 0.141176, 0.203922, 0.16)
+shadow_size = 8
+shadow_offset = Vector2(0, 4)
 
 [sub_resource type="StyleBoxFlat" id="Style_quit_pressed"]
-bg_color = Color(0.91, 0.8, 0.74, 1)
-border_color = Color(0.784314, 0.345098, 0.27451, 1)
-border_width_left = 4
-border_width_top = 4
-border_width_right = 4
-border_width_bottom = 4
+bg_color = Color(0.870588, 0.843137, 0.784314, 1)
 corner_radius_top_left = 16
 corner_radius_top_right = 16
 corner_radius_bottom_right = 16
@@ -139,91 +92,66 @@ script = ExtResource("2_back")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
-anchor_bottom = 0.94
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
 [node name="Stack" type="VBoxContainer" parent="Center"]
 layout_mode = 2
-theme_override_constants/separation = 22
+theme_override_constants/separation = 14
 
 [node name="Title" type="Label" parent="Center/Stack"]
 layout_mode = 2
 mouse_filter = 2
-theme_override_colors/font_color = Color(0.14, 0.18, 0.28, 1)
-theme_override_colors/font_outline_color = Color(0.98, 0.86, 0.35, 1)
-theme_override_constants/outline_size = 12
-theme_override_font_sizes/font_size = 78
+theme_override_colors/font_color = Color(0.082353, 0.203922, 0.278431, 1)
+theme_override_colors/font_outline_color = Color(0.980392, 0.945098, 0.866667, 1)
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 84
 text = "Pengloo"
 horizontal_alignment = 1
 
-[node name="Card" type="PanelContainer" parent="Center/Stack"]
-custom_minimum_size = Vector2(480, 0)
-layout_mode = 2
-theme_override_styles/panel = SubResource("Style_card")
-
-[node name="Margin" type="MarginContainer" parent="Center/Stack/Card"]
-layout_mode = 2
-theme_override_constants/margin_left = 32
-theme_override_constants/margin_top = 28
-theme_override_constants/margin_right = 32
-theme_override_constants/margin_bottom = 26
-
-[node name="Column" type="VBoxContainer" parent="Center/Stack/Card/Margin"]
-layout_mode = 2
-theme_override_constants/separation = 14
-
-[node name="Eyebrow" type="Label" parent="Center/Stack/Card/Margin/Column"]
+[node name="Subtitle" type="Label" parent="Center/Stack"]
 layout_mode = 2
 mouse_filter = 2
-theme_override_colors/font_color = Color(0.12549, 0.490196, 0.521569, 1)
-theme_override_constants/line_spacing = 4
+theme_override_colors/font_color = Color(0.082353, 0.203922, 0.278431, 0.92)
+theme_override_colors/font_outline_color = Color(0.980392, 0.945098, 0.866667, 0.9)
+theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 22
 text = "A town for friends"
 horizontal_alignment = 1
 
-[node name="Subtitle" type="Label" parent="Center/Stack/Card/Margin/Column"]
+[node name="Spacer" type="Control" parent="Center/Stack"]
+custom_minimum_size = Vector2(0, 10)
 layout_mode = 2
 mouse_filter = 2
-theme_override_colors/font_color = Color(0.082353, 0.203922, 0.278431, 0.9)
-theme_override_constants/line_spacing = 6
+
+[node name="PlayButton" type="Button" parent="Center/Stack"]
+custom_minimum_size = Vector2(280, 68)
+layout_mode = 2
+focus_mode = 2
+theme_override_colors/font_color = Color(0.988235, 0.976471, 0.952941, 1)
+theme_override_colors/font_hover_color = Color(0.988235, 0.976471, 0.952941, 1)
+theme_override_colors/font_pressed_color = Color(0.988235, 0.976471, 0.952941, 1)
+theme_override_colors/font_focus_color = Color(0.988235, 0.976471, 0.952941, 1)
+theme_override_font_sizes/font_size = 30
+theme_override_styles/normal = SubResource("Style_play")
+theme_override_styles/hover = SubResource("Style_play_hover")
+theme_override_styles/pressed = SubResource("Style_play_pressed")
+theme_override_styles/focus = SubResource("Style_play_hover")
+text = "Play"
+
+[node name="QuitButton" type="Button" parent="Center/Stack"]
+custom_minimum_size = Vector2(280, 48)
+layout_mode = 2
+focus_mode = 2
+theme_override_colors/font_color = Color(0.082353, 0.203922, 0.278431, 1)
+theme_override_colors/font_hover_color = Color(0.082353, 0.203922, 0.278431, 1)
+theme_override_colors/font_pressed_color = Color(0.082353, 0.203922, 0.278431, 1)
+theme_override_colors/font_focus_color = Color(0.082353, 0.203922, 0.278431, 1)
 theme_override_font_sizes/font_size = 20
-text = "Walk the plaza, the dock, and the hill."
-horizontal_alignment = 1
-autowrap_mode = 3
-
-[node name="Spacer" type="Control" parent="Center/Stack/Card/Margin/Column"]
-custom_minimum_size = Vector2(0, 6)
-layout_mode = 2
-mouse_filter = 2
-
-[node name="EnterButton" type="Button" parent="Center/Stack/Card/Margin/Column"]
-custom_minimum_size = Vector2(0, 64)
-layout_mode = 2
-focus_mode = 2
-theme_override_colors/font_color = Color(0.952941, 0.886275, 0.772549, 1)
-theme_override_colors/font_hover_color = Color(0.998, 0.965, 0.91, 1)
-theme_override_colors/font_pressed_color = Color(0.952941, 0.886275, 0.772549, 1)
-theme_override_colors/font_focus_color = Color(0.998, 0.965, 0.91, 1)
-theme_override_font_sizes/font_size = 28
-theme_override_styles/normal = SubResource("Style_enter")
-theme_override_styles/hover = SubResource("Style_enter_hover")
-theme_override_styles/pressed = SubResource("Style_enter_pressed")
-theme_override_styles/focus = SubResource("Style_enter")
-text = "Enter town"
-
-[node name="QuitButton" type="Button" parent="Center/Stack/Card/Margin/Column"]
-custom_minimum_size = Vector2(0, 54)
-layout_mode = 2
-focus_mode = 2
-theme_override_colors/font_color = Color(0.909804, 0.427451, 0.345098, 1)
-theme_override_colors/font_hover_color = Color(0.784314, 0.321569, 0.25098, 1)
-theme_override_colors/font_pressed_color = Color(0.784314, 0.321569, 0.25098, 1)
-theme_override_colors/font_focus_color = Color(0.784314, 0.321569, 0.25098, 1)
-theme_override_font_sizes/font_size = 22
 theme_override_styles/normal = SubResource("Style_quit")
-theme_override_styles/hover = SubResource("Style_quit_hover")
+theme_override_styles/hover = SubResource("Style_quit")
 theme_override_styles/pressed = SubResource("Style_quit_pressed")
 theme_override_styles/focus = SubResource("Style_quit")
 text = "Quit"

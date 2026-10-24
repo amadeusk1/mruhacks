@@ -39,6 +39,8 @@ var _flipper_l_x := 0.0
 var _flipper_r_x := 0.0
 var _sitting := false
 var _fishing := false
+var _at_table := false
+var _table_lock := false
 var _reel_focus := false
 var _fisher_phase := ""
 var _fish_hud: Node
@@ -105,6 +107,34 @@ func is_sitting() -> bool:
 
 func is_fishing() -> bool:
 	return _fishing
+
+
+func is_at_table() -> bool:
+	return _at_table
+
+
+func plant_table(spot: Node, stand: Vector3, yaw: float) -> bool:
+	if _remote_peer != 0:
+		return false
+	if _at_table and _seat_bench == spot:
+		return true
+	if _blocks_play():
+		return false
+	if _sitting:
+		stand_up()
+	halt()
+	_sitting = true
+	_at_table = true
+	_table_lock = true
+	_seat_bench = spot
+	_seat_point = stand
+	_stand_point = stand
+	global_position = stand
+	velocity = Vector3.ZERO
+	rotation.y = yaw
+	if spot.has_method("open_play"):
+		spot.call("open_play", self)
+	return true
 
 
 func current_bench() -> Node:
@@ -188,10 +218,12 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("interact"):
 		if _try_interact():
 			get_viewport().set_input_as_handled()
+		elif _court_press("pass") or _court_press("steal"):
+			get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("click_walk"):
 		# A tap is the hook. Walking off would cancel the catch.
-		if _fishing:
+		if _fishing or _at_table:
 			get_viewport().set_input_as_handled()
 			return
 		_try_click(event)
@@ -202,7 +234,7 @@ func _physics_process(delta: float) -> void:
 		_step_remote(delta)
 		return
 	var direction := Vector3.ZERO
-	var wish := Vector3.ZERO if _blocks_play() else _camera_wish()
+	var wish := Vector3.ZERO if _blocks_play() or _table_lock else _camera_wish()
 	if _sitting and wish != Vector3.ZERO:
 		stand_up()
 	if _sitting:
@@ -228,7 +260,8 @@ func _physics_process(delta: float) -> void:
 		return
 
 	var planar := Vector3(velocity.x, 0.0, velocity.z)
-	planar = planar.move_toward(direction * walk_speed, acceleration * delta)
+	var speed := 3.2 if Net.court_carrying() else walk_speed
+	planar = planar.move_toward(direction * speed, acceleration * delta)
 	velocity.x = planar.x
 	velocity.z = planar.z
 	if not is_on_floor():
@@ -251,13 +284,13 @@ func command_walk_to(world_point: Vector3) -> void:
 	_begin_click(_closest_nav_point(world_point))
 
 
-## Uses the nearest bench, fishing spot, bus stop, or shop counter whose prompt is showing.
+## Uses the nearest bench, fishing spot, casino table, bus stop, or shop counter whose prompt is showing.
 func _try_interact() -> bool:
 	if _sitting:
 		return false
 	var best: Node = null
 	var best_dist := INF
-	for group in ["bench", "fish_spot", "bus_stop", "shop_counter"]:
+	for group in ["bench", "fish_spot", "casino_table", "bus_stop", "shop_counter"]:
 		for node in get_tree().get_nodes_in_group(group):
 			if not node.has_method("can_interact") or not bool(node.call("can_interact")):
 				continue
@@ -268,6 +301,8 @@ func _try_interact() -> bool:
 				best_dist = dist
 	if best == null:
 		return false
+	if best.has_method("try_play"):
+		return bool(best.call("try_play", true))
 	if best.has_method("try_fish"):
 		return bool(best.call("try_fish", true))
 	if best.has_method("try_sit"):
@@ -309,6 +344,18 @@ func _try_click(event: InputEvent = null) -> void:
 	if collider != null and collider.is_in_group("bus_stop") and collider.has_method("try_open"):
 		if bool(collider.call("try_open")):
 			return
+	if collider != null and collider.is_in_group("casino_table") and collider.has_method("try_play"):
+		if _at_table and _seat_bench == collider:
+			return
+		if collider.has_method("bench_key") and Net.bench_held_by_other(str(collider.call("bench_key"))):
+			return
+		if _sitting:
+			stand_up()
+		if bool(collider.call("try_play")):
+			return
+		_pending_bench = collider
+		_begin_click(_closest_nav_point(collider.call("approach_point")))
+		return
 	if collider != null and collider.is_in_group("fish_spot") and collider.has_method("try_fish"):
 		if _fishing and _seat_bench == collider:
 			return
@@ -332,6 +379,9 @@ func _try_click(event: InputEvent = null) -> void:
 			return
 		_pending_bench = collider
 		_begin_click(_closest_nav_point(collider.call("approach_point")))
+		return
+	if not _sitting and _court_press("shoot"):
+		_cancel_click()
 		return
 	if _sitting:
 		stand_up()
@@ -366,6 +416,8 @@ func _follow_path() -> Vector3:
 		_cancel_click()
 		if bench != null and bench.has_method("try_fish"):
 			bench.call("try_fish", true)
+		elif bench != null and bench.has_method("try_play"):
+			bench.call("try_play", true)
 		elif bench != null and bench.has_method("try_sit"):
 			bench.call("try_sit", true)
 		return Vector3.ZERO
@@ -432,9 +484,14 @@ func _plant_shadow() -> void:
 func _clear_seat(relocate: bool) -> void:
 	if not _sitting:
 		return
+	var bench := _seat_bench
 	_sitting = false
+	_at_table = false
+	_table_lock = false
 	_end_fishing()
 	_seat_bench = null
+	if bench != null and is_instance_valid(bench) and bench.has_method("close_play"):
+		bench.call("close_play")
 	_restore_feet()
 	if relocate:
 		global_position = Vector3(_stand_point.x, 0.2, _stand_point.z)
@@ -507,7 +564,31 @@ func _step_remote(delta: float) -> void:
 func _publish_pose() -> void:
 	if _remote_peer != 0:
 		return
-	Net.note_pose(global_position, rotation.y, Vector2(velocity.x, velocity.z).length(), _sitting)
+	Net.note_pose(global_position, rotation.y, court_speed(), _sitting)
+
+
+func court_speed() -> float:
+	if _remote_peer != 0:
+		return _net_speed
+	return Vector2(velocity.x, velocity.z).length()
+
+
+func _court_press(action: String) -> bool:
+	var world := get_tree().get_first_node_in_group("world")
+	if world == null or not world.has_method("current_location_id"):
+		return false
+	if str(world.call("current_location_id")) != "court":
+		return false
+	if action == "shoot" or action == "pass":
+		if not Net.court_carrying():
+			return false
+	elif action == "steal":
+		if Net.court_carrying():
+			return false
+	else:
+		return false
+	Net.court_action(action)
+	return true
 
 
 func _tint(mesh: MeshInstance3D, color: Color) -> void:

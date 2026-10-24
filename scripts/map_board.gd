@@ -62,6 +62,8 @@ func _draw() -> void:
 	_draw_igloo()
 	_draw_town_blocks()
 	_draw_cinema()
+	_draw_casino()
+	_draw_court()
 	_draw_hill()
 	_draw_route()
 	var font := _FONT
@@ -134,10 +136,32 @@ func _draw_cinema() -> void:
 	draw_rect(Rect2(house.position + Vector2(6, 0), Vector2(20, 5)), Color(0.85, 0.28, 0.24))
 
 
+func _draw_casino() -> void:
+	if not LocationCatalog.has_location("casino"):
+		return
+	var origin := _pixel("casino")
+	var house := Rect2(origin + Vector2(-18, -10), Vector2(36, 22))
+	draw_rect(house, Color(0.14, 0.42, 0.46))
+	draw_rect(Rect2(house.position, Vector2(house.size.x, 5)), Color(0.78, 0.16, 0.18))
+	draw_rect(Rect2(house.position + Vector2(house.size.x - 8, 0), Vector2(8, 5)), Color(0.12, 0.55, 0.36))
+
+
+func _draw_court() -> void:
+	if not LocationCatalog.has_location("court"):
+		return
+	var origin := _pixel("court")
+	var wood := Rect2(origin + Vector2(-16, -10), Vector2(32, 20))
+	draw_rect(wood, Color(0.86, 0.55, 0.28))
+	draw_rect(Rect2(wood.position + Vector2(12, 0), Vector2(8, 8)), Color(0.93, 0.78, 0.55))
+	draw_line(Vector2(wood.position.x, wood.position.y + wood.size.y), Vector2(wood.end.x, wood.position.y + wood.size.y), Color(0.97, 0.95, 0.9), 1.5)
+
+
 func _draw_route() -> void:
 	_draw_dashed("home", "plaza")
 	_draw_dashed("plaza", "sled_hill")
 	_draw_dashed("plaza", "cinema")
+	_draw_dashed("plaza", "casino")
+	_draw_dashed("plaza", "court")
 
 
 func _draw_dashed(from_id: String, to_id: String) -> void:

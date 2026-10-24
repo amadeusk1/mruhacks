@@ -57,7 +57,7 @@ func _ready() -> void:
 	panel.offset_left = -268.0
 	panel.offset_top = 84.0
 	panel.offset_right = -16.0
-	panel.offset_bottom = 548.0
+	panel.offset_bottom = 620.0
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	panel.add_theme_stylebox_override("panel", _panel_style())
 	root.add_child(panel)
@@ -74,24 +74,24 @@ func _ready() -> void:
 	title.text = "Fishing"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 26)
-	title.add_theme_color_override("font_color", Color(0.95, 0.97, 1))
+	title.add_theme_color_override("font_color", UiKit.NAVY)
 	column.add_child(title)
 	_status = Label.new()
 	_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_status.add_theme_font_size_override("font_size", 18)
-	_status.add_theme_color_override("font_color", Color(0.78, 0.9, 0.96))
+	_status.add_theme_color_override("font_color", Color(UiKit.NAVY, 0.78))
 	column.add_child(_status)
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 12)
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	column.add_child(row)
 	_track = ColorRect.new()
-	_track.custom_minimum_size = Vector2(72, 300)
-	_track.color = Color(0.06, 0.14, 0.22, 0.95)
+	_track.custom_minimum_size = Vector2(72, 240)
+	_track.color = Color(0.90, 0.93, 0.94, 1)
 	_track.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(_track)
 	_band = ColorRect.new()
-	_band.color = Color(1.0, 0.72, 0.32, 0.9)
+	_band.color = Color(UiKit.TEAL, 0.9)
 	_band.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_track.add_child(_band)
 	_mark = ColorRect.new()
@@ -99,20 +99,26 @@ func _ready() -> void:
 	_mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_track.add_child(_mark)
 	_meter = ColorRect.new()
-	_meter.custom_minimum_size = Vector2(22, 300)
-	_meter.color = Color(0.06, 0.14, 0.22, 0.95)
+	_meter.custom_minimum_size = Vector2(22, 240)
+	_meter.color = Color(0.90, 0.93, 0.94, 1)
 	_meter.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(_meter)
 	_fill = ColorRect.new()
-	_fill.color = Color(0.45, 0.82, 0.55)
+	_fill.color = UiKit.TEAL
 	_fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_meter.add_child(_fill)
 	_hint = Label.new()
 	_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_hint.add_theme_font_size_override("font_size", 15)
-	_hint.add_theme_color_override("font_color", Color(0.9, 0.94, 0.98))
+	_hint.add_theme_color_override("font_color", UiKit.NAVY)
 	column.add_child(_hint)
+	var leave := Button.new()
+	leave.text = "Leave"
+	leave.custom_minimum_size = Vector2(0, 42)
+	UiKit.paint(leave, UiKit.QUIET, UiKit.NAVY)
+	leave.pressed.connect(_leave)
+	column.add_child(leave)
 	_card = PanelContainer.new()
 	_card.visible = false
 	_card.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -124,13 +130,13 @@ func _ready() -> void:
 	_card_title = Label.new()
 	_card_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_card_title.add_theme_font_size_override("font_size", 22)
-	_card_title.add_theme_color_override("font_color", Color(0.12, 0.18, 0.24))
+	_card_title.add_theme_color_override("font_color", UiKit.NAVY)
 	card_box.add_child(_card_title)
 	_card_body = Label.new()
 	_card_body.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_card_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_card_body.add_theme_font_size_override("font_size", 16)
-	_card_body.add_theme_color_override("font_color", Color(0.18, 0.28, 0.36))
+	_card_body.add_theme_color_override("font_color", Color(UiKit.NAVY, 0.78))
 	card_box.add_child(_card_body)
 
 
@@ -185,8 +191,8 @@ func _begin_cast() -> void:
 	_card.visible = false
 	_track.visible = true
 	_meter.visible = true
-	_status.text = "Casting"
-	_hint.text = "Watch the bobber."
+	_status.text = "Gone fishing"
+	_hint.text = "Cast, wait, then reel when you get a bite."
 	_lock_clicks(false)
 	_tell("cast")
 
@@ -195,7 +201,7 @@ func _begin_wait() -> void:
 	_phase = "wait"
 	_wait_left = randf_range(0.9, 1.8)
 	_status.text = "Waiting"
-	_hint.text = "Tap when the bobber dips. An early tap still counts."
+	_hint.text = "Tap when you get a bite."
 	_lock_clicks(false)
 	_tell("wait")
 
@@ -207,8 +213,8 @@ func _begin_bite() -> void:
 		return
 	_phase = "bite"
 	_bite_left = 2.2
-	_status.text = "Hook!"
-	_hint.text = "Tap Space or the mouse."
+	_status.text = "Bite!"
+	_hint.text = "Hook now."
 	_lock_clicks(true)
 	_tell("bite")
 
@@ -226,7 +232,7 @@ func _begin_reel() -> void:
 	_paid = false
 	_mark.color = _fish["color"]
 	_status.text = "Reel it in"
-	_hint.text = "Hold Space or the mouse to raise the bar."
+	_hint.text = "Hold to raise. Release to lower."
 	_lock_clicks(true)
 	_tell("reel")
 
@@ -333,18 +339,13 @@ func _layout_bar() -> void:
 
 
 func _panel_style() -> StyleBoxFlat:
-	var box := StyleBoxFlat.new()
-	box.bg_color = Color(0.08, 0.2, 0.32, 0.94)
-	box.border_color = Color(0.86, 0.93, 0.98)
-	box.set_border_width_all(3)
-	box.set_corner_radius_all(16)
-	return box
+	return UiKit.panel(18)
 
 
 func _card_style() -> StyleBoxFlat:
 	var box := StyleBoxFlat.new()
-	box.bg_color = Color(0.96, 0.93, 0.86)
-	box.set_corner_radius_all(12)
+	box.bg_color = UiKit.WHITE
+	box.set_corner_radius_all(14)
 	box.content_margin_left = 10
 	box.content_margin_right = 10
 	box.content_margin_top = 10

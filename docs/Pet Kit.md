@@ -2,7 +2,7 @@
 
 Reference: [GAME_DESIGN_CONTEXT](GAME_DESIGN_CONTEXT.md) · [Gallery](Gallery.md) · [Art Pipeline](Art%20Pipeline.md)
 
-The models are in `Models/pets/`, built by `art/blender/kits/pets.py`. Follow, inventory, and clips are not wired up yet.
+The models are in `Models/pets/`, built by `art/blender/kits/pets.py`. The pet shop and the follower use them. Clips are not wired up yet.
 
 Chicks are the player bird scaled down, with a collar. Fish are the fishing-kit bodies scaled down, with a collar, so they match the catch shapes without being the trophy mesh.
 
@@ -63,14 +63,10 @@ Other players see the active pet and its colours. Dismissing a pet puts it away.
 | `pet_ribbon` | Long teal fish, long forked tail | |
 | `pet_puffer` | Lavender fish with a tall dorsal | Hovers a little higher |
 
-Pebble is the pet a new player has. The other chicks are cosmetic variants. The fish are a proposed reward for catching that shape, separate from the trophy in the bucket. Nothing here is a shop or a currency.
+The pet shop sells two: Pengi, who walks free, and Fish, who floats on a leash.
 
 ## Still to build
 
-- `socket_pet` on `avatar_base`, parented to the body bone.
 - Clips: chick waddle, idle, sit; fish swim and a faster bob.
-- Equip, dismiss, and tint in the same cosmetic flow as hats. One active pet id.
-- The live rope between `socket_pet` and `socket_collar`.
-- Replication so nearby players see the pet.
-
-The GLBs are the models. Follow behavior is not built.
+- Tint in the wardrobe, and showing the pet to other players.
+- `socket_pet` on the player rig. The leash currently starts beside the body, not on a bone.

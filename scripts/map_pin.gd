@@ -30,7 +30,7 @@ func _draw() -> void:
 	var dot := Vector2(size.x * 0.5, 18.0)
 	var radius := 18.0 if _hot and not here else 15.0
 	draw_circle(dot + Vector2(1.5, 3.0), radius, Color(0.05, 0.12, 0.2, 0.28))
-	var fill := Color(0.98, 0.8, 0.22) if here else Color(0.95, 0.4, 0.16)
+	var fill := Color(0.909804, 0.427451, 0.345098) if here else Color(0.12549, 0.490196, 0.521569)
 	draw_circle(dot, radius, fill)
 	draw_arc(dot, radius, 0.0, TAU, 28, Color(1, 1, 1), 2.5, true)
 	if here:
@@ -44,7 +44,7 @@ func _draw() -> void:
 		HORIZONTAL_ALIGNMENT_LEFT,
 		-1,
 		18,
-		Color(0.1, 0.18, 0.3)
+		Color(0.082353, 0.203922, 0.278431)
 	)
 	if here:
 		var note := "You are here"
@@ -56,7 +56,7 @@ func _draw() -> void:
 			HORIZONTAL_ALIGNMENT_LEFT,
 			-1,
 			13,
-			Color(0.28, 0.4, 0.55)
+			Color(0.12549, 0.490196, 0.521569)
 		)
 
 

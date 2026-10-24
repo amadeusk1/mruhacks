@@ -3,18 +3,18 @@ extends CanvasLayer
 ## Pet shop panel. Cream card, one selected pet, one button.
 ## The pen stays in the world behind it. Esc or the corner mark closes it.
 
-const _NAVY := Color(0.10, 0.18, 0.28)
-const _TEAL := Color(0.15, 0.62, 0.64)
-const _TEAL_HOVER := Color(0.20, 0.70, 0.70)
-const _TEAL_PRESS := Color(0.11, 0.48, 0.52)
-const _IVORY := Color(0.98, 0.96, 0.91)
-const _CARD := Color(0.965, 0.945, 0.90)
+const _NAVY := Color(0.082353, 0.203922, 0.278431)
+const _TEAL := Color(0.125490, 0.490196, 0.521569)
+const _TEAL_HOVER := Color(0.176471, 0.560784, 0.592157)
+const _TEAL_PRESS := Color(0.094118, 0.384314, 0.407843)
+const _IVORY := Color(0.980392, 0.945098, 0.866667)
+const _CARD := Color(0.929412, 0.905882, 0.854902)
 const _GREY := Color(0.78, 0.80, 0.82)
 const _GOLD := Color(1.0, 0.78, 0.42)
 const _GOLD_EDGE := Color(0.74, 0.53, 0.31)
 
 var _open := false
-var _selected := "pebble"
+var _selected := "pengi"
 var _preview_id := ""
 var _sig := ""
 var _prompt_counter: Node = null
@@ -44,7 +44,7 @@ func open(shop_id: String) -> bool:
 	if shop_id != "pets":
 		return false
 	if _selected == "":
-		_selected = "pebble"
+		_selected = "pengi"
 	_set_open(true)
 	_sig = ""
 	_apply()
@@ -108,9 +108,9 @@ func _build() -> void:
 	_panel.name = "Panel"
 	_panel.set_anchors_preset(Control.PRESET_CENTER_RIGHT)
 	_panel.offset_left = -524.0
-	_panel.offset_top = -300.0
+	_panel.offset_top = -220.0
 	_panel.offset_right = -24.0
-	_panel.offset_bottom = 300.0
+	_panel.offset_bottom = 220.0
 	_panel.add_theme_stylebox_override("panel", _panel_style())
 	add_child(_panel)
 
@@ -203,7 +203,7 @@ func _card(id: String) -> Button:
 	button.name = "Card_%s" % id
 	button.text = ""
 	button.focus_mode = Control.FOCUS_NONE
-	button.custom_minimum_size = Vector2(230, 62)
+	button.custom_minimum_size = Vector2(230, 76)
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	button.pressed.connect(_on_card_pressed.bind(id))
 

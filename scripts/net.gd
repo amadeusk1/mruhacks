@@ -15,6 +15,8 @@ signal home_invite(from_id: int, from_name: String)
 signal sled_gate(race_id: int, phase: String, seconds: float)
 signal sled_pose(peer_id: int, x: float, y: float, z: float, yaw: float, steer: float, crashed: bool)
 
+const _CourtMatch := preload("res://scripts/court_match.gd")
+
 const PORT := 7777
 const ADDRESS := "127.0.0.1"
 const COATS: Array[Color] = [
@@ -51,9 +53,18 @@ var _sled_phase := ""
 var _sled_left := 0.0
 var _sled_status: Dictionary = {}
 var _sled_notice: Dictionary = {}
+var _court: RefCounted
+var _court_bodies: Dictionary = {}
+var _court_state: Dictionary = {}
+var _court_send := 0.0
+var _court_sig := ""
 
 
 func _ready() -> void:
+	# Penguins move first, then the court reads where they ended up.
+	process_physics_priority = -20
+	_court = _CourtMatch.new()
+	_court_state = _court.view()
 	multiplayer.peer_connected.connect(_on_peer_connected)
 	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
 	multiplayer.connected_to_server.connect(_on_connected_to_server)
@@ -86,6 +97,29 @@ func _process(delta: float) -> void:
 			float(_latest_pose["speed"]),
 			bool(_latest_pose["sitting"])
 		)
+
+
+func _physics_process(delta: float) -> void:
+	if _closing or _court == null:
+		return
+	if _mode == Mode.CLIENT or _mode == Mode.OFF:
+		return
+	var present: Array = []
+	if _mode == Mode.SOLO:
+		if _place_location == "court" and not _place_hidden:
+			present.append(local_id())
+	else:
+		for peer_id in _players.keys():
+			var player: Dictionary = _players[peer_id]
+			if str(player["location"]) == "court" and not bool(player["hidden"]):
+				present.append(int(peer_id))
+	if present.is_empty():
+		if str(_court.phase) != "practice" or int(_court.coral_score) != 0 or int(_court.teal_score) != 0:
+			_court.reset()
+			_publish_court(delta)
+		return
+	_court.tick(delta, present, _court_bodies)
+	_publish_court(delta)
 
 
 func is_online() -> bool:
@@ -222,6 +256,8 @@ func sled_done() -> void:
 
 
 func note_pose(at: Vector3, yaw: float, speed: float, sitting: bool) -> void:
+	if _place_location == "court":
+		_court_bodies[local_id()] = {"x": at.x, "y": at.y, "z": at.z, "yaw": yaw, "speed": speed}
 	if not is_online():
 		return
 	_latest_pose = {
@@ -321,6 +357,8 @@ func _set_place(id: int, location: String, spawn: String, hidden: bool, igloo: i
 	if hidden or changed:
 		player["bench"] = ""
 		player["fisher"] = ""
+	if location != "court" or hidden:
+		_court_bodies.erase(id)
 	_broadcast()
 	_sync_sled_members()
 
@@ -523,6 +561,11 @@ func _force_offline() -> void:
 	_sled_left = 0.0
 	_sled_status.clear()
 	_sled_notice.clear()
+	_court_bodies.clear()
+	if _court != null:
+		_court.reset()
+		_court_state = _court.view()
+	_court_sig = ""
 	_color_next = 0
 	_closing = false
 
@@ -535,6 +578,7 @@ func _on_peer_disconnected(id: int) -> void:
 	print("Net peer left: %s" % id)
 	if _closing or _mode != Mode.HOST:
 		return
+	_court_bodies.erase(id)
 	if _players.has(id):
 		_players.erase(id)
 		_sled_status.erase(id)
@@ -627,6 +671,8 @@ func submit_pose(x: float, y: float, z: float, yaw: float, speed: float, sitting
 	var id := multiplayer.get_remote_sender_id()
 	if not _players.has(id) or bool(_players[id]["hidden"]) or str(_players[id]["location"]) == "sled_hill":
 		return
+	if str(_players[id]["location"]) == "court":
+		_court_bodies[id] = {"x": x, "y": y, "z": z, "yaw": yaw, "speed": speed}
 	_relay_pose(id, {
 		"x": x,
 		"y": y,
@@ -900,6 +946,82 @@ func _relay_sled(from_id: int, pose: Dictionary) -> void:
 				float(pose["steer"]),
 				bool(pose["crashed"])
 			)
+
+
+func court_view() -> Dictionary:
+	if _court_state.is_empty() and _court != null:
+		return _court.view()
+	return _court_state
+
+
+func court_carrying() -> bool:
+	return str(_court_state.get("mode", "")) == "held" and int(_court_state.get("poss", -1)) == local_id()
+
+
+func court_witness(id: int, at: Vector3, yaw: float, speed: float) -> void:
+	if id <= 0 or _mode == Mode.CLIENT:
+		return
+	_court_bodies[id] = {"x": at.x, "y": at.y, "z": at.z, "yaw": yaw, "speed": speed}
+
+
+func court_configure(hoop: Vector3, bounds: AABB) -> void:
+	if _court == null or _mode == Mode.CLIENT:
+		return
+	_court.configure(hoop, bounds)
+
+
+func court_action(action: String) -> void:
+	if _closing or _court == null:
+		return
+	if _mode == Mode.CLIENT:
+		if _place_location != "court":
+			return
+		request_court.rpc_id(1, action)
+		return
+	if _place_location != "court":
+		return
+	_court.request(local_id(), action)
+
+
+func _publish_court(delta: float) -> void:
+	_court_state = _court.view()
+	if _mode != Mode.HOST or multiplayer.get_peers().is_empty():
+		return
+	var sig := "%s|%s|%s|%s|%s|%s" % [
+		str(_court_state["phase"]),
+		str(_court_state["coral"]),
+		str(_court_state["teal"]),
+		str(_court_state["poss"]),
+		str(_court_state["mode"]),
+		str(_court_state["text"]),
+	]
+	_court_send -= delta
+	if sig == _court_sig and _court_send > 0.0:
+		return
+	_court_sig = sig
+	_court_send = 0.05
+	deliver_court.rpc(_court_state)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func request_court(action: String) -> void:
+	if _mode != Mode.HOST or _court == null:
+		return
+	var id := multiplayer.get_remote_sender_id()
+	if not _players.has(id):
+		return
+	if str(_players[id]["location"]) != "court" or bool(_players[id]["hidden"]):
+		return
+	if action != "shoot" and action != "pass" and action != "steal":
+		return
+	_court.request(id, action)
+
+
+@rpc("authority", "call_remote", "unreliable_ordered")
+func deliver_court(state: Dictionary) -> void:
+	if _mode != Mode.CLIENT:
+		return
+	_court_state = state
 
 
 func _roster_has_self() -> bool:
