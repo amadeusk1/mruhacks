@@ -103,15 +103,15 @@ def plaza():
     place("plaza/bench", -2.83, 2.83, 225, tags=BLOCK)
     place("plaza/bench", -2.83, -2.83, 315, tags=BLOCK)
     place("plaza/bench", 2.83, -2.83, 45, tags=BLOCK)
-    # outer ring between the spokes: trees in round beds and flower beds tangent to the rim (bus stop at ~290 deg)
+    # outer ring between the spokes: trees in round beds and flower beds tangent to the rim (bus stop at ~290 deg,
+    # cafe spoke at ~115 deg)
     place("nature_dock/small_tree_bed", 6.84, 2.83, 68, tags=("tree", "blocker"))
-    place("nature_dock/small_tree_bed", -2.83, 6.84, 338, tags=("tree", "blocker"))
     place("nature_dock/small_tree_bed", -6.84, -2.83, 248, tags=("tree", "blocker"))
     place("nature_dock/small_tree_bed", -2.83, -6.84, 23, tags=("tree", "blocker"))
     place("plaza/rect_planter", -7.02, 2.91, 247.5)
     place("plaza/rect_planter", 7.02, -2.91, 67.5)
     # rim lanterns between the spokes
-    for x, y in [(8.39, 3.39), (-3.39, 8.39),                     # none at 67 deg: the arcade corner (-8.33, 3.54), (-8.39, -3.39), (-3.54, -8.33),
+    for x, y in [(8.39, 3.39),                                    # none at 67/112 deg: arcade corner, cafe spoke (-8.33, 3.54), (-8.39, -3.39), (-3.54, -8.33),
                  (8.33, -3.54)]:                                  # none at 292 deg: the bus stop
         place("plaza/lantern_post", x, y, 0, tags=LIGHT)
     # string lights across the west, east and south spokes
@@ -135,22 +135,21 @@ def shops():
     cafe_yaw = 23.8                                        # turned towards the fountain
     ZONE = "plaza"
     building("cinema/cinema_exterior", 0.0, 24.7, 0, "Cinema", "cinema_lobby")
-    building("cafe/cafe_exterior", -7.8, 13.65, cafe_yaw, "Cafe", "cafe_interior")
+    building("cafe/cafe_exterior", T.CAFE_P.x, T.CAFE_P.y, cafe_yaw, "Cafe", "cafe_interior")
     building("arcade/arcade_exterior", T.ARCADE_P.x, T.ARCADE_P.y, T.ARCADE_YAW, "Arcade", "arcade_interior", scale=T.ARCADE_S)
     ZONE = "casino"
     building("casino/casino_exterior", 23.2, 8.4, 0, "Casino", "casino_interior")
 
-    # cafe terrace: a four-stool table, two umbrella tables, a chalkboard by the door, milk and cups out
+    # cafe terrace on the plaza rim beside the cafe spoke, an umbrella table out west, chalkboard by the door, milk and cups out
     ZONE = "cafe"
-    table_set("plaza/round_table", -4.4, 12.6, 10)
-    place("cafe/milk_jug", -4.25, 12.7, 0, z=ground(-4.4, 12.6) + 0.6, tags=DECOR)
-    place("interaction_props/drink_cup", -4.6, 12.45, 0, z=ground(-4.4, 12.6) + 0.6, tags=DECOR)
-    place("plaza/cafe_umbrella_table", -3.35, 15.57, 20, tags=BLOCK)
-    place("plaza/cafe_umbrella_table", -13.73, 12.93, -15, tags=BLOCK)
-    place("plaza/aframe_chalkboard", -4.0, 9.4, 30)
-    place("world_misc/crate", -12.53, 16.73, 10, tags=BLOCK)                  # service corner behind the cafe
-    place("world_misc/crate", -12.43, 16.73, 35, z=ground(-12.53, 16.73) + 0.53)
-    place("world_misc/barrel", -11.83, 16.53, 0, tags=BLOCK)
+    table_set("plaza/round_table", -7.4, 5.6, 10)
+    place("cafe/milk_jug", -7.25, 5.7, 0, z=ground(-7.4, 5.6) + 0.6, tags=DECOR)
+    place("interaction_props/drink_cup", -7.6, 5.45, 0, z=ground(-7.4, 5.6) + 0.6, tags=DECOR)
+    place("plaza/cafe_umbrella_table", -13.9, 13.2, -15, tags=BLOCK)
+    place("plaza/aframe_chalkboard", -2.6, 10.6, 30)
+    place("world_misc/crate", -5.0, 17.4, 10, tags=BLOCK)                     # service corner at the cafe's back door
+    place("world_misc/crate", -4.9, 17.4, 35, z=ground(-5.0, 17.4) + 0.53)
+    place("world_misc/barrel", -4.3, 17.2, 0, tags=BLOCK)
 
     # cinema: topiaries at the door, stanchion queue lane beside the forecourt, poster frames, string lights
     ZONE = "cinema"
@@ -351,13 +350,15 @@ def cove():
         place("nature_dock/rope_posts", -10.95, y, 90, z=zB)
     place("nature_dock/rope_posts_bunting", -12.0, -13.6, 0, z=zB)
     place("interaction_props/mooring_post", -8.83, -14.03, 0, tags=BLOCK)
-    # pier A: the catch of the day on its stand, tackle crate, bucket
-    place("interaction_props/catch_display_stand", -24.75, -18.8, 90, z=zA + 0.06, tags=BLOCK)
-    place("fishing/tackle_crate", -23.3, -16.3, 20, z=zA + 0.06)
-    place("fishing/bucket", -23.35, -18.2, 0, z=zA + 0.06)
-    place("fishing/fish_round", -23.35, -19.0, 35, z=zA + 0.1)
-    place("fishing/fish_slim", -23.35, -19.4, 160, z=zA + 0.1)
-    place("fishing/fish_spiky", -23.35, -17.6, 80, z=zA + 0.1)
+    # the catch of the day on its stand ashore beside pier A, with a bucket and the tackle crate
+    # (pier A's deck stays clear: 1.6 m from the shore to its fishing spot)
+    cs = (-26.6, -14.5, 180)
+    place("interaction_props/catch_display_stand", *cs, tags=BLOCK)
+    for k, fish in enumerate(("fishing/fish_round", "fishing/fish_slim", "fishing/fish_spiky")):
+        w = at_socket("interaction_props/catch_display_stand", f"socket_hook_{k}", *cs, ground(*cs[:2]))
+        place(fish, w[0], w[1], 90, z=w[2] - 0.3, tags=DECOR)
+    place("fishing/bucket", -27.95, -14.4, 0)
+    place("fishing/tackle_crate", -28.6, -15.0, 20)
     # boathouse dock corner: crate stack and a barrel on the deck edge
     place("world_misc/crate", -28.6, -21.35, 10, z=zA + 0.06)
     place("world_misc/crate", -28.6, -21.35, 35, z=zA + 0.59)
@@ -385,7 +386,7 @@ def cove():
     for x in (-14.8, -13.2):
         place("nature_dock/mooring_cleat", x, -26.85, 0, z=zB + 0.06, tags=DECOR)
     place("nature_dock/dock_end_cap", -14.0, -27.0, 0, z=zB)
-    place("nature_dock/coiled_rope", -23.3, -15.3, 30, z=zA + 0.06, tags=DECOR)
+    place("nature_dock/coiled_rope", -8.2, -14.8, 30, tags=DECOR)
     place("nature_dock/dock_lantern_bracket", -11.05, -20.2, 90, z=zB)
     place("nature_dock/dock_lantern_bracket", -22.95, -18.6, 90, z=zA)
     place("nature_dock/dock_ladder", -10.85, -20.9, 90, z=zB - 1.2, tags=DECOR)
@@ -581,11 +582,11 @@ def wayfinding():
     global ZONE
     ZONE = None
     # activity signs with icons at each destination entrance, facing the approach path
-    sign(-3.6, 6.6, -101.3, "icon_cafe")
+    sign(-2.85, 7.4, -90.0, "icon_cafe")
     sign(2.9, 15.6, -90.0, "icon_cinema")
     sign(8.72, 5.18, 146.3, "icon_arcade")
     sign(-10.26, -8.09, 63.4, "icon_fishing")
-    sign(-11.6, 17.6, 113.2, "icon_sled")
+    sign(-7.8, 16.9, 113.2, "icon_sled")
     sign(22.6, 13.6, 123.7, "icon_snowball")
     sign(18.28, -11.72, 31.0, "icon_basketball")
     sign(26.0, 2.2, 19.7, "icon_drawing")
