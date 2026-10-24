@@ -17,9 +17,10 @@ func _ready() -> void:
 			part = a.get_slice("=", 1)
 	url = OS.get_environment("PENGLOO_CINEMA_URL")
 	code = OS.get_environment("PENGLOO_CINEMA_TEST_CODE")
-	if part in ["screen", "pick", "offline", "viewer"]:  # feature flags on for this run only
+	if part in ["screen", "pick", "offline", "viewer", "ambience"]:  # feature flags on for this run only
 		ProjectSettings.set_setting("pengloo/cinema/service_enabled", true)
 		ProjectSettings.set_setting("pengloo/cinema/screen_video", true)
+		ProjectSettings.set_setting("pengloo/cinema/ambience", part == "ambience")
 	room = (load("res://scenes/locations/cinema.tscn") as PackedScene).instantiate() as Node3D
 	add_child(room)  # enter the cinema
 	await get_tree().process_frame
@@ -34,6 +35,8 @@ func _ready() -> void:
 			_pick()
 		"offline":
 			_offline()
+		"ambience":
+			_with_film(_ambience, CinemaService.client)
 		"viewer":
 			_viewer()
 		"room":  # baseline: just enter and leave the cinema
@@ -249,3 +252,46 @@ func _viewer() -> void:
 	CinemaService.client.logout(func() -> void:
 		_done(follows and guest and play_disabled and picture and err < 0.5 and paused,
 			"watch=%s guest=%s controls_locked=%s picture=%s sync_err=%.2fs followed_pause=%s" % [follows, guest, play_disabled, picture, err, paused]))
+
+
+# ---- 5. camera + ambience: seated local penguin, film playing -> lights dim, spill tinted, camera pinned --
+func _ambience(c: CinemaServiceClient) -> void:
+	var amb := room.find_child("CinemaAmbience", true, false) as CinemaAmbience
+	if amb == null:
+		_finish(c, false, "no ambience node"); return
+	var seat: SeatSpot = null
+	for n in room.get_children():
+		if n is SeatSpot and n.kit == "cinema":
+			seat = n
+			break
+	var me := (load("res://scenes/penguin.tscn") as PackedScene).instantiate() as Node3D
+	room.add_child(me)
+	var rig := Node3D.new()  # same shape as world.tscn's follow rig: script + child Camera3D
+	var lens := Camera3D.new()
+	lens.name = "Camera3D"
+	rig.add_child(lens)
+	rig.set_script(load("res://scripts/follow_camera.gd"))
+	rig.set("target_path", me.get_path())
+	room.add_child(rig)
+	await get_tree().process_frame
+	me.call("sit_down", seat, seat.seat_point, seat.face_yaw, seat.seat_point + Vector3(0, 0, 1))
+	await _until(func() -> bool: return CinemaService.player.playing and amb._pinned != null, 15.0)
+	await get_tree().create_timer(3.0).timeout
+	var dimmed := true
+	for l in amb._lights:
+		if is_instance_valid(l) and (l as OmniLight3D).light_energy > amb._lights[l] * 0.5:
+			dimmed = false
+	var spill: Color = amb._spill.light_color
+	var tinted := amb._spill.light_energy > 0.5 and spill != Color.WHITE
+	var pinned := amb._pinned != null
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("/tmp/cinema_smoke_ambience.png")
+	c.control("pause", {}, func(_o: bool, _d: Variant) -> void: pass)
+	await _until(func() -> bool: return not CinemaService.player.playing, 10.0)
+	await get_tree().create_timer(2.0).timeout
+	var restored := amb._pinned == null
+	for l in amb._lights:
+		if is_instance_valid(l) and absf((l as OmniLight3D).light_energy - amb._lights[l]) > 0.05:
+			restored = false
+	me.call("stand_up")
+	_finish(c, dimmed and tinted and pinned and restored, "lights=%d dimmed=%s spill=%s pinned=%s restored_on_pause=%s" % [amb._lights.size(), dimmed, spill.to_html(false), pinned, restored])
