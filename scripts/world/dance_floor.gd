@@ -39,6 +39,16 @@ static func clock() -> float:
 	return clock_override if clock_override >= 0.0 else Time.get_unix_time_from_system()
 
 
+## The town layout's "DanceFloor" marker (kept clear of props by the layout check); CENTER otherwise.
+func _center() -> Vector3:
+	var layout = get_parent().get("_layout") if get_parent() else null
+	if layout is Dictionary:
+		for m in layout.get("markers", []):
+			if str(m.get("name", "")) == "DanceFloor":
+				return Vector3(m["pos"][0], m["pos"][1], m["pos"][2])
+	return CENTER
+
+
 ## Shared beat counter, 0..16 and then around again (16 beats = one 8 s loop of the track).
 static func beat() -> float:
 	return fposmod(clock(), DanceMusic.LOOP_S) / BEAT_S
@@ -46,7 +56,7 @@ static func beat() -> float:
 
 func _ready() -> void:
 	name = "DanceFloor"
-	position = _ground(CENTER) + Vector3(0, 0.02, 0)  # the paving mesh stands ~5 cm above its collision
+	position = _ground(_center()) + Vector3(0, 0.02, 0)  # the paving mesh stands ~5 cm above its collision
 	_build_floor()
 	_build_rig()
 	_build_lights()

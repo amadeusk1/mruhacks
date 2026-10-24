@@ -24,7 +24,25 @@ const ROOMS := {
 			["cafe/pastry_case", "socket_pastry_case", 0.0],
 			["cafe/mug_set", "socket_mug_set", 0.0],
 			["cafe/tray_breakfast_preset_preview", "socket_table_0_top", 15.0],
+			# 04 Cafe Interior: potted plants in the corners, flowers on the tables, a shelf of jars
+			# and greenery by the back door, warm sconces on the walls, a mat at the door
+			["room_kit/plant_large", [-4.3, 0.1, -3.3], 30.0],
+			["room_kit/plant_large", [4.35, 0.1, 0.3], -60.0],
+			["room_kit/plant_flowerpot", [-2.9, 0.7, 1.9], 0.0],
+			["room_kit/plant_flowerpot", [2.6, 0.7, 1.9], 0.0],
+			["room_kit/wall_shelf", [-2.4, 1.5, -3.95], 0.0],
+			["room_kit/tabletop_plant", [-2.7, 1.53, -3.95], 0.0],
+			["cafe/sugar_jar", [-2.35, 1.53, -3.95], 0.0],
+			["cafe/teapot", [-2.05, 1.53, -3.95], 0.0],
+			["room_kit/wall_shelf", [-4.0, 1.5, -3.95], 0.0],
+			["room_kit/plant_hanging", [-4.0, 1.53, -3.95], 0.0],
+			["interior_finishing/wall_sconce", [-4.95, 1.75, -1.9], 90.0],
+			["interior_finishing/wall_sconce", [-4.95, 1.75, 1.9], 90.0],
+			["room_kit/entry_mat", [-0.2, 0.11, 3.2], 0.0],
 		],
+		"palette": {"paving": "#E8CDA2", "paving_b": "#DCBA8A", "stone": "#D6BC98"},  # warm terracotta-sand tiles
+		"tints": {"shell": {"wall": "#F4E0C2"}},
+		"mood": {"background": "#EAD9C2", "ambient": "#FFE2BE", "sun": "#FFDDB0"},
 		# seats authored in the shell to the Interior Spacing Standard: socket_<anchor>_seat_<k> faces socket_<anchor>
 		"shell_seats": ["plaza/stool", "stool"],
 		"camera": {"limit_x": 3.0, "limit_z": 2.4, "height": 9.0, "distance": 7.4},
@@ -47,7 +65,20 @@ const ROOMS := {
 			["casino/standing_lamp", [7.5, 0.12, -5.5], 0.0],
 			["casino/casino_planter", [-7.5, 0.12, -0.6], 0.0],
 			["casino/coat_stand", [7.5, 0.12, -1.8], 0.0],
+			# Casino - Building and Interior: warm sconces down both walls, framed suits by the back wall
+			["interior_finishing/wall_sconce", [-8.05, 1.8, -3.0], 90.0],
+			["interior_finishing/wall_sconce", [-8.05, 1.8, 1.5], 90.0],
+			["interior_finishing/wall_sconce", [8.05, 1.8, -3.0], -90.0],
+			["interior_finishing/wall_sconce", [8.05, 1.8, 1.5], -90.0],
+			["room_kit/poster_frame_matted", [-6.0, 1.7, -6.1], 0.0],
+			["room_kit/poster_frame_matted", [-3.0, 1.7, -6.1], 0.0],
+			["room_kit/plant_large", [-7.5, 0.12, 4.9], 0.0],
+			["room_kit/plant_large", [7.5, 0.12, 4.9], 0.0],
 		],
+		# deep green felt and upholstery, walnut rails, red slots: the casino sheets' palette
+		"roles": {"upholstery": "#2F6B55", "cushion": "#2F6B55", "felt": "#1E6A4A", "rail": "#5B3A24", "trim": "#2A6A5C"},
+		"palette": {"insert_felt": "#1E6A4A"},
+		"mood": {"background": "#3A2A22", "ambient": "#FFD7A8", "sun": "#FFD2A0"},
 		# [table placement anchor, seat prop, game, seat height]; seats come from the table's socket_seat_*
 		"games": [["socket_roulette", "casino/roulette_stool", "roulette", "casino"], ["socket_poker", "casino/casino_chair", "poker", "casino"],
 			["socket_blackjack", "casino/casino_chair", "blackjack", "casino"],
@@ -71,7 +102,22 @@ const ROOMS := {
 			["arcade/token_machine", "socket_token_machine", -90.0],
 			["arcade/arcade_rug", [0.0, 0.07, 0.11], 0.0],
 			["arcade/arcade_bench", "socket_bench_0", 90.0],
+			# Arcade Social Scene: a little table with a plant on the rug, potted plants in the
+			# corners, wall lanterns, a poster and a neon sign, a mat at the door
+			["plaza/round_table", [0.0, 0.02, 0.9], 0.0],
+			["room_kit/plant_flowerpot", [0.0, 0.74, 0.9], 0.0],
+			["room_kit/plant_large", [-5.5, 0.02, -3.9], 20.0],
+			["room_kit/plant_large", [5.5, 0.02, -3.9], -20.0],
+			["room_kit/plant_broadleaf", [5.5, 0.02, 0.4], 0.0],
+			["plaza/wall_lantern", [-5.93, 1.8, -1.2], 90.0],
+			["plaza/wall_lantern", [-5.93, 1.8, 1.6], 90.0],
+			["plaza/wall_lantern", [5.93, 1.8, 1.6], -90.0],
+			["room_kit/poster_frame_bold", [-5.95, 1.6, 0.2], 90.0],
+			["home_themes/neon_wall_sign", [5.95, 2.0, -1.4], -90.0],
+			["room_kit/entry_mat", [0.0, 0.03, 3.9], 0.0],
 		],
+		"palette": {"paving": "#E9D3AE", "paving_b": "#DEC197"},
+		"mood": {"background": "#E6D3BC", "ambient": "#FFE0C0", "sun": "#FFD9AC"},
 		"games": [["socket_cabinet_solo_0", "", "pac", "arcade", "socket_player"], ["socket_cabinet_solo_1", "", "tetris", "arcade", "socket_player"],
 			["socket_cabinet_solo_2", "", "dino", "arcade", "socket_player"], ["socket_cabinet_solo_3", "", "tetris", "arcade", "socket_player"],
 			["socket_cabinet_solo_4", "", "pac", "arcade", "socket_player"], ["socket_cabinet_duo", "", "arcade", "arcade", "socket_player"]],
@@ -98,6 +144,7 @@ func _enter_tree() -> void:
 		for n in shell.find_children(pat, "", true, false):
 			(n as Node3D).visible = false
 	var size := AssetRegistry.size(shell_id)
+	_paint(shell)
 	WalkSurface.build(shell, nav, shell.position.y - 0.3, "ShellWalk")  # raised floors, steps
 	if _cfg.has("cut_front"):
 		_cut_front(shell, size.z * 0.5 - float(_cfg["cut_front"]))
@@ -122,7 +169,7 @@ func _enter_tree() -> void:
 		if p[1] is String:
 			placed[p[1]] = [node, p[0], at, p[2]]
 		var tints: Dictionary = _cfg.get("tints", {}).get(str(p[1]), {})
-		if node and not tints.is_empty():
+		if node and tints.has("body"):
 			Tints.apply(node, {"body": Color(tints["body"])})
 	if _cfg.get("slot_row", false):
 		_slot_row(nav, shell_id, sockets)
@@ -138,6 +185,9 @@ func _enter_tree() -> void:
 		light.omni_range = 4.5
 		light.position = _v(l)
 		add_child(light)
+	for child in nav.get_children():  # room-wide roles and palette over the props and seats
+		if child is Node3D and child != shell:
+			_paint(child, "room")
 	var spawn := Marker3D.new()
 	spawn.name = "Inside"
 	spawn.position = _point(sockets, _cfg["spawn"])
@@ -191,7 +241,22 @@ func _cut_front(shell: Node3D, z_cut: float) -> void:
 			mi.set_surface_override_material(si, null)
 
 
+## Room palette from the concept sheet (InteriorMood): the shell gets its own tint roles; "roles"
+## and "palette" then apply to everything placed in the room.
+func _paint(node: Node3D, roles_key := "shell") -> void:
+	var roles: Dictionary = _cfg.get("tints", {}).get("shell", {}) if roles_key == "shell" else _cfg.get("roles", {})
+	InteriorMood.paint(node, roles, _cfg.get("palette", {}))
+
+
+var _saved_mood := {}
+
+
+func _exit_tree() -> void:
+	InteriorMood.restore(get_tree(), _saved_mood)
+
+
 func _ready() -> void:
+	_saved_mood = InteriorMood.apply(get_tree(), _cfg.get("mood", {}))
 	AmbientFx.dress(self)  # steam on the coffee station and mugs; no snow indoors
 	_block_props.call_deferred()
 	for ap in find_children("*", "AnimationPlayer", true, false):  # roulette rotor, slot reels

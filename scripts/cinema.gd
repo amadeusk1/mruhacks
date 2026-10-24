@@ -5,8 +5,23 @@ extends Node3D
 ## InsideLobby and ScreenReturn use the lobby camera. InsideScreen uses the auditorium.
 
 
+## 13 Cinema Lobby / 14 Auditorium / Movie Night: warm sand floor and plaster, velvet reds, a
+## warm room light in the lobby that the dark auditorium keeps to its own lamps.
+const MOOD := {"background": "#2A1E1A", "ambient": "#FFD9B4", "sun": "#FFD6A6", "ambient_energy": 0.7}
+const PALETTE := {"paving": "#E8CFA6", "paving_b": "#DDBF94", "stone": "#D7BE9C"}
+var _saved_mood := {}
+
+
+func _exit_tree() -> void:
+	InteriorMood.restore(get_tree(), _saved_mood)
+
+
 func _ready() -> void:
 	AssetPack.dress_cinema(self)
+	_saved_mood = InteriorMood.apply(get_tree(), MOOD)
+	for n in find_children("cinema_lobby*", "Node3D", true, false):
+		if n.get_parent().name == "PackProps":
+			InteriorMood.paint(n, {"wall": "#F1DCBC"}, PALETTE)
 	# floors, tiers, steps and the stage collide where they're drawn (the dressing only adds a
 	# flat floor at y = 0, so the penguin walked inside the tiers); then rebake the navmesh
 	var nav := get_node_or_null("NavigationRegion3D")
@@ -24,6 +39,9 @@ func _ready() -> void:
 	if lobby_model and nav:
 		await get_tree().physics_frame  # floors registered for the footprint's ground rays
 		Footprint.blocker(nav, lobby_model, "cinema_lobby/cinema_lobby", 1.0, get_world_3d().direct_space_state)
+	var hall_model := find_child("cinema_auditorium", true, false) as Node3D
+	if hall_model:
+		_dress_hall(hall_model)
 	if nav and nav.has_method("rebake"):
 		nav.call("rebake")
 	var hall := find_child("cinema_auditorium", true, false) as Node3D  # claimable, net-safe seats
@@ -82,3 +100,17 @@ func camera_for_spawn(spawn_name: String) -> Dictionary:
 		"height": 13.0,
 		"distance": 10.0,
 	}
+
+
+## Movie Night Scene: warm lanterns down the side wall of the dark auditorium. Wall-mounted, so
+## nothing new to walk round.
+func _dress_hall(hall: Node3D) -> void:
+	var box := AABB()
+	var first := true
+	for mi in hall.find_children("*", "MeshInstance3D", true, false):
+		var b: AABB = mi.global_transform * mi.get_aabb()
+		box = b if first else box.merge(b)
+		first = false
+	for z in [0.3, 0.55, 0.8]:  # the left (teal) wall; the right side is open to the camera
+		var at := Vector3(box.position.x + 0.12, 1.9, lerpf(box.position.z, box.end.z, z))
+		AssetPack.place(hall.get_parent(), "plaza", "wall_lantern", hall.get_parent().to_local(at), deg_to_rad(90.0))

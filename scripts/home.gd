@@ -16,8 +16,21 @@ const _STARTER := [
 ]
 
 
+## Interior Personalities (Botanical Nook): warm plaster and a warm room light inside the dome.
+const MOOD := {"background": "#EADBC6", "ambient": "#FFE2C2", "sun": "#FFDDB4"}
+var _saved_mood := {}
+
+
+func _exit_tree() -> void:
+	InteriorMood.restore(get_tree(), _saved_mood)
+
+
 func _ready() -> void:
 	AssetPack.dress_home(self)
+	_saved_mood = InteriorMood.apply(get_tree(), MOOD)
+	for d in find_children("snow_dome_interior*", "Node3D", true, false):
+		if d.get_parent().name == "PackProps":
+			InteriorMood.paint(d, {"wall": "#F2E2C6"}, {})
 	var dome: Node3D = null
 	for d in find_children("snow_dome_interior*", "Node3D", true, false):
 		if d.get_parent().name == "PackProps":
