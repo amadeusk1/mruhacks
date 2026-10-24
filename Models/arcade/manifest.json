@@ -84,6 +84,17 @@
         "max_deg": 22
       }
     },
+    "part_clips": {
+      "part_btn_1_a": [
+        "btn_1_a_press"
+      ],
+      "part_btn_1_b": [
+        "btn_1_b_press"
+      ],
+      "part_btn_1_c": [
+        "btn_1_c_press"
+      ]
+    },
     "tints": {
       "body": "#7B4FC4"
     },
@@ -221,6 +232,20 @@
         "axis": "xy",
         "max_deg": 22
       }
+    },
+    "part_clips": {
+      "part_btn_1_a": [
+        "btn_1_a_press"
+      ],
+      "part_btn_1_b": [
+        "btn_1_b_press"
+      ],
+      "part_btn_2_a": [
+        "btn_2_a_press"
+      ],
+      "part_btn_2_b": [
+        "btn_2_b_press"
+      ]
     },
     "tints": {
       "body": "#153447",
@@ -472,6 +497,16 @@
         "open_deg": 72
       }
     },
+    "part_clips": {
+      "part_door_l": [
+        "door_l_open",
+        "door_l_close"
+      ],
+      "part_door_r": [
+        "door_r_open",
+        "door_r_close"
+      ]
+    },
     "tints": {
       "wall": "#F3E2C5"
     },
@@ -573,36 +608,6 @@
         -3.03,
         3.458
       ],
-      "socket_grip_1_L": [
-        0.78,
-        1.547,
-        1.014
-      ],
-      "socket_grip_1_L__park.001": [
-        -1.12,
-        1.547,
-        1.014
-      ],
-      "socket_grip_1_L__park.002": [
-        -0.12,
-        1.547,
-        1.014
-      ],
-      "socket_grip_1_R": [
-        0.97,
-        1.576,
-        0.928
-      ],
-      "socket_grip_1_R__park.001": [
-        -0.93,
-        1.576,
-        0.928
-      ],
-      "socket_grip_1_R__park.002": [
-        0.07,
-        1.576,
-        0.928
-      ],
       "socket_screen": [
         0.9,
         1.67,
@@ -625,132 +630,6 @@
       ]
     },
     "parts": {
-      "part_btn_1_a": {
-        "pivot": [
-          0.9,
-          1.602,
-          0.912
-        ],
-        "motion": "press",
-        "depth": 0.008,
-        "dir": [
-          0.0,
-          -0.316,
-          0.949
-        ]
-      },
-      "part_btn_1_a__park.001": {
-        "pivot": [
-          -1.0,
-          1.602,
-          0.912
-        ],
-        "motion": "press",
-        "depth": 0.008,
-        "dir": [
-          0.0,
-          -0.316,
-          0.949
-        ]
-      },
-      "part_btn_1_a__park.002": {
-        "pivot": [
-          0.0,
-          1.602,
-          0.912
-        ],
-        "motion": "press",
-        "depth": 0.008,
-        "dir": [
-          0.0,
-          -0.316,
-          0.949
-        ]
-      },
-      "part_btn_1_b": {
-        "pivot": [
-          0.97,
-          1.564,
-          0.899
-        ],
-        "motion": "press",
-        "depth": 0.008,
-        "dir": [
-          0.0,
-          -0.316,
-          0.949
-        ]
-      },
-      "part_btn_1_b__park.001": {
-        "pivot": [
-          -0.93,
-          1.564,
-          0.899
-        ],
-        "motion": "press",
-        "depth": 0.008,
-        "dir": [
-          0.0,
-          -0.316,
-          0.949
-        ]
-      },
-      "part_btn_1_b__park.002": {
-        "pivot": [
-          0.07,
-          1.564,
-          0.899
-        ],
-        "motion": "press",
-        "depth": 0.008,
-        "dir": [
-          0.0,
-          -0.316,
-          0.949
-        ]
-      },
-      "part_btn_1_c": {
-        "pivot": [
-          1.04,
-          1.602,
-          0.912
-        ],
-        "motion": "press",
-        "depth": 0.008,
-        "dir": [
-          0.0,
-          -0.316,
-          0.949
-        ]
-      },
-      "part_btn_1_c__park.001": {
-        "pivot": [
-          -0.86,
-          1.602,
-          0.912
-        ],
-        "motion": "press",
-        "depth": 0.008,
-        "dir": [
-          0.0,
-          -0.316,
-          0.949
-        ]
-      },
-      "part_btn_1_c__park.002": {
-        "pivot": [
-          0.14,
-          1.602,
-          0.912
-        ],
-        "motion": "press",
-        "depth": 0.008,
-        "dir": [
-          0.0,
-          -0.316,
-          0.949
-        ]
-      },
       "part_door_l": {
         "pivot": [
           -0.76,
@@ -770,37 +649,17 @@
         "motion": "hinge",
         "axis": "z",
         "open_deg": 72
-      },
-      "part_joystick_1": {
-        "pivot": [
-          0.78,
-          1.58,
-          0.914
-        ],
-        "motion": "tilt",
-        "axis": "xy",
-        "max_deg": 22
-      },
-      "part_joystick_1__park.001": {
-        "pivot": [
-          -1.12,
-          1.58,
-          0.914
-        ],
-        "motion": "tilt",
-        "axis": "xy",
-        "max_deg": 22
-      },
-      "part_joystick_1__park.002": {
-        "pivot": [
-          -0.12,
-          1.58,
-          0.914
-        ],
-        "motion": "tilt",
-        "axis": "xy",
-        "max_deg": 22
       }
+    },
+    "part_clips": {
+      "part_door_l": [
+        "door_l_open",
+        "door_l_close"
+      ],
+      "part_door_r": [
+        "door_r_open",
+        "door_r_close"
+      ]
     },
     "tints": {
       "cabinet_purple": "#7B4FC4",

@@ -17,7 +17,11 @@ func _init() -> void:
 	for kit in DirAccess.get_directories_at("res://models"):
 		for f in DirAccess.get_files_at("res://models/" + kit):
 			if not f.ends_with(".glb"): continue
-			var r: Node = load("res://models/%s/%s" % [kit, f]).instantiate()
+			var _ps = load("res://models/%s/%s" % [kit, f])
+			if _ps == null:
+				print("LOAD_FAILED ", kit, "/", f)
+				continue
+			var r: Node = _ps.instantiate()
 			var out := []
 			scan(r, out)
 			for o in out:

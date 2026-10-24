@@ -19,7 +19,11 @@ func _init() -> void:
 		for f in DirAccess.get_files_at("res://models/" + kit):
 			if not f.ends_with(".glb"):
 				continue
-			var root: Node = load("res://models/%s/%s" % [kit, f]).instantiate()
+			var _ps = load("res://models/%s/%s" % [kit, f])
+			if _ps == null:
+				print("LOAD_FAILED ", kit, "/", f)
+				continue
+			var root: Node = _ps.instantiate()
 			var ap := find(root, "AnimationPlayer") as AnimationPlayer
 			var sk := find(root, "Skeleton3D") as Skeleton3D
 			var mi := find(root, "MeshInstance3D") as MeshInstance3D

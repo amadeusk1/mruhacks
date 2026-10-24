@@ -58,6 +58,24 @@
       1.315
     ],
     "sockets": {},
+    "parts": {
+      "part_lid": {
+        "pivot": [
+          0.0,
+          -0.235,
+          0.94
+        ],
+        "motion": "hinge",
+        "axis": "x",
+        "open_deg": 80
+      }
+    },
+    "part_clips": {
+      "part_lid": [
+        "lid_open",
+        "lid_close"
+      ]
+    },
     "tints": {
       "mailbox": "#D9473B",
       "mailbox_flag": "#F2C230"
@@ -115,15 +133,382 @@
     "interact": "read notices"
   },
   {
+    "id": "world_misc/notice_board_club",
+    "file": "world_misc/notice_board_club.glb",
+    "category": "landmark",
+    "size_m": [
+      1.5,
+      0.22,
+      1.876
+    ],
+    "sockets": {},
+    "tints": {
+      "sign_frame": "#7A4E2C",
+      "pin_a": "#E86D58",
+      "pin_b": "#207D85",
+      "pin_c": "#E3A92B",
+      "cap": "#207D85"
+    },
+    "interact": "read notices"
+  },
+  {
+    "id": "world_misc/world_map_board",
+    "file": "world_misc/world_map_board.glb",
+    "category": "wayfinding",
+    "size_m": [
+      2.567,
+      0.44,
+      2.081
+    ],
+    "sockets": {
+      "socket_map": [
+        0.0,
+        -0.048,
+        0.98
+      ]
+    },
+    "tints": {
+      "cap": "#207D85",
+      "frame": "#207D85"
+    },
+    "insert": "map (insert_screen face; match the playable map)",
+    "label_insert": "socket_map"
+  },
+  {
+    "id": "world_misc/destination_signpost",
+    "file": "world_misc/destination_signpost.glb",
+    "category": "wayfinding",
+    "size_m": [
+      1.8,
+      0.584,
+      2.315
+    ],
+    "sockets": {
+      "socket_arrow_0": [
+        0.0,
+        0.0,
+        1.75
+      ],
+      "socket_arrow_1": [
+        0.0,
+        0.0,
+        1.48
+      ],
+      "socket_arrow_2": [
+        0.0,
+        0.0,
+        1.21
+      ]
+    },
+    "parts": {
+      "part_arrow_0": {
+        "pivot": [
+          0.0,
+          0.0,
+          1.75
+        ],
+        "motion": "tilt",
+        "axis": "z",
+        "max_deg": 180
+      },
+      "part_arrow_1": {
+        "pivot": [
+          0.0,
+          0.0,
+          1.48
+        ],
+        "motion": "tilt",
+        "axis": "z",
+        "max_deg": 180
+      },
+      "part_arrow_2": {
+        "pivot": [
+          0.0,
+          0.0,
+          1.21
+        ],
+        "motion": "tilt",
+        "axis": "z",
+        "max_deg": 180
+      }
+    },
+    "tints": {
+      "cap": "#207D85",
+      "frame": "#207D85",
+      "corner": "#E86D58"
+    },
+    "aim": "rotate part_arrow_* about z; each arrow points local +X; default yaw in socket",
+    "insert": "destination name on both arrow faces",
+    "label_insert": "part_arrow_* faces"
+  },
+  {
+    "id": "world_misc/activity_sign",
+    "file": "world_misc/activity_sign.glb",
+    "category": "wayfinding",
+    "size_m": [
+      1.547,
+      0.457,
+      2.224
+    ],
+    "sockets": {
+      "socket_icon": [
+        0.15,
+        -0.031,
+        1.24
+      ],
+      "socket_label": [
+        0.15,
+        -0.03,
+        0.73
+      ]
+    },
+    "tints": {
+      "cap": "#207D85",
+      "frame": "#207D85",
+      "corner": "#E86D58"
+    },
+    "insert": "icon",
+    "label_insert": "socket_label",
+    "icons": [
+      "icon_cafe",
+      "icon_cinema",
+      "icon_arcade",
+      "icon_fishing",
+      "icon_sled",
+      "icon_snowball",
+      "icon_basketball",
+      "icon_drawing"
+    ]
+  },
+  {
+    "id": "world_misc/icon_cafe",
+    "file": "world_misc/icon_cafe.glb",
+    "category": "decal",
+    "size_m": [
+      0.375,
+      0.005,
+      0.396
+    ],
+    "sockets": {},
+    "tints": {
+      "icon": "#E86D58"
+    },
+    "decal": true,
+    "attach": "activity_sign socket_icon",
+    "label_insert": "activity_sign socket_label",
+    "icon_size_m": 0.44
+  },
+  {
+    "id": "world_misc/icon_cinema",
+    "file": "world_misc/icon_cinema.glb",
+    "category": "decal",
+    "size_m": [
+      0.402,
+      0.01,
+      0.38
+    ],
+    "sockets": {},
+    "tints": {
+      "icon": "#207D85"
+    },
+    "decal": true,
+    "attach": "activity_sign socket_icon",
+    "label_insert": "activity_sign socket_label",
+    "icon_size_m": 0.44
+  },
+  {
+    "id": "world_misc/icon_arcade",
+    "file": "world_misc/icon_arcade.glb",
+    "category": "decal",
+    "size_m": [
+      0.36,
+      0.021,
+      0.373
+    ],
+    "sockets": {},
+    "tints": {
+      "icon": "#E86D58"
+    },
+    "decal": true,
+    "attach": "activity_sign socket_icon",
+    "label_insert": "activity_sign socket_label",
+    "icon_size_m": 0.44
+  },
+  {
+    "id": "world_misc/icon_fishing",
+    "file": "world_misc/icon_fishing.glb",
+    "category": "decal",
+    "size_m": [
+      0.201,
+      0.013,
+      0.391
+    ],
+    "sockets": {},
+    "tints": {
+      "icon": "#207D85"
+    },
+    "decal": true,
+    "attach": "activity_sign socket_icon",
+    "label_insert": "activity_sign socket_label",
+    "icon_size_m": 0.44
+  },
+  {
+    "id": "world_misc/icon_sled",
+    "file": "world_misc/icon_sled.glb",
+    "category": "decal",
+    "size_m": [
+      0.384,
+      0.013,
+      0.254
+    ],
+    "sockets": {},
+    "tints": {
+      "icon": "#E86D58"
+    },
+    "decal": true,
+    "attach": "activity_sign socket_icon",
+    "label_insert": "activity_sign socket_label",
+    "icon_size_m": 0.44
+  },
+  {
+    "id": "world_misc/icon_snowball",
+    "file": "world_misc/icon_snowball.glb",
+    "category": "decal",
+    "size_m": [
+      0.37,
+      0.013,
+      0.319
+    ],
+    "sockets": {},
+    "tints": {
+      "icon": "#207D85"
+    },
+    "decal": true,
+    "attach": "activity_sign socket_icon",
+    "label_insert": "activity_sign socket_label",
+    "icon_size_m": 0.44
+  },
+  {
+    "id": "world_misc/icon_basketball",
+    "file": "world_misc/icon_basketball.glb",
+    "category": "decal",
+    "size_m": [
+      0.36,
+      0.017,
+      0.36
+    ],
+    "sockets": {},
+    "tints": {
+      "icon": "#E86D58"
+    },
+    "decal": true,
+    "attach": "activity_sign socket_icon",
+    "label_insert": "activity_sign socket_label",
+    "icon_size_m": 0.44
+  },
+  {
+    "id": "world_misc/icon_drawing",
+    "file": "world_misc/icon_drawing.glb",
+    "category": "decal",
+    "size_m": [
+      0.301,
+      0.005,
+      0.301
+    ],
+    "sockets": {},
+    "tints": {
+      "icon": "#207D85"
+    },
+    "decal": true,
+    "attach": "activity_sign socket_icon",
+    "label_insert": "activity_sign socket_label",
+    "icon_size_m": 0.44
+  },
+  {
+    "id": "world_misc/home_number_plaque",
+    "file": "world_misc/home_number_plaque.glb",
+    "category": "wayfinding",
+    "size_m": [
+      1.036,
+      0.326,
+      0.975
+    ],
+    "sockets": {
+      "socket_number": [
+        0.0,
+        -0.053,
+        0.51
+      ]
+    },
+    "tints": {
+      "cap": "#207D85"
+    },
+    "insert": "home number (from housing data)",
+    "label_insert": "socket_number"
+  },
+  {
+    "id": "world_misc/queue_spot_marker",
+    "file": "world_misc/queue_spot_marker.glb",
+    "category": "marker",
+    "size_m": [
+      0.84,
+      0.84,
+      0.006
+    ],
+    "sockets": {
+      "socket_spot": [
+        0.0,
+        0.0,
+        0.009
+      ]
+    },
+    "tints": {
+      "queue_ring": "#E86D58",
+      "queue": "#207D85"
+    },
+    "decal": true,
+    "collision": "none",
+    "note": "reserved-slot state needs authoritative interaction logic, not just this marker"
+  },
+  {
+    "id": "world_misc/queue_spot_marker_stone",
+    "file": "world_misc/queue_spot_marker_stone.glb",
+    "category": "marker",
+    "size_m": [
+      1.167,
+      1.165,
+      0.094
+    ],
+    "sockets": {
+      "socket_spot": [
+        0.0,
+        0.0,
+        0.009
+      ]
+    },
+    "tints": {
+      "queue_ring": "#E86D58",
+      "queue": "#207D85"
+    },
+    "decal": false,
+    "collision": "surround lip only (5 cm)",
+    "note": "reserved-slot state needs authoritative interaction logic, not just this marker"
+  },
+  {
     "id": "world_misc/waterfall_step",
     "file": "world_misc/waterfall_step.glb",
     "category": "nature",
     "size_m": [
-      2.298,
+      2.315,
       1.836,
-      1.103
+      1.095
     ],
     "sockets": {
+      "socket_fx_splash": [
+        0.0,
+        -0.05,
+        0.07
+      ],
       "socket_inflow": [
         0.0,
         0.85,

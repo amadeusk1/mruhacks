@@ -142,7 +142,7 @@ def stone_step():
             b.box(xc - xa - 0.03, tread - 0.03, 0.05, (xa + xc) / 2, y, top - 0.05, pick(STONE_T, k + i), bevel=0.025)
     for sx in (-1, 1):  # cheek walls rise with the flight and finish level with the landing
         for k in range(n + 1):
-            hh = PATH_TOP + RISE * min(k + 1, n) / n + 0.1
+            hh = PATH_TOP + RISE * min(k + 1, n) / n + 0.04
             yy = -L / 2 + (L / (n + 1)) * (k + 0.5)
             b.box(HALF - PW - 0.02, L / (n + 1) - 0.02, hh, sx * (PW + (HALF - PW) / 2), yy, 0,
                   pick(CURB_T, k + (sx > 0)), bevel=0.035, jitter=0.006)
@@ -206,10 +206,14 @@ def rock_face(b, length, H, x0=-HALF, y=-0.5, seed=0):
         w = min(rng.uniform(0.32, 0.5), x0 + length - x)
         if x0 + length - x - w < 0.2:
             w = x0 + length - x
-        hh = H * rng.uniform(0.82, 0.97)
+        hh = H * rng.uniform(0.95, 1.0)  # columns reach the lip; the cap/snow overlay sits on top
         d = rng.uniform(0.34, 0.46)
         b.box(w * 0.98, d, hh, x + w / 2, y + d / 2 + rng.uniform(-0.04, 0.03), 0, pick(ROCK_T + ("rock_grey",), i),
-              bevel=0.06, jitter=0.035)
+              bevel=0.07, jitter=0.05)
+        if rng.random() < 0.6:  # a narrower column stepped forward breaks up the face
+            ww = w * rng.uniform(0.45, 0.65)
+            b.box(ww, 0.2, hh * rng.uniform(0.35, 0.7), x + rng.uniform(ww / 2, w - ww / 2), y - 0.06, 0,
+                  pick(ROCK_T, i + 1), bevel=0.06, jitter=0.04)
         if hh > 1.2 and rng.random() < 0.7:  # ledge break halfway up
             b.box(w * 0.8, d * 0.7, 0.18, x + w / 2, y + d * 0.3, hh * rng.uniform(0.4, 0.6), "rock_grey", bevel=0.05, jitter=0.03)
         x += w
@@ -223,7 +227,8 @@ def rock_face(b, length, H, x0=-HALF, y=-0.5, seed=0):
 def cliff_straight(H):
     """2 m cliff, upper ground behind (+Y) at z=H; drops toward -Y."""
     b = Builder(f"cliff_straight_{int(H)}m", seed=300 + int(H))
-    b.box(2 * HALF, 0.62, H, 0, 0.19, 0, "rock_grey", bevel=0.03)  # core / collision, top = walkable
+    b.box(2 * HALF, 0.62, H - 0.03, 0, 0.19, 0, "rock_grey", bevel=0.03)  # core / collision
+    b.box(2 * HALF, 0.66, 0.03, 0, 0.17, H - 0.03, GROUND_T, bevel=0.01)     # walkable top = upper ground
     rock_face(b, 2 * HALF, H, y=-0.5, seed=int(H * 10))
     b.socket("seam_w", (-HALF, 0, H), rotz=90)
     b.socket("seam_e", (HALF, 0, H), rotz=-90)
@@ -232,24 +237,35 @@ def cliff_straight(H):
 
 
 def cliff_corner(outer=True, H=2.0):
-    """90 deg cliff corner. Outer: upper ground is the +X+Y quadrant (convex nose at -X-Y).
-    Inner: upper ground wraps three quadrants (concave)."""
+    """1 x 1 m corner whose faces sit on the straight cliff's front line (local y = -0.5, core from
+    y = -0.12). Outer (convex): upper ground in the +X+Y quadrant, faces toward -Y and -X; joins a
+    straight on its +X side and a straight turned -90 on its +Y side. Inner (concave): solid rock
+    with a bulging column at the (+0.5, -0.5) corner; joins a straight on its +X side and a
+    straight turned +90 on its -Y side."""
     b = Builder(f"cliff_corner_{'outer' if outer else 'inner'}", seed=320 + outer)
+    rng = random.Random(30 + outer)
     if outer:
-        b.box(1.5, 1.5, H, 0.25, 0.25, 0, "rock_grey", bevel=0.03)
-        rock_face(b, 1.5, H, x0=-0.5, y=-0.5, seed=21)
-        with b.at((0, 0, 0), rotz=-90):
-            rock_face(b, 1.5, H, x0=-1.0, y=-0.5, seed=22)
-        b.box(0.5, 0.5, H * 0.95, -0.55, -0.55, 0, "rock_b", bevel=0.07, jitter=0.04)  # nose column
+        b.box(0.62, 0.62, H - 0.03, 0.19, 0.19, 0, "rock_grey", bevel=0.03)
+        b.box(0.66, 0.66, 0.03, 0.17, 0.17, H - 0.03, GROUND_T, bevel=0.01)
+        rock_face(b, 0.9, H, x0=-0.4, y=-0.5, seed=21)
+        with b.at((0, 0, 0), rotz=-90):          # local front y=-0.5 -> world x=-0.5, facing -X
+            rock_face(b, 0.9, H, x0=-0.5, y=-0.5, seed=22)
+        b.box(0.42, 0.42, H * 0.97, -0.29, -0.29, 0, "rock_b", bevel=0.08, jitter=0.05)  # nose column
+        b.socket("seam_e", (0.5, 0, H), rotz=-90)
+        b.socket("seam_n", (0, 0.5, H), rotz=0)
     else:
-        b.box(2 * HALF, 1.5, H, 0, 0.25, 0, "rock_grey", bevel=0.03)
-        b.box(1.5, 0.5, H, -0.25, -0.75, 0, "rock_grey", bevel=0.03)
-        rock_face(b, 1.0, H, x0=0.0, y=-0.5, seed=23)
-        with b.at((0, 0, 0), rotz=90):
-            rock_face(b, 1.0, H, x0=-0.5, y=-0.5, seed=24)
-    b.socket("seam_w", (-HALF, 0 if not outer else 0.25, H), rotz=90)
-    b.socket("seam_n", (0.25 if outer else 0, HALF, H), rotz=0)
-    return done(b, "cliff", {"height_m": H, "top_z": H, "corner": "outer" if outer else "inner", "collision": "box"})
+        b.box(1.0, 0.62, H - 0.03, 0, 0.19, 0, "rock_grey", bevel=0.03)
+        b.box(0.62, 0.38, H - 0.03, -0.19, -0.31, 0, "rock_grey", bevel=0.03)
+        b.box(1.0, 0.66, 0.03, 0, 0.17, H - 0.03, GROUND_T, bevel=0.01)
+        b.box(0.64, 0.36, 0.03, -0.18, -0.32, H - 0.03, GROUND_T, bevel=0.01)
+        for i, (x, y, w) in enumerate(((0.31, -0.31, 0.4), (0.18, -0.4, 0.3), (0.4, -0.18, 0.3))):
+            b.box(w, w, H * rng.uniform(0.92, 1.0), x, y, 0, pick(ROCK_T + ("rock_grey",), i), bevel=0.07, jitter=0.05)
+        b.blob(0.2, 0.16, 0.14, 0.45, -0.5, 0.08, "rock_grey", subdiv=1, jitter=0.03)
+        b.socket("seam_e", (0.5, 0, H), rotz=-90)
+        b.socket("seam_s", (0, -0.5, H), rotz=180)
+    b.socket("cap", (0, 0, H))
+    return done(b, "cliff", {"height_m": H, "top_z": H, "corner": "outer" if outer else "inner",
+                             "footprint_m": [1.0, 1.0], "collision": "box"})
 
 
 def cliff_cap():
@@ -321,6 +337,19 @@ def boulders(b, pts, seed=0):
                subdiv=1, jitter=r * 0.15, rot=(0, 0, rng.uniform(0, 90)))
 
 
+def bank_rocks(b, centre, sides=(-1, 1), n=9, seed=0):
+    """Chunky rocks lining the bank slope, following centre(t) -> (x, y, dirx, diry)."""
+    rng = random.Random(seed)
+    for k in range(n):
+        x, y, dx, dy = centre((k + rng.uniform(0.2, 0.8)) / n)
+        for s in sides:
+            off = CH_IN + rng.uniform(0.08, 0.2)
+            r = rng.uniform(0.14, 0.24)
+            b.blob(r * 1.3, r, r * 1.1, x - dy * off * s, y + dx * off * s, rng.uniform(-0.45, -0.2),
+                   pick(("rock_grey", "rock_b", "rock", "stone_dark"), k + (s > 0)), subdiv=1, jitter=r * 0.16,
+                   rot=(rng.uniform(-10, 10), rng.uniform(-10, 10), rng.uniform(0, 90)))
+
+
 def water_strip(b, centre, n=10, seed=0):
     """Faceted water ribbon at WATER_Z following centre(t)->(x, y, dirx, diry), t in 0..1."""
     rng = random.Random(seed)
@@ -344,9 +373,11 @@ def stream_straight():
     """Stream along Y, flowing toward -Y. Water is the separate 'flow' part."""
     b = Builder("stream_straight", seed=360)
     heightfield(b, lambda x, y: abs(x), seed=1)
-    boulders(b, [(-0.62, -0.6), (0.66, -0.1), (-0.6, 0.45), (0.64, 0.7), (0.1, 0.15)], seed=2)
+    line = lambda t: (0.0, HALF - 2 * HALF * t, 0.0, -1.0)
+    bank_rocks(b, line, seed=2)
+    boulders(b, [(0.1, 0.15), (-0.15, -0.55)], seed=2)
     with b.part("flow", pivot=(0, 0, WATER_Z), motion="flow", dir=[0, -1, 0]):
-        water_strip(b, lambda t: (0.0, HALF - 2 * HALF * t, 0.0, -1.0), seed=3)
+        water_strip(b, line, seed=3)
     b.socket("seam_n", (0, HALF, WATER_Z), rotz=0)
     b.socket("seam_s", (0, -HALF, WATER_Z), rotz=180)
     b.socket("fx_ripple", (0.1, 0.1, WATER_Z))
@@ -359,11 +390,12 @@ def stream_bend():
     b = Builder("stream_bend", seed=370)
     cx, cy = HALF, -HALF
     heightfield(b, lambda x, y: abs(math.hypot(x - cx, y - cy) - HALF), n=18, seed=4)
-    boulders(b, [(-0.55, 0.3), (0.0, 0.62), (0.55, -0.6), (-0.2, -0.05)], seed=5)
+    boulders(b, [(-0.2, -0.05)], seed=5)
 
     def centre(t):  # from the +X edge (1, 0) round to the -Y edge (0, -1), flowing that way
         a = math.radians(90 + 90 * t)
         return cx + HALF * math.cos(a), cy + HALF * math.sin(a), -math.sin(a), math.cos(a)
+    bank_rocks(b, centre, n=10, seed=5)
     with b.part("flow", pivot=(0, 0, WATER_Z), motion="flow", dir=[-1, 0, 0]):
         water_strip(b, centre, n=12, seed=6)
     b.socket("seam_e", (HALF, 0, WATER_Z), rotz=-90)
@@ -375,7 +407,7 @@ def stream_bank():
     """Bank edge for where the ground meets wider water (pond, harbour): ground at +Y, water at -Y."""
     b = Builder("stream_bank", seed=380)
     heightfield(b, lambda x, y: max(0.0, y + HALF), seed=7)  # bed at the -Y edge, ground by y=-0.2
-    boulders(b, [(-0.7, -0.55), (-0.15, -0.45), (0.4, -0.6), (0.8, -0.4)], seed=8)
+    bank_rocks(b, lambda t: (-HALF + 2 * HALF * t, -HALF - CH_IN + 0.05, 1.0, 0.0), sides=(1,), n=7, seed=8)
     b.socket("seam_w", (-HALF, 0, 0), rotz=90)
     b.socket("seam_e", (HALF, 0, 0), rotz=-90)
     return done(b, "stream", {"water_side": "-Y", "water_z": WATER_Z, "note": "pair with nature_dock water_tile_2x2 on the -Y side"})
@@ -385,9 +417,11 @@ def stream_end():
     """Spring / source: the channel starts at a rock cluster and flows out of the -Y edge."""
     b = Builder("stream_end", seed=390)
     heightfield(b, lambda x, y: abs(x) if y < 0.1 else math.hypot(x, y - 0.1), seed=9)
-    boulders(b, [(-0.35, 0.55), (0.3, 0.6), (0.0, 0.8), (-0.6, 0.1), (0.62, 0.05)], seed=10)
+    line = lambda t: (0.0, 0.2 - (0.2 + HALF) * t, 0.0, -1.0)
+    bank_rocks(b, line, n=5, seed=10)
+    boulders(b, [(-0.35, 0.55), (0.3, 0.6), (0.0, 0.8)], seed=10)
     with b.part("flow", pivot=(0, 0, WATER_Z), motion="flow", dir=[0, -1, 0]):
-        water_strip(b, lambda t: (0.0, 0.2 - (0.2 + HALF) * t, 0.0, -1.0), n=8, seed=11)
+        water_strip(b, line, n=8, seed=11)
     b.socket("seam_s", (0, -HALF, WATER_Z), rotz=180)
     b.socket("fx_splash", (0, 0.25, WATER_Z))
     return done(b, "stream", {"flow": "-Y", "water_z": WATER_Z})
@@ -422,8 +456,8 @@ def rail_end_post():
 
 # ---------------------------------------------------------------- snow overlays
 def snow_heap(b, x, y, z, w, d, rng):
-    b.box(w, d, 0.05, x, y, z, "snow", bevel=0.022)
-    b.blob(w * 0.45, d * 0.45, 0.06, x, y, z + 0.04, "snow", subdiv=1, jitter=0.01)
+    b.box(w, d, 0.06, x, y, z, "snow", bevel=0.026)
+    b.blob(w * 0.5, d * 0.5, 0.09, x, y, z + 0.05, "snow", subdiv=1, jitter=0.012)
     if rng.random() < 0.5:
         b.blob(w * 0.3, d * 0.3, 0.05, x + rng.uniform(-w, w) * 0.2, y, z + 0.07, "snow_shade", subdiv=1)
 
@@ -451,7 +485,9 @@ def snow_overlay_cliff(name, outer=None):
     """Snow along a cliff top's front lip (matching cliff_straight_* / cliff_corner_*)."""
     b = Builder(name)
     rng = b.rng
-    runs = [((-HALF, HALF), 0)] if outer is None else ([((-0.5, HALF), 0), ((-0.5, HALF), -90)] if outer else [((0.0, HALF), 0), ((-0.5, HALF), 90)])
+    runs = [((-HALF, HALF), 0)] if outer is None else ([((-0.5, 0.5), 0), ((-0.5, 0.5), -90)] if outer else [])
+    if outer is False:  # snow cap on the corner rock cluster only
+        snow_heap(b, 0.31, -0.31, 0.0, 0.42, 0.42, rng)
     for (a, c), rz in runs:
         with b.at((0, 0, 0), rotz=rz):
             x = a

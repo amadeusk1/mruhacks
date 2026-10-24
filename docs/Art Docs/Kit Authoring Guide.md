@@ -62,4 +62,4 @@ Arched or round doors and windows need an arched or round wall opening, or spand
 1. Every asset reports `zfight_remaining == 0` (see [Z-Fighting and Clipping](Z-Fighting%20and%20Clipping.md)).
 2. Render the assembled pieces from 4 sides plus top-down into `common.WIP` and look for poke-through, covered glass, floating parts, and openings visible past their frames (check close up, about 1.5 m away).
 3. Sockets sit where the bird actually stands or sits, and face the right way.
-4. Save one or two good close-ups to `common.DETAILS` as `<kit>_<what>.png`; they appear in [Renders](../../Renders).
+4. Save one or two good close-ups to `common.DETAILS` as `<kit>_<what>.png`; they appear in [Renders](../Renders.md).

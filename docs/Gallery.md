@@ -2,7 +2,7 @@
 
 Design reference: [Game Design Context](GAME_DESIGN_CONTEXT.md)
 
-3D asset pack: [Art Pipeline](Art%20Pipeline.md) (how it's built) · [Renders](../Renders) (all model renders) · [Engine Specs - Index](Engine%20Specs/Engine%20Specs%20-%20Index.md) (what to build in Godot)
+3D asset pack: [Art Pipeline](Art%20Pipeline.md) (how it's built) · [Renders](Renders.md) (all model renders) · [Engine Specs - Index](Engine%20Specs/Engine%20Specs%20-%20Index.md) (what to build in Godot)
 
 ## Reference gallery
 

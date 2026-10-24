@@ -75,9 +75,29 @@ def snow_post(b, x, y, z=0.0, h=0.9, w=0.14, mat="wood_b"):
     b.blob(w * 0.55, w * 0.55, 0.06, x, y, z + h + 0.07, "snow", subdiv=1)
 
 
+def flutter_bunting(b, p0, p1, n, name, colors=None, size=0.16, sag=0.1):
+    """Rope stays static; every pennant is its own flutter part hinged on the rope."""
+    colors = colors or PENNANTS
+    pts = rope_between(b, p0, p1, sag=sag, r=0.012, segs=n * 2)
+    d = (Vector(p1) - Vector(p0)).normalized()
+    rz = math.degrees(math.atan2(d.y, d.x))
+    for i in range(n):
+        p = tuple(pts[1 + i * 2])
+        with b.part(f"{name}_{i}", pivot=p, motion="flutter", amp_deg=14):
+            with b.at(p, rotz=rz):
+                b.prism([(-size / 2, 0), (size / 2, 0), (0, -size * 1.15)], 0.015, mat=pick(colors, i))
+
+
 def snowy_fir(b, x=0, y=0, z=0, h=2.2, r=0.75, tiers=4):
     """Fir with a snow layer sitting on every tier and a snow mound at its foot."""
     b.cyl(r * 0.14, h * 0.2, x, y, z, "bark", segs=6, bevel=0.01)
+    b.blob(r * 0.85, r * 0.85, 0.12, x, y, z + 0.02, "snow", subdiv=1, jitter=0.03)
+    # crown (needles plus the snow riding on them) sways from its base; trunk and ground snow stay put
+    with b.part("crown", pivot=(x, y, z + h * 0.14), motion="sway", amp_deg=2.5):
+        _crown(b, x, y, z, h, r, tiers)
+
+
+def _crown(b, x, y, z, h, r, tiers):
     for i in range(tiers):
         t = i / tiers
         rr = r * (1 - t * 0.62)
@@ -87,7 +107,6 @@ def snowy_fir(b, x=0, y=0, z=0, h=2.2, r=0.75, tiers=4):
         # snow shell: same slope, upper half, slightly proud of the needles
         b.cyl(rr * 0.6 + 0.025, hh * 0.52, x, y, zz + hh * 0.42, "snow", segs=7, r2=0.035, jitter=rr * 0.02)
     b.cyl(0.07 * r, h * 0.12, x, y, z + h * 0.14 + (h * 0.72 / tiers) * (tiers - 1) + h * 0.3, "snow", segs=7, r2=0.0)
-    b.blob(r * 0.85, r * 0.85, 0.12, x, y, z + 0.02, "snow", subdiv=1, jitter=0.03)
 
 
 def snowy_rock(b, x, y, rx, ry, rz, i=0):
@@ -114,8 +133,12 @@ def sled():
     b.box(0.46, 0.05, 0.035, 0, -0.42, 0.185, "wood_b", bevel=0.01)
     # pull rope looping forward from both runner curls
     top = (-0.38 - 0.13 * math.sin(math.radians(140)), 0.155 - 0.13 * math.cos(math.radians(140)))
-    rope_between(b, (-0.2, top[0], top[1]), (0, -0.78, 0.2), sag=0.06, r=0.012, segs=5)
-    rope_between(b, (0, -0.78, 0.2), (0.2, top[0], top[1]), sag=0.06, r=0.012, segs=5)
+    # steering rope tilts left/right around its centre line between the runner curls
+    with b.part("rope", pivot=(0, top[0], top[1]), motion="tilt", axis="z", max_deg=20):
+        rope_between(b, (-0.2, top[0], top[1]), (0, -0.78, 0.2), sag=0.06, r=0.012, segs=5)
+        rope_between(b, (0, -0.78, 0.2), (0.2, top[0], top[1]), sag=0.06, r=0.012, segs=5)
+    for side, sx in (("l", -0.2), ("r", 0.2)):
+        b.socket(f"fx_spray_{side}", (sx, 0.48, 0.03), rotz=180)  # rear of each runner, spray kicks back (+Y)
     b.socket("rider", (0, 0.05, 0.215))
     b.socket("pull", (0, -0.78, 0.2))
     return done(b, "activity", {"activity": "sledding"})
@@ -248,6 +271,9 @@ def start_gate():
         b.box(0.12, 0.14, 0.5, sx * (S - 0.25), 0, 1.95, "wood_dark", bevel=0.015, rot=(0, sx * -40, 0))
     snow_cap(b, 3.55, 0.3, 0, 0, 2.52, h=0.08)
     sign_board(b, 1.3, 0.38, 0, -0.06, 1.68)
+    # short pennant strings either side of the sign, under the beam
+    for sx in (-1, 1):
+        flutter_bunting(b, (sx * 1.38, -0.16, 2.26), (sx * 0.78, -0.16, 2.26), 3, f"pennant_{'l' if sx < 0 else 'r'}", size=0.15, sag=0.06)
     for sx in (-0.45, 0.45):
         b.cyl(0.012, 0.16, sx, -0.06, 2.06, "iron", segs=4)
     b.socket("sign", (0, -0.12, 1.87))
@@ -261,13 +287,14 @@ def finish_flags():
         b.blob(0.3, 0.3, 0.18, sx * S, 0, 0.03, "snow", subdiv=1, jitter=0.04)
         snow_post(b, sx * S, 0, 0, h=1.9, w=0.15)
     # banner hung from the posts
-    b.box(2.0, 0.03, 0.42, 0, 0, 1.06, "insert_sign", bevel=0.0)
+    with b.part("banner", pivot=(0, 0, 1.48), motion="flutter", amp_deg=4):  # tied at both ends: gentle billow
+        b.box(2.0, 0.03, 0.42, 0, 0, 1.06, "insert_sign", bevel=0.0)
     b.box(2.08, 0.05, 0.05, 0, 0, 1.48, tint("banner_trim", "red_dark"), bevel=0.01)
     b.box(2.08, 0.05, 0.05, 0, 0, 1.04, tint("banner_trim", "red_dark"), bevel=0.01)
     for sx in (-1, 1):
         rope_between(b, (sx * 1.04, 0, 1.5), (sx * S, 0, 1.56), sag=0.0, r=0.012, segs=1)
         rope_between(b, (sx * 1.04, 0, 1.06), (sx * S, 0, 1.1), sag=0.0, r=0.012, segs=1)
-    bunting(b, (-S, 0, 1.9), (S, 0, 1.9), n=7, colors=PENNANTS, size=0.18, sag=0.05)
+    flutter_bunting(b, (-S, 0, 1.9), (S, 0, 1.9), 7, "pennant", size=0.18, sag=0.05)
     b.socket("finish_line", (0, 0, 0))
     return done(b, "track", {"sign_text": "FINISH"})
 
@@ -411,13 +438,14 @@ def team_flag():
         fs += [(a, n, n + 1, a + 1), (a + 2, a + 3, n + 3, n + 2), (a + 1, n + 1, n + 3, a + 3), (a, a + 2, n + 2, n)]
     last = 4 * (cols - 1)
     fs += [(0, 1, 3, 2), (last, last + 2, last + 3, last + 1)]
-    b.mesh(vs, fs, colour)
-    # bird emblem (round body, two eyes) on the cloth front, matching the concept flags
-    ex, ez, ey = 0.44, z0 + H / 2 - 0.02, 0.06 * math.sin(2 * 1.4) - 0.02
-    b.blob(0.13, 0.02, 0.15, ex, ey, ez, "cream", subdiv=1)
-    for dx in (-0.045, 0.045):
-        b.blob(0.018, 0.012, 0.022, ex + dx, ey - 0.02, ez + 0.03, "navy", subdiv=1)
-    b.blob(0.025, 0.012, 0.015, ex, ey - 0.022, ez - 0.015, "beak", subdiv=1)
+    with b.part("cloth", pivot=(0.04, 0, z0 + H / 2), motion="flutter", amp_deg=12):
+        b.mesh(vs, fs, colour)
+        # bird emblem (round body, two eyes) on the cloth front, matching the concept flags
+        ex, ez, ey = 0.44, z0 + H / 2 - 0.02, 0.06 * math.sin(2 * 1.4) - 0.02
+        b.blob(0.13, 0.02, 0.15, ex, ey, ez, "cream", subdiv=1)
+        for dx in (-0.045, 0.045):
+            b.blob(0.018, 0.012, 0.022, ex + dx, ey - 0.02, ez + 0.03, "navy", subdiv=1)
+        b.blob(0.025, 0.012, 0.015, ex, ey - 0.022, ez - 0.015, "beak", subdiv=1)
     return done(b, "team", {"color_variants": TEAM_VARIANTS})
 
 
@@ -537,7 +565,7 @@ def snowball_arena_blockout():
     # gate arch posts with bunting
     for gx in (5.0, 7.0):
         snow_post(b, gx, -0.05, 0, h=1.4, w=0.16)
-    bunting(b, (5.0, -0.05, 1.38), (7.0, -0.05, 1.38), n=5, colors=PENNANTS, size=0.16, sag=0.08)
+    flutter_bunting(b, (5.0, -0.05, 1.38), (7.0, -0.05, 1.38), 5, "pennant", size=0.16, sag=0.08)
     # outside: ready pads by team and a spectator bench
     for k, (px, team, col) in enumerate(((4.0, "coral", TEAM_A), (4.9, "coral", TEAM_A), (7.1, "teal", TEAM_B), (8.0, "teal", TEAM_B))):
         b.cyl(0.38, 0.04, px, -1.3, 0, "snow_shade", segs=10)

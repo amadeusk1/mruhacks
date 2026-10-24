@@ -111,6 +111,7 @@ def door_unit(b, cx, w=0.86, h=1.6, z=0.0, y=0.0, mat=DOOR_T, surround=TRIM_T, h
     back = fy + 0.105
     with b.part(part_name, pivot=(cx - w / 2, back, lz0), motion="hinge", axis="z", open_deg=open_deg):
         pw = lw / 3
+        b.box(lw - 0.03, 0.05, lh0 - 0.004, cx, fy + 0.07, lz0 + 0.002, mat, bevel=0)              # solid core behind the plank grooves
         for i in range(3):
             b.box(pw - 0.012, 0.07, lh0, cx - lw / 2 + pw * (i + 0.5), fy + 0.07, lz0, mat, bevel=0.012)
         b.box(lw - 0.04, 0.03, 0.07, cx, fy + 0.025, lz0 + 0.2, mat, bevel=0.01)              # rail

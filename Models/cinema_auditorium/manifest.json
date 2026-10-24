@@ -75,7 +75,7 @@
     "category": "interactive",
     "size_m": [
       4.92,
-      1.14,
+      1.09,
       3.3
     ],
     "sockets": {
@@ -94,14 +94,91 @@
     "file": "cinema_auditorium/curtain.glb",
     "category": "wall_decor",
     "size_m": [
-      1.04,
-      0.4,
-      3.375
+      5.14,
+      0.63,
+      2.59
     ],
     "sockets": {},
+    "parts": {
+      "part_curtain_l_inner": {
+        "pivot": [
+          -0.44,
+          -0.5,
+          2.2
+        ],
+        "motion": "slide",
+        "dir": [
+          -1.0,
+          0.0,
+          0.0
+        ],
+        "dist": 1.64
+      },
+      "part_curtain_l_outer": {
+        "pivot": [
+          -1.26,
+          -0.27,
+          2.2
+        ],
+        "motion": "slide",
+        "dir": [
+          -1.0,
+          0.0,
+          0.0
+        ],
+        "dist": 0.82
+      },
+      "part_curtain_r_inner": {
+        "pivot": [
+          0.44,
+          -0.5,
+          2.2
+        ],
+        "motion": "slide",
+        "dir": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "dist": 1.64
+      },
+      "part_curtain_r_outer": {
+        "pivot": [
+          1.26,
+          -0.27,
+          2.2
+        ],
+        "motion": "slide",
+        "dir": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "dist": 0.82
+      }
+    },
+    "part_clips": {
+      "part_curtain_l_inner": [
+        "curtain_l_inner_open",
+        "curtain_l_inner_close"
+      ],
+      "part_curtain_l_outer": [
+        "curtain_l_outer_open",
+        "curtain_l_outer_close"
+      ],
+      "part_curtain_r_inner": [
+        "curtain_r_inner_open",
+        "curtain_r_inner_close"
+      ],
+      "part_curtain_r_outer": [
+        "curtain_r_outer_open",
+        "curtain_r_outer_close"
+      ]
+    },
     "tints": {
       "curtain": "#C8362F"
-    }
+    },
+    "note": "rests closed; four slide parts open sideways, valance static"
   },
   {
     "id": "cinema_auditorium/wall_panel",
@@ -147,7 +224,7 @@
     "category": "door",
     "size_m": [
       1.1,
-      0.14,
+      0.15,
       1.86
     ],
     "sockets": {
@@ -155,6 +232,24 @@
         0.0,
         -0.6,
         0.0
+      ]
+    },
+    "parts": {
+      "part_door_leaf": {
+        "pivot": [
+          -0.37,
+          -0.03,
+          0.0
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": -90
+      }
+    },
+    "part_clips": {
+      "part_door_leaf": [
+        "door_leaf_open",
+        "door_leaf_close"
       ]
     },
     "tints": {
@@ -200,12 +295,12 @@
       "socket_screen": [
         0.0,
         3.5,
-        2.025
+        1.9
       ],
       "socket_screen__park.001": [
         0.0,
         3.5,
-        2.025
+        1.9
       ],
       "socket_seat_0": [
         0.42,
@@ -266,6 +361,96 @@
         -0.3,
         -1.93,
         1.09
+      ]
+    },
+    "parts": {
+      "part_curtain_l_inner": {
+        "pivot": [
+          -0.44,
+          3.2,
+          3.05
+        ],
+        "motion": "slide",
+        "dir": [
+          -1.0,
+          0.0,
+          0.0
+        ],
+        "dist": 1.64
+      },
+      "part_curtain_l_outer": {
+        "pivot": [
+          -1.26,
+          3.43,
+          3.05
+        ],
+        "motion": "slide",
+        "dir": [
+          -1.0,
+          0.0,
+          0.0
+        ],
+        "dist": 0.82
+      },
+      "part_curtain_r_inner": {
+        "pivot": [
+          0.44,
+          3.2,
+          3.05
+        ],
+        "motion": "slide",
+        "dir": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "dist": 1.64
+      },
+      "part_curtain_r_outer": {
+        "pivot": [
+          1.26,
+          3.43,
+          3.05
+        ],
+        "motion": "slide",
+        "dir": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "dist": 0.82
+      },
+      "part_door_leaf": {
+        "pivot": [
+          -2.52,
+          -3.42,
+          0.93
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": -90
+      }
+    },
+    "part_clips": {
+      "part_curtain_l_inner": [
+        "curtain_l_inner_open",
+        "curtain_l_inner_close"
+      ],
+      "part_curtain_l_outer": [
+        "curtain_l_outer_open",
+        "curtain_l_outer_close"
+      ],
+      "part_curtain_r_inner": [
+        "curtain_r_inner_open",
+        "curtain_r_inner_close"
+      ],
+      "part_curtain_r_outer": [
+        "curtain_r_outer_open",
+        "curtain_r_outer_close"
+      ],
+      "part_door_leaf": [
+        "door_leaf_open",
+        "door_leaf_close"
       ]
     },
     "tints": {

@@ -13,7 +13,7 @@
 7. [Dev Handoff - Delivery and QA](Dev%20Handoff%20-%20Delivery%20and%20QA.md) — implementation order and release gates.
 8. [Dev Handoff - Decisions Register](Dev%20Handoff%20-%20Decisions%20Register.md) — unresolved product and infrastructure choices.
 
-Visual index: [Waddle World - UI Mockups](Waddle%20World%20-%20UI%20Mockups.md). Models and art: [Art Pipeline](Art%20Pipeline.md), [Models](../Models), [Renders](../Renders), [Engine Specs - Index](Engine%20Specs/Engine%20Specs%20-%20Index.md). These asset notes may advance independently of a Git snapshot; inspect the committed files and manifests before assuming a resource exists.
+Visual index: [Waddle World - UI Mockups](Waddle%20World%20-%20UI%20Mockups.md). Models and art: [Art Pipeline](Art%20Pipeline.md), [Models](Models.md), [Renders](Renders.md), [Engine Specs - Index](Engine%20Specs/Engine%20Specs%20-%20Index.md). These asset notes may advance independently of a Git snapshot; inspect the committed files and manifests before assuming a resource exists.
 
 ## Definitions of done
 

@@ -1,6 +1,6 @@
 # Prop Kits - Master Plan
 
-Reference: [GAME_DESIGN_CONTEXT](GAME_DESIGN_CONTEXT.md) · [Gallery](Gallery.md) · [Models](../Models) · [Animation Kits - Index](Animation%20Kits%20-%20Index.md)
+Reference: [GAME_DESIGN_CONTEXT](GAME_DESIGN_CONTEXT.md) · [Gallery](Gallery.md) · [Models](Models.md) · [Animation Kits - Index](Animation%20Kits%20-%20Index.md)
 
 Initial audit found 295 GLB exports across 16 folders. The commit snapshot includes 327 GLBs across 20 folders, including newly available locomotion, emote and social animation exports, plus `Models/all_assets.blend`. Existing files are preserved as current work, not certified final assets. **Penguins** remain the character direction. No images were remade after the user requested keeping them.
 
