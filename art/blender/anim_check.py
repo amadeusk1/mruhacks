@@ -14,7 +14,7 @@ from mathutils.bvhtree import BVHTree
 
 args = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
 ALL = ["anim_locomotion", "anim_emotes", "anim_social", "anim_fishing", "anim_sledding", "anim_snowballs", "anim_basketball",
-       "anim_arcade", "anim_drawing", "anim_cinema", "anim_home", "anim_everyday"]
+       "anim_arcade", "anim_drawing", "anim_cinema", "anim_home", "anim_everyday", "anim_casino"]
 KITS = [a for a in args if not a.startswith("--")] or ALL
 render = "--no-render" not in args
 
@@ -131,7 +131,7 @@ def pokes(bs, it):
     return n
 
 
-for n in ("run", "hop", "emote_cheer", "emote_dance"):
+for n in ("run", "hop", "emote_cheer", "emote_dance", "hop_onto_seat", "reach_table", "pull_lever", "small_cheer_seated"):
     if n not in clipinfo:
         continue
     res = {w: 0 for w in WIDE}
@@ -170,7 +170,8 @@ if render:
             L.play(arm, n, f)
             o = snap(body)
             o.hide_render = False
-            o.matrix_world = Matrix.Translation((j * 1.05, 0, 0)) @ o.matrix_world
+            lift = 0.42 if k == "anim_casino" else 0.0  # seat-frame clips: show them at seat height
+            o.matrix_world = Matrix.Translation((j * 1.05, 0, lift)) @ o.matrix_world
             objs.append(o)
         L.stop(arm)
         path = os.path.join(common.WIP, f"{k}_{n}.png")

@@ -1,13 +1,13 @@
 {
   "scope": "Snapshot of the Obsidian vault's art pack (Models, Renders, art) and notes, synced by art/sync_to_repo.py. The vault is the live source; file presence is not art approval or gameplay integration.",
-  "synced_at": "2026-10-24T01:44:41",
+  "synced_at": "2026-10-24T03:08:07",
   "counts": {
-    "Models": 743,
-    "Renders": 172,
-    "art": 61,
-    "docs/concepts": 57
+    "Models": 748,
+    "Renders": 196,
+    "art": 65,
+    "docs/concepts": 66
   },
-  "glb_count": 531,
+  "glb_count": 533,
   "excluded": [
     ".obsidian (personal UI settings)",
     "art/_wip (intermediate preview renders)",
@@ -48,6 +48,8 @@
     "Models/anim_arcade/manifest.json": "72010a644b073e8450875361f39d4e27612da8d363a919dcf404ea9531be3f94",
     "Models/anim_basketball/avatar_base.glb": "55db624bcaa088c00c393b9bc2c4db61b4153bac509d9eb1bc9d909458e9f598",
     "Models/anim_basketball/manifest.json": "79526077859259d7c71789623989d2a47fe3f572bdaf2acbbb8876e94d40e806",
+    "Models/anim_casino/avatar_base.glb": "5ab72fb506182f58b7f51a0e226d399bf27abbee3ab6acfac3a23f537751d7bf",
+    "Models/anim_casino/manifest.json": "dd15169d81421a6050897490abab9f453a1b4d09859ed02f64460a32464e715a",
     "Models/anim_cinema/avatar_base.glb": "f16feb69ed6e8baf255ab3c822964a29d6bbb4691904a76cf0653d77c1fe61d8",
     "Models/anim_cinema/manifest.json": "ee00a64e4304d1c2d6dd2b761218c9d37976fd737f3b20c825ef0ed9a29252cb",
     "Models/anim_drawing/avatar_base.glb": "a6dbc5dcc742a99810fb38a3e083d34869bddde245932be0ea2d6849ee40ce90",
@@ -557,6 +559,9 @@
     "Models/winter/start_platform.glb": "f90b8658aa7e0a6544da21c62380bc62fa600a1ff8499373e665f3ba618b9f8e",
     "Models/winter/stone_stairs_snow.glb": "ceaf2122e42a452eacc6fd9844f65a7310beed18b3a7fc3d30fdd0a2785dba2d",
     "Models/winter/team_flag.glb": "88d230aeecccad6c8811d1a09559303c165b740c3855cd6640642f2c589254ff",
+    "Models/world/manifest.json": "48219ecc9ee17b14db7d3deaf5d9e63eac4748a78fab14e97527e7468d31f75a",
+    "Models/world/town_layout.json": "8e1eef0c01aaac67a9e30aa293ea087728d6cecb67800b990ad77bef1b3b86d4",
+    "Models/world/town_terrain.glb": "d676e9286f81a4a037831e7032251bea1776f5355cf70cb63663fa957c72b073",
     "Models/world_misc/activity_sign.glb": "7b3452620dc352c330af0b4cafa1bcb0ff6a8ed85a54a2ac9dbe33d7ba409022",
     "Models/world_misc/barrel.glb": "c8b28bcdab54cee953e39647a60decad8dbe3e9006777e8b1c3244b80ad056fc",
     "Models/world_misc/crate.glb": "71e3ba97c3efcf15763d2ca7176a0dda12ea7337c14df4e1adc6cd56b162fc32",

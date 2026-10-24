@@ -138,3 +138,11 @@ All animation sheets: [Animation Mockups - Gallery](Animation%20Mockups%20-%20Ga
 ## Developer implementation guide
 
 [Dev Handoff - Start Here](Dev%20Handoff%20-%20Start%20Here.md)
+
+## Island map concepts
+
+[World Map - Island Concepts](World%20Map%20-%20Island%20Concepts.md) — angled overview and overhead layout.
+
+## Casino concepts
+
+[Casino - Concept Index](Casino%20-%20Concept%20Index.md) — six prop/UI/motion boards and updated island map.
