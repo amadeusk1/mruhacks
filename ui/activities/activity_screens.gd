@@ -20,6 +20,8 @@ var _open: Control
 
 
 func _ready() -> void:
+	UIScreens.register("wardrobe", func() -> void: open("wardrobe"))
+	UIScreens.register("inventory", func() -> void: open("inventory"))
 	var acts := get_node_or_null("/root/Activities")
 	if acts:
 		acts.requested.connect(func(activity: String, _anchor: Node, _player: Node) -> void: open(activity))

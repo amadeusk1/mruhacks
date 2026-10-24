@@ -4,10 +4,10 @@ extends UIModal
 ## Duplicate keys ask Replace / Cancel. Saved to user://controls.cfg.
 
 const PATH := "user://controls.cfg"
-const ROWS := [["Move", ["move_forward", "move_left", "move_back", "move_right"]], ["Interact", ["interact"]],
+const ROWS := [["Move", ["move_forward", "move_left", "move_back", "move_right"]], ["Jump", ["jump"]], ["Interact", ["interact"]],
 	["Map", ["open_map"]], ["Emotes", ["open_emotes"]], ["Push to talk", ["push_to_talk"]]]
 const DEFAULTS := {"move_forward": KEY_W, "move_left": KEY_A, "move_back": KEY_S, "move_right": KEY_D,
-	"interact": KEY_F, "open_map": KEY_M, "open_emotes": KEY_R, "push_to_talk": KEY_V}
+	"jump": KEY_SPACE, "interact": KEY_F, "open_map": KEY_M, "open_emotes": KEY_R, "push_to_talk": KEY_V}
 
 
 func _init() -> void:
