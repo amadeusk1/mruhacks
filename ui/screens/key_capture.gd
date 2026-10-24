@@ -8,7 +8,8 @@ var _i := 0
 var _pending := -1
 var _hint: Label
 var _conflict: HBoxContainer
-const NAMES := {"move_forward": "up", "move_left": "left", "move_back": "down", "move_right": "right"}
+const NAMES := {"move_forward": "up", "move_left": "left", "move_back": "down", "move_right": "right",
+	"aim_down": "a lower shot arc", "aim_up": "a higher shot arc"}
 
 
 func _init() -> void:

@@ -69,6 +69,7 @@ var _court_send := 0.0
 var _court_sig := ""
 var _court_box := AABB()
 var _court_on := false
+var court_loft := 0.5  # how high the local player aims a shot: 0 flattest, 1 tallest lob
 
 
 func _ready() -> void:
@@ -1297,6 +1298,8 @@ func court_action(action: String) -> void:
 	var mine: Dictionary = _court_bodies.get(local_id(), {})
 	if mine.is_empty() or not _inside_court(Vector3(float(mine["x"]), 0.0, float(mine["z"]))):
 		return
+	if action == "shoot":
+		action = "shoot:%.2f" % court_loft
 	if _mode == Mode.CLIENT:
 		request_court.rpc_id(1, action)
 		return

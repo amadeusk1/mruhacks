@@ -5,7 +5,19 @@ extends Node
 
 const CORAL := Color(0.91, 0.4, 0.32)
 const TEAL := Color(0.2, 0.68, 0.72)
+const _Match := preload("res://scripts/court_match.gd")
+const HINT := "Walk into the ball.  Click shoots.  F passes."
+const AIM_DOTS := 18
+const AIM_GOOD := Color(0.4, 0.95, 0.5)
+const AIM_OK := Color(1.0, 0.85, 0.3)
+const AIM_OFF := Color(1.0, 0.5, 0.3)
 
+var _rim_coral := Vector3.ZERO
+var _rim_teal := Vector3.ZERO
+var _aim: Node3D
+var _aim_dots: MultiMeshInstance3D
+var _aim_head: MeshInstance3D
+var _aim_mat: StandardMaterial3D
 var _ball: Node3D
 var _hoops: Array[Node3D] = []
 var _nets: Array[Node3D] = []
@@ -30,6 +42,9 @@ func _ready() -> void:
 	var west := _rim(_hoops[0])
 	var east := _rim(_hoops[_hoops.size() - 1])
 	Net.court_configure(east, west, bounds)
+	_rim_coral = east
+	_rim_teal = west
+	_build_aim()
 	for hoop in _hoops:
 		var net := _find(hoop, "part_net")
 		if net != null:
@@ -61,6 +76,7 @@ func _process(delta: float) -> void:
 	var state: Dictionary = Net.court_view()
 	_place_ball(state, delta)
 	_paint(state)
+	_update_aim(state, delta)
 	_swish = maxf(0.0, _swish - delta)
 	for net in _nets:
 		if is_instance_valid(net):
@@ -69,6 +85,115 @@ func _process(delta: float) -> void:
 	if points > _shown_points and _shown_points >= 0:
 		_swish = 0.45
 	_shown_points = points
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not (event is InputEventMouseButton) or not event.pressed:
+		return
+	var step := 0.0
+	if event.button_index == MOUSE_BUTTON_WHEEL_UP:
+		step = 0.05
+	elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+		step = -0.05
+	if step != 0.0 and _carrying_here() != null:
+		Net.court_loft = clampf(Net.court_loft + step, 0.0, 1.0)
+		get_viewport().set_input_as_handled()
+
+
+## The local player while they hold the ball on the court, else null.
+func _carrying_here() -> Node3D:
+	var player := get_tree().get_first_node_in_group("local_player") as Node3D
+	if player == null or not Net.court_carrying() or not Net.court_here(player.global_position):
+		return null
+	if get_viewport().gui_get_focus_owner() is LineEdit:
+		return null
+	return player
+
+
+## The hoop a shot would go to: the same choice court_match makes on the host.
+func _attack_rim(state: Dictionary, player: Node3D) -> Vector3:
+	var side := _my_side(str(state.get("teams", "")))
+	if str(state.get("phase", "")) == "live":
+		if side == "teal":
+			return _rim_teal
+		if side == "coral":
+			return _rim_coral
+	var flat := Vector2(player.global_position.x, player.global_position.z)
+	var to_teal := flat.distance_to(Vector2(_rim_teal.x, _rim_teal.z))
+	var to_coral := flat.distance_to(Vector2(_rim_coral.x, _rim_coral.z))
+	return _rim_teal if to_teal < to_coral else _rim_coral
+
+
+func _build_aim() -> void:
+	_aim = Node3D.new()
+	_aim.name = "ShotAim"
+	_aim.visible = false
+	add_child(_aim)
+	_aim_mat = StandardMaterial3D.new()
+	_aim_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	_aim_mat.no_depth_test = true  # the arc stays readable behind the backboard and other penguins
+	_aim_mat.render_priority = 10
+	var dot := SphereMesh.new()
+	dot.radius = 0.075
+	dot.height = 0.15
+	dot.radial_segments = 8
+	dot.rings = 4
+	dot.material = _aim_mat
+	var multi := MultiMesh.new()
+	multi.transform_format = MultiMesh.TRANSFORM_3D
+	multi.mesh = dot
+	multi.instance_count = AIM_DOTS
+	_aim_dots = MultiMeshInstance3D.new()
+	_aim_dots.multimesh = multi
+	_aim_dots.top_level = true
+	_aim.add_child(_aim_dots)
+	var cone := CylinderMesh.new()
+	cone.top_radius = 0.0
+	cone.bottom_radius = 0.24
+	cone.height = 0.55
+	cone.radial_segments = 12
+	cone.material = _aim_mat
+	_aim_head = MeshInstance3D.new()
+	_aim_head.mesh = cone
+	_aim_head.top_level = true
+	_aim.add_child(_aim_head)
+
+
+## Dotted arc from the ball to the hoop, ending in an arrowhead. Q/E (or the wheel) raise and
+## lower it; green means the arc suits the distance, orange means it is too flat or too high.
+func _update_aim(state: Dictionary, delta: float) -> void:
+	var player := _carrying_here()
+	if player == null or _aim == null:
+		if _aim != null:
+			_aim.visible = false
+		if _hint != null:
+			_hint.text = HINT
+		return
+	var lift := 0.0
+	if InputMap.has_action("aim_up") and Input.is_action_pressed("aim_up"):
+		lift += 1.0
+	if InputMap.has_action("aim_down") and Input.is_action_pressed("aim_down"):
+		lift -= 1.0
+	if lift != 0.0:
+		Net.court_loft = clampf(Net.court_loft + lift * delta * 0.7, 0.0, 1.0)
+	var loft := Net.court_loft
+	var rim := _attack_rim(state, player)
+	var from := _carry(player)
+	var dist := Vector2(from.x - rim.x, from.z - rim.z).length()
+	var pts := _Match.arc_points(from, rim, loft, AIM_DOTS + 1)
+	var fit := _Match.loft_fit(dist, loft)
+	_aim_mat.albedo_color = AIM_GOOD if fit >= _Match.FIT_GOOD else (AIM_OK if fit >= _Match.FIT_OK else AIM_OFF)
+	var multi := _aim_dots.multimesh
+	for i in AIM_DOTS:
+		multi.set_instance_transform(i, Transform3D(Basis.IDENTITY, pts[i + 1]))  # the first point is inside the ball
+	var tip := pts[pts.size() - 1]
+	var dir := (tip - pts[pts.size() - 2]).normalized()
+	var side := dir.cross(Vector3.UP if absf(dir.y) < 0.95 else Vector3.RIGHT).normalized()
+	_aim_head.global_transform = Transform3D(Basis(side, dir, side.cross(dir)), tip - dir * 0.27)
+	_aim.visible = true
+	if _hint != null:
+		var verdict := "green: this one goes in" if fit >= _Match.FIT_GOOD else ("too flat" if loft < _Match.ideal_loft(dist) else "too high")
+		_hint.text = "Click shoots.  Wheel or %s / %s sets the arc: %s." % [ControlsScreen.key_text("aim_down"), ControlsScreen.key_text("aim_up"), verdict]
 
 
 func _witness(body: Node3D, id: int) -> void:
@@ -250,7 +375,7 @@ func _hud_layer() -> void:
 	_line = _label(font, 22)
 	_status = _label(font, 18)
 	_hint = _label(font, 15)
-	_hint.text = "Walk into the ball.  Click shoots.  F passes."
+	_hint.text = HINT
 	_hint.modulate = Color(1, 1, 1, 0.82)
 	root.add_child(_line)
 	root.add_child(_status)
