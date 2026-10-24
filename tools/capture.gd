@@ -16,7 +16,11 @@ func _ready() -> void:
 	await _shot(out + "game_play.png")
 	var rig: Node3D = w.get_node("CameraRig")
 	rig.set_process(false)
-	for v in [["game_overview.png", Vector3(0, 0, 4), Vector3(0, 30, 26)], ["game_side.png", Vector3(0, 0, -2), Vector3(-22, 14, 14)]]:
+	for c in w.find_children("*", "CanvasLayer", true, false):  # overviews are for art review: no HUD
+		(c as CanvasLayer).visible = false
+	cam.far = 400.0
+	for v in [["game_overview.png", Vector3(0, 0, 4), Vector3(0, 30, 26)], ["game_side.png", Vector3(0, 0, -2), Vector3(-22, 14, 14)],
+			["game_map.png", Vector3(0, 0, -3), Vector3(0, 74, 62)]]:
 		cam.global_position = v[1] + v[2]
 		cam.look_at(v[1], Vector3.UP)
 		await _shot(out + v[0])
