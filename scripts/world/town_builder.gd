@@ -189,7 +189,7 @@ func _place(nav: Node, p: Dictionary) -> void:
 			_box_body(nav, node.position + Vector3(0, size.y * 0.5, 0), size, float(p.get("rot_y_deg", 0.0)), BLOCK_LAYER)
 	_start_ambient(node)
 	if id == "activities/communal_table":  # Sketch Club: sitting here joins the table's game
-		SeatSpot.from_sockets(nav, node, "sketch", node.global_position, "sketch")
+		(func(): SeatSpot.from_sockets(nav, node, "sketch", node.global_position, "sketch")).call_deferred()  # needs globals
 
 
 ## Assets whose only moving parts sway (tree crowns, shrub tops) batch fine: the sway moves
@@ -370,7 +370,9 @@ func _bridge_deck_y(along: float) -> float:
 
 
 func _bridge_crossing(bridge: Node3D) -> void:
-	_bridge_approaches(bridge)
+	# the town builds in _enter_tree, before its children are in the tree: socket globals are
+	# meaningless until then (visual-only landings; the ribbon below carries the collision)
+	_bridge_approaches.call_deferred(bridge)
 	var pts := PackedVector3Array()
 	pts.append(Vector3(-5.2, 0.07, 0.0))  # flat lip on the path paving (top is +0.07)
 	pts.append(Vector3(-4.5, 0.07, 0.0))

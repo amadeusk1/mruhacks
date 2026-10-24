@@ -166,8 +166,14 @@ func play_solo(player_name: String) -> void:
 func host_game(player_name: String) -> String:
 	if _mode != Mode.OFF:
 		return "Already in a session."
-	var peer := ENetMultiplayerPeer.new()
-	var err := peer.create_server(PORT, 8)
+	var peer: MultiplayerPeer
+	var err: Error
+	if use_websocket():
+		peer = WebSocketMultiplayerPeer.new()
+		err = peer.create_server(PORT)
+	else:
+		peer = ENetMultiplayerPeer.new()
+		err = peer.create_server(PORT, 8)
 	if err != OK:
 		return "Port %s is already in use." % PORT
 	_mode = Mode.HOST
@@ -186,8 +192,14 @@ func host_game(player_name: String) -> String:
 func join_game(player_name: String) -> String:
 	if _mode != Mode.OFF:
 		return "Already in a session."
-	var peer := ENetMultiplayerPeer.new()
-	var err := peer.create_client(ADDRESS, PORT)
+	var peer: MultiplayerPeer
+	var err: Error
+	if use_websocket():
+		peer = WebSocketMultiplayerPeer.new()
+		err = peer.create_client(websocket_url())
+	else:
+		peer = ENetMultiplayerPeer.new()
+		err = peer.create_client(ADDRESS, PORT)
 	if err != OK:
 		return "Couldn't open a connection to %s:%s." % [ADDRESS, PORT]
 	_mode = Mode.CLIENT
@@ -287,6 +299,9 @@ func say(message: String) -> void:
 
 
 func _host_say(peer_id: int, message: String) -> void:
+	message = message.strip_edges().replace("\n", " ").replace("\r", " ").substr(0, 80)
+	if message.is_empty():
+		return
 	if not _players.has(peer_id):
 		return
 	var speaker := str(_players[peer_id]["name"])
@@ -592,6 +607,9 @@ func _force_offline() -> void:
 
 
 func _on_peer_connected(id: int) -> void:
+	if _mode == Mode.HOST and multiplayer.get_peers().size() > 8:
+		multiplayer.multiplayer_peer.disconnect_peer(id)
+		return
 	print("Net peer connected: %s" % id)
 
 
@@ -1362,3 +1380,13 @@ func deliver_court(state: Dictionary) -> void:
 	if _mode != Mode.CLIENT:
 		return
 	_court_state = state
+
+
+func use_websocket() -> bool:
+	return OS.has_feature("web") or OS.get_cmdline_user_args().has("--net-ws") or not OS.get_environment("PENGLOO_WS_URL").is_empty()
+
+func websocket_url() -> String:
+	if OS.has_feature("web"):
+		return str(JavaScriptBridge.eval("(location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/multiplayer'"))
+	var configured := OS.get_environment("PENGLOO_WS_URL")
+	return configured if not configured.is_empty() else "ws://127.0.0.1:%s" % PORT
