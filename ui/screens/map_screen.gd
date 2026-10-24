@@ -60,7 +60,7 @@ class MapView extends Control:
 		"CafeDoor": ["cafe", "Inside"],
 		"CinemaDoor": ["cinema", "InsideLobby"],
 		"ArcadeDoor": ["arcade", "Inside"],
-		"HomesGate": ["home", "InsideSpawn"],
+		"HomesGate": ["town", "HomesGate"],
 		"SketchEntry": ["town", "SketchEntry"],
 		"SledStart": ["sled_hill", "BusArrival"],
 		"ArenaGate": ["town", "ArenaGate"],
