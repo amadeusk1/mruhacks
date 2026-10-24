@@ -1,0 +1,252 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://scripts/main_menu.gd" id="1_menu"]
+
+[sub_resource type="StyleBoxFlat" id="Style_card"]
+bg_color = Color(0.952941, 0.886275, 0.772549, 1)
+border_color = Color(0.082353, 0.203922, 0.278431, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="StyleBoxFlat" id="Style_enter"]
+bg_color = Color(0.12549, 0.490196, 0.521569, 1)
+border_color = Color(0.12549, 0.490196, 0.521569, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="Style_enter_hover"]
+bg_color = Color(0.282843, 0.581961, 0.607686, 1)
+border_color = Color(0.282843, 0.581961, 0.607686, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="Style_enter_pressed"]
+bg_color = Color(0.102902, 0.401961, 0.427686, 1)
+border_color = Color(0.102902, 0.401961, 0.427686, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="Style_enter_focus"]
+bg_color = Color(0.12549, 0.490196, 0.521569, 1)
+border_color = Color(0.082353, 0.203922, 0.278431, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="Style_quit"]
+bg_color = Color(0.998, 0.965, 0.91, 1)
+border_color = Color(0.998, 0.965, 0.91, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="Style_quit_hover"]
+bg_color = Color(1, 0.984, 0.95, 1)
+border_color = Color(1, 0.984, 0.95, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="Style_quit_pressed"]
+bg_color = Color(0.91, 0.84, 0.72, 1)
+border_color = Color(0.91, 0.84, 0.72, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="Style_quit_focus"]
+bg_color = Color(0.998, 0.965, 0.91, 1)
+border_color = Color(0.082353, 0.203922, 0.278431, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_menu")
+
+[node name="Backdrop" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Sky" type="ColorRect" parent="Backdrop"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+anchor_bottom = 0.55
+grow_horizontal = 2
+mouse_filter = 2
+color = Color(0.419608, 0.658824, 0.839216, 1)
+
+[node name="Horizon" type="ColorRect" parent="Backdrop"]
+layout_mode = 1
+anchor_top = 0.55
+anchor_right = 1.0
+anchor_bottom = 0.72
+grow_horizontal = 2
+mouse_filter = 2
+color = Color(0.780392, 0.843137, 0.901961, 1)
+
+[node name="Water" type="ColorRect" parent="Backdrop"]
+layout_mode = 1
+anchor_top = 0.72
+anchor_right = 1.0
+anchor_bottom = 0.78
+grow_horizontal = 2
+mouse_filter = 2
+color = Color(0.411765, 0.788235, 0.847059, 1)
+
+[node name="Snow" type="ColorRect" parent="Backdrop"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 0.78
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+color = Color(0.933333, 0.956863, 0.968627, 1)
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Card" type="PanelContainer" parent="Center"]
+custom_minimum_size = Vector2(440, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("Style_card")
+
+[node name="Margin" type="MarginContainer" parent="Center/Card"]
+layout_mode = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 36
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 28
+
+[node name="Column" type="VBoxContainer" parent="Center/Card/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Eyebrow" type="Label" parent="Center/Card/Margin/Column"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.12549, 0.490196, 0.521569, 1)
+theme_override_font_sizes/font_size = 16
+text = "A town for friends"
+horizontal_alignment = 1
+
+[node name="Title" type="Label" parent="Center/Card/Margin/Column"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.082353, 0.203922, 0.278431, 1)
+theme_override_font_sizes/font_size = 48
+text = "Welcome"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="Center/Card/Margin/Column"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.082353, 0.203922, 0.278431, 0.82)
+theme_override_font_sizes/font_size = 18
+text = "Walk the plaza, the dock, and the hill."
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Spacer" type="Control" parent="Center/Card/Margin/Column"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="EnterButton" type="Button" parent="Center/Card/Margin/Column"]
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+focus_mode = 2
+theme_override_colors/font_color = Color(0.952941, 0.886275, 0.772549, 1)
+theme_override_colors/font_hover_color = Color(0.952941, 0.886275, 0.772549, 1)
+theme_override_colors/font_pressed_color = Color(0.952941, 0.886275, 0.772549, 1)
+theme_override_colors/font_focus_color = Color(0.952941, 0.886275, 0.772549, 1)
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("Style_enter")
+theme_override_styles/hover = SubResource("Style_enter_hover")
+theme_override_styles/pressed = SubResource("Style_enter_pressed")
+theme_override_styles/focus = SubResource("Style_enter_focus")
+text = "Enter town"
+
+[node name="QuitButton" type="Button" parent="Center/Card/Margin/Column"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+focus_mode = 2
+theme_override_colors/font_color = Color(0.909804, 0.427451, 0.345098, 1)
+theme_override_colors/font_hover_color = Color(0.909804, 0.427451, 0.345098, 1)
+theme_override_colors/font_pressed_color = Color(0.909804, 0.427451, 0.345098, 1)
+theme_override_colors/font_focus_color = Color(0.909804, 0.427451, 0.345098, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("Style_quit")
+theme_override_styles/hover = SubResource("Style_quit_hover")
+theme_override_styles/pressed = SubResource("Style_quit_pressed")
+theme_override_styles/focus = SubResource("Style_quit_focus")
+text = "Quit"
