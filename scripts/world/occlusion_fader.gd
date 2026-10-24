@@ -5,7 +5,9 @@ extends Node
 ## footprint, and a soft teal silhouette shows the parts of the penguin something still covers.
 ## Child of CameraRig in world.tscn. Works on any room under World/LocationHost.
 
-const FADE_TO := 0.3
+const FADE_TO := 0.0     # fade value is 1 - hole strength (0 = full see-through hole)
+const MIN_HEIGHT := 1.2  # benches, planters, lamps: the silhouette covers those
+const HOLE := preload("res://scripts/world/foliage_batch.gdshader")
 const FADE_IN := 0.15   # seconds to reach FADE_TO
 const FADE_OUT := 0.3   # seconds to come back
 const RADIUS := 0.25    # occluder AABBs are inflated by this (a cheap capsule sweep)
@@ -62,7 +64,9 @@ func _physics_process(delta: float) -> void:
 			continue
 		if box.has_point(_player.global_position + Vector3.UP * 0.3):
 			continue  # the room/shell the player is inside: never fade it (its roof is handled above)
-		if _segment_hits(box.grow(RADIUS), from, to):
+		if box.size.y < MIN_HEIGHT:
+			continue
+		if _covers_player(box, target):
 			hits[e["node"].get_instance_id()] = e
 	for r in _roofs_hidden.keys():  # roofs come back when the player leaves the footprint
 		if not is_instance_valid(r):
@@ -73,7 +77,7 @@ func _physics_process(delta: float) -> void:
 			r.visible = true
 			_roofs_hidden.erase(r)
 	_animate(hits, delta)
-	_set_silhouette(not hits.is_empty())
+	_set_silhouette(true)  # the shader only draws where something is actually in front
 
 
 func _animate(hits: Dictionary, delta: float) -> void:
@@ -90,7 +94,7 @@ func _animate(hits: Dictionary, delta: float) -> void:
 		f["alpha"] = f["target"] if instant else move_toward(f["alpha"], f["target"], rate * delta)
 		for s in f["saved"]:
 			if is_instance_valid(s[3]):
-				s[3].albedo_color.a = f["alpha"]
+				s[3].set_shader_parameter("hole_strength", 1.0 - f["alpha"])
 		if f["alpha"] >= 1.0 and f["target"] >= 1.0:
 			_restore(f)
 			_fading.erase(id)
@@ -107,9 +111,18 @@ func _make_dithered(e: Dictionary) -> Array:
 			var src: Material = original if original else mi.mesh.surface_get_material(s)
 			if not (src is BaseMaterial3D):
 				continue
-			var dup := (src as BaseMaterial3D).duplicate() as BaseMaterial3D
-			dup.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_HASH
-			dup.alpha_hash_scale = 1.0
+			var b := src as BaseMaterial3D
+			if b.transparency != BaseMaterial3D.TRANSPARENCY_DISABLED:
+				continue
+			var dup := ShaderMaterial.new()  # same flat colour + shade, soft hole around the penguin
+			dup.shader = HOLE
+			dup.set_shader_parameter("albedo", b.albedo_color)
+			dup.set_shader_parameter("use_vertex_shade", b.vertex_color_use_as_albedo)
+			dup.set_shader_parameter("roughness", b.roughness)
+			dup.set_shader_parameter("use_emission", b.emission_enabled)
+			dup.set_shader_parameter("emission_color", b.emission)
+			dup.set_shader_parameter("emission_energy", b.emission_energy_multiplier)
+			dup.set_shader_parameter("hole_strength", 0.0)
 			mi.set_surface_override_material(s, dup)
 			saved.append([mi, s, original, dup])
 	return saved
@@ -194,6 +207,31 @@ func _owner_box(node: Node) -> AABB:
 func _inside_footprint(box: AABB, p: Vector3) -> bool:
 	return p.x > box.position.x + 0.3 and p.x < box.end.x - 0.3 and p.z > box.position.z + 0.3 and p.z < box.end.z - 0.3 \
 		and p.y < box.end.y
+
+
+## True when the occluder's screen rect overlaps the penguin's screen circle and its nearest
+## point is in front of the penguin along the view direction.
+func _covers_player(box: AABB, target: Vector3) -> bool:
+	var fwd := -_camera.global_basis.z
+	var player_depth := fwd.dot(target - _camera.global_position)
+	var near := INF
+	var lo := Vector2(INF, INF)
+	var hi := -lo
+	for i in 8:
+		var c := box.get_endpoint(i)
+		var depth := fwd.dot(c - _camera.global_position)
+		if depth <= 0.05:
+			return false  # straddles the camera: ignore rather than guess
+		near = minf(near, depth)
+		var sp := _camera.unproject_position(c)
+		lo = lo.min(sp)
+		hi = hi.max(sp)
+	if near > player_depth - 0.3:
+		return false
+	var centre := _camera.unproject_position(target)
+	var radius := _camera.get_viewport().get_visible_rect().size.y * 0.06
+	var closest := centre.clamp(lo, hi)
+	return closest.distance_to(centre) < radius
 
 
 func _segment_hits(box: AABB, a: Vector3, b: Vector3) -> bool:  # slab test
