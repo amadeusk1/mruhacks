@@ -107,7 +107,7 @@ func _ready() -> void:
 
 
 func _notification(what: int) -> void:
-	if what == NOTIFICATION_RESIZED and is_node_ready():
+	if what == NOTIFICATION_RESIZED and _dock != null:
 		_layout()
 
 
@@ -147,11 +147,16 @@ func _place(c: Control, x: float, y: float, w: float, h: float) -> void:
 
 
 func _place_action() -> void:
-	if _dock_rect.size.x <= 0.0:
+	if _dock_rect.size.x <= 0.0 or _action == null or _action._label == null:
 		return
-	var min_size := _action.get_combined_minimum_size()
-	var w := maxf(min_size.x, 1.0)
-	var h := maxf(min_size.y, ACTION_H)
+	_action._restyle()
+	var label_size := _action._label.get_combined_minimum_size()
+	var icon_size := _action._icon_rect.custom_minimum_size
+	var sb := _action.get_theme_stylebox("normal")
+	var extras := sb.get_minimum_size() if sb else Vector2.ZERO
+	var w := label_size.x + icon_size.x + 12.0 + extras.x
+	var h := maxf(maxf(label_size.y, icon_size.y) + extras.y, ACTION_H)
+	_action.custom_minimum_size = Vector2(w, h)
 	var vp := get_viewport_rect().size
 	var center := _dock_rect.position.x + _dock_rect.size.x * 0.5
 	var x := center - w * 0.5
