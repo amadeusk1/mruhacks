@@ -90,7 +90,8 @@ def _bank(i):
 BANK = [_bank(i) for i in range(len(TRACK))]
 for _ in range(3):                                    # smooth the banking so it rolls in and out
     BANK = [sum(BANK[max(0, i - 2):i + 3]) / len(BANK[max(0, i - 2):i + 3]) for i in range(len(BANK))]
-WIDTH = [W + 2.4 * max(0.0, (s - FINISH_S) / RUNOUT) for s in S]   # widens into the stopping area
+WIDTH = [W + 1.4 * math.sin(math.pi * min(1.0, max(0.0, (s - FINISH_S) / RUNOUT)) * 0.5) *
+         (1.0 if s < LENGTH - 1.5 else 0.55 + 0.45 * (LENGTH - s) / 1.5) for s in S]   # bulb-shaped stop area, rounded end
 
 
 def surf_z(i, lat):
@@ -183,9 +184,14 @@ def height(p, base_h=0.0):
     if p.x > STAIR_X:                                  # east of the stair the ground drops back to town
         m = min(m, 1 - _smooth(0.8, 2.4, p.x - STAIR_X))
     m *= _smooth(0.0, 2.5, min(half.x - abs(p.x - c.x), half.y - abs(p.y - c.y)))   # meet town terrain at the edge
-    if _inside_loop(p):                                # interior: one clean slope falling south from the plateau
-        crest = HILL_TOP * _smooth(17.5, 30.5, p.y) * (1 - 0.25 * _smooth(-17.0, -27.0, p.x))
-        hill = max(crest, surf_z(ti, math.copysign(halfw, lat)) + BERM_H)
+    if _inside_loop(p):                                # interior: smooth surface spanning the upper and lower legs
+        num = den = 0.0
+        for k in range(0, len(TRACK), 2):
+            d2 = (p - TRACK[k]).length_squared + 0.5
+            w = 1.0 / (d2 * d2)
+            num += w * z_at(S[k])
+            den += w
+        hill = num / den + BERM_H + 0.5 * _smooth(halfw + LIP, halfw + LIP + 3.0, td)   # gentle crown
     h = base_h + (hill - base_h) * m
     # plateau: flat start area
     pw = 1 - _smooth(0.0, 1.2, _box_d(p, *PLATEAU))
@@ -217,9 +223,9 @@ def meshes(Builder):
 
 def track_mesh(b, tint=None):
     """Track surface as a smooth ribbon with banked cross-section, berm lips and faint groove lines."""
-    mat = tint("track", "#F7FBFD") if tint else "snow"
+    mat = tint("track", "#D6E2EC") if tint else "snow_shade"
     berm = tint("snow", "#E8EFF4") if tint else "snow"
-    groove = tint("track_groove", "#DCE7EF") if tint else "snow_shade"
+    groove = tint("track_groove", "#BCCDDB") if tint else "snow_shade"
     verts, faces_track, faces_berm = [], [], []
     prev = None
     for i, c in enumerate(TRACK):
@@ -239,6 +245,16 @@ def track_mesh(b, tint=None):
         prev = row
     b.mesh(verts, faces_track, mat=mat)
     b.mesh(verts, faces_berm, mat=berm)
+    fi = min(range(len(S)), key=lambda k: abs(S[k] - FINISH_S))     # checkered finish line across the track
+    t, n = _frame(fi)
+    half = WIDTH[fi] * 0.5
+    cells = 10
+    for k in range(cells):
+        for row in range(2):
+            lat = -half + (k + 0.5) * (2 * half / cells)
+            c = TRACK[fi] + n * lat + t * (row - 0.5) * 0.22
+            b.box(2 * half / cells, 0.22, 0.01, c.x, c.y, surf_z(fi, lat) + 0.03,
+                  "black" if (k + row) % 2 else "white", bevel=0, rot=(0, 0, math.degrees(math.atan2(t.y, t.x)) + 90))
     # groove lines: thin strips 4 mm above the surface where sled runners pack the snow
     for off in (-1.15, -0.85, 0.85, 1.15):
         gv, gf, pr = [], [], None
@@ -274,7 +290,7 @@ def blocks(p, margin=0.0):
     t, _n = _frame(ti)
     along = (p - TRACK[ti]).dot(t)
     beyond = (ti == 0 and along < -0.2) or (ti == len(TRACK) - 1 and along > 0.2)
-    if not beyond and td < WIDTH[ti] * 0.5 + LIP + margin:
+    if not beyond and td < WIDTH[ti] * 0.5 + LIP * 0.5 + margin:   # outer berm carries the fence/bunting line
         return True
     if abs(p.x - STAIR_X) < 1.2 + margin and STAIR_FOOT_Y - 0.5 < p.y < STAIR_TOP.y + 0.5:
         return True
@@ -301,7 +317,15 @@ def placements():
     T = HILL_TOP
     # --- start area on the plateau ---------------------------------------------------------
     g, gh, gi = _at(3.0)
-    put("winter/start_gate", g.x, g.y, gh + 90, z=surf_z(gi, 0), name="SledGate")
+    put("winter/start_gate", g.x, g.y, gh + 90, z=surf_z(gi, 0), name="SledGate",
+        tints={"sign_frame": "#D9822B", "pennant_a": "#E86D58", "pennant_b": "#3FB3B5", "pennant_c": "#E3A92B"})
+    tg, ng = _frame(gi)
+    for sgn in (1, -1):                                       # firs frame the gate, red flag on the left post
+        for d in (2.9, 3.9):
+            q = g + ng * sgn * (W * 0.5 + d) - tg * 0.6
+            put(["winter/fir_tree_medium", "winter/fir_tree_large"][d > 3], q.x, q.y, RNG.uniform(0, 360), z=T, tags=("tree",))
+    q = g + ng * (W * 0.5 + 1.9)
+    put("winter/team_flag", q.x, q.y, gh, z=T, tags=("prop", "blocker"), tints={"team": "#D9473B"})
     q, _, _ = _at(3.0, W * 0.5 + LIP + 0.7)
     put("interaction_props/start_light", q.x, q.y, gh + 90, z=T, tags=("prop", "blocker"))
     # queue lane from the stair top to the gate: 4 spots between fences, lanterns and the sign at the stair top
@@ -317,46 +341,72 @@ def placements():
         put("winter/sled", -10.4 - 0.62 * k, 33.9, 180 + RNG.uniform(-4, 4), z=T, tags=("decor",))
     put("plaza/bench", -13.6, 29.0, 160, z=T, tags=("prop", "blocker"))   # warm-up bench looking down the hill
     put("plaza/rect_planter", -8.6, 34.6, 90, z=T, tags=("decor",))
+    for q in ((-8.0, 28.4), (-12.4, 34.4), (-12.0, 35.4)):
+        put("plaza/flower_pot", q[0], q[1], RNG.uniform(0, 360), z=T, tags=("decor",))
+    put("nature_dock/shrub_flowering", -11.9, 28.4, 20, z=T, tags=("decor",))
     sx, sy = -9.0, 33.4                                      # snowman (composed: no snowman model in the pack)
     for r, zc in ((4.6, 0.33), (3.3, 0.90), (2.3, 1.36)):
         put("winter/snowball", sx, sy, RNG.uniform(0, 360), z=T + zc - 0.09 * r, tags=("decor",), scale=r)
     put("avatar/red_beanie", sx, sy, 30, z=T + 1.48, tags=("decor",), scale=0.62)
     put("avatar/scarf", sx, sy, 30, z=T + 1.1, tags=("decor",), scale=0.78)
     # --- course: fences follow both edges, lanterns on the outside, snowbanks on outer bends -------
-    for sgn in (1, -1):                                        # fences walk each edge's own arc length
-        acc, last = 0.0, None
-        for i in range(int(FLAT_START * 2) + 1, len(TRACK) - 1):
-            if FINISH_S - 1.6 < S[i] < FINISH_S + 1.6:             # gap at the finish line for the flags
+    rc, rh = REGION
+
+    def in_region(q, pad=1.0):
+        return abs(q.x - rc.x) < rh.x - pad and abs(q.y - rc.y) < rh.y - pad
+    for sgn in (1, -1):                       # edge line on the berm: fence, bunting, fence, bunting ... both sides
+        acc, last, k = 0.0, None, 0
+        for i in range(int(FLAT_START * 2) + 4, len(TRACK) - 1):
+            if FINISH_S - 1.6 < S[i] < FINISH_S + 1.6:
                 last = None
                 continue
             t, n = _frame(i)
-            q = TRACK[i] + n * sgn * (WIDTH[i] * 0.5 + LIP + 0.35)
+            q = TRACK[i] + n * sgn * (WIDTH[i] * 0.5 + LIP * 0.75)
             if last is None:
                 last, acc = q, 0.0
                 continue
             acc += (q - last).length
-            if acc >= 2.1:
-                mid = (q + last) * 0.5 if acc < 2.6 else q
-                d = q - last
-                put("winter/snow_fence_2m", mid.x, mid.y, math.degrees(math.atan2(d.y, d.x)),
-                    z=surf_z(i, sgn * WIDTH[i] * 0.5) + BERM_H * 0.5, tags=("prop", "blocker"))
+            if acc >= 1.95:
+                mid, d = (q + last) * 0.5, q - last
+                yaw = math.degrees(math.atan2(d.y, d.x))
+                z = surf_z(i, sgn * WIDTH[i] * 0.5) + BERM_H * 0.8
+                if blocks(mid) or blocks(q) or blocks(last):       # tight inner bend: chord would cut the track
+                    last, acc = q, 0.0
+                    continue
+                if k % 2 == 0:
+                    put("winter/snow_fence_2m", mid.x, mid.y, yaw, z=z, tags=("prop", "blocker"))
+                else:
+                    put("plaza/bunting_posts", mid.x, mid.y, yaw, z=z, tags=("prop", "blocker"),
+                        tints={"flag_a": "#E86D58", "flag_b": "#3FB3B5", "flag_c": "#FAF1DD", "flag_d": "#E3A92B"})
+                k += 1
                 last, acc = q, 0.0
-    # snowbanks on the outer side of banked bends
-    for i in range(int(FLAT_START * 2), len(TRACK), 9):
+    last_s = -9.0                             # red pennants on the outer side of every bend
+    for i in range(int(FLAT_START * 2), len(TRACK)):
+        if abs(BANK[i]) > 0.11 and S[i] - last_s > 5.0:
+            t, n = _frame(i)
+            outer = 1 if BANK[i] > 0 else -1
+            q = TRACK[i] + n * outer * (WIDTH[i] * 0.5 + LIP + 0.6)
+            if in_region(q):
+                put("winter/team_flag", q.x, q.y, math.degrees(math.atan2(t.y, t.x)), tags=("prop", "blocker"),
+                    tints={"team": "#D9473B"})
+                last_s = S[i]
+    for i in range(int(FLAT_START * 2), len(TRACK), 9):     # snowbanks on the outer side of banked bends
         if abs(BANK[i]) > 0.1:
             t, n = _frame(i)
             outer = 1 if BANK[i] > 0 else -1
-            q = TRACK[i] + n * outer * (WIDTH[i] * 0.5 + LIP + 1.5)
-            put("winter/snowbank_medium", q.x, q.y, math.degrees(math.atan2(t.y, t.x)) + RNG.uniform(-10, 10), tags=("decor",))
-    rc, rh = REGION
-    for s in (8.0, 15.0, 22.0, 29.0):                          # lanterns on the outer (non-loop) side
-        c, hd, i = _at(s)
+            q = TRACK[i] + n * outer * (WIDTH[i] * 0.5 + LIP + 1.6)
+            if in_region(q):
+                put("winter/snowbank_medium", q.x, q.y, math.degrees(math.atan2(t.y, t.x)) + RNG.uniform(-10, 10), tags=("decor",))
+    s9, side = 6.0, 1                          # lanterns along the run every ~9 m, alternating sides
+    while s9 < FINISH_S:
+        c, hd, i = _at(s9)
         t, n = _frame(i)
-        for sgn in (1, -1):
-            q = c + n * sgn * (WIDTH[i] * 0.5 + LIP + 1.2)
-            if not _inside_loop(q) and abs(q.x - rc.x) < rh.x - 1 and abs(q.y - rc.y) < rh.y - 1:
-                put("plaza/lantern_post", q.x, q.y, 0, tags=("light", "blocker"))
-                break
+        q = c + n * side * (WIDTH[i] * 0.5 + LIP + 0.9)
+        if not in_region(q):
+            q = c - n * side * (WIDTH[i] * 0.5 + LIP + 0.9)
+        if in_region(q):
+            put("plaza/lantern_post", q.x, q.y, 0, tags=("light", "blocker"))
+        side, s9 = -side, s9 + 9.0
     for frac in (0.4, 0.72):                                   # checkpoint pairs run ALONG the edge, never across
         c, hd, i = _at(FLAT_START + frac * (FINISH_S - FLAT_START))
         t, n = _frame(i)
@@ -397,7 +447,7 @@ def placements():
     # --- framing: fir clusters + snowy rocks inside the loop and around the hill, never on the track ---
     def free(p, r):
         rc, rh = REGION
-        if abs(p.x - rc.x) > rh.x - r - 0.5 or abs(p.y - rc.y) > rh.y - r - 0.5:
+        if abs(p.x - rc.x) > rh.x - 0.4 or abs(p.y - rc.y) > rh.y - 0.4:
             return False
         td, ti, _ = nearest(p)
         if td < WIDTH[ti] * 0.5 + LIP + 0.4 + r:            # just outside the edge fence
@@ -408,6 +458,20 @@ def placements():
             return False
         return all((p - Vector((o["x"], o["y"]))).length > r + 0.6 for o in out
                    if o["tags"][0] in ("tree", "rock", "light") or "bench" in o["id"] or "sled" in o["id"])
+    rc, rh = REGION
+    for k in range(110):                                            # grey snowy boulder ring along the hill's outer edge
+        a = k / 110.0
+        if a < 0.30:
+            p = Vector((rc.x - rh.x + 0.7, rc.y - rh.y + 6.0 + a / 0.30 * (2 * rh.y - 7.5)))          # west face
+        elif a < 0.75:
+            p = Vector((rc.x - rh.x + 0.7 + (a - 0.30) / 0.45 * (2 * rh.x - 5.0), rc.y + rh.y - 0.7))  # north face
+        else:
+            continue
+        p += Vector((RNG.uniform(-0.6, 0.6), RNG.uniform(-0.6, 0.6)))
+        sc = RNG.uniform(1.3, 2.0)
+        if free(p, 0.8 * sc):
+            put(["winter/rock_cluster_snow_large", "nature_dock/rock_cluster_snow", "winter/rock_cluster_snow_small"][k % 3],
+                p.x, p.y, RNG.uniform(0, 360), tags=("rock", "blocker"), scale=sc)
     groves = [(Vector((-21.6, 26.4)), 9), (Vector((-17.2, 24.4)), 7), (Vector((-24.4, 24.0)), 5),
               (Vector((-14.2, 23.0)), 5), (Vector((-33.0, 30.0)), 6), (Vector((-33.8, 22.0)), 6),
               (Vector((-33.0, 15.0)), 4), (Vector((-27.4, 34.4)), 4), (Vector((-19.4, 34.6)), 3),
@@ -426,6 +490,15 @@ def placements():
         if free(p, 1.0):
             put(["winter/rock_cluster_snow_large", "nature_dock/rock_cluster_snow"][RNG.randrange(2)], p.x, p.y,
                 RNG.uniform(0, 360), tags=("rock", "blocker"), scale=RNG.uniform(1.0, 1.5))
+    for i in range(int(FLAT_START * 2), len(TRACK), 2):          # fir border hugging the outside of the fences
+        t, n = _frame(i)
+        for sgn in (1, -1):
+            for d in (1.2, 2.2, 3.3):
+                if RNG.random() < 0.3:
+                    continue
+                p = TRACK[i] + n * sgn * (WIDTH[i] * 0.5 + LIP + d) + t * RNG.uniform(-0.6, 0.6)
+                if free(p, 0.5):
+                    put(firs[RNG.randrange(3)], p.x, p.y, RNG.uniform(0, 360), tags=("tree",), scale=RNG.uniform(0.85, 1.15))
     for _ in range(400):                                          # wooded loop interior
         p = Vector((RNG.uniform(-27.0, -13.0), RNG.uniform(19.0, 30.0)))
         if _inside_loop(p) and free(p, 0.7):
