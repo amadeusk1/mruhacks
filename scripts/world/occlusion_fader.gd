@@ -1,19 +1,12 @@
 extends Node
 
-## Keeps the local penguin visible: anything big between the camera and the player dithers to
-## see-through (alpha hash: crisp stipple, no sorting) and roofs hide while the player is inside a
-## footprint. Only big occluders count: over MIN_HEIGHT tall and MIN_WIDTH across (benches, lamps,
-## signs, fences and planters never do). The thin teal outline is a fallback for an occluder the
-## see-through circle cannot open (no plain material to dither), shown only after SIL_ON s hidden
-## and faded in and out, so it never flickers on paths.
+## Keeps the local penguin visible: anything between the camera and the player dithers to
+## see-through (alpha hash: crisp stipple, no sorting), roofs hide while the player is inside a
+## footprint, and a soft teal silhouette shows the parts of the penguin something still covers.
 ## Child of CameraRig in world.tscn. Works on any room under World/LocationHost.
 
 const FADE_TO := 0.0     # fade value is 1 - hole strength (0 = full see-through hole)
-const MIN_HEIGHT := 1.2  # benches, planters and fences never count
-const MIN_WIDTH := 1.0   # lamps, signposts and poles are tall but thin: they never count either
-const SIL_ON := 0.25     # hidden this long before the outline appears
-const SIL_OFF := 0.15    # visible this long before it goes
-const SIL_FADE := 0.2    # outline fade in / out
+const MIN_HEIGHT := 1.2  # benches, planters, lamps: the silhouette covers those
 const HOLE := preload("res://scripts/world/foliage_batch.gdshader")
 const FADE_IN := 0.15   # seconds to reach FADE_TO
 const FADE_OUT := 0.3   # seconds to come back
@@ -29,10 +22,6 @@ var _fading := {}             # root instance id -> {entry, alpha, target, saved
 var _roofs_hidden := {}       # roof node -> true
 var _silhouette: ShaderMaterial
 var _player: Node3D
-var _sil_hidden := 0.0   # seconds the outline has been needed
-var _sil_clear := 0.0    # seconds it has not
-var _sil_on := false
-var _sil_alpha := 0.0
 
 
 func _ready() -> void:
@@ -53,8 +42,6 @@ func _physics_process(delta: float) -> void:
 		if room:
 			_collect(room)
 	if _player == null or not _player.visible or _room == null:
-		_sil_on = false
-		_sil_alpha = 0.0
 		_set_silhouette(false)
 		RenderingServer.global_shader_parameter_set("occlusion_radius", 0.0)
 		return
@@ -77,7 +64,7 @@ func _physics_process(delta: float) -> void:
 			continue
 		if box.has_point(_player.global_position + Vector3.UP * 0.3):
 			continue  # the room/shell the player is inside: never fade it (its roof is handled above)
-		if box.size.y < MIN_HEIGHT or maxf(box.size.x, box.size.z) < MIN_WIDTH:
+		if box.size.y < MIN_HEIGHT:
 			continue
 		if _covers_player(box, target):
 			hits[e["node"].get_instance_id()] = e
@@ -90,17 +77,7 @@ func _physics_process(delta: float) -> void:
 			r.visible = true
 			_roofs_hidden.erase(r)
 	_animate(hits, delta)
-	# the see-through circle handles any occluder it could dither; the outline is for the rest
-	var needed := hits.keys().any(func(id): return _fading.has(id) and (_fading[id]["saved"] as Array).is_empty())
-	_sil_hidden = _sil_hidden + delta if needed else 0.0
-	_sil_clear = 0.0 if needed else _sil_clear + delta
-	if not _sil_on and _sil_hidden >= SIL_ON:
-		_sil_on = true
-	elif _sil_on and _sil_clear >= SIL_OFF:
-		_sil_on = false
-	_sil_alpha = move_toward(_sil_alpha, 1.0 if _sil_on else 0.0, delta / SIL_FADE)
-	_silhouette.set_shader_parameter("strength", _sil_alpha)
-	_set_silhouette(_sil_alpha > 0.0)
+	_set_silhouette(not hits.is_empty())
 
 
 func _animate(hits: Dictionary, delta: float) -> void:

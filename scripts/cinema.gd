@@ -6,8 +6,10 @@ extends Node3D
 
 
 ## 13 Cinema Lobby / 14 Auditorium / Movie Night: warm sand floor and plaster, velvet reds, a
-## warm room light in the lobby that the dark auditorium keeps to its own lamps.
-const MOOD := {"background": "#2A1E1A", "ambient": "#FFD9B4", "sun": "#FFD6A6", "ambient_energy": 0.36}
+## warm brighter lobby; the auditorium is a real cinema: house lights down, the screen the main
+## light, step and aisle lights and a dim exit glow.
+const MOOD := {"background": "#2A1E1A", "ambient": "#FFD9B4", "sun": "#FFD6A6", "ambient_energy": 0.4}
+const HALL_MOOD := {"background": "#07070B", "ambient": "#6E6A8A", "sun": "#000000", "ambient_energy": 0.07, "exposure": 1.05}
 const PALETTE := {"paving": "#E8CFA6", "paving_b": "#DDBF94", "stone": "#D7BE9C"}
 var _saved_mood := {}
 
@@ -77,16 +79,16 @@ func voice_room_at(pos: Vector3) -> String:
 
 
 ## Indoor light only while the player is inside: the yard / forecourt keep the town's sky and sun.
-func _set_indoor(on: bool) -> void:
-	if on and _saved_mood.is_empty():
-		_saved_mood = InteriorMood.apply(get_tree(), MOOD)
-	elif not on and not _saved_mood.is_empty():
+func _set_indoor(on: bool, mood: Dictionary = MOOD) -> void:
+	if not _saved_mood.is_empty():  # lobby <-> auditorium swaps the mood too
 		InteriorMood.restore(get_tree(), _saved_mood)
 		_saved_mood = {}
+	if on:
+		_saved_mood = InteriorMood.apply(get_tree(), mood)
 
 
 func camera_for_spawn(spawn_name: String) -> Dictionary:
-	_set_indoor(spawn_name.begins_with("Inside") or spawn_name == "ScreenReturn")
+	_set_indoor(spawn_name.begins_with("Inside") or spawn_name == "ScreenReturn", HALL_MOOD if spawn_name == "InsideScreen" else MOOD)
 	if spawn_name == "InsideScreen":
 		return {
 			"center": get_meta("hall_center", Vector3(240.0, 0.0, 50.0)),
@@ -122,14 +124,36 @@ func _dress_hall(hall: Node3D) -> void:
 		var b: AABB = mi.global_transform * mi.get_aabb()
 		box = b if first else box.merge(b)
 		first = false
+	for l in hall.find_children("*", "OmniLight3D", true, false):  # house lights down
+		(l as OmniLight3D).light_energy *= 0.3
+	# the screen is the main light: a cool wash from the screen over the rows
+	var screen := Sockets.find(hall, "screen")
+	if screen:
+		var wash := SpotLight3D.new()
+		wash.light_color = Color("#BFD3FF")
+		wash.light_energy = 2.2
+		wash.spot_range = 16.0
+		wash.spot_angle = 55.0
+		wash.spot_attenuation = 0.8
+		hall.get_parent().add_child(wash)
+		wash.global_position = screen.global_position + Vector3(0, 0.6, 0.8)
+		wash.look_at(screen.global_position + Vector3(0, -1.2, 8.0), Vector3.UP)
+	var exit := Sockets.find(hall, "exit")
+	if exit:
+		var glow := OmniLight3D.new()  # dim exit glow by the lobby door
+		glow.light_color = Color("#FFC27A")
+		glow.light_energy = 0.6
+		glow.omni_range = 2.0
+		hall.get_parent().add_child(glow)
+		glow.global_position = exit.global_position + Vector3(0.6, 2.0, 0)
 	# dark stepped floor in warm browns with glowing step and aisle lights, as in the concept
 	InteriorMood.paint(hall, {}, {"floor_dark": "#3A2A25", "floor_dark_b": "#2F221E", "aisle_light": "glow:#FFB347"})
 	for z in [0.3, 0.55, 0.8]:  # the left (teal) wall; the right side is open to the camera
 		var at := Vector3(box.position.x + 0.12, 1.9, lerpf(box.position.z, box.end.z, z))
 		AssetPack.place(hall.get_parent(), "plaza", "wall_lantern", hall.get_parent().to_local(at), deg_to_rad(90.0))
-		var pool := OmniLight3D.new()  # the lantern's warm pool on the wall and the end of the rows
+		var pool := OmniLight3D.new()  # a dim warm pool round each wall lantern
 		pool.light_color = Color("#FFB866")
-		pool.light_energy = 1.3
-		pool.omni_range = 3.5
+		pool.light_energy = 0.45
+		pool.omni_range = 2.2
 		hall.get_parent().add_child(pool)
 		pool.global_position = at + Vector3(0.5, 0.0, 0.0)
