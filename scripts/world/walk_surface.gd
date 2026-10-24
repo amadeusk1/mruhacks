@@ -153,8 +153,9 @@ static func _guarded(space: PhysicsDirectSpaceState3D, edge: Vector3, dir: Vecto
 
 ## Invisible rails along every side of a rectangular walkable (dock, stair flight) that drops
 ## more than a step into water or onto lower ground. Sides that meet a neighbouring module, the
-## ground or a ramp stay open. Marked nav_keep: the navmesh already stops at the deck edge, so
-## carving them would only narrow the deck. Returns the number of rails.
+## ground or a ramp stay open. room_nav carves them: on the deck side that costs nothing (the
+## navmesh already stops short of the drop), and beside a flight it keeps paths off the rail ends.
+## Returns the number of rails.
 const GUARD_SAMPLE := 0.25
 
 
@@ -224,7 +225,6 @@ static func _guard(parent: Node, run: Array, t0: float, t1: float, edge: float, 
 	body.name = "EdgeGuard"
 	body.collision_layer = 2
 	body.collision_mask = 0
-	body.set_meta("nav_keep", true)
 	var hull := ConvexPolygonShape3D.new()
 	hull.points = pts
 	var col := CollisionShape3D.new()
@@ -316,7 +316,7 @@ static func stair_ramps(nodes: Array, parent: Node) -> int:
 		var b: Vector3 = mods[j][1]
 		var along := (b - a).normalized()
 		var low := clampf(0.25 / maxf(along.y, 0.05), 0.45, 1.5)
-		ramp(parent, a - along * low, b + along * 0.15, 1.4, "FlightRamp")
+		ramp(parent, a - along * low, b + along * 0.15, 1.9, "FlightRamp")  # out to the edge rails: the treads' own collision is off
 		made += 1
 	return made
 

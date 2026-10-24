@@ -72,6 +72,9 @@ func _ready() -> void:
 		push_warning("Town: %d walkable edges drop off with no guard (layout fix needed)" % open)
 	await get_tree().physics_frame  # gap spans registered before the shore is traced
 	_water_edges(nav, space)
+	for pair in _walks:  # flights stand on their FlightRamp; the tread nosings poke through it and snag the capsule
+		if pair[0].find_child("socket_bottom", true, false) and pair[0].find_child("socket_top", true, false):
+			(pair[1] as StaticBody3D).collision_layer = 0
 	if nav.has_method("rebake"):
 		nav.call("rebake")
 	AmbientFx.dress(self)
