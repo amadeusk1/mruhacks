@@ -172,7 +172,15 @@ func _local_to(root: Node3D, n: Node3D) -> Transform3D:
 
 
 func _build_markers(nav: Node) -> void:
-	for m in _layout.get("markers", []):
+	var markers: Array = _layout.get("markers", [])
+	if not markers.any(func(m): return m.get("kind", "") == "bus"):
+		# world.gd needs NavigationRegion3D/BusStop; put one beside the arrival spot
+		for m in markers:
+			if m["name"] == "BusArrival":
+				var p: Array = m["pos"]
+				markers.append({"name": "BusStop", "kind": "bus", "pos": [p[0] + 3.0, 0.0, p[2] + 1.5], "rot_y_deg": 90})
+				break
+	for m in markers:
 		var kind := str(m.get("kind", ""))
 		var t := Transform3D(Basis(Vector3.UP, deg_to_rad(float(m.get("rot_y_deg", 0.0)))), _v(m["pos"]))
 		if kind == "bus":  # world.gd expects NavigationRegion3D/BusStop
