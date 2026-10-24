@@ -1,12 +1,16 @@
 extends Node
 
-## Plays the tracks in audio/music once you are in a game.
-## Each song runs to the end, then another one is chosen at random.
+## Title screen plays Pengloo Party.mp3. In a game, the other tracks in
+## audio/music each play through, then another one is chosen at random.
+
+const TITLE := "res://audio/music/Pengloo Party.mp3"
+const TITLE_FILE := "Pengloo Party.mp3"
 
 var _player: AudioStreamPlayer
 var _songs: PackedStringArray = PackedStringArray()
 var _current := ""
 var _on := false
+var _title := false
 
 
 func _ready() -> void:
@@ -17,35 +21,47 @@ func _ready() -> void:
 	add_child(_player)
 	_ensure_bus()
 	Net.session_started.connect(start)
+	play_title()
+
+
+func play_title() -> void:
+	_on = false
+	_title = true
+	_play(TITLE, true)
 
 
 func start() -> void:
+	_title = false
 	if _on and _player.playing:
 		return
 	_on = true
 	_collect()
 	if _songs.is_empty():
 		return
-	_play(_pick(""))
+	_play(_pick(""), false)
 
 
 func stop() -> void:
 	_on = false
+	_title = false
 	_player.stop()
 
 
 func _on_finished() -> void:
+	if _title:
+		_play(TITLE, true)
+		return
 	if not _on:
 		return
-	_play(_pick(_current))
+	_play(_pick(_current), false)
 
 
-func _play(path: String) -> void:
+func _play(path: String, looped: bool) -> void:
 	var stream := load(path) as AudioStream
 	if stream == null:
 		return
 	if "loop" in stream:
-		stream.loop = false
+		stream.loop = looped
 	_current = path
 	_player.stream = stream
 	_player.play()
@@ -69,6 +85,8 @@ func _collect() -> void:
 		return
 	var names: Array[String] = []
 	for file in dir.get_files():
+		if file == TITLE_FILE:
+			continue
 		if file.ends_with(".mp3") or file.ends_with(".ogg") or file.ends_with(".wav"):
 			names.append(file)
 	names.sort()
