@@ -31,7 +31,7 @@ func _ready() -> void:
 	Net.emote_played.connect(func(id: int, clip: String) -> void:
 		_emotes.append(clip)
 		print("SNOW_MP %s emote from %d: %s" % [me, id, clip]))
-	get_tree().create_timer(360.0).timeout.connect(func() -> void:
+	get_tree().create_timer(900.0).timeout.connect(func() -> void:
 		print("SNOW_MP %s TIMEOUT shots=%s" % [me, _shots.keys()])
 		get_tree().quit(1))
 	await Net.session_started
