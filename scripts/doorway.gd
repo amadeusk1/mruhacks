@@ -28,6 +28,6 @@ func _on_body_entered(body: Node3D) -> void:
 	if world.has_method("is_bus_menu_open") and bool(world.call("is_bus_menu_open")):
 		return
 	if location != "" and world.has_method("travel_to"):
-		world.call("travel_to", location, spawn_name)
+		world.call_deferred("travel_to", location, spawn_name)  # travel frees this room, so not inside its own signal
 		return
 	world.call("shift_to_marker", spawn_name)

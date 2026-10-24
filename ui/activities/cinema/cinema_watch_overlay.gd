@@ -1,11 +1,10 @@
 extends Control
 ## Full-screen close-up of the shared film (cinema port 2/5, flag pengloo/cinema/watch_overlay).
-## Shows a CinemaScreenPlayer's frames; no webview, no decoder. Esc or "Back to seat" closes it.
+## Shows the shared CinemaService.player's frames; no webview, no decoder. Esc or "Back to seat" closes it.
 
 signal closed
 
-var client: CinemaServiceClient
-var player: CinemaScreenPlayer
+var player: CinemaScreenPlayer  ## defaults to CinemaService.player
 var _picture: TextureRect
 var _time: Label
 
@@ -37,11 +36,13 @@ func _ready() -> void:
 	back.pressed.connect(close)
 	bar.add_child(back)
 	if player == null:
-		player = CinemaScreenPlayer.new()
-		player.client = client
-		add_child(player)
-	player.texture_changed.connect(func(t: Texture2D) -> void: _picture.texture = t)
+		player = CinemaService.player
+	player.texture_changed.connect(_on_texture)  # method: disconnects when the overlay is freed
 	_picture.texture = player.texture
+
+
+func _on_texture(t: Texture2D) -> void:
+	_picture.texture = t
 
 
 func _process(_d: float) -> void:

@@ -32,13 +32,17 @@ func _ready() -> void:
 	theme = UIKit.THEME
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	if source == null:
-		use_source(CinemaSource.DemoSource.new())
+		use_source(GatewaySource.new() if CinemaService.enabled("service_enabled") else CinemaSource.DemoSource.new())
 
 
 ## Plug in the media adapter (Demo now; PlexWatchpartySource once the service exists).
 func use_source(s: CinemaSource) -> void:
 	source = s
-	source.status_changed.connect(func(_st: String, _d: String) -> void: _build())
+	source.status_changed.connect(func(st: String, _d: String) -> void:
+		if st == "offline" and source is GatewaySource:  # service down: the labelled Demo, never a dead end
+			use_source.call_deferred(CinemaSource.DemoSource.new())
+			return
+		_build())
 	source.catalog_changed.connect(func(its: Array) -> void:
 		if _sel == "" and not its.is_empty(): _sel = str(its[0]["id"])
 		_build())
@@ -129,7 +133,9 @@ func _build_library() -> void:
 	var row := A.hbox(22, BoxContainer.ALIGNMENT_CENTER)
 	row.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	v.add_child(row)
-	if source.status in ["signed_out", "offline", "error", "connecting"] or source.items.is_empty():
+	if source.status == "signed_out" and source is GatewaySource:
+		row.add_child(_sign_in_row())
+	elif source.status in ["signed_out", "offline", "error", "connecting"] or source.items.is_empty():
 		var kind := "loading" if source.status == "connecting" else ("empty" if source.items.is_empty() and source.status in ["connected", "demo", "empty"] else "error")
 		var msg := {"loading": "Loading the library...", "empty": "No films match. Try another search.", "error": "The media server isn't reachable right now."}[kind] as String
 		row.add_child(UIWidgets.state_panel(kind, "Movie Library", msg, []))
@@ -160,6 +166,27 @@ func _build_library() -> void:
 	A.pin(_root, x, Vector4(0.5, 0.5, 0.5, 0.5), Vector4(540, -320, 596, -264))
 
 
+## Invite code for the cinema service; sent once to the gateway, never stored.
+func _sign_in_row() -> Control:
+	var v := A.vbox(12)
+	v.add_child(A.label("Enter your movie-night invite code" if source.detail == "" else source.detail, 20, A.NAVY))
+	var f := UIKit.field("Invite code", "", false)
+	var code: LineEdit = f["field"]
+	code.secret = true
+	code.custom_minimum_size = Vector2(360, 46)
+	var go := A.button("Sign in", "primary", "users", 22, Vector2(0, 52))
+	var submit := func() -> void:
+		var c := code.text.strip_edges()
+		code.text = ""
+		if c != "":
+			(source as GatewaySource).sign_in(c)
+	go.pressed.connect(submit)
+	code.text_submitted.connect(func(_t: String) -> void: submit.call())
+	v.add_child(f["root"])
+	v.add_child(go)
+	return v
+
+
 func _item(id: String) -> Dictionary:
 	for t in source.items:
 		if t["id"] == id:
@@ -174,12 +201,23 @@ func _build_watch() -> void:
 	_root.add_child(screen)
 	var snap := source.snapshot
 	var t := _item(str(snap.get("media_id", "")))
-	var po := poster(t, 1280, 720)
-	po.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	for c in po.get_children():
-		if c is VBoxContainer:
-			c.queue_free()
-	screen.add_child(po)
+	if source is GatewaySource:  # the live film from the shared player (same frames as the 3D screen)
+		var live := TextureRect.new()
+		live.name = "Live"
+		live.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		live.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		live.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		live.texture = CinemaService.player.texture
+		screen.add_child(live)
+		if not CinemaService.player.texture_changed.is_connected(_on_live_texture):
+			CinemaService.player.texture_changed.connect(_on_live_texture)
+	else:
+		var po := poster(t, 1280, 720)
+		po.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		for c in po.get_children():
+			if c is VBoxContainer:
+				c.queue_free()
+		screen.add_child(po)
 	var host := A.chip("Host controls playback" if not is_controller() else "You control playback", Color(0.06, 0.1, 0.2, 0.75), A.WHITE, "users", 19, Vector2(20, 12))
 	A.pin(_root, host, Vector4(0, 0, 0, 0), Vector4(24, 20, 0, 0))
 	var demo := A.chip("Demo film", Color(0.95, 0.66, 0.18, 0.9), A.NAVY, "", 16, Vector2(14, 6))
@@ -244,6 +282,12 @@ func _build_watch() -> void:
 	_sync_time()
 
 
+func _on_live_texture(t: Texture2D) -> void:
+	var live := find_child("Live", true, false) as TextureRect
+	if live:
+		live.texture = t
+
+
 func _volume(icon_name: String, text: String, key: String) -> PanelContainer:
 	var p := PanelContainer.new()
 	p.add_theme_stylebox_override("panel", A.box(Color(1, 1, 1, 0.12), 16, 0, Color.TRANSPARENT, 10))
@@ -286,7 +330,7 @@ func close() -> void:
 
 func preview(state: String) -> void:
 	if source == null:
-		use_source(CinemaSource.DemoSource.new())
+		use_source(GatewaySource.new() if CinemaService.enabled("service_enabled") else CinemaSource.DemoSource.new())
 	match state:
 		"watch":
 			source.request_load("demo:moonbound")
