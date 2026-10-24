@@ -87,6 +87,10 @@ var _snow_on := false
 const SNOW_REACH := 3.0
 var _emote_at: Dictionary = {}  # host: peer -> msec of the last emote it relayed
 var _emote_seen: Dictionary = {}  # client: peer -> host stamp of the last emote played
+var _clock_offset := 0.0  # server clock minus ours; the host is the world-time authority
+var _clock_wait := 0.0
+var _clock_skew := 0.0  # debug builds: --clock-skew=SECONDS fakes a wrong local clock (tools/daynight_sync)
+const CLOCK_RESYNC_S := 30.0
 var court_loft := 0.5  # how high the local player aims a shot: 0 flattest, 1 tallest lob
 
 
@@ -94,6 +98,8 @@ func _ready() -> void:
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--net-port="):
 			PORT = int(a.trim_prefix("--net-port="))
+		elif a.begins_with("--clock-skew=") and OS.is_debug_build():
+			_clock_skew = float(a.trim_prefix("--clock-skew="))
 	_court = _CourtMatch.new()
 	_court_state = _court.view()
 	_snow = _SnowMatch.new()
@@ -110,6 +116,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if _closing:
 		return
+	_tick_clock(delta)
 	_tick_arcade(delta)
 	_tick_sled(delta)
 	_tick_court(delta)
@@ -135,6 +142,39 @@ func _process(delta: float) -> void:
 			float(_latest_pose["speed"]),
 			bool(_latest_pose["sitting"])
 		)
+
+
+## Shared world clock (unix seconds as the host sees them). Day/night, the dance beat and other
+## time-driven visuals read this so every player sees the same moment.
+func world_time() -> float:
+	return _now() + _clock_offset
+
+
+func _now() -> float:
+	return Time.get_unix_time_from_system() + _clock_skew
+
+
+func _tick_clock(delta: float) -> void:
+	if _mode != Mode.CLIENT or not _session_open:
+		return
+	_clock_wait -= delta
+	if _clock_wait <= 0.0:
+		_clock_wait = CLOCK_RESYNC_S
+		request_clock.rpc_id(1, _now())
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func request_clock(client_sent: float) -> void:
+	if _mode == Mode.HOST:
+		answer_clock.rpc_id(multiplayer.get_remote_sender_id(), client_sent, _now())
+
+
+@rpc("authority", "call_remote", "reliable")
+func answer_clock(client_sent: float, server_now: float) -> void:
+	if _mode != Mode.CLIENT:
+		return
+	var now := _now()
+	_clock_offset = server_now + (now - client_sent) * 0.5 - now  # assume a symmetric trip
 
 
 func is_online() -> bool:
@@ -728,6 +768,8 @@ func _force_offline() -> void:
 	_emote_at.clear()
 	_emote_seen.clear()
 	_color_next = 0
+	_clock_offset = 0.0
+	_clock_wait = 0.0
 	_closing = false
 
 
