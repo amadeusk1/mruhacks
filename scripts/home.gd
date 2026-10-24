@@ -9,7 +9,7 @@ const _SHELL := "homes/snow_dome_interior"
 ## First visit, before user://home_snow_dome_interior.json exists.
 const _STARTER := [
 	{"id": "room_kit/sofa_2seat", "cell": [5, 7], "rot": 180},
-	{"id": "room_kit/armchair", "cell": [8, 5], "rot": 270},
+	{"id": "room_kit/armchair", "cell": [7, 4], "rot": 270},
 	{"id": "room_kit/bed", "cell": [6, 2], "rot": 0},
 	{"id": "room_kit/rug_round", "cell": [5, 6], "rot": 0},
 	{"id": "room_kit/floor_lamp", "cell": [8, 6], "rot": 0},

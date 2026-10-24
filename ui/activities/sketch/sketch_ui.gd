@@ -15,11 +15,13 @@ const COLORS := ["#1E2E55", "#3D7BD9", "#1FA3A4", "#F0645C", "#F2C230", "#A784D9
 const SIZES := [5.0, 9.0, 15.0]
 const MAX_TEXT := 100
 
-var state := {"phase": "lobby", "players": ["You", "Milo", "Pip", "Coco"], "deadline_s": 30.0}
+var state := {"phase": "lobby", "players": [], "seated": false, "min_players": 3, "deadline_s": 30.0}
 var _root: Control
 var _canvas: SketchCanvas
 var _timer_label: Label
 var _left := 0.0
+var _free := false
+var _free_strokes: Array = []
 
 
 func _ready() -> void:
@@ -30,7 +32,13 @@ func _ready() -> void:
 
 
 func apply_state(s: Dictionary) -> void:
+	if _free and _canvas:
+		_free_strokes = _canvas.strokes.duplicate(true)
+	var phase := str(s.get("phase", "lobby"))
 	state = s
+	if _free and phase in ["lobby", "spectate", ""]:
+		return
+	_free = false
 	_left = float(s.get("deadline_s", 0.0))
 	_build()
 
@@ -57,15 +65,15 @@ func _build() -> void:
 		"draw": "Draw the prompt below", "guess": "Describe this drawing", "wait": "Waiting for everyone...",
 		"reveal": "See how the idea changed!", "spectate": "A game is underway at the table"}.get(phase, "") as String
 	var head := A.vbox(-4)
-	A.pin(_root, head, Vector4(0.5, 0, 0.5, 0), Vector4(-360, 14, 360, 110))
-	head.add_child(A.title("Sketch Club", 50, HORIZONTAL_ALIGNMENT_CENTER))
-	head.add_child(A.label(sub, 21, A.NAVY, false, HORIZONTAL_ALIGNMENT_CENTER))
+	A.pin(_root, head, Vector4(0.5, 0, 0.5, 0), Vector4(-280, 16, 280, 100))
+	head.add_child(A.title("Sketch Club", 42, HORIZONTAL_ALIGNMENT_CENTER))
+	head.add_child(A.label(sub, 20, A.NAVY, false, HORIZONTAL_ALIGNMENT_CENTER))
 	if phase in ["prompt", "draw", "guess"]:
 		var tc := A.timer_chip("00:00")
 		_timer_label = tc.find_child("Text", true, false) as Label
 		_left = float(state.get("deadline_s", 30.0))
 		_timer_label.text = "%02d:%02d" % [int(_left) / 60, int(_left) % 60]
-		A.pin(_root, tc, Vector4(1, 0, 1, 0), Vector4(-210, 22, -24, 0))
+		A.pin(_root, tc, Vector4(1, 0, 1, 0), Vector4(-220, 18, -24, 78))
 	match phase:
 		"prompt":
 			_prompt()
@@ -84,43 +92,53 @@ func _build() -> void:
 
 
 func _lobby() -> void:
-	var count := A.chip("%d players" % (state.get("players", []) as Array).size(), A.WHITE, A.NAVY, "users", 20)
-	A.pin(_root, count, Vector4(1, 0, 1, 0), Vector4(-210, 26, -24, 0))
-	var row := A.hbox(10, BoxContainer.ALIGNMENT_CENTER)
-	A.pin(_root, row, Vector4(0.5, 0.5, 0.5, 0.5), Vector4(-560, -170, 560, 150))
 	var names: Array = state.get("players", [])
-	for i in names.size():
-		var col := A.vbox(4)
-		col.alignment = BoxContainer.ALIGNMENT_END
-		var bubble := A.chip(str(names[i]), Color("#BDEBE6") if i == 0 else A.WHITE, A.NAVY, "", 24, Vector2(20, 8))
-		bubble.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-		col.add_child(bubble)
-		var pv := PenguinView.new()
-		pv.framing = "portrait"
-		pv.custom_minimum_size = Vector2(250, 230)
-		pv.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		col.add_child(pv)
-		pv.call_deferred("set_look", Net.coat_color(0), {"head": ["red_beanie", "glasses", "", "bucket_hat"][i % 4] if i % 4 != 1 else ""} if i % 4 != 1 else {"face": "glasses"})
-		row.add_child(col)
-	var readies: Array = state.get("ready", [])
-	for i in mini(readies.size(), row.get_child_count()):
-		if readies[i]:
-			var tick := A.chip("Ready", Color("#BDEBE6"), A.NAVY, "check", 18, Vector2(14, 6))
-			tick.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-			(row.get_child(i) as Control).add_child(tick)
-	var bar := A.hbox(24, BoxContainer.ALIGNMENT_CENTER)
-	A.pin(_root, bar, Vector4(0.5, 1, 0.5, 1), Vector4(-420, -122, 420, -30))
+	var count := A.chip("%d at the table" % names.size(), A.WHITE, A.NAVY, "users", 20)
+	A.pin(_root, count, Vector4(1, 0, 1, 0), Vector4(-230, 18, -24, 78))
+	var card := A.panel(28, 24)
+	A.pin(_root, card, Vector4(0, 0.5, 1, 0.5), Vector4(40, -210, -40, 70))
+	var body := A.hbox(28)
+	card.add_child(body)
+	var pv := PenguinView.new()
+	pv.framing = "portrait"
+	pv.custom_minimum_size = Vector2(220, 240)
+	pv.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	body.add_child(pv)
+	pv.call_deferred("set_look", Net.coat_color(0), {})
+	var info := A.vbox(14)
+	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	body.add_child(info)
+	var seated := bool(state.get("seated", true))
 	var need := int(state.get("min_players", 3)) - names.size()
-	if not bool(state.get("seated", true)):
-		var hint := A.label("Sit at the table to join the next game", 24, A.NAVY, true, HORIZONTAL_ALIGNMENT_CENTER)
-		bar.add_child(hint)
+	var blurb := "Sit at the table to play with friends." if not seated else (
+		"Ready when everyone is." if need <= 0 else "The party game needs %d more." % need)
+	info.add_child(A.label(blurb, 22, A.NAVY, true))
+	info.add_child(A.label("Or just draw on your own.", 18, A.SUB))
+	var roster := HFlowContainer.new()
+	roster.add_theme_constant_override("h_separation", 8)
+	roster.add_theme_constant_override("v_separation", 8)
+	roster.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	info.add_child(roster)
+	if names.is_empty():
+		roster.add_child(A.label("Nobody is seated yet.", 18, A.MUTED))
 	else:
-		var ready := A.button("Ready" if need <= 0 else "Waiting for %d more" % need, "primary", "pencil", 32, Vector2(520, 84))
-		ready.disabled = need > 0
-		ready.pressed.connect(func() -> void: intent.emit("ready", null); ready.disabled = true; ready.text = "Ready!")
-		bar.add_child(ready)
-	var leave := _leave_button()
-	bar.add_child(leave)
+		var me := str(Net.local_profile().get("name", ""))
+		var readies: Array = state.get("ready", [])
+		for i in names.size():
+			var ready := i < readies.size() and bool(readies[i])
+			var chip := A.chip(str(names[i]) + ("  ·  Ready" if ready else ""), Color("#BDEBE6") if str(names[i]) == me else A.WHITE, A.NAVY, "check" if ready else "", 18, Vector2(14, 8))
+			roster.add_child(chip)
+	var bar := A.hbox(16, BoxContainer.ALIGNMENT_CENTER)
+	A.pin(_root, bar, Vector4(0, 1, 1, 1), Vector4(24, -116, -24, -28))
+	if seated:
+		var ready_btn := A.button("Ready" if need <= 0 else "Waiting for %d more" % need, "primary" if need <= 0 else "secondary", "pencil", 26, Vector2(360, 76))
+		ready_btn.disabled = need > 0
+		ready_btn.pressed.connect(func() -> void: intent.emit("ready", null); ready_btn.disabled = true; ready_btn.text = "Ready!")
+		bar.add_child(ready_btn)
+	var draw := A.button("Just draw", "primary" if not seated or need > 0 else "secondary", "brush", 26, Vector2(240, 76))
+	draw.pressed.connect(_start_free)
+	bar.add_child(draw)
+	bar.add_child(_leave_button())
 
 
 func _leave_button() -> Button:
@@ -164,66 +182,149 @@ func _prompt() -> void:
 
 
 func _draw_phase() -> void:
-	var asg := A.panel(12, 18)
-	A.pin(_root, asg, Vector4(0.5, 0, 0.5, 0), Vector4(-340, 112, 340, 170))
-	asg.add_child(A.label(str(state.get("assignment", {}).get("text", "")), 26, A.NAVY, true, HORIZONTAL_ALIGNMENT_CENTER))
-	var p := A.panel(16, 24)
-	A.pin(_root, p, Vector4(0.5, 0, 0.5, 0), Vector4(-600, 184, 600, 700))
+	var prompt := str(state.get("assignment", {}).get("text", ""))
+	_canvas_board(prompt if prompt != "" else "Draw the prompt below", "Submit", _submit_drawing, true)
+	if state.has("demo"):
+		_canvas.call_deferred("demo")
+
+
+## Free drawing. Stays up while the table is still in the lobby, and steps aside when a game starts.
+func _start_free() -> void:
+	_free = true
+	_seat("sketch_draw")
+	_build_free()
+
+
+func _stop_free() -> void:
+	if _canvas:
+		_free_strokes = _canvas.strokes.duplicate(true)
+	_free = false
+	_seat("sketch")
+	_build()
+
+
+func _build_free() -> void:
+	if _root:
+		_root.queue_free()
+	_root = A.screen_root()
+	add_child(_root)
+	_timer_label = null
+	var back := A.close_disc(56)
+	back.icon = A.icon_tex("arrow_left")
+	back.tooltip_text = "Back to the table"
+	back.pressed.connect(_stop_free)
+	A.pin(_root, back, Vector4(0, 0, 0, 0), Vector4(24, 20, 80, 76))
+	var head := A.vbox(-4)
+	A.pin(_root, head, Vector4(0.5, 0, 0.5, 0), Vector4(-280, 16, 280, 100))
+	head.add_child(A.title("Sketch Club", 42, HORIZONTAL_ALIGNMENT_CENTER))
+	head.add_child(A.label("Draw whatever you like", 20, A.NAVY, false, HORIZONTAL_ALIGNMENT_CENTER))
+	_canvas_board("", "Done", _stop_free, false)
+	if not _free_strokes.is_empty():
+		_canvas.set_strokes(_free_strokes)
+
+
+func _canvas_board(prompt: String, action_text: String, on_action: Callable, quiet: bool) -> void:
+	var p := A.panel(16, 22)
+	A.pin(_root, p, Vector4(0, 0, 1, 1), Vector4(24, 112, -24, -104))
+	var v := A.vbox(12)
+	p.add_child(v)
+	if prompt != "":
+		var cap := A.label(prompt, 24, A.NAVY, true, HORIZONTAL_ALIGNMENT_CENTER)
+		cap.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		v.add_child(cap)
 	var h := A.hbox(16)
-	p.add_child(h)
+	h.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	v.add_child(h)
 	var tools := A.vbox(12)
-	tools.custom_minimum_size.x = 230
+	tools.custom_minimum_size.x = 220
 	h.add_child(tools)
 	_canvas = SketchCanvas.new()
+	_canvas.clip_contents = true
+	_canvas.custom_minimum_size = Vector2(360, 280)
 	_canvas.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_canvas.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	h.add_child(_canvas)
 	var pal := GridContainer.new()
 	pal.columns = 3
-	pal.add_theme_constant_override("h_separation", 14)
-	pal.add_theme_constant_override("v_separation", 14)
+	pal.add_theme_constant_override("h_separation", 10)
+	pal.add_theme_constant_override("v_separation", 10)
 	tools.add_child(pal)
-	for c in COLORS:
-		pal.add_child(UIKit.swatch(Color(c), func() -> void: _canvas.color = Color(c); _canvas.eraser = false))
-	var sizes := A.hbox(24, BoxContainer.ALIGNMENT_CENTER)
+	var group := ButtonGroup.new()
+	for i in COLORS.size():
+		var col := Color(COLORS[i])
+		var sw := UIKit.swatch(col, _pick_color.bind(col))
+		sw.custom_minimum_size = Vector2(52, 52)
+		sw.button_group = group
+		if i == 0:
+			sw.button_pressed = true
+		pal.add_child(sw)
+	var sizes := A.hbox(12, BoxContainer.ALIGNMENT_CENTER)
 	tools.add_child(sizes)
 	for w in SIZES:
 		var b := Button.new()
 		b.flat = true
-		b.custom_minimum_size = Vector2(46, 46)
+		b.custom_minimum_size = Vector2(44, 44)
 		b.tooltip_text = "Brush size"
-		var dot := A.icon("snowball", w * 2.4, A.NAVY)
+		var dot := A.icon("snowball", w * 2.2, A.NAVY)
 		dot.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
-		dot.offset_left = -w * 1.2; dot.offset_right = w * 1.2; dot.offset_top = -w * 1.2; dot.offset_bottom = w * 1.2
+		dot.offset_left = -w * 1.1
+		dot.offset_right = w * 1.1
+		dot.offset_top = -w * 1.1
+		dot.offset_bottom = w * 1.1
 		b.add_child(dot)
-		b.pressed.connect(func() -> void: _canvas.width = w)
+		b.pressed.connect(_pick_width.bind(w))
 		sizes.add_child(b)
-	var er := A.button("Eraser", "secondary", "eraser", 19, Vector2(0, 50))
+	var er := A.button("Eraser", "secondary", "eraser", 18, Vector2(0, 48))
 	er.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	er.pressed.connect(func() -> void: _canvas.eraser = true)
 	tools.add_child(er)
-	var ur := A.hbox(10)
+	var ur := A.hbox(8)
 	tools.add_child(ur)
-	var undo := A.button("Undo", "secondary", "undo", 18, Vector2(0, 50))
+	var undo := A.button("Undo", "secondary", "undo", 18, Vector2(0, 48))
 	undo.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	undo.pressed.connect(func() -> void: _canvas.undo())
 	ur.add_child(undo)
-	var clear := A.button("Clear", "secondary", "trash", 18, Vector2(0, 50))
+	var clear := A.button("Clear", "secondary", "trash", 18, Vector2(0, 48))
 	clear.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	clear.pressed.connect(_confirm_clear)
 	ur.add_child(clear)
 	tools.add_child(A.expander())
-	var quiet := A.hbox(8)
-	quiet.add_child(A.icon("mic_off", 22, A.CORAL))
-	quiet.add_child(A.label("Private round · voice paused", 16, A.SUB))
-	tools.add_child(quiet)
-	var submit := A.button("Submit", "primary", "send", 28, Vector2(240, 66))
-	submit.pressed.connect(func() -> void:
-		intent.emit("submit_drawing", _canvas.strokes.duplicate(true))
-		apply_state({"phase": "wait", "players": state.get("players", [])}))
-	A.pin(_root, submit, Vector4(0.5, 0, 0.5, 0), Vector4(340, 610, 580, 676))
-	if state.has("demo"):
-		_canvas.call_deferred("demo")
+	if quiet:
+		var note := A.hbox(8)
+		note.add_child(A.icon("mic_off", 22, A.CORAL))
+		note.add_child(A.label("Private round · voice paused", 16, A.SUB))
+		tools.add_child(note)
+	var submit := A.button(action_text, "primary", "send" if action_text == "Submit" else "check", 26, Vector2(220, 64))
+	submit.pressed.connect(on_action)
+	A.pin(_root, submit, Vector4(0.5, 1, 0.5, 1), Vector4(-110, -88, 110, -20))
+
+
+func _pick_color(c: Color) -> void:
+	if _canvas == null:
+		return
+	_canvas.color = c
+	_canvas.eraser = false
+
+
+func _pick_width(w: float) -> void:
+	if _canvas == null:
+		return
+	_canvas.width = w
+	_canvas.eraser = false
+
+
+func _submit_drawing() -> void:
+	if _canvas == null:
+		return
+	intent.emit("submit_drawing", _canvas.strokes.duplicate(true))
+	_free = false
+	apply_state({"phase": "wait", "players": state.get("players", [])})
+
+
+func _seat(kit: String) -> void:
+	var player := get_tree().get_first_node_in_group("local_player")
+	if player and player.has_method("set_seat_clip") and player.has_method("is_sitting") and bool(player.call("is_sitting")):
+		player.call("set_seat_clip", kit)
 
 
 ## Clear asks first only when it would throw strokes away; Undo is immediate.
@@ -244,15 +345,18 @@ func _confirm_clear() -> void:
 
 func _guess() -> void:
 	var p := A.panel(24, 26)
-	A.pin(_root, p, Vector4(0.5, 0.5, 0.5, 0.5), Vector4(-430, -230, 430, 300))
+	A.pin(_root, p, Vector4(0, 0, 1, 1), Vector4(48, 112, -48, -28))
 	var v := A.vbox(12)
 	p.add_child(v)
 	var top := A.hbox(16)
+	top.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	v.add_child(top)
 	var cv := SketchCanvas.new()
 	cv.editable = false
-	cv.custom_minimum_size = Vector2(0, 280)
+	cv.clip_contents = true
+	cv.custom_minimum_size = Vector2(0, 240)
 	cv.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	cv.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	top.add_child(cv)
 	cv.set_strokes(state.get("assignment", {}).get("strokes", []))
 	if state.has("demo"):
@@ -300,9 +404,9 @@ func _wait() -> void:
 func _reveal() -> void:
 	var r: Dictionary = state.get("reveal", {})
 	var chip := A.chip("%d / %d" % [int(r.get("index", 1)), int(r.get("total", 1))], A.WHITE, A.NAVY, "", 26, Vector2(22, 10))
-	A.pin(_root, chip, Vector4(1, 0, 1, 0), Vector4(-140, 26, -24, 0))
+	A.pin(_root, chip, Vector4(1, 0, 1, 0), Vector4(-150, 18, -24, 82))
 	var row := A.hbox(20, BoxContainer.ALIGNMENT_CENTER)
-	A.pin(_root, row, Vector4(0.5, 0.5, 0.5, 0.5), Vector4(-560, -210, 560, 160))
+	A.pin(_root, row, Vector4(0, 0, 1, 1), Vector4(28, 176, -28, -180))
 	for e in r.get("entries", []):
 		var p := A.panel(16, 22)
 		p.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -333,7 +437,7 @@ func _reveal() -> void:
 	var owner := str(r.get("owner", ""))
 	if owner != "":
 		var oc := A.chip("%s's chain · %d of %d" % [owner, int(r.get("chain", 0)) + 1, int(r.get("chains", 1))], A.WHITE, A.NAVY, "users", 20)
-		A.pin(_root, oc, Vector4(0, 0, 0, 0), Vector4(24, 100, 460, 0))
+		A.pin(_root, oc, Vector4(0, 0, 0, 0), Vector4(96, 108, 560, 164))
 	if bool(state.get("is_host", true)):
 		var done := bool(r.get("done", false))
 		var next := A.button("Play again" if done else "Next entry", "primary", "arrow_right", 30, Vector2(440, 78))
