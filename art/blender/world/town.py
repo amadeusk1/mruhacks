@@ -574,7 +574,10 @@ def layout():
     hand_layout.build(sys.modules[__name__])
     # --- sled hill: everything from sled_hill.py ------------------------------------------------
     sled_hill.ground, sled_hill.to_godot = height, to_godot
+    flights = [(c["foot"][0], c["top"][0]) for c in STAIR_CHAINS + sled_hill.STAIR_CHAINS]
     for q in sled_hill.placements():
+        if "lantern" in q["id"] and any(seg_dist(Vector((q["x"], q["y"])), f, tp) < 2.5 for f, tp in flights):
+            continue                                       # a lamp 0.7 m off a flight's cheek leaves a penguin-wide trap
         put(q["id"], q["x"], q["y"], q["yaw"], z=q["z"], name=q.get("name"), tags=tuple(q["tags"]) + ("sled",),
             tints=q.get("tints"), scale=q.get("scale", 1.0), zone="sled")
     for m in sled_hill.markers():
@@ -597,6 +600,7 @@ def layout():
             r += 0.25
         coast.append(Vector((0, 1.3)) + dirv * (r - 0.9))
     walks = [q for q in PLACE if "walkable" in q["tags"]]
+    ncliff = 0
     last = None
     for p in coast:
         if last is not None and (p - last).length < 1.95:
@@ -616,7 +620,8 @@ def layout():
             continue
         if z > 0.6 and not beach:
             put("town_connections/cliff_straight_2m", p.x, p.y, yaw, z=z - 2.05, tags=("rock", "blocker", "coast"))
-            if len(PLACE) % 3 == 0:
+            ncliff += 1
+            if ncliff % 3 == 0:
                 put("town_connections/cliff_cap", p.x, p.y, yaw, z=z + 0.02, tags=("rock",))
             else:
                 put("town_connections/snow_overlay_cliff_straight", p.x, p.y, yaw, z=z + 0.02, tags=("decor",))
