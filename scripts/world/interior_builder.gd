@@ -84,6 +84,7 @@ const ROOMS := {
 }
 
 var _cfg: Dictionary
+var _solid := []  # [node, id]: collision from the model's footprint (Footprint) once the floor exists
 
 
 func _enter_tree() -> void:
@@ -104,12 +105,16 @@ func _enter_tree() -> void:
 	var room := Vector3(float(inner[0]), size.y, float(inner[1])) if inner is Array else size
 	var pad := 0.1 if inner is Array else 0.0  # interior_m walls sit just outside the floor
 	var y: float = _cfg["floor_y"]
-	_box(nav, Vector3(0, y - 0.05, 0), Vector3(room.x, 0.1, room.z), 1)
 	var sockets: Dictionary = AssetRegistry.sockets(shell_id)
 	var exit := _point(sockets, _cfg["exit"])
-	for side in [-1, 1]:  # side and back walls (layer 2 carves the navmesh); the front stays open
-		_box(nav, Vector3(side * (room.x * 0.5 + pad), 1.0, 0), Vector3(0.2, 2.0, room.z), 2)
+	# the floor runs on under the exit door to an invisible front wall: the camera looks in through
+	# the open front, and walking past the door used to step off the floor into the void
+	var front := maxf(room.z * 0.5 + pad, exit.z + 0.6)
+	_box(nav, Vector3(0, y - 0.05, (front - room.z * 0.5) * 0.5), Vector3(room.x, 0.1, front + room.z * 0.5), 1)
+	for side in [-1, 1]:  # side, back and front walls (layer 2 carves the navmesh)
+		_box(nav, Vector3(side * (room.x * 0.5 + pad), 1.0, (front - room.z * 0.5) * 0.5), Vector3(0.2, 2.0, front + room.z * 0.5), 2)
 	_box(nav, Vector3(0, 1.0, -(room.z * 0.5 + pad)), Vector3(room.x, 2.0, 0.2), 2)
+	_box(nav, Vector3(0, 1.0, front + 0.1), Vector3(room.x, 2.0, 0.2), 2)
 	var placed := {}
 	for p in _cfg["props"]:
 		var at := _socket(sockets, p[1]) if p[1] is String else _v(p[1])
@@ -188,12 +193,22 @@ func _cut_front(shell: Node3D, z_cut: float) -> void:
 
 func _ready() -> void:
 	AmbientFx.dress(self)  # steam on the coffee station and mugs; no snow indoors
+	_block_props.call_deferred()
 	for ap in find_children("*", "AnimationPlayer", true, false):  # roulette rotor, slot reels
 		for clip in (ap as AnimationPlayer).get_animation_list():
 			if String(clip).ends_with("_spin") or String(clip).ends_with("_sway"):
 				ap.play(clip)
 				ap.seek(randf() * ap.get_animation(clip).length, true)
 				break
+
+
+func _block_props() -> void:
+	await get_tree().physics_frame  # floor bodies registered for the ground rays
+	var nav := get_node("NavigationRegion3D")
+	var space := get_world_3d().direct_space_state
+	for p in _solid:
+		Footprint.blocker(nav, p[0], p[1], 1.0, space)
+	nav.call("rebake")
 
 
 func camera_for_spawn(_spawn_name: String) -> Dictionary:
@@ -291,8 +306,7 @@ func _place(nav: Node, id: String, at: Vector3, yaw_deg: float) -> Node3D:
 		return null
 	var s := AssetRegistry.size(id)
 	if s.y > 0.3 and s.x * s.z > 0.08:  # anything you'd bump into blocks; rugs and mugs don't
-		var b := _box(nav, at + Vector3(0, s.y * 0.5, 0), s, 2)
-		b.rotation.y = deg_to_rad(yaw_deg)
+		_solid.append([node, id])
 	return node
 
 

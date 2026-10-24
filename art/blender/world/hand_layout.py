@@ -98,21 +98,25 @@ def plaza():
     global ZONE
     ZONE = "plaza"
     place("plaza/small_fountain", 0, 0, 0, tags=BLOCK, name="Fountain", scale=1.55)
-    # benches on r 4 at the diagonals, facing the fountain
-    place("plaza/bench", 2.83, 2.83, 135, tags=BLOCK)
-    place("plaza/bench", -2.83, 2.83, 225, tags=BLOCK)
-    place("plaza/bench", -2.83, -2.83, 315, tags=BLOCK)
-    place("plaza/bench", 2.83, -2.83, 45, tags=BLOCK)
-    # outer ring between the spokes: trees in round beds and flower beds tangent to the rim (bus stop at ~290 deg)
-    place("nature_dock/small_tree_bed", 6.84, 2.83, 68, tags=("tree", "blocker"))
-    place("nature_dock/small_tree_bed", -2.83, 6.84, 338, tags=("tree", "blocker"))
-    place("nature_dock/small_tree_bed", -6.84, -2.83, 248, tags=("tree", "blocker"))
-    place("nature_dock/small_tree_bed", -2.83, -6.84, 23, tags=("tree", "blocker"))
-    place("plaza/rect_planter", -7.02, 2.91, 247.5)
-    place("plaza/rect_planter", 7.02, -2.91, 67.5)
+    # inner green ring, one garden per quadrant between the four 3 m spokes, a 2 m walking ring left round the
+    # fountain: a bench facing the fountain with a lamp either side, shrubs behind it, and a tree bed with a
+    # snowy fir behind at each end. SE drops its west end for the bus arrival spot.
+    def polar(r, a):
+        return r * math.cos(math.radians(a)), r * math.sin(math.radians(a))
+    for k, c in enumerate((45, 135, 225, 315)):
+        x, y = polar(4.3, c)
+        place("plaza/bench", x, y, c + 90, tags=BLOCK)                   # yaw c+90: the seat faces the fountain
+        for da in (-15, 15):
+            place("plaza/lantern_post", *polar(4.3, c + da), 0, tags=LIGHT)
+        for n, da in enumerate((-18, 18)):
+            if c == 315 and da < 0:
+                continue
+            place("cottage/shrub_flowering" if n == 0 else "cottage/shrub_round", *polar(5.6, c + da / 2), c + 90, tags=DECOR)
+            place("nature_dock/small_tree_bed", *polar(5.8, c + da), c * 3 + da, tags=("tree", "blocker"))
+            place(["winter/fir_tree_small", "winter/fir_tree_medium"][(k + n) % 2], *polar(7.0, c + da), c + da * 5,
+                  tags=("tree",), scale=0.9)
     # rim lanterns between the spokes
-    for x, y in [(8.39, 3.39), (-3.39, 8.39),                     # none at 67 deg: the arcade corner (-8.33, 3.54), (-8.39, -3.39), (-3.54, -8.33),
-                 (8.33, -3.54)]:                                  # none at 292 deg: the bus stop
+    for x, y in [(8.39, 3.39), (-8.33, 3.54), (-8.39, -3.39), (-3.54, -8.33), (8.33, -3.54)]:   # none at 67/112/292 deg: arcade corner, cafe spoke, bus stop
         place("plaza/lantern_post", x, y, 0, tags=LIGHT)
     # string lights across the west, east and south spokes
     place("plaza/string_lights", -10.1, 0, 90, z=ground(-9.5, 0) + 2.4, tags=("light",))
@@ -135,22 +139,21 @@ def shops():
     cafe_yaw = 23.8                                        # turned towards the fountain
     ZONE = "plaza"
     building("cinema/cinema_exterior", 0.0, 24.7, 0, "Cinema", "cinema_lobby")
-    building("cafe/cafe_exterior", -7.8, 13.65, cafe_yaw, "Cafe", "cafe_interior")
+    building("cafe/cafe_exterior", T.CAFE_P.x, T.CAFE_P.y, cafe_yaw, "Cafe", "cafe_interior")
     building("arcade/arcade_exterior", T.ARCADE_P.x, T.ARCADE_P.y, T.ARCADE_YAW, "Arcade", "arcade_interior", scale=T.ARCADE_S)
     ZONE = "casino"
     building("casino/casino_exterior", 23.2, 8.4, 0, "Casino", "casino_interior")
 
-    # cafe terrace: a four-stool table, two umbrella tables, a chalkboard by the door, milk and cups out
+    # cafe terrace on the plaza rim beside the cafe spoke, an umbrella table out west, chalkboard by the door, milk and cups out
     ZONE = "cafe"
-    table_set("plaza/round_table", -4.4, 12.6, 10)
-    place("cafe/milk_jug", -4.25, 12.7, 0, z=ground(-4.4, 12.6) + 0.6, tags=DECOR)
-    place("interaction_props/drink_cup", -4.6, 12.45, 0, z=ground(-4.4, 12.6) + 0.6, tags=DECOR)
-    place("plaza/cafe_umbrella_table", -3.35, 15.57, 20, tags=BLOCK)
-    place("plaza/cafe_umbrella_table", -13.73, 12.93, -15, tags=BLOCK)
-    place("plaza/aframe_chalkboard", -4.0, 9.4, 30)
-    place("world_misc/crate", -12.53, 16.73, 10, tags=BLOCK)                  # service corner behind the cafe
-    place("world_misc/crate", -12.43, 16.73, 35, z=ground(-12.53, 16.73) + 0.53)
-    place("world_misc/barrel", -11.83, 16.53, 0, tags=BLOCK)
+    table_set("plaza/round_table", -7.4, 5.6, 10)
+    place("cafe/milk_jug", -7.25, 5.7, 0, z=ground(-7.4, 5.6) + 0.6, tags=DECOR)
+    place("interaction_props/drink_cup", -7.6, 5.45, 0, z=ground(-7.4, 5.6) + 0.6, tags=DECOR)
+    place("plaza/cafe_umbrella_table", -13.9, 13.2, -15, tags=BLOCK)
+    place("plaza/aframe_chalkboard", -2.6, 10.6, 30)
+    place("world_misc/crate", -5.0, 17.4, 10, tags=BLOCK)                     # service corner at the cafe's back door
+    place("world_misc/crate", -4.9, 17.4, 35, z=ground(-5.0, 17.4) + 0.53)
+    place("world_misc/barrel", -4.3, 17.2, 0, tags=BLOCK)
 
     # cinema: topiaries at the door, stanchion queue lane beside the forecourt, poster frames, string lights
     ZONE = "cinema"
@@ -253,7 +256,9 @@ def homes():
         place("building_finishing/porch_canopy", dsk[0] - fx * 0.62, dsk[1] - fy * 0.62, yaw, z=dsk[2])
 
     # landmark homes on the north street: the treehouse in its fir grove, the A-frame at the west end
-    building("homes/treehouse_exterior", -22.5, 13.6, 0, "Home4", "home")
+    building("homes/treehouse_exterior", -22.5, 13.6, 0, "Home4")            # door is up the stairs: marker at their foot
+    w = at_socket("homes/treehouse_exterior", "socket_approach", -22.5, 13.6, 0, ground(-22.5, 13.6))
+    mark("Home4Door", w[0], w[1], 0, kind="door", target="home", z=w[2])
     building("homes/aframe_cabin_exterior", -33.0, 13.0, 0, "Home5", "home", tints={"roof": "#207D85"})
     grove([("winter/fir_tree_large", -26.9, 17.4, 30, 1.05), ("winter/fir_tree_small", -27.6, 12.0, 200, 0.95),
            ("winter/fir_tree_medium", -17.6, 11.4, 75, 0.9)],
@@ -306,9 +311,9 @@ def stream():
 
 
 # -------------------------------------------------------------------------------------------- cove --
-def pier(x, y0, n, end_spot=True):
+def pier(x, y0, n, end_spot=True, z=None):
     """Dock tiles running south from the shore path; the first tile is flush with the paving."""
-    z = ground(x, y0 + 1.35) + 0.07
+    z = ground(x, y0 + 1.35) + 0.07 if z is None else z
     for k in range(n):
         place("nature_dock/dock_straight", x, y0 - 2 * k, 0, z=z, tags=WALK)
         if k == 0:
@@ -322,15 +327,16 @@ def cove():
     global ZONE
     ZONE = "dock"
     T.DOCK_HEADS.clear()
-    # pier A with the boathouse platform; pier B with a T head
-    zA = pier(-24.0, -14.8, 3)
+    # pier A with the boathouse platform; pier B with a T head; a boardwalk joins them (below)
+    zA = zB = max(ground(-24.0, -13.45), ground(-12.0, -13.15)) + 0.07   # one deck height for the joined boardwalk
+    pier(-24.0, -14.8, 3, z=zA)
     for x in (-26.0, -28.0):
         for y in (-16.8, -18.8):
-            place("nature_dock/dock_straight", x, y, 90, z=zA, tags=WALK)
-    place("nature_dock/dock_corner", -28.0, -20.8, 0, z=zA, tags=WALK)
+            place("nature_dock/dock_straight", x, y, 90, z=zA)       # under the boathouse: floor only, not a walk surface
+    place("nature_dock/dock_corner", -28.0, -20.8, 0, z=zA)
     place("cottage/cottage_exterior", -27.0, -17.8, 90, z=zA + 0.06, tags=("building", "blocker"), name="Boathouse", scale=0.7)
     place("plaza/wall_lantern", -25.5, -17.49, 90, z=zA + 1.6, tags=DECOR)
-    zB = pier(-12.0, -14.5, 4, end_spot=False)
+    pier(-12.0, -14.5, 4, end_spot=False, z=zB)
     place("fishing/fishing_dock_spot", -12.0, -22.5, 0, z=zB, tags=WALK)
     place("nature_dock/dock_straight", -14.0, -22.5, 90, z=zB, tags=WALK)
     place("fishing/fishing_dock_spot", -16.0, -22.5, 90, z=zB, tags=WALK)
@@ -342,34 +348,39 @@ def cove():
             if w:
                 mark(f"FishingSpot{n}", w[0], w[1], q["yaw"] + 180, kind="activity", activity="fishing", z=w[2])
                 n += 1
-    # quay wall along the north shore between the piers, rope rails on the pier edges, a mooring post
-    for x in (-21.5, -19.5, -17.5, -15.5):
-        place("nature_dock/water_edge_2m", x, -14.4, 0, z=ground(x, -13.2) - 0.88, tags=("rock", "blocker", "coast"))
-    for y in (-14.8, -16.8):
-        place("nature_dock/rope_posts", -22.95, y, 90, z=zA)
+    # boardwalk along the north shore joining the two piers into one L, dressed along its water edge:
+    # lantern brackets, cleats, a rope coil, fenders, and a rowboat tied up between the piers
+    for x in (-22.0, -20.0, -18.0, -16.0, -14.0):
+        place("nature_dock/dock_straight", x, -14.4, 90, z=zA, tags=WALK, name="Boardwalk")
+    for x in (-21.0, -17.0):
+        place("nature_dock/dock_lantern_bracket", x, -15.55, 0, z=zA)
+    for x in (-19.0, -15.0):
+        place("nature_dock/mooring_cleat", x, -15.2, 0, z=zA + 0.06, tags=DECOR)
+        place("nature_dock/boat_fender", x - 0.9, -15.5, 0, z=zA - 0.3, tags=DECOR)
+    place("nature_dock/coiled_rope", -18.3, -15.05, 20, z=zA + 0.06, tags=DECOR)
+    place("fishing/rowboat", -18.6, -17.6, 5, z=T.WATER_Z)
+    # rope rails on the piers' outer edges, a mooring post ashore
+    place("nature_dock/rope_posts", -22.95, -16.8, 90, z=zA)
     for y in (-14.5, -16.5, -18.5):
         place("nature_dock/rope_posts", -10.95, y, 90, z=zB)
     place("nature_dock/rope_posts_bunting", -12.0, -13.6, 0, z=zB)
     place("interaction_props/mooring_post", -8.83, -14.03, 0, tags=BLOCK)
-    # pier A: the catch of the day on its stand, tackle crate, bucket
-    place("interaction_props/catch_display_stand", -24.75, -18.8, 90, z=zA + 0.06, tags=BLOCK)
-    place("fishing/tackle_crate", -23.3, -16.3, 20, z=zA + 0.06)
-    place("fishing/bucket", -23.35, -18.2, 0, z=zA + 0.06)
-    place("fishing/fish_round", -23.35, -19.0, 35, z=zA + 0.1)
-    place("fishing/fish_slim", -23.35, -19.4, 160, z=zA + 0.1)
-    place("fishing/fish_spiky", -23.35, -17.6, 80, z=zA + 0.1)
-    # boathouse dock corner: crate stack and a barrel on the deck edge
-    place("world_misc/crate", -28.6, -21.35, 10, z=zA + 0.06)
-    place("world_misc/crate", -28.6, -21.35, 35, z=zA + 0.59)
-    place("world_misc/barrel", -27.9, -21.45, 0, z=zA + 0.06)
+    # the catch of the day on its stand ashore beside pier A, with a bucket and the tackle crate
+    # (pier A's deck stays clear: 1.6 m from the shore to its fishing spot)
+    cs = (-26.6, -14.5, 180)
+    place("interaction_props/catch_display_stand", *cs, tags=BLOCK)
+    for k, fish in enumerate(("fishing/fish_round", "fishing/fish_slim", "fishing/fish_spiky")):
+        w = at_socket("interaction_props/catch_display_stand", f"socket_hook_{k}", *cs, ground(*cs[:2]))
+        place(fish, w[0], w[1], 90, z=w[2] - 0.3, tags=DECOR)
+    place("fishing/bucket", -27.95, -14.4, 0)
+    place("fishing/tackle_crate", -28.6, -15.0, 20)
     # pier B: life ring on the rail, a bucket of fish
     place("fishing/life_ring", -11.05, -16.5, 90, z=zB + 0.3)
     place("fishing/bucket_fish", -11.35, -18.0, 0, z=zB + 0.06)
     # houseboat moored south of pier B's T head with a gangway tile
-    place("homes/houseboat_exterior", -14.5, -29.0, 180, z=T.WATER_Z + 0.02, tags=("building", "blocker"), name="Houseboat")
+    place("homes/houseboat_exterior", -14.5, -27.4, 180, z=T.WATER_Z + 0.02, tags=("building", "blocker"), name="Houseboat")
     place("nature_dock/dock_straight", -14.0, -24.0, 0, z=zB, tags=WALK, name="Gangway")
-    place("nature_dock/dock_straight", -14.0, -26.0, 0, z=zB, tags=WALK)
-    mark("HouseboatDoor", -14.05, -26.4, 0, kind="door", target="home", z=zB)
+    mark("HouseboatDoor", -14.05, -25.0, 0, kind="door", target="home", z=zB)
     # boats, bobbers with ripples, a few cove floes
     place("fishing/rowboat", -9.4, -20.4, 75, z=T.WATER_Z)
     place("fishing/rowboat", -21.0, -24.0, -20, z=T.WATER_Z)
@@ -383,9 +394,9 @@ def cove():
     for x in (-15.3, -12.7):
         place("nature_dock/boat_fender", x, -23.55, 0, z=zB - 0.3, tags=DECOR)
     for x in (-14.8, -13.2):
-        place("nature_dock/mooring_cleat", x, -26.85, 0, z=zB + 0.06, tags=DECOR)
-    place("nature_dock/dock_end_cap", -14.0, -27.0, 0, z=zB)
-    place("nature_dock/coiled_rope", -23.3, -15.3, 30, z=zA + 0.06, tags=DECOR)
+        place("nature_dock/mooring_cleat", x, -24.85, 0, z=zB + 0.06, tags=DECOR)
+    place("nature_dock/dock_end_cap", -24.0, -21.8, 0, z=zA)            # end of pier A
+    place("nature_dock/coiled_rope", -8.2, -14.8, 30, tags=DECOR)
     place("nature_dock/dock_lantern_bracket", -11.05, -20.2, 90, z=zB)
     place("nature_dock/dock_lantern_bracket", -22.95, -18.6, 90, z=zA)
     place("nature_dock/dock_ladder", -10.85, -20.9, 90, z=zB - 1.2, tags=DECOR)
@@ -571,6 +582,12 @@ def woods():
     # behind the sketch club
     grove([(M_, 36.2, -9.6, 40, 1.0), (F, 34.4, -11.0, 200, 0.9), (L, 36.8, -2.6, 120, 1.0), (F, 37.0, -5.0, 280, 0.9),
            (M_, 31.2, -10.8, 330, 0.95)], zone="sketch")
+    # behind the cinema
+    grove([(L, -1.5, 31.0, 30, 1.0), (M_, 1.8, 31.6, 150, 0.95), (F, -4.5, 29.8, 260, 0.9)])
+    # east of the picnic, south of the plaza bridge path
+    grove([(M_, 25.0, -3.6, 70, 0.95), (F, 23.4, -4.4, 190, 0.9)])
+    # between the sketch club and the court's east end
+    grove([(M_, 35.6, -12.4, 20, 0.9), (F, 33.6, -12.0, 140, 0.85)], zone="sketch")
     # behind the cafe, below the sled stairs
     grove([(L, -5.4, 22.4, 120, 1.0), (M_, -7.6, 24.2, 20, 0.95), (F, -4.6, 25.8, 240, 1.0),
            ("nature_dock/broad_tree", -12.2, 21.2, 300, 1.0), ("nature_dock/small_tree", -14.2, 19.6, 140, 0.95)])
@@ -581,11 +598,11 @@ def wayfinding():
     global ZONE
     ZONE = None
     # activity signs with icons at each destination entrance, facing the approach path
-    sign(-3.6, 6.6, -101.3, "icon_cafe")
+    sign(-2.85, 7.4, -90.0, "icon_cafe")
     sign(2.9, 15.6, -90.0, "icon_cinema")
     sign(8.72, 5.18, 146.3, "icon_arcade")
     sign(-10.26, -8.09, 63.4, "icon_fishing")
-    sign(-11.6, 17.6, 113.2, "icon_sled")
+    sign(-7.8, 16.9, 113.2, "icon_sled")
     sign(22.6, 13.6, 123.7, "icon_snowball")
     sign(18.28, -11.72, 31.0, "icon_basketball")
     sign(26.0, 2.2, 19.7, "icon_drawing")
@@ -598,7 +615,6 @@ def wayfinding():
                  (9.09, -7.46), (11.77, -13.46),                  # court-path bridge
                  (13.2, 24.2), (19.0, 21.3),                      # cinema-arena bridge
                  (-33.6, 1.75),                                   # homes (none at the crossroads: doors)
-                 (-15.9, -13.4), (-21.0, -13.85),                 # cove shore path
                  (-0.35, -27.5), (3.35, -27.5), (-0.95, -18.5),    # south spoke and pier head
                  (31.85, 8.3), (-8.4, 16.4)]:                     # east loop, sled stairs foot
         place("plaza/lantern_post", x, y, 0, tags=LIGHT)

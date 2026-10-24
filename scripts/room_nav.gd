@@ -27,7 +27,7 @@ func _bake() -> void:
 	mesh.agent_radius = AGENT_RADIUS
 	mesh.agent_height = AGENT_HEIGHT
 	mesh.agent_max_climb = 0.35  # matches penguin_movement STEP_HEIGHT
-	mesh.agent_max_slope = 28.0  # bridge arch is about 27 degrees at the springing
+	mesh.agent_max_slope = 50.0  # under the penguin's 55 degree floor_max_angle: click where you can walk
 	mesh.cell_size = 0.15
 	mesh.cell_height = 0.1
 	mesh.geometry_parsed_geometry_type = NavigationMesh.PARSED_GEOMETRY_STATIC_COLLIDERS
