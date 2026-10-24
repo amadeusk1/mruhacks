@@ -72,4 +72,6 @@ b.box(1, 1, 1, mat=tint("upholstery", "coral"))      # recolourable seat fabric
 b.box(1, 1, 1, mat=tint("upholstery_b", "red_dark")) # darker same-hue shade: merged into 'upholstery'
 ```
 
+**Glow regions:** a role named `<role>_glow` (for example `team_glow` on the respawn pad rim) is an emissive tint. `Tints.apply` recolours both its albedo and emission, and it follows `<role>` unless you set `<role>_glow` explicitly.
+
 Pick roles a designer would recognise. Reuse existing role names (`wall`, `roof`, `trim`, `door`, `body`, `cloth_primary`) so a theme can recolour many assets at once.

@@ -2,7 +2,7 @@
 
 Design reference: [Game Design Context](GAME_DESIGN_CONTEXT.md)
 
-3D asset pack: [Art Pipeline](Art%20Pipeline.md) (how it's built) · [Renders](../Renders) (all model renders)
+3D asset pack: [Art Pipeline](Art%20Pipeline.md) (how it's built) · [Renders](../Renders) (all model renders) · [Engine Specs - Index](Engine%20Specs/Engine%20Specs%20-%20Index.md) (what to build in Godot)
 
 ## Reference gallery
 
@@ -112,3 +112,25 @@ Reference for later world layout.
 
 - [Animation Kits - Index](Animation%20Kits%20-%20Index.md)
 - [Prop Kits - Master Plan](Prop%20Kits%20-%20Master%20Plan.md)
+
+All animation sheets: [Animation Mockups - Gallery](Animation%20Mockups%20-%20Gallery.md).
+
+## Additional prop and motion sets
+
+- [Prop Kit - Cafe Serving and Food](Prop%20Kit%20-%20Cafe%20Serving%20and%20Food.md)
+- [Prop Kit - Home Details and Storage](Prop%20Kit%20-%20Home%20Details%20and%20Storage.md)
+- [Animation Kit - Gameplay Effects](Animation%20Kit%20-%20Gameplay%20Effects.md)
+- [Animation Kit - Everyday Penguin Interactions](Animation%20Kit%20-%20Everyday%20Penguin%20Interactions.md)
+
+## World support and finishing kits
+
+- [World Kit - Shoreline and Waterfront Details](World%20Kit%20-%20Shoreline%20and%20Waterfront%20Details.md)
+- [World Kit - Building Finishing Details](World%20Kit%20-%20Building%20Finishing%20Details.md)
+- [World Kit - Wayfinding and Activity Markers](World%20Kit%20-%20Wayfinding%20and%20Activity%20Markers.md)
+- [World Kit - Interior Finishing Details](World%20Kit%20-%20Interior%20Finishing%20Details.md)
+- [World Assembly - Completion Checklist](World%20Assembly%20-%20Completion%20Checklist.md)
+
+## Waddle World UI
+
+- [Waddle World - UI Mockups](Waddle%20World%20-%20UI%20Mockups.md)
+- [Waddle World - UI System and Flows](Waddle%20World%20-%20UI%20System%20and%20Flows.md)

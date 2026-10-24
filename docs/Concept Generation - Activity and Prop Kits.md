@@ -43,3 +43,43 @@ Title PLAYER HOMES / MODULAR SHELL KIT. Top row six small finished empty-house e
 ## Town Connections Prop Kit
 
 Title TOWN CONNECTIONS / WORLD BUILDING KIT. Top small vignette of a stone path, tiny bridge across turquoise stream and stairs, warm snow village palette. Below three rows of five assets: STRAIGHT PATH TILE, PATH CORNER, PATH JUNCTION, STONE STEP, LANDING; CLIFF STRAIGHT, CLIFF CORNER, CLIFF CAP, STREAM STRAIGHT, STREAM BEND; FOOTBRIDGE, RAIL SEGMENT, WAYFINDING SIGN with blank inserts, NOTICE BOARD blank, MAILBOX. Modular seams visible, snow caps shown as separate overlays on one sample. No full buildings, no large map.
+
+## Additional detail and interaction sheets
+
+Built-in image generation; shared direction: cozy low-poly penguin village, ivory background, readable navy labels, honey wood, cream ceramics, coral/teal accents, broad facets, chunky bevels, matte materials. Everyday interactions referenced the original avatar turnaround. Saved under Images/ with the titles below.
+
+### Cafe Serving and Food Prop Kit
+
+Title CAFE / FOOD & SERVING KIT. A clearly organized 4 by 4 catalog of isolated reusable props: CROISSANT, MUFFIN, CAKE SLICE, COOKIE; CERAMIC PLATE, SAUCER, TEACUP, TAKEAWAY CUP with separate lid beside it; SERVING TRAY, TEAPOT, MILK JUG, SUGAR JAR with detached lid; NAPKIN HOLDER, SPOON, PASTRY TONGS, GLASS CAKE DOME with detached base. Each individual object centered in its cell. Small bottom vignette shows a tray with plate and pastry as an assembly example, but catalog objects remain separate. No characters. Food is faceted simplified charming miniature geometry, not detailed realism.
+
+### Home Details and Storage Prop Kit
+
+Title PLAYER HOMES / DETAILS & STORAGE KIT. Four rows of four isolated assets: WALL CLOCK, WINDOW CURTAINS (rod and two separate panels), WALL HOOK RAIL, OVAL MIRROR; LIDDED CHEST (open with hinge clear), STACKABLE STORAGE BOX, WOVEN BASKET (stylized broad facets not fine weave), SHOE-FREE ENTRY MAT; ROUND CUSHION, SQUARE CUSHION, FOLDED BLANKET, PATCHWORK THROW; BOOKENDS, FRUIT BOWL (fruit shown separately too), SMALL VASE, PENGUIN PLUSH. Plush unmistakably round blue penguin with cream belly, flippers, little orange feet and tiny beak. Furniture is decoration for grid placement. No baked room backgrounds, no extra large furniture. Include small origin/placement dots below assets and no fake measurements.
+
+### Animation Kit - Gameplay Effects
+
+Title GAMEPLAY EFFECTS / MOTION SHEET. Six clearly separated storyboard rows, each with four sequential frames and motion arrows. No characters required. BOBBER SPLASH: bobber hits water, small droplets, widening ring, fade. FISH ESCAPE: fish tail at surface, small splash, expanding ripples, calm water. SNOWBALL IMPACT: intact small snowball, soft rounded burst, scattered small clumps, fade. SLED BRAKE SPRAY: two wooden runner tips, shallow spray to sides, settling clumps, dissipated. BASKET SWISH: orange ball enters hoop, cream net stretches down, ball exits, net settles. SMALL CELEBRATION: tiny gold star spark, a few coral teal confetti pieces spread, drift, fade. Keep effects low-amplitude cozy and readable, no explosions or magical combat. Label each row and four phases. Use motion ghosting only as annotation.
+
+### Animation Kit - Everyday Penguin Interactions
+
+Title PENGUIN INTERACTIONS / EVERYDAY MOTION. Six storyboard rows each with four distinct sequential key poses. Character matches the reference penguin: plump blue continuous pear/egg body, cream heart face flowing into belly, black dot eyes, short orange beak, short orange feet, tapered blue flippers. No neck, feathers, long legs, hats or clothing. Same proportions every pose. Row PICK UP: look at small flowerpot, crouch, flippers grasp, lift to belly. Row CARRY & PLACE: hold pot, tiny waddling step, lower to table, release. Row SIT & STAND: back up to stool, settle, seated relaxed, stand clear. Row SMALL STEPS: approach low stair, raise foot, shift weight, settle on upper step. Row SIP & REST: hold mug, lift near beak, little contented blink, lower. Row OPEN & REACH: reach toward small drawer, pull, look inside, close. Clear contact poses, arrows, grounded feet, no elastic stretching. Minimal honey wooden props only. These are optional visual interactions, not a new game mechanic list.
+
+## World support batch
+
+Built-in image generation. Shared direction: cozy snowy penguin village, isolated modular low-poly props, ivory background, navy labels, matte cream stone and honey timber with coral/teal accents. Saved as Images/World Kit - ... PNGs and linked from Gallery.
+
+## World Kit - Shoreline and Waterfront Details
+
+Title SHORELINE / WATERFRONT DETAILS. Twelve labeled assets: SLOPED SHORE BANK (cream rock to turquoise water); SHORE INNER CORNER; SHORE OUTER CORNER; SMALL PEBBLE CLUSTER; SHALLOW WATER PATCH; FOAM EDGE STRIP (separate thin surface); DOCK END CAP (wood deck matching short square posts); DOCK LADDER (wood side rails); MOORING CLEAT; COILED ROPE; BOAT FENDER (small cream buoy); DOCK LANTERN BRACKET. Show waterline reference as a fine dotted annotation on bank pieces. Reuse the village chunky wood dock style. Shore pieces modular and useful for closing gaps between cliff bank, beach and water. No detailed ropes simulated, no new fishing rods or boat duplicated.
+
+## World Kit - Building Finishing Details
+
+Title BUILDINGS / FINISHING DETAILS. Twelve isolated labeled reusable pieces: FOUNDATION SKIRT (cream stone strip); EXTERIOR CORNER TRIM (honey wood); WINDOW SILL; WINDOW SHUTTERS (pair coral with hinge edge); DOORSTEP THRESHOLD; ROOF RIDGE CAP (coral); ROOF END CAP (coral); EAVE TRIM; CHIMNEY CAP (gray stone); PORCH CANOPY (honey posts coral small roof, compact); SNOW EAVE OVERLAY (separate removable snow); WALL SIGN BRACKET (blank hanging teal sign insert). Small join arrows on two examples show modular seams, no measurements. Architectural finishing pieces distinct from existing wall/roof shell sheets.
+
+## World Kit - Wayfinding and Activity Markers
+
+Title TOWN / WAYFINDING & ACTIVITY MARKERS. Twelve isolated labeled props with honey wood and teal/coral framing: WORLD MAP BOARD (blank replaceable map insert); DESTINATION SIGNPOST (three blank removable arrows); CAFE SIGN (simple cup pictogram); CINEMA SIGN (simple film reel pictogram); ARCADE SIGN (simple joystick pictogram); FISHING SIGN (fish hook pictogram); SLED HILL SIGN (sled pictogram); SNOWBALL ARENA SIGN (two snowballs pictogram); BASKETBALL SIGN (ball pictogram); DRAWING CLUB SIGN (pencil pictogram); HOME NUMBER PLAQUE (blank insert); QUEUE SPOT MARKER (subtle flat floor disc with footprints). Make signs a coordinated reusable frame family, icons original flat inserts not raised detailed meshes. No letters inside blank inserts, no forced numbered housing addresses, no arrow blocking walking paths.
+
+## World Kit - Interior Finishing Details
+
+Title INTERIORS / FINISHING & UTILITY KIT. Twelve isolated modular assets: SKIRTING STRIP (honey wood); INSIDE CORNER SKIRTING; DOOR FRAME (cream wood opening); ROOM DIVIDER (short wood screen); WALL PANEL (cream and teal); CORNER SHELF (empty); CEILING BEAM; CEILING PENDANT (small amber lamp); WALL SCONCE (amber); RADIATOR (small simple cream ribs); SMALL WASTE BIN (teal); FLOOR VENT (flat subtle iron grate). No furnished room or repeated sofa, no character. All pieces have simple believable placement and clear silhouette at miniature gameplay scale. Lamp emissive insert separate, shelf empty for decoration, divider clearly low enough for game camera. Cozy style, not industrial.

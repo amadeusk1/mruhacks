@@ -11,3 +11,5 @@
 Godot game files remain at the repository root. Current exports are in `Models/`, Blender source and Godot helpers in `art/`, and preview renders in `Renders/`. Source paths remain relative to that layout. Personal Obsidian settings, Python caches and intermediate `_wip` preview renders are excluded. Original numbered concept sheet 10 was not available in the saved vault.
 
 New concept sheets are references, not implemented assets or clips. Penguins remain the player identity; generic bird language/motifs in retained generated art do not supersede the original turnaround. Existing models are committed as current work and still require art review and gameplay integration.
+
+- [Waddle World UI mockups](Waddle%20World%20-%20UI%20Mockups.md): 12 boards covering 48 primary menu/gameplay screens; placeholder title and simple shared UI.

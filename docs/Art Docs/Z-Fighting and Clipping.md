@@ -32,6 +32,7 @@ Each asset records two custom properties: `zfight_parts_moved` and `zfight_remai
 Every assembled asset (exteriors, interior shells, prefabs) is rendered close up from azimuths 45°, 135°, 225° and 315° plus top-down, and the renders are reviewed by eye. Problems found and fixed so far:
 
 - **Café:** wall corner stones and timber pegs poked through the roof tiles, and the large side window was covered by solid wall because no opening was cut.
+- **Homes (reported by the user):** arched doors and windows sat in rectangular wall openings, showing dark corners above the arch. Every kit is being re-audited for openings that don't match their frames.
 - **Cinema lobby:** an early version of the fixer lifted whole floors (fixed by the exact overlap test).
 
 Kit renders used for the audits are in `art/_wip`. Keepers go to `Renders/Details`.

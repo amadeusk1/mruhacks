@@ -17,6 +17,7 @@ Each part carries its motion as node properties (glTF extras) and in the manifes
 | `spin` | `axis` | Fishing reel, ship's wheel |
 | `press` | `depth` (m) | Arcade buttons |
 | `tilt` | `axis`, `max_deg` | Joysticks, sled steering rope |
+| `flow` | — | Fountain streams, stream and river water: shader-driven scrolling, the mesh stays put |
 
 Manifest example:
 
@@ -27,6 +28,24 @@ Manifest example:
 In Godot the part is a `MeshInstance3D` child. Open a door by tweening `rotation.y` (Blender's Z axis becomes Godot's Y) to `deg_to_rad(open_deg)`. Only consequential state (door open or closed) is networked; ambient sway and flutter are local and phase-randomised.
 
 **Authoring (kit scripts):** wrap the geometry in `with b.part(name, pivot=..., motion=..., ...):`. Z-fight fixing still runs over the whole asset before the parts split off, so a leaf flush in its frame is handled.
+
+## Ready-made clips
+
+The exporter turns each part's motion data into real glTF animations, so Godot can play them straight away from the asset's `AnimationPlayer`. The manifest lists them per part under `part_clips`.
+
+| Motion | Clips | Length |
+| --- | --- | --- |
+| `hinge` | `<part>_open`, `<part>_close` (small overshoot, then settle) | 0.6 s |
+| `slide` | `<part>_open`, `<part>_close` | 0.8 s |
+| `sway` | `<part>_sway` (loop) | 3.0 s |
+| `flutter` | `<part>_flutter` (loop) | 1.2 s |
+| `spin` | `<part>_spin` (loop, linear) | 4.0 s |
+| `press` | `<part>_press` | 0.18 s |
+| `tilt`, `flow` | none: driven by input or a shader | |
+
+Loops are exported with a `_loop` suffix that Godot turns into loop mode, the same as the avatar clips. Start ambient loops at a random offset (`AnimationPlayer.seek(randf() * length)`) so the town doesn't sway in unison. For a door, play `door_l_open` and set the collision state in gameplay. Only open or closed is networked.
+
+**Rest pose is checked on every build.** `art/blender/check_parts.py` runs at the end of `build.py`. It confirms that every part exports closed and at its pivot, with no rotation. An early version of the clip generator exported doors and lids in their open position; this check catches that.
 
 ## Effect emitter sockets
 

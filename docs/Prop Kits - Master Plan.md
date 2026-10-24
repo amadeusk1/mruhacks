@@ -42,3 +42,18 @@ Each model needs stable ID, source, export, dimensions, pivot, collision plan, a
 ## Visual interpretation notes
 
 Generic bird motifs and small perched birds in the latest generated sheets are retained image content, not a change to penguin avatars. The house sheet's structural assembly is an authoring guide, not confirmation of player wall-building. The interaction sheet's line anchor post is decorative; the fishing line must attach to the rod tip. The drawing pad stays blank publicly until reveal. Keep original design brief unchanged and treat these notes as later clarifications.
+
+## Additional detail sheets
+
+- [Prop Kit - Cafe Serving and Food](Prop%20Kit%20-%20Cafe%20Serving%20and%20Food.md)
+- [Prop Kit - Home Details and Storage](Prop%20Kit%20-%20Home%20Details%20and%20Storage.md)
+
+These extend visual coverage and reuse existing exports where noted; new references are not new completed model kits.
+
+## World support and finishing kits
+
+- [World Kit - Shoreline and Waterfront Details](World%20Kit%20-%20Shoreline%20and%20Waterfront%20Details.md)
+- [World Kit - Building Finishing Details](World%20Kit%20-%20Building%20Finishing%20Details.md)
+- [World Kit - Wayfinding and Activity Markers](World%20Kit%20-%20Wayfinding%20and%20Activity%20Markers.md)
+- [World Kit - Interior Finishing Details](World%20Kit%20-%20Interior%20Finishing%20Details.md)
+- [World Assembly - Completion Checklist](World%20Assembly%20-%20Completion%20Checklist.md)

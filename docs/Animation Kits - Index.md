@@ -18,3 +18,10 @@ All characters are **penguins**, matching the original avatar turnaround. Generi
 These four new visual sheets and eight notes expand the animation plan. Existing exported clips, where present, are recorded in [Avatar Rig and Animation](Art%20Docs/Avatar%20Rig%20and%20Animation.md); this batch does not implement the proposed activity clips. Use shared rig, sockets and color materials. Distinguish character clips, prop transforms, particles/shaders, UI, and gameplay state.
 
 Visuals generated with the built-in image generation tool. Prompt directions and file inventory: [Concept Generation - Activity and Prop Kits](Concept%20Generation%20-%20Activity%20and%20Prop%20Kits.md).
+
+All animation sheets: [Animation Mockups - Gallery](Animation%20Mockups%20-%20Gallery.md).
+
+## Additional interaction and effect sheets
+
+- [Animation Kit - Gameplay Effects](Animation%20Kit%20-%20Gameplay%20Effects.md)
+- [Animation Kit - Everyday Penguin Interactions](Animation%20Kit%20-%20Everyday%20Penguin%20Interactions.md)

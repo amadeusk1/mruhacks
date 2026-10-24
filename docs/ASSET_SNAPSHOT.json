@@ -4,7 +4,7 @@
     "Models": 348,
     "Renders": 78,
     "art": 39,
-    "docs/concepts": 37
+    "docs/concepts": 57
   },
   "glb_count": 327,
   "excluded": [
@@ -537,6 +537,27 @@
     "docs/concepts/World Map Concept.png": "074bb59d89e5cab5e676fa550c8d7cd46db2ec8dac0d3efb8fdee05ec520ba43",
     "docs/concepts/14 Auditorium Kit.png.import": "ed7917ba031506e2d5490b4924cdd78a00218934066b49ad5d10ade51743faf3",
     "docs/concepts/Animation Kit - Snowballs and Basketball.png": "e942f13cadb5733da083df3bf6feb405d2d113aaf645d5dfebc295b3abbdf58c",
-    "docs/concepts/16 Sledding Hill.png.import": "091187334d9830faedd1c870b0144b2f318ea67c368132aea6e51ee6c9f3281f"
-  }
+    "docs/concepts/16 Sledding Hill.png.import": "091187334d9830faedd1c870b0144b2f318ea67c368132aea6e51ee6c9f3281f",
+    "docs/concepts/UI - Home Decoration.png": "00bed56e098fe9d8d872d2d70fe1cfbf2ab3f64e80ee329661285c01edc36e37",
+    "docs/concepts/UI - Wardrobe and Inventory.png": "959bc92acbd1f8b27206793d73ec289a302227ec922cf8c31d07750005002573",
+    "docs/concepts/UI - Controls Accessibility and Service States.png": "75865ca82fed263a9267e223355916fb0fe6b33646f81d5090ddd2ecb4e4fa65",
+    "docs/concepts/World Kit - Wayfinding and Activity Markers.png": "324dce2d792dd739df7c22badac8d9c7d8579daf356dec5b170fc9326c01be58",
+    "docs/concepts/World Kit - Building Finishing Details.png": "b0b42839d2fc13bfa7f37ae05a45cf1a4ca3661f072e4fc603430c68c33cec93",
+    "docs/concepts/UI - Main Menu and Entry.png": "f61655c0b31b93240f66c7df65ddd142425f09f61f918e391c3546f984dd841a",
+    "docs/concepts/Animation Kit - Everyday Penguin Interactions.png": "d9bc9628ab979ce3e535cf5f584c899f4da9369739394c933dd211340a153fb8",
+    "docs/concepts/UI - Fishing.png": "f91c010537dc64ea1e0502f1650d88f42ac6fed681c8541974b859ae97165c45",
+    "docs/concepts/UI - Settings Pause and Connection States.png": "e23dbbe2858451ca6d940b9a22617cf7cf65c15edb362fd5b58d4936b91e3e0c",
+    "docs/concepts/UI - Houses Visitors and Player Actions.png": "5876e9117afb9b8d7818731c6f9b083912913c0656feb41fde1972a1d2bc8756",
+    "docs/concepts/UI - Town HUD Map and Social.png": "4bc97e9b853a3a023e40a6914a84013210e2f90971272a8e2fa6326599de2f9f",
+    "docs/concepts/UI - Cinema and Arcade.png": "e3a66a98e280ce9d29d35aeb9812934e89745428a91a22694820f507544dffb6",
+    "docs/concepts/UI - Sledding Snowballs and Basketball.png": "089e8fc2043c55b6ba9e998c73db64c5a03fb524020c079c6e4838b7c17fbd94",
+    "docs/concepts/World Kit - Shoreline and Waterfront Details.png": "6d6f7bf29edc5709704b316e8a44d1d00cbb2a11ac67378a27a17c8d6450760e",
+    "docs/concepts/Animation Kit - Gameplay Effects.png": "40282def26f3ee7f3cd4aa2590b87c2437587545c601605568a7536de4da9c71",
+    "docs/concepts/Cafe Serving and Food Prop Kit.png": "f25db8b1c7b60fc91cccf76fc245caa2d92cd0510e00d19fa2d932135a948957",
+    "docs/concepts/World Kit - Interior Finishing Details.png": "b764ba2db6c087ae3c02f4ad9fcf1ecf08e8b2a8606eb22667c9abb5d6db2488",
+    "docs/concepts/Home Details and Storage Prop Kit.png": "b947249c799c52d375ecce2d637efc040c95714f2c7bbcb7374d0c242f078492",
+    "docs/concepts/UI - Drawing Telephone.png": "54c6266547189899f65c2a7b61469723d1a34830c8e525f3c33b8d5df5137c7e",
+    "docs/concepts/UI - Activity Play Guess and Results.png": "bc30eaa6b83f77581233c918c1cf800d9e5306b45b6554b709efb707dbafd168"
+  },
+  "concept_scope": "Concept art refreshed with Waddle World UI and recent world/prop sheets; model snapshot remains the earlier saved-file snapshot."
 }
