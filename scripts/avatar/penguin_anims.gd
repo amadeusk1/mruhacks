@@ -6,7 +6,7 @@ extends RefCounted
 ## The base clips (idle, walk, run, hop...) stay in the default library from anim_locomotion.
 ## Clip lengths, loop flags and events are in Models/anim_<kit>/manifest.json.
 
-const KITS := ["emotes", "social", "fishing", "sledding", "snowballs", "basketball",
+const KITS := ["emotes", "social", "casino", "fishing", "sledding", "snowballs", "basketball",
 	"arcade", "drawing", "cinema", "home", "everyday"]
 const WALK_MPS := 0.3334  # anim_locomotion walk/run speed_mps
 const RUN_MPS := 1.1

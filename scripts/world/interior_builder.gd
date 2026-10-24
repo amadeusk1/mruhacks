@@ -27,6 +27,32 @@ const ROOMS := {
 		"seats": [["plaza/stool", "socket_table_0", [[0.55, 0], [-0.55, 0]]], ["plaza/stool", "socket_table_1", [[0.55, 0], [-0.55, 0]]]],
 		"camera": {"limit_x": 1.4, "limit_z": 1.2, "height": 6.6, "distance": 5.4},
 	},
+	"casino": {
+		"shell": "casino/casino_interior_shell",
+		"town_spawn": "CasinoDoorOut",
+		"floor_y": 0.12,
+		"spawn": "socket_spawn_inside", "exit": "socket_exit",
+		"cut_front": 1.0,
+		"props": [
+			["casino/roulette_table", "socket_roulette", 0.0],
+			["casino/poker_table", "socket_poker", 0.0],
+			["casino/blackjack_table", "socket_blackjack", 0.0],
+			["casino/lounge_chair", "socket_lounge_0", 30.0],
+			["casino/lounge_chair", "socket_lounge_1", -30.0],
+			["casino/side_table", [-4.6, 0.12, 2.6], 0.0],
+			["casino/side_table", [4.6, 0.12, 2.6], 0.0],
+			["casino/standing_lamp", [-4.7, 0.12, -3.6], 0.0],
+			["casino/standing_lamp", [4.7, 0.12, -3.6], 0.0],
+			["casino/casino_planter", [-4.7, 0.12, 0.3], 0.0],
+			["casino/coat_stand", [3.6, 0.12, 2.7], 0.0],
+		],
+		# [table placement anchor, seat prop, game, seat height]; seats come from the table's socket_seat_*
+		"games": [["socket_roulette", "casino/roulette_stool", "roulette"], ["socket_poker", "casino/casino_chair", "poker"],
+			["socket_blackjack", "casino/casino_chair", "blackjack"]],
+		"slot_row": true,  # machines, stools and tints from the shell's slot_row meta
+		"lights": [[-4.7, 1.6, -3.6], [4.7, 1.6, -3.6], [0.0, 2.6, 0.0]],
+		"camera": {"limit_x": 3.4, "limit_z": 2.4, "height": 9.5, "distance": 7.8},
+	},
 	"arcade": {
 		"shell": "arcade/arcade_shell",
 		"town_spawn": "ArcadeDoorOut",
@@ -60,21 +86,25 @@ func _enter_tree() -> void:
 	var shell := AssetPack.spawn(shell_id.get_base_dir(), shell_id.get_file())
 	shell.name = "Shell"
 	nav.add_child(shell)
-	for n in shell.find_children("*_cutaway", "", true, false):  # camera looks in through the front
-		(n as Node3D).visible = false
+	for pat in ["*_cutaway", "*_ceiling"]:  # camera looks in through the front and the top
+		for n in shell.find_children(pat, "", true, false):
+			(n as Node3D).visible = false
 	var size := AssetRegistry.size(shell_id)
 	if _cfg.has("cut_front"):
 		_cut_front(shell, size.z * 0.5 - float(_cfg["cut_front"]))
 	var y: float = _cfg["floor_y"]
 	_box(nav, Vector3(0, y - 0.05, 0), Vector3(size.x, 0.1, size.z), 1)
-	var exit := _v(_cfg["exit"])
+	var sockets: Dictionary = AssetRegistry.sockets(shell_id)
+	var exit := _point(sockets, _cfg["exit"])
 	for side in [-1, 1]:  # side and back walls (layer 2 carves the navmesh); the front stays open
 		_box(nav, Vector3(side * size.x * 0.5, 1.0, 0), Vector3(0.2, 2.0, size.z), 2)
 	_box(nav, Vector3(0, 1.0, -size.z * 0.5), Vector3(size.x, 2.0, 0.2), 2)
-	var sockets: Dictionary = AssetRegistry.sockets(shell_id)
+	var placed := {}
 	for p in _cfg["props"]:
 		var at := _socket(sockets, p[1]) if p[1] is String else _v(p[1])
 		var node := _place(nav, p[0], at, p[2])
+		if p[1] is String:
+			placed[p[1]] = [node, p[0], at, p[2]]
 		var tints: Dictionary = _cfg.get("tints", {}).get(str(p[1]), {})
 		if node and not tints.is_empty():
 			Tints.apply(node, {"body": Color(tints["body"])})
@@ -82,9 +112,21 @@ func _enter_tree() -> void:
 		var base := _socket(sockets, s[1])
 		for off in s[2]:
 			_place(nav, s[0], base + Vector3(off[0], 0, off[1]), 0.0)
+	if _cfg.get("slot_row", false):
+		_slot_row(nav, shell_id, sockets)
+	for g in _cfg.get("games", []):
+		if placed.has(g[0]):
+			_seats(nav, placed[g[0]], g[1], g[2])
+	for l in _cfg.get("lights", []):
+		var light := OmniLight3D.new()  # warm lamp pools
+		light.light_color = Color("#FFC76B")
+		light.light_energy = 1.4
+		light.omni_range = 4.5
+		light.position = _v(l)
+		add_child(light)
 	var spawn := Marker3D.new()
 	spawn.name = "Inside"
-	spawn.position = _v(_cfg["spawn"])
+	spawn.position = _point(sockets, _cfg["spawn"])
 	add_child(spawn)
 	var door := Area3D.new()
 	door.name = "ExitDoor"
@@ -137,12 +179,81 @@ func _cut_front(shell: Node3D, z_cut: float) -> void:
 
 func _ready() -> void:
 	AmbientFx.dress(self)  # steam on the coffee station and mugs; no snow indoors
+	for ap in find_children("*", "AnimationPlayer", true, false):  # roulette rotor, slot reels
+		for clip in (ap as AnimationPlayer).get_animation_list():
+			if String(clip).ends_with("_spin") or String(clip).ends_with("_sway"):
+				ap.play(clip)
+				ap.seek(randf() * ap.get_animation(clip).length, true)
+				break
 
 
 func camera_for_spawn(_spawn_name: String) -> Dictionary:
 	var c: Dictionary = _cfg["camera"]
 	return {"center": Vector3(0, 0, 0.3), "limit_x": c["limit_x"], "limit_z": c["limit_z"],
 		"height": c["height"], "distance": c["distance"]}
+
+
+## Seat props and CasinoSeat interactables at each socket_seat_* of a placed table/machine,
+## facing the table centre.
+func _seats(nav: Node, table: Array, seat_id: String, game: String) -> void:
+	var t_node: Node3D = table[0]
+	if t_node == null:
+		return
+	var at: Vector3 = table[2]
+	var basis := Basis(Vector3.UP, deg_to_rad(table[3]))
+	var seat_h := float((AssetRegistry.sockets(seat_id).get("socket_seat", [0, 0, 0.43]) as Array)[2])
+	for sname in AssetRegistry.sockets(table[1]):
+		if not String(sname).begins_with("socket_seat"):
+			continue
+		var floor_pos := at + basis * _socket(AssetRegistry.sockets(table[1]), sname)
+		floor_pos.y = at.y
+		var away := Vector2(floor_pos.x - at.x, floor_pos.z - at.z)
+		if away.length() < 0.05:
+			away = Vector2(0, 1)  # slot machines: the seat socket is straight in front
+		var yaw := atan2(-away.x, -away.y) + PI  # penguin forward is -Z: face the table
+		var prop := AssetPack.place(nav, seat_id.get_base_dir(), seat_id.get_file(), floor_pos, yaw)
+		var seat := CasinoSeat.new()
+		seat.name = "%s_%s" % [t_node.name, String(sname).trim_prefix("socket_")]
+		seat.title = game.capitalize()
+		seat.verb = "Play"
+		seat.activity = game
+		seat.position = floor_pos
+		add_child(seat)
+		seat.seat_point = global_transform * (floor_pos + Vector3(0, seat_h, 0))
+		seat.stand_point = global_transform * (floor_pos + Vector3(away.normalized().x, 0, away.normalized().y) * 0.7)
+		seat.face_yaw = yaw
+		if prop:
+			prop.set_meta("seat", seat.name)
+
+
+func _slot_row(nav: Node, shell_id: String, sockets: Dictionary) -> void:
+	var row: Dictionary = AssetRegistry.entry(shell_id).get("slot_row", {})
+	for key in row:
+		var spec: Dictionary = row[key]
+		var at := _socket(sockets, "socket_" + key)
+		var machine := _place(nav, spec["asset"], at, 0.0)
+		if machine and spec.has("tint"):
+			var colors := {}
+			for role in spec["tint"]:
+				colors[role] = Color(spec["tint"][role])
+			Tints.apply(machine, colors)
+		var stool_at := _socket(sockets, "socket_" + str(spec["stool"]))
+		AssetPack.place(nav, "casino", "slot_stool", stool_at, 0.0)
+		var seat := CasinoSeat.new()
+		seat.name = "Slot_%s" % key
+		seat.title = "Slots"
+		seat.verb = "Play"
+		seat.activity = "slots"
+		seat.position = stool_at
+		add_child(seat)
+		var seat_h := float((AssetRegistry.sockets("casino/slot_stool").get("socket_seat", [0, 0, 0.43]) as Array)[2])
+		seat.seat_point = global_transform * (stool_at + Vector3(0, seat_h, 0))
+		seat.stand_point = global_transform * (stool_at + Vector3(0, 0, 0.7))
+		seat.face_yaw = 0.0  # machines face +Z; penguin forward is -Z, so yaw 0 faces the machine
+
+
+func _point(sockets: Dictionary, p) -> Vector3:
+	return _socket(sockets, p) if p is String else _v(p)
 
 
 func _place(nav: Node, id: String, at: Vector3, yaw_deg: float) -> Node3D:

@@ -212,8 +212,20 @@ func _local_to(root: Node3D, n: Node3D) -> Transform3D:
 	return t
 
 
+## Buildings whose door the layout doesn't mark yet: derive it from the model's socket_door.
+const PLACEMENT_DOORS := {"casino/casino_exterior": ["CasinoDoor", "casino_interior"]}
+
+
 func _build_markers(nav: Node) -> void:
 	var markers: Array = _layout.get("markers", [])
+	for p in _layout["placements"]:
+		var door: Array = PLACEMENT_DOORS.get(p["id"], [])
+		if door.is_empty() or markers.any(func(m): return m["name"] == door[0]):
+			continue
+		var s: Array = AssetRegistry.sockets(p["id"]).get("socket_door", [0, 0, 0])
+		var yaw := float(p.get("rot_y_deg", 0.0))
+		var at := _v(p["pos"]) + Basis(Vector3.UP, deg_to_rad(yaw)) * Vector3(s[0], s[2], -s[1])
+		markers.append({"name": door[0], "kind": "door", "target": door[1], "pos": [at.x, at.y, at.z], "rot_y_deg": yaw})
 	if not markers.any(func(m): return m.get("kind", "") == "bus"):
 		# world.gd needs NavigationRegion3D/BusStop; put one beside the arrival spot
 		for m in markers:
@@ -248,6 +260,7 @@ const DOORS := {
 	"cinema_lobby": ["cinema", "InsideLobby", "Cinema"],
 	"cafe_interior": ["cafe", "Inside", "Café"],
 	"arcade_interior": ["arcade", "Inside", "Arcade"],
+	"casino_interior": ["casino", "Inside", "Casino"],
 	"home": ["home", "InsideSpawn", "your igloo"],
 }
 const ACTIVITY_TITLES := {"sled": "Sled Hill", "snowballs": "Snowball Arena", "basketball": "Basketball Court", "sketch": "Sketch Club"}
@@ -307,7 +320,7 @@ func _start_ambient(node: Node) -> void:
 	for mi in node.find_children("*", "MeshInstance3D", true, false):
 		for s in (mi as MeshInstance3D).mesh.get_surface_count():
 			var m := mi.get_active_material(s) as BaseMaterial3D
-			if m and m.emission_enabled and String(m.resource_name).begins_with(("glow")):
+			if m and m.emission_enabled and (String(m.resource_name).begins_with("glow") or String(m.resource_name).begins_with("bulb")):
 				var d := m.duplicate() as BaseMaterial3D
 				mi.set_surface_override_material(s, d)
 				_glows.append([d, d.emission_energy_multiplier, randf() * TAU, randf_range(2.5, 4.0)])
