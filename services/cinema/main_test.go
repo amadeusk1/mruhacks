@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os"
 	"strings"
 	"testing"
 	"time"
@@ -230,5 +231,24 @@ func TestFrameJPEGs(t *testing.T) {
 	out := frameJPEGs(append(append([]byte{}, a...), b...))
 	if len(out) != 8+len(a)+len(b) || out[0] != byte(len(a)) || out[4+len(a)] != byte(len(b)) {
 		t.Fatal("framing", out)
+	}
+}
+
+func TestSegmentCacheSharesOneTranscode(t *testing.T) {
+	s := newServer(&fakeProvider{}, "http://localhost", "host", "viewer")
+	dir := t.TempDir()
+	count := dir + "/count"
+	script := dir + "/ffmpeg"
+	os.WriteFile(script, []byte("#!/bin/sh\necho x >> "+count+"\nprintf 'ID3audio'\n"), 0o755)
+	s.ffmpeg = script
+	s.state.Title = Title{ID: "1", Title: "Test", Duration: 120}
+	viewer := login(t, s, "viewer")
+	for i := 0; i < 3; i++ {
+		if w := request(s, "GET", "/cinema/api/segment?kind=audio&start=10&len=10", "", viewer); w.Code != 200 || w.Body.String() != "ID3audio" {
+			t.Fatal(i, w.Code, w.Body)
+		}
+	}
+	if b, _ := os.ReadFile(count); strings.Count(string(b), "x") != 1 {
+		t.Fatal("expected one transcode, got", string(b))
 	}
 }

@@ -68,6 +68,7 @@ type Server struct {
 	attempts                     map[string][]time.Time
 	tickets                      map[string]handoff
 	sources                      map[string]string // segment token -> media id (segments.go)
+	segments                     map[string]*cachedSegment
 	ffmpeg, selfURL              string
 	ffmpegSlots                  chan struct{}
 }
@@ -87,7 +88,7 @@ func randomID() string {
 	return hex.EncodeToString(b)
 }
 func newServer(p Provider, origin, host, viewer string) *Server {
-	return &Server{provider: p, origin: origin, hostCode: host, viewerCode: viewer, secure: strings.HasPrefix(origin, "https:"), sessions: map[string]*session{}, resources: map[string]mediaURL{}, reverse: map[string]string{}, seenCommands: map[string]bool{}, attempts: map[string][]time.Time{}, tickets: map[string]handoff{}, sources: map[string]string{}, ffmpeg: ffmpegPath(), selfURL: "http://127.0.0.1:8095", ffmpegSlots: make(chan struct{}, 4)}
+	return &Server{provider: p, origin: origin, hostCode: host, viewerCode: viewer, secure: strings.HasPrefix(origin, "https:"), sessions: map[string]*session{}, resources: map[string]mediaURL{}, reverse: map[string]string{}, seenCommands: map[string]bool{}, attempts: map[string][]time.Time{}, tickets: map[string]handoff{}, sources: map[string]string{}, segments: map[string]*cachedSegment{}, ffmpeg: ffmpegPath(), selfURL: "http://127.0.0.1:8095", ffmpegSlots: make(chan struct{}, 4)}
 }
 func ffmpegPath() string {
 	p, _ := exec.LookPath("ffmpeg")
