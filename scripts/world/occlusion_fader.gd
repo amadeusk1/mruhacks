@@ -60,6 +60,8 @@ func _physics_process(delta: float) -> void:
 					r.visible = false
 					_roofs_hidden[r] = true
 			continue
+		if box.has_point(_player.global_position + Vector3.UP * 0.3):
+			continue  # the room/shell the player is inside: never fade it (its roof is handled above)
 		if _segment_hits(box.grow(RADIUS), from, to):
 			hits[e["node"].get_instance_id()] = e
 	for r in _roofs_hidden.keys():  # roofs come back when the player leaves the footprint
