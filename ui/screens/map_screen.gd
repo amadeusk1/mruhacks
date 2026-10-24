@@ -181,7 +181,8 @@ class MapView extends Control:
 			var chip: Control = c[0]
 			var at := to_screen(c[1])
 			chip.size = chip.get_combined_minimum_size()
-			chip.position = at - Vector2(chip.size.x * 0.5, chip.size.y + 10)
+			# keep chips inside the clipped view: the sled hill top sits above the map's top edge
+			chip.position = (at - Vector2(chip.size.x * 0.5, chip.size.y + 10)).clamp(Vector2.ZERO, size - chip.size)
 		queue_redraw()
 
 	func _process(d: float) -> void:
