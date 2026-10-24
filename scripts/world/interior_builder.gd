@@ -120,9 +120,9 @@ const ROOMS := {
 			["room_kit/plant_broadleaf", [5.5, 0.02, 0.4], 0.0],
 			["plaza/wall_lantern", [-5.93, 1.8, -1.2], 90.0],
 			["plaza/wall_lantern", [-5.93, 1.8, 1.6], 90.0],
-			["plaza/wall_lantern", [5.93, 1.8, 1.6], -90.0],
+			["plaza/wall_lantern", [5.4, 1.9, -4.43], 0.0],
 			["room_kit/poster_frame_bold", [-5.95, 1.6, 0.2], 90.0],
-			["home_themes/neon_wall_sign", [5.95, 2.0, -1.4], -90.0],
+			["home_themes/neon_wall_sign", [3.6, 2.35, -4.45], 0.0],  # over the duo cabinet, like the concept's marquee
 			["room_kit/entry_mat", [0.0, 0.03, 3.9], 0.0],
 		],
 		"palette": {"paving": "#E9D3AE", "paving_b": "#DEC197"},
@@ -134,7 +134,8 @@ const ROOMS := {
 			"socket_cabinet_solo_2": {"body": "#D9473B"}, "socket_cabinet_solo_3": {"body": "#E3A92B"},
 			"socket_cabinet_solo_4": {"body": "#3D7BD9"}},
 		"lights": [[-3.2, 2.4, -2.6], [1.6, 2.4, -2.6], [0.0, 2.6, 1.6]],
-		"camera": {"limit_x": 3.0, "limit_z": 2.2, "height": 9.0, "distance": 7.4},
+		"cut_right": 0.5,
+		"camera": {"limit_x": 3.0, "limit_z": 2.2, "height": 7.6, "distance": 9.0, "yaw_deg": 30.0},
 	},
 }
 
