@@ -9,6 +9,16 @@ const AGENT_HEIGHT := 1.25
 
 
 func _ready() -> void:
+	_bake()
+
+
+func rebake() -> void:
+	for node in find_children("NavCarve", "NavigationObstacle3D", true, false):
+		node.free()
+	_bake()
+
+
+func _bake() -> void:
 	_carve_blockers()
 	var map := get_navigation_map()
 	NavigationServer3D.map_set_cell_size(map, 0.25)

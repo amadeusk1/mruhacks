@@ -71,6 +71,7 @@ func _ready() -> void:
 	agent.radius = 0.4
 	agent.height = 1.2
 	floor_snap_length = 0.25
+	_mount_pack(Color(0.24, 0.49, 0.84))
 	_pose_placeholder()
 	_clips = _find_clips()
 	marker.hide_marker()
@@ -360,8 +361,7 @@ func apply_identity(player_name: String, color_index: int) -> void:
 		return
 	_tint_applied = color_index
 	var coat := Net.coat_color(color_index)
-	if visual.has_method("set_coat"):  # rigged art-pack penguin (scripts/avatar/penguin_avatar.gd)
-		visual.call("set_coat", coat)
+	if AssetPack.recolor_body(visual, coat):
 		return
 	_tint(visual.get_node("Body") as MeshInstance3D, coat)
 	_tint(visual.get_node("FlipperL") as MeshInstance3D, coat)
@@ -374,6 +374,7 @@ func _setup_remote() -> void:
 	agent.debug_enabled = false
 	agent.avoidance_enabled = false
 	marker.hide_marker()
+	_mount_pack(Color(0.24, 0.49, 0.84))
 	_pose_placeholder()
 	_clips = _find_clips()
 
@@ -421,10 +422,13 @@ func _restore_feet() -> void:
 
 
 func _animate(delta: float, speed: float) -> void:
-	if visual.has_method("animate"):  # rigged visual drives its own clips
-		visual.call("animate", delta, speed, _sitting)
-		return
 	if _sitting:
+		if _clips and _clips.has_animation("sit"):
+			if _clips.current_animation != "sit":
+				_clips.play("sit")
+			visual.rotation = Vector3.ZERO
+			visual.position.y = 0.0
+			return
 		_phase += delta * 1.4
 		visual.rotation = Vector3(deg_to_rad(12.0), 0.0, 0.0)
 		visual.position.y = -0.08 + sin(_phase) * 0.008
@@ -475,6 +479,10 @@ func _swing_flipper(flipper: Node3D, rest_x: float, wave: float) -> void:
 	if flipper == null:
 		return
 	flipper.rotation.x = rest_x + wave * 0.55
+
+
+func _mount_pack(body: Color) -> void:
+	AssetPack.mount_bird(visual, body, "hoodie", "red_beanie", "head")
 
 
 func _pose_placeholder() -> void:

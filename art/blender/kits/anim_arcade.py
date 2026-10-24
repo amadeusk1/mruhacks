@@ -5,8 +5,8 @@ one duo cabinet don't sweep into each other. enter ends on READY; ready/play loo
 and end on READY; exit goes READY -> rest. Manifest 'grip_targets' gives where the flipper tips actually are,
 relative to socket_player_N, for cabinet authors.
 """
-import animlib_social as L
-from animlib_social import X, Y, Z, ss, bump, cyc, window, aim
+import animlib as L
+from animlib import X, Y, Z, ss, bump, cyc, window, aim
 
 KIT = "anim_arcade"
 

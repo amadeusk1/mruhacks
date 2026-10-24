@@ -3,8 +3,8 @@ cinema_auditorium seats are at 0.38 m; socket_seat snaps there at 'seated'. WATC
 flippers on the armrests and eyes up to the screen. Reactions are small, seated and user-triggered.
 """
 import common
-import animlib_social as L
-from animlib_social import X, Y, Z, ss, bump, cyc, window, aim
+import animlib as L
+from animlib import X, Y, Z, ss, bump, cyc, window, aim
 
 KIT = "anim_cinema"
 S = common.load_kit("anim_social")

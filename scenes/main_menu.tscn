@@ -155,7 +155,7 @@ theme_override_colors/font_color = Color(0.14, 0.18, 0.28, 1)
 theme_override_colors/font_outline_color = Color(0.98, 0.86, 0.35, 1)
 theme_override_constants/outline_size = 12
 theme_override_font_sizes/font_size = 78
-text = "Welcome"
+text = "Pengloo"
 horizontal_alignment = 1
 
 [node name="Card" type="PanelContainer" parent="Center/Stack"]

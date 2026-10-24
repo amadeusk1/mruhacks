@@ -345,3 +345,10 @@ def clear_of_body(arm, c, r, gap=0.006, step=0.005, limit=0.4):
         c += fwd * step
         moved += step
     return c
+
+
+def aim(bone, d, w=1.0):
+    """World rotation that swings a bone's rest direction onto direction d (blended by w from rest)."""
+    b = bpy.data.objects["avatar_base"].data.bones[bone]
+    ax, ang = (b.tail_local - b.head_local).normalized().rotation_difference(Vector(d).normalized()).to_axis_angle()
+    return [(tuple(ax), math.degrees(ang) * w)]

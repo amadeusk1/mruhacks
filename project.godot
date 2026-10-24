@@ -14,7 +14,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 
 [application]
 
-config/name="Club Penguin Movement"
+config/name="Pengloo"
 run/main_scene="res://scenes/main_menu.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")
 
@@ -30,7 +30,7 @@ window/size/viewport_height=720
 
 [filesystem]
 
-import/blender/enabled=false
+import/blender/enabled=true
 
 [gui]
 

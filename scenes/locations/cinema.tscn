@@ -1,0 +1,140 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/room_nav.gd" id="1_nav"]
+[ext_resource type="PackedScene" path="res://scenes/bus_stop.tscn" id="2_bus"]
+[ext_resource type="Script" path="res://scripts/doorway.gd" id="3_door"]
+[ext_resource type="Script" path="res://scripts/cinema.gd" id="4_cinema"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_unit"]
+size = Vector3(1, 1, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_unit"]
+size = Vector3(1, 1, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_snow"]
+albedo_color = Color(0.93, 0.95, 0.98, 1)
+roughness = 0.95
+
+[sub_resource type="StandardMaterial3D" id="Mat_curb"]
+albedo_color = Color(0.76, 0.82, 0.86, 1)
+roughness = 0.9
+
+[node name="Cinema" type="Node3D"]
+script = ExtResource("4_cinema")
+
+[node name="NavigationRegion3D" type="NavigationRegion3D" parent="."]
+script = ExtResource("1_nav")
+
+[node name="LotFloor" type="StaticBody3D" parent="NavigationRegion3D"]
+transform = Transform3D(20, 0, 0, 0, 0.4, 0, 0, 0, 18, 0, -0.2, 1)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="NavigationRegion3D/LotFloor"]
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = SubResource("Mat_snow")
+
+[node name="Collision" type="CollisionShape3D" parent="NavigationRegion3D/LotFloor"]
+shape = SubResource("BoxShape3D_unit")
+
+[node name="WallNorth" type="StaticBody3D" parent="NavigationRegion3D"]
+transform = Transform3D(20.8, 0, 0, 0, 0.9, 0, 0, 0, 0.45, 0, 0.45, -8.25)
+collision_layer = 2
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="NavigationRegion3D/WallNorth"]
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = SubResource("Mat_curb")
+
+[node name="Collision" type="CollisionShape3D" parent="NavigationRegion3D/WallNorth"]
+shape = SubResource("BoxShape3D_unit")
+
+[node name="WallSouth" type="StaticBody3D" parent="NavigationRegion3D"]
+transform = Transform3D(20.8, 0, 0, 0, 0.9, 0, 0, 0, 0.45, 0, 0.45, 10.25)
+collision_layer = 2
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="NavigationRegion3D/WallSouth"]
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = SubResource("Mat_curb")
+
+[node name="Collision" type="CollisionShape3D" parent="NavigationRegion3D/WallSouth"]
+shape = SubResource("BoxShape3D_unit")
+
+[node name="WallWest" type="StaticBody3D" parent="NavigationRegion3D"]
+transform = Transform3D(0.45, 0, 0, 0, 0.9, 0, 0, 0, 18.8, -10.25, 0.45, 1)
+collision_layer = 2
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="NavigationRegion3D/WallWest"]
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = SubResource("Mat_curb")
+
+[node name="Collision" type="CollisionShape3D" parent="NavigationRegion3D/WallWest"]
+shape = SubResource("BoxShape3D_unit")
+
+[node name="WallEast" type="StaticBody3D" parent="NavigationRegion3D"]
+transform = Transform3D(0.45, 0, 0, 0, 0.9, 0, 0, 0, 18.8, 10.25, 0.45, 1)
+collision_layer = 2
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="NavigationRegion3D/WallEast"]
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = SubResource("Mat_curb")
+
+[node name="Collision" type="CollisionShape3D" parent="NavigationRegion3D/WallEast"]
+shape = SubResource("BoxShape3D_unit")
+
+[node name="BusStop" parent="NavigationRegion3D" instance=ExtResource("2_bus")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 6.4, 0, 5.8)
+
+[node name="FrontDoor" type="Area3D" parent="."]
+collision_layer = 0
+collision_mask = 4
+script = ExtResource("3_door")
+spawn_name = "InsideLobby"
+
+[node name="Shape" type="CollisionShape3D" parent="FrontDoor"]
+shape = SubResource("BoxShape3D_unit")
+
+[node name="LobbyStreetDoor" type="Area3D" parent="."]
+collision_layer = 0
+collision_mask = 4
+script = ExtResource("3_door")
+spawn_name = "OutsideSpawn"
+
+[node name="Shape" type="CollisionShape3D" parent="LobbyStreetDoor"]
+shape = SubResource("BoxShape3D_unit")
+
+[node name="LobbyScreenDoor" type="Area3D" parent="."]
+collision_layer = 0
+collision_mask = 4
+script = ExtResource("3_door")
+spawn_name = "InsideScreen"
+
+[node name="Shape" type="CollisionShape3D" parent="LobbyScreenDoor"]
+shape = SubResource("BoxShape3D_unit")
+
+[node name="AuditoriumDoor" type="Area3D" parent="."]
+collision_layer = 0
+collision_mask = 4
+script = ExtResource("3_door")
+spawn_name = "ScreenReturn"
+
+[node name="Shape" type="CollisionShape3D" parent="AuditoriumDoor"]
+shape = SubResource("BoxShape3D_unit")
+
+[node name="BusArrival" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.2, 0.2, 6.4)
+
+[node name="OutsideSpawn" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 5)
+
+[node name="InsideLobby" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 240, 0.2, 2)
+
+[node name="ScreenReturn" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 242, 0.2, -1.6)
+
+[node name="InsideScreen" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 239, 0.2, 52)

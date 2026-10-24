@@ -16,8 +16,13 @@ func _ready() -> void:
 	_board.place_chosen.connect(_on_place_chosen)
 
 
-func open_for(current_id: String) -> void:
-	_hint.text = "You are in %s. Click another place to go there." % LocationCatalog.title_of(current_id)
+func open_for(current_id: String, place_title: String = "") -> void:
+	var where := place_title
+	if where == "" and LocationCatalog.has_location(current_id):
+		where = LocationCatalog.title_of(current_id)
+	if where == "":
+		where = "town"
+	_hint.text = "You are in %s. Click another place to go there." % where
 	visible = true
 	_board.refresh(current_id)
 

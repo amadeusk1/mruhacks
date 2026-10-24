@@ -9,6 +9,10 @@ const _FURNITURE := Vector3(120.0, 0.0, 50.0)
 const _PETS := Vector3(120.0, 0.0, 100.0)
 
 
+func _ready() -> void:
+	AssetPack.dress_town(self)
+
+
 func camera_for_spawn(spawn_name: String) -> Dictionary:
 	if spawn_name.begins_with("InsideClothes"):
 		return {"center": _CLOTHES, "limit_x": 2.2, "limit_z": 2.3}

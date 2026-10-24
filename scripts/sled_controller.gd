@@ -20,6 +20,14 @@ var _ended := false
 var _crashed := false
 var _steer := 0.0
 var _tip := 0.0
+var _remote := false
+var _net_target := Vector3.ZERO
+var _net_yaw := 0.0
+var _net_steer := 0.0
+var _net_crashed := false
+var _has_net := false
+var _name_label: Label3D
+var _tint_applied := -1
 
 @onready var visual: Node3D = $Visual
 @onready var probe: Area3D = $HazardProbe
@@ -30,6 +38,19 @@ const _GRAVITY := 28.0
 func _ready() -> void:
 	_drop("NavigationAgent3D")
 	_drop("ClickMarker")
+	if int(get_meta("remote_peer", 0)) != 0:
+		_remote = true
+		_name_label = null
+		_tint_applied = -1
+		var copied := get_node_or_null("NameLabel")
+		if copied:
+			copied.free()
+		collision_layer = 0
+		collision_mask = 0
+		probe.monitoring = false
+		probe.monitorable = false
+		_pose()
+		return
 	_pose()
 	probe.monitoring = true
 	probe.area_entered.connect(_on_hazard)
@@ -61,7 +82,46 @@ func reset_run(point: Vector3) -> void:
 	global_position = point
 
 
+func present_remote(at: Vector3, yaw: float, steer: float, crashed: bool) -> void:
+	if not _has_net or global_position.distance_to(at) > 4.0:
+		global_position = at
+		rotation.y = yaw
+	_net_target = at
+	_net_yaw = yaw
+	_net_steer = steer
+	_net_crashed = crashed
+	_has_net = true
+
+
+func apply_identity(player_name: String, color_index: int) -> void:
+	if _name_label == null or not is_instance_valid(_name_label):
+		_name_label = Label3D.new()
+		_name_label.name = "NameLabel"
+		_name_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+		_name_label.font_size = 42
+		_name_label.outline_size = 8
+		_name_label.pixel_size = 0.005
+		_name_label.position = Vector3(0.0, 1.55, 0.0)
+		_name_label.modulate = Color(0.97, 0.98, 1.0)
+		_name_label.outline_modulate = Color(0.08, 0.14, 0.22)
+		_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		add_child(_name_label)
+	_name_label.text = player_name
+	if _tint_applied == color_index:
+		return
+	_tint_applied = color_index
+	var coat := Net.coat_color(color_index)
+	if not AssetPack.recolor_body(visual, coat):
+		_tint(visual.get_node_or_null("Body") as MeshInstance3D, coat)
+		_tint(visual.get_node_or_null("FlipperL") as MeshInstance3D, coat)
+		_tint(visual.get_node_or_null("FlipperR") as MeshInstance3D, coat)
+	_tint(get_node_or_null("Deck") as MeshInstance3D, coat)
+	_tint(get_node_or_null("Nose") as MeshInstance3D, coat)
+
+
 func _physics_process(delta: float) -> void:
+	if _remote:
+		return
 	if running:
 		_steer = Input.get_axis("move_left", "move_right")
 		velocity.x = _steer * steer_speed
@@ -82,14 +142,21 @@ func _physics_process(delta: float) -> void:
 		rotation.y = rotate_toward(rotation.y, target_yaw, turn_speed * delta)
 
 	move_and_slide()
-	if not running:
-		return
-	distance = maxf(distance, _origin_z - global_position.z)
-	if global_position.z <= finish_z:
-		_end_finish()
+	if running:
+		distance = maxf(distance, _origin_z - global_position.z)
+		if global_position.z <= finish_z:
+			_end_finish()
+	if Net.is_online():
+		Net.note_sled(global_position, rotation.y, _steer, _crashed)
 
 
 func _process(delta: float) -> void:
+	if _remote and _has_net:
+		var blend := 1.0 - exp(-18.0 * delta)
+		global_position = global_position.lerp(_net_target, blend)
+		rotation.y = lerp_angle(rotation.y, _net_yaw, blend)
+		_steer = _net_steer
+		_crashed = _net_crashed
 	if visual == null:
 		return
 	if _crashed:
@@ -136,6 +203,17 @@ func _pose() -> void:
 		flipper_l.rotation_degrees = Vector3(18.0, 0.0, 36.0)
 	if flipper_r:
 		flipper_r.rotation_degrees = Vector3(18.0, 0.0, -36.0)
+
+
+func _tint(mesh: MeshInstance3D, color: Color) -> void:
+	if mesh == null:
+		return
+	var source := mesh.get_surface_override_material(0) as StandardMaterial3D
+	if source == null:
+		return
+	var mat := source.duplicate() as StandardMaterial3D
+	mat.albedo_color = color
+	mesh.set_surface_override_material(0, mat)
 
 
 func _drop(node_name: String) -> void:
