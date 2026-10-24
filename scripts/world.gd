@@ -51,6 +51,7 @@ func _ready() -> void:
 	Net.host_lost.connect(_on_host_lost)
 	Net.chat_received.connect(_on_chat)
 	Net.home_invite.connect(_on_home_invite)
+	Net.emote_played.connect(_on_emote)
 	var arcade := preload("res://scripts/arcade_session.gd").new()
 	arcade.name = "ArcadeSession"
 	add_child(arcade)
@@ -399,6 +400,12 @@ func _on_remote_pose(peer_id: int, x: float, y: float, z: float, yaw: float, spe
 	puppet.visible = true
 
 
+func _on_emote(peer_id: int, clip: String) -> void:
+	var puppet: Node = _puppets.get(peer_id)
+	if puppet != null and is_instance_valid(puppet) and puppet.has_method("play_emote"):
+		puppet.play_emote(clip)
+
+
 func _on_seat_denied(key: String) -> void:
 	if not _penguin.is_sitting():
 		return
@@ -457,6 +464,9 @@ func _ensure_puppet(entry: Dictionary) -> void:
 		puppet.apply_fisher(str(entry.get("fisher", "")))
 	if puppet.has_method("apply_act"):
 		puppet.apply_act(str(entry.get("act", "")))
+	if puppet.has_method("apply_anim"):
+		puppet.apply_anim(str(entry.get("anim", "")), bool(entry.get("anim_loop", false)),
+			float(entry.get("anim_age", 0.0)), int(entry.get("anim_n", 0)))
 	if _poses.has(id):
 		var pose: Dictionary = _poses[id]
 		puppet.present_remote(pose["at"], float(pose["yaw"]), float(pose["speed"]), bool(pose["sitting"]))

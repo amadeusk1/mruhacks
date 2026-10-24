@@ -15,8 +15,11 @@ signal home_invite(from_id: int, from_name: String)
 signal sled_gate(race_id: int, phase: String, seconds: float)
 signal sled_pose(peer_id: int, x: float, y: float, z: float, yaw: float, steer: float, crashed: bool)
 signal arcade_state(state: Dictionary)
+signal emote_played(peer_id: int, clip: String)
 
 const _CourtMatch := preload("res://scripts/court_match.gd")
+const _SnowMatch := preload("res://scripts/snow_match.gd")
+const EMOTE_GAP_MS := 800
 const DEFAULT_PORT := 7777
 ## --net-port=N on the command line: parallel local test sessions without colliding on 7777.
 var PORT := DEFAULT_PORT
@@ -75,6 +78,15 @@ var _voice_pos: Dictionary = {}     # host: peer -> last pose position (voice pr
 var _voice_budget: Dictionary = {}  # host: peer -> bytes allowed this second
 const VOICE_RANGE := 20.0
 const VOICE_BYTES_PER_SEC := 24000
+var _snow: RefCounted
+var _snow_state: Dictionary = {}
+var _snow_send := 0.0
+var _snow_sig := ""
+var _snow_area := Rect2()  # the field; players within SNOW_REACH of it count as at the arena
+var _snow_on := false
+const SNOW_REACH := 3.0
+var _emote_at: Dictionary = {}  # host: peer -> msec of the last emote it relayed
+var _emote_seen: Dictionary = {}  # client: peer -> host stamp of the last emote played
 var court_loft := 0.5  # how high the local player aims a shot: 0 flattest, 1 tallest lob
 
 
@@ -84,6 +96,10 @@ func _ready() -> void:
 			PORT = int(a.trim_prefix("--net-port="))
 	_court = _CourtMatch.new()
 	_court_state = _court.view()
+	_snow = _SnowMatch.new()
+	if OS.get_cmdline_user_args().has("--snow-1v1"):
+		_snow.team_size = 1
+	_snow_state = _snow.view()
 	multiplayer.peer_connected.connect(_on_peer_connected)
 	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
 	multiplayer.connected_to_server.connect(_on_connected_to_server)
@@ -97,6 +113,7 @@ func _process(delta: float) -> void:
 	_tick_arcade(delta)
 	_tick_sled(delta)
 	_tick_court(delta)
+	_tick_snow(delta)
 	if _place_location == "sled_hill":
 		_tick_sled_pose(delta)
 		return
@@ -339,6 +356,37 @@ func note_act(act: String) -> void:
 		request_act.rpc_id(1, act)
 
 
+## The clip the local penguin is playing right now ("" = plain walk/idle), so every player in the
+## room plays it on this penguin's puppet: seats, fishing, activity clips, throws... It rides on the
+## roster, so late joiners get ongoing loops too, at the right point (anim_age).
+func note_anim(clip: String, loop: bool) -> void:
+	if not is_online() or _closing:
+		return
+	if _mode == Mode.HOST:
+		_set_anim(local_id(), clip, loop)
+	else:
+		request_anim.rpc_id(1, clip, loop)
+
+
+func _set_anim(id: int, clip: String, loop: bool) -> void:
+	if _mode != Mode.HOST or not _players.has(id) or clip.length() > 64:
+		return
+	if clip != "" and not clip.replace("/", "_").is_valid_identifier():
+		return
+	var player: Dictionary = _players[id]
+	player["anim"] = clip
+	player["anim_loop"] = loop
+	player["anim_at"] = Time.get_ticks_msec()
+	player["anim_n"] = int(player.get("anim_n", 0)) + 1  # a replayed one-shot is a new start
+	_broadcast()
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func request_anim(clip: String, loop: bool) -> void:
+	if _mode == Mode.HOST:
+		_set_anim(multiplayer.get_remote_sender_id(), clip, loop)
+
+
 func _set_act(id: int, act: String) -> void:
 	if _mode != Mode.HOST or not _players.has(id) or str(_players[id].get("act", "")) == act:
 		return
@@ -570,6 +618,10 @@ func _snapshot() -> Array:
 			"igloo": int(player.get("igloo", 0)),
 			"fisher": str(player.get("fisher", "")),
 			"act": str(player.get("act", "")),
+			"anim": str(player.get("anim", "")),
+			"anim_loop": bool(player.get("anim_loop", false)),
+			"anim_n": int(player.get("anim_n", 0)),
+			"anim_age": (Time.get_ticks_msec() - int(player.get("anim_at", 0))) / 1000.0,
 		})
 	return list
 
@@ -668,6 +720,13 @@ func _force_offline() -> void:
 		_court_state = _court.view()
 	_court_sig = ""
 	_court_send = 0.0
+	_snow_on = false
+	if _snow != null:
+		_snow.reset()
+		_snow_state = _snow.view()
+	_snow_sig = ""
+	_emote_at.clear()
+	_emote_seen.clear()
 	_color_next = 0
 	_closing = false
 
@@ -690,6 +749,7 @@ func _on_peer_disconnected(id: int) -> void:
 		_sled_status.erase(id)
 		_sled_notice.erase(id)
 		_court_bodies.erase(id)
+		_emote_at.erase(id)
 		_broadcast()
 		_sync_sled_members()
 
@@ -1460,3 +1520,159 @@ func websocket_url() -> String:
 		return str(JavaScriptBridge.eval("(location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/multiplayer'"))
 	var configured := OS.get_environment("PENGLOO_WS_URL")
 	return configured if not configured.is_empty() else "ws://127.0.0.1:%s" % PORT
+
+
+# ---- emotes ----------------------------------------------------------------------------
+## The local player started an emote: everyone in the same room plays it on this penguin's puppet.
+## Moving cancels it everywhere because puppets drop their overlay clip once they move.
+func note_emote(clip: String) -> void:
+	if not is_online() or _closing:
+		return
+	if _mode == Mode.HOST:
+		_host_emote(local_id(), clip)
+	else:
+		request_emote.rpc_id(1, clip)
+
+
+func _host_emote(id: int, clip: String) -> void:
+	if _mode != Mode.HOST or not _players.has(id) or bool(_players[id]["hidden"]):
+		return
+	if clip.length() > 40 or not clip.replace("/", "_").is_valid_identifier():
+		return
+	var now := Time.get_ticks_msec()
+	if _emote_at.has(id) and now - int(_emote_at[id]) < EMOTE_GAP_MS:
+		return  # rate limit: about one emote per 0.8 s per player
+	_emote_at[id] = now
+	var start := now / 1000.0
+	for other_id in _players:
+		if int(other_id) == id or bool(_players[other_id]["hidden"]) or not _same_room(_players[id], _players[other_id]):
+			continue
+		if int(other_id) == local_id():
+			emote_played.emit(id, clip)
+		elif multiplayer.get_peers().has(int(other_id)):
+			deliver_emote.rpc_id(int(other_id), id, clip, start)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func request_emote(clip: String) -> void:
+	if _mode == Mode.HOST:
+		_host_emote(multiplayer.get_remote_sender_id(), clip)
+
+
+## start is the host's clock when it accepted the emote; a stale or repeated delivery is ignored.
+## shortcut: no host clock sync, so a late joiner never sees an emote already under way.
+@rpc("authority", "call_remote", "reliable")
+func deliver_emote(peer_id: int, clip: String, start: float) -> void:
+	if _mode != Mode.CLIENT or float(_emote_seen.get(peer_id, -1.0)) >= start:
+		return
+	_emote_seen[peer_id] = start
+	emote_played.emit(peer_id, clip)
+
+
+# ---- snowball fight (scripts/snow_match.gd, scripts/town_snowball.gd) --------------------
+func snow_view() -> Dictionary:
+	if _snow_state.is_empty() and _snow != null:
+		return _snow.view()
+	return _snow_state
+
+
+func snow_configure(field: Rect2, floor_y: float, pads: Dictionary, spawns: Dictionary, cover: Array) -> void:
+	_snow_area = field
+	_snow_on = true
+	if _snow == null or _mode == Mode.CLIENT:
+		return
+	_snow.configure(field, floor_y, pads, spawns, cover)
+	_snow_state = _snow.view()
+
+
+## True while at the arena (field plus the waiting strip around it).
+func snow_here(at: Vector3) -> bool:
+	return _snow_on and _place_location == "town" and not _place_hidden and _snow_area.grow(SNOW_REACH).has_point(Vector2(at.x, at.z))
+
+
+## The local player's team in the running match, or "".
+func snow_team() -> String:
+	return str((snow_view().get("teams", {}) as Dictionary).get(local_id(), ""))
+
+
+func snow_throw(target: Vector3) -> void:
+	if _closing or _snow == null or not _snow_on:
+		return
+	if _mode == Mode.CLIENT:
+		request_snow_throw.rpc_id(1, target.x, target.z)
+		return
+	_snow.throw(local_id(), Vector2(target.x, target.z), _court_bodies)
+	_publish_snow(0.0)
+
+
+func _tick_snow(delta: float) -> void:
+	if _snow == null or not _snow_on or _mode == Mode.CLIENT:
+		return
+	var present: Array = []
+	var reach := _snow_area.grow(SNOW_REACH)
+	if _place_location == "town" and not _place_hidden and _court_bodies.has(local_id()):
+		var mine: Dictionary = _court_bodies[local_id()]
+		if reach.has_point(Vector2(float(mine["x"]), float(mine["z"]))):
+			present.append(local_id())
+	for id in _players:
+		var player: Dictionary = _players[id]
+		if int(id) == local_id() or str(player["location"]) != "town" or bool(player["hidden"]):
+			continue
+		var body: Dictionary = _court_bodies.get(int(id), {})
+		if not body.is_empty() and reach.has_point(Vector2(float(body["x"]), float(body["z"]))):
+			present.append(int(id))
+	if present.is_empty() and str(_snow.phase) == "lobby":
+		return
+	_snow.tick(delta, present, _court_bodies)
+	_publish_snow(delta)
+
+
+func _publish_snow(delta: float) -> void:
+	_snow_state = _snow.view()
+	if _mode != Mode.HOST or multiplayer.multiplayer_peer == null:
+		return
+	var events: Array = _snow_state["events"]
+	var sig := "%s|%d|%d|%d|%s|%s|%s" % [_snow_state["phase"], int(_snow_state["coral"]), int(_snow_state["teal"]),
+		int(events[-1]["n"]) if not events.is_empty() else 0, str(_snow_state["ready"]), str(_snow_state["lives"]), _snow_state["text"]]
+	_snow_send -= delta
+	if sig == _snow_sig and _snow_send > 0.0:
+		return
+	_snow_sig = sig
+	_snow_send = 0.5  # the clock ticks locally between publishes
+	if multiplayer.get_peers().size() > 0:
+		deliver_snow.rpc(_snow_state)
+
+
+func snow_leave() -> void:
+	if _closing or _snow == null or not _snow_on:
+		return
+	if _mode == Mode.CLIENT:
+		request_snow_leave.rpc_id(1)
+		return
+	_snow.leave(local_id())
+	_publish_snow(0.0)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func request_snow_leave() -> void:
+	if _mode == Mode.HOST and _snow != null and _players.has(multiplayer.get_remote_sender_id()):
+		_snow.leave(multiplayer.get_remote_sender_id())
+		_publish_snow(0.0)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func request_snow_throw(x: float, z: float) -> void:
+	if _mode != Mode.HOST or _snow == null:
+		return
+	var id := multiplayer.get_remote_sender_id()
+	if not _players.has(id) or str(_players[id]["location"]) != "town" or bool(_players[id]["hidden"]):
+		return
+	if _snow.throw(id, Vector2(x, z), _court_bodies):
+		_publish_snow(0.0)
+
+
+@rpc("authority", "call_remote", "reliable")
+func deliver_snow(state: Dictionary) -> void:
+	if _mode != Mode.CLIENT:
+		return
+	_snow_state = state

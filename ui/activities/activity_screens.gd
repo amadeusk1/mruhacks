@@ -50,12 +50,14 @@ func open(screen: String) -> Control:
 		"home_visitors":
 			c.set("mode", "visitors")
 		"snowballs":
-			# shortcut: no match server yet; lobby shows you alone until a session layer fills teams
-			c.set("state", {"mode": "lobby", "coral": [Net.local_profile()["name"]], "teal": [], "waiting": true})
+			c.set("state", {"mode": "lobby", "coral": [], "teal": [], "waiting": true})
 		"basketball":
 			c.set("state", {"mode": "court", "score": 0, "time_left": 60.0, "standings": [[Net.local_profile()["name"], 0]], "power": 0.0, "band": [0.62, 0.78]})
 	if screen == "sketch":
 		_wire_sketch(c)
+	var arena := get_tree().get_first_node_in_group("snow_arena")
+	if screen == "snowballs" and arena != null:
+		arena.call("wire_lobby", c)  # live pad queues; Ready walks you to a pad
 	if c.has_signal("intent"):
 		c.connect("intent", func(action: String, _v = null) -> void:
 			if action in ["leave", "close", "leave_seat"] and is_instance_valid(c):

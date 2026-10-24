@@ -41,6 +41,10 @@ func _enter_tree() -> void:
 	play.name = "TownCourt"
 	play.set_script(load("res://scripts/town_court.gd"))
 	add_child(play)
+	var snow := Node.new()
+	snow.name = "TownSnowball"
+	snow.set_script(load("res://scripts/town_snowball.gd"))
+	add_child(snow)
 
 
 func _ready() -> void:

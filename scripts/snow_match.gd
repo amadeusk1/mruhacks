@@ -138,7 +138,7 @@ func view() -> Dictionary:
 	for id in lives:
 		var life: Dictionary = lives[id]
 		packed[id] = [snappedf(float(life["cool"]), 0.01), snappedf(float(life["down"]), 0.01), bool(life["safe"]),
-			int(life["life"]), int(life["hits"])]
+			int(life["life"]), int(life["hits"]), int(life["slot"])]  # cool, down, safe, life, hits, slot
 	return {
 		"phase": phase,
 		"clock": snappedf(clock, 0.01),
@@ -262,6 +262,14 @@ func _start(n: int) -> void:
 	clock = duration
 	text = "First to %d" % win_score
 	_event({"k": "start"})
+
+
+## The player walked away from the pads or quit the match from the HUD.
+func leave(id: int) -> void:
+	for team in TEAMS:
+		ready[team].erase(id)
+	if phase == "live":
+		_drop(id)
 
 
 ## A player left mid-match. Policy (§13.6): an unbalanced match ends at once with the score so far.
