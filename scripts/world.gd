@@ -315,11 +315,11 @@ func _on_session_started() -> void:
 		_penguin.visible = false
 		_penguin.process_mode = Node.PROCESS_MODE_DISABLED
 	_refresh_presence()
-	if OS.has_feature("web"):
+	if OS.has_feature("web") and OS.is_debug_build():  # probe-only: release exports never teleport
 		_goto_from_url()
 
 
-## Probe hook (headless Chrome): ?goto=location:Marker puts the penguin on that marker after joining.
+## Probe hook (debug web exports only, headless Chrome): ?goto=location:Marker puts the penguin on that marker after joining.
 func _goto_from_url() -> void:
 	var trip := str(JavaScriptBridge.eval("new URLSearchParams(location.search).get('goto') || ''")).split(":")
 	if trip.size() != 2:
