@@ -355,6 +355,7 @@ func _foot_cells(node: Node3D) -> Dictionary:
 	var ground: float = hit.position.y if hit else at.y
 	var parts := AssetRegistry.parts(String(node.get_meta("asset_id", "")))
 	var trunk := String(node.get_meta("asset_id", "")).contains("tree") and not String(node.get_meta("asset_id", "")).contains("treehouse")  # trunk only, by design
+	var top := Footprint.POST_H if Footprint.POSTS_ONLY.any(func(k): return String(node.get_meta("asset_id", "")).contains(k)) else 0.9  # ropes sag; posts only
 	var cells := {}
 	for mi in node.find_children("*", "MeshInstance3D", true, false):
 		if not mi.visible or mi.mesh == null or parts.has(String(mi.name)) or parts.has(String(mi.get_parent().name)):
@@ -364,13 +365,13 @@ func _foot_cells(node: Node3D) -> Dictionary:
 			var a: Vector3 = mi.global_transform * f[t]
 			var b: Vector3 = mi.global_transform * f[t + 1]
 			var c: Vector3 = mi.global_transform * f[t + 2]
-			if minf(a.y, minf(b.y, c.y)) > ground + 0.9 or maxf(a.y, maxf(b.y, c.y)) < ground + 0.05:
+			if minf(a.y, minf(b.y, c.y)) > ground + top or maxf(a.y, maxf(b.y, c.y)) < ground + 0.05:
 				continue
 			var n := maxi(1, ceili(maxf(a.distance_to(b), maxf(b.distance_to(c), c.distance_to(a))) / 0.07))
 			for i in n + 1:
 				for j in n + 1 - i:
 					var q := a + (b - a) * (float(i) / n) + (c - a) * (float(j) / n)
-					if q.y > ground + 0.05 and q.y < ground + 0.9 and (not trunk or _flat(q - at) < 0.25):
+					if q.y > ground + 0.05 and q.y < ground + top and (not trunk or _flat(q - at) < 0.25):
 						cells[Vector2i(floori(q.x / 0.15), floori(q.z / 0.15))] = true
 	return cells
 

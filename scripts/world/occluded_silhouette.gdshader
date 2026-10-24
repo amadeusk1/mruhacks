@@ -1,11 +1,12 @@
 shader_type spatial;
-// Overlay on the local penguin while something covers it: soft teal only where the scene is
+// Thin teal outline on the local penguin while something covers it, only where the scene is
 // clearly in front of the bird. The penguin's own hat, clothes, beak and flippers are nearer
 // than its body by a few cm, so an occluder must be at least `min_gap` m closer (linear view
 // depth) to count; otherwise the bird tinted itself standing in the open.
 render_mode unshaded, depth_test_disabled, depth_draw_never, cull_back, blend_mix;
 
-uniform vec4 tint : source_color = vec4(0.25, 0.75, 0.78, 0.4);
+uniform vec4 tint : source_color = vec4(0.25, 0.75, 0.78, 0.3);
+uniform float strength = 1.0;  // faded in and out by occlusion_fader.gd
 uniform float min_gap = 0.45;
 uniform sampler2D depth_tex : hint_depth_texture, filter_nearest;
 
@@ -17,6 +18,8 @@ void fragment() {
 	if (scene_dist > own_dist - min_gap) {
 		discard;
 	}
+	// a thin rim, not a fill: strongest where the surface turns away from the camera
+	float rim = pow(1.0 - clamp(dot(NORMAL, VIEW), 0.0, 1.0), 3.0);
 	ALBEDO = tint.rgb;
-	ALPHA = tint.a;
+	ALPHA = tint.a * strength * smoothstep(0.25, 0.75, rim);
 }
