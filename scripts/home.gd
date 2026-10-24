@@ -16,8 +16,21 @@ const _STARTER := [
 ]
 
 
+## Interior Personalities (Botanical Nook): warm plaster and a warm room light inside the dome.
+const MOOD := {"background": "#EADBC6", "ambient": "#FFE2C2", "sun": "#FFDDB4"}
+var _saved_mood := {}
+
+
+func _exit_tree() -> void:
+	InteriorMood.restore(get_tree(), _saved_mood)
+
+
 func _ready() -> void:
 	AssetPack.dress_home(self)
+	InteriorMood.calm(self)
+	for d in find_children("snow_dome_interior*", "Node3D", true, false):
+		if d.get_parent().name == "PackProps":
+			InteriorMood.paint(d, {"wall": "#F2E2C6"}, {})
 	var dome: Node3D = null
 	for d in find_children("snow_dome_interior*", "Node3D", true, false):
 		if d.get_parent().name == "PackProps":
@@ -50,7 +63,17 @@ func _seat(dome: Node3D) -> void:
 	SeatSpot.from_sockets(self, dome, "armchair")
 
 
+## Indoor light only while the player is inside: the yard / forecourt keep the town's sky and sun.
+func _set_indoor(on: bool) -> void:
+	if on and _saved_mood.is_empty():
+		_saved_mood = InteriorMood.apply(get_tree(), MOOD)
+	elif not on and not _saved_mood.is_empty():
+		InteriorMood.restore(get_tree(), _saved_mood)
+		_saved_mood = {}
+
+
 func camera_for_spawn(spawn_name: String) -> Dictionary:
+	_set_indoor(spawn_name.begins_with("Inside"))
 	if spawn_name.begins_with("Inside"):
 		return {
 			"center": _INSIDE_CENTER,

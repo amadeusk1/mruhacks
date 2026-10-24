@@ -65,6 +65,11 @@ func is_open() -> bool:
 	return not _stack.is_empty()
 
 
+## True while an open screen should stop the penguin (the same test _refresh_lock uses).
+func blocks_world() -> bool:
+	return _stack.any(func(c): return is_instance_valid(c) and (not ("blocks_world" in c) or bool(c.get("blocks_world"))))
+
+
 func close_all() -> void:
 	for c in _stack.duplicate():
 		if c.has_method("close"):

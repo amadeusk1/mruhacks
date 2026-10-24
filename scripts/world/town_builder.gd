@@ -41,6 +41,10 @@ func _enter_tree() -> void:
 	play.name = "TownCourt"
 	play.set_script(load("res://scripts/town_court.gd"))
 	add_child(play)
+	var snow := Node.new()
+	snow.name = "TownSnowball"
+	snow.set_script(load("res://scripts/town_snowball.gd"))
+	add_child(snow)
 
 
 func _ready() -> void:
@@ -518,7 +522,7 @@ func _activity_anchor(marker: Marker3D, activity: String) -> void:
 			_anchor(marker, "Sled Hill", "Ride", "", "sled_hill", "BusArrival")
 		"basketball":
 			pass
-		"sled_finish":
+		"sled_finish", "dance":  # the dance floor (dance_floor.gd) is its own prompt-free activity
 			pass
 		_:
 			_anchor(marker, ACTIVITY_TITLES.get(activity, activity.capitalize()), "Join", activity, "", "")

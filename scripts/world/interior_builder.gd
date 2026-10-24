@@ -24,10 +24,37 @@ const ROOMS := {
 			["cafe/pastry_case", "socket_pastry_case", 0.0],
 			["cafe/mug_set", "socket_mug_set", 0.0],
 			["cafe/tray_breakfast_preset_preview", "socket_table_0_top", 15.0],
+			# 04 Cafe Interior: potted plants in the corners, flowers on the tables, a shelf of jars
+			# and greenery by the back door, warm sconces on the walls, a mat at the door
+			["room_kit/plant_large", [-4.3, 0.1, -3.3], 30.0],
+			["room_kit/plant_large", [4.35, 0.1, 0.3], -60.0],
+			["room_kit/plant_flowerpot", [-2.9, 0.7, 1.9], 0.0],
+			["room_kit/plant_flowerpot", [2.6, 0.7, 1.9], 0.0],
+			["room_kit/wall_shelf", [-2.4, 1.5, -3.95], 0.0],
+			["room_kit/tabletop_plant", [-2.7, 1.53, -3.95], 0.0],
+			["cafe/sugar_jar", [-2.35, 1.53, -3.95], 0.0],
+			["cafe/teapot", [-2.05, 1.53, -3.95], 0.0],
+			["room_kit/wall_shelf", [-4.0, 1.5, -3.95], 0.0],
+			["room_kit/plant_hanging", [-4.0, 1.53, -3.95], 0.0],
+			["interior_finishing/wall_sconce", [-4.95, 1.75, -1.9], 90.0],
+			["interior_finishing/wall_sconce", [-4.95, 1.75, 1.9], 90.0],
+			["plaza/wall_lantern", [-1.45, 1.9, -3.93], 0.0],
+			["plaza/wall_lantern", [0.45, 1.9, -3.93], 0.0],
+			["interior_finishing/ceiling_pendant", [-2.9, 2.45, -1.9], 0.0],
+			["interior_finishing/ceiling_pendant", [-2.9, 2.45, 1.9], 0.0],
+			["interior_finishing/ceiling_pendant", [2.6, 2.45, 1.9], 0.0],
+			["interior_finishing/ceiling_pendant", [2.9, 2.45, -2.0], 0.0],
+			["room_kit/plant_large", [-4.3, 0.1, 3.3], 0.0],
+			["room_kit/entry_mat", [-0.2, 0.11, 3.2], 0.0],
 		],
+		"palette": {"paving": "#C98D58", "paving_b": "#B97C49", "stone": "#A86F43", "glow_window": "glow:#FFD58A"},  # warm wood floor, lit windows
+		"lights": [[-2.9, 2.0, -1.9], [-2.9, 2.0, 1.9], [2.6, 2.0, 1.9], [2.9, 2.0, -2.0]],
+		"cut_right": 0.6,
+		"tints": {"shell": {"wall": "#F4E0C2"}},
+		"mood": {"background": "#EAD9C2", "ambient": "#FFE2BE", "sun": "#FFDDB0"},
 		# seats authored in the shell to the Interior Spacing Standard: socket_<anchor>_seat_<k> faces socket_<anchor>
 		"shell_seats": ["plaza/stool", "stool"],
-		"camera": {"limit_x": 3.0, "limit_z": 2.4, "height": 9.0, "distance": 7.4},
+		"camera": {"limit_x": 2.6, "limit_z": 2.0, "height": 7.4, "distance": 8.6, "yaw_deg": 35.0},
 	},
 	"casino": {
 		"shell": "casino/casino_interior_shell",
@@ -47,7 +74,20 @@ const ROOMS := {
 			["casino/standing_lamp", [7.5, 0.12, -5.5], 0.0],
 			["casino/casino_planter", [-7.5, 0.12, -0.6], 0.0],
 			["casino/coat_stand", [7.5, 0.12, -1.8], 0.0],
+			# Casino - Building and Interior: warm sconces down both walls, framed suits by the back wall
+			["interior_finishing/wall_sconce", [-8.05, 1.8, -3.0], 90.0],
+			["interior_finishing/wall_sconce", [-8.05, 1.8, 1.5], 90.0],
+			["interior_finishing/wall_sconce", [8.05, 1.8, -3.0], -90.0],
+			["interior_finishing/wall_sconce", [8.05, 1.8, 1.5], -90.0],
+			["room_kit/poster_frame_matted", [-6.0, 1.7, -6.1], 0.0],
+			["room_kit/poster_frame_matted", [-3.0, 1.7, -6.1], 0.0],
+			["room_kit/plant_large", [-7.5, 0.12, 4.9], 0.0],
+			["room_kit/plant_large", [7.5, 0.12, 4.9], 0.0],
 		],
+		# deep green felt and upholstery, walnut rails, red slots: the casino sheets' palette
+		"roles": {"upholstery": "#2F6B55", "cushion": "#2F6B55", "felt": "#1E6A4A", "rail": "#5B3A24", "trim": "#2A6A5C"},
+		"palette": {"insert_felt": "#1E6A4A"},
+		"mood": {"background": "#3A2A22", "ambient": "#FFD7A8", "sun": "#FFD2A0", "ambient_energy": 0.45},  # dark walnut needs a touch more
 		# [table placement anchor, seat prop, game, seat height]; seats come from the table's socket_seat_*
 		"games": [["socket_roulette", "casino/roulette_stool", "roulette", "casino"], ["socket_poker", "casino/casino_chair", "poker", "casino"],
 			["socket_blackjack", "casino/casino_chair", "blackjack", "casino"],
@@ -71,7 +111,22 @@ const ROOMS := {
 			["arcade/token_machine", "socket_token_machine", -90.0],
 			["arcade/arcade_rug", [0.0, 0.07, 0.11], 0.0],
 			["arcade/arcade_bench", "socket_bench_0", 90.0],
+			# Arcade Social Scene: a little table with a plant on the rug, potted plants in the
+			# corners, wall lanterns, a poster and a neon sign, a mat at the door
+			["plaza/round_table", [0.0, 0.02, 0.9], 0.0],
+			["room_kit/plant_flowerpot", [0.0, 0.74, 0.9], 0.0],
+			["room_kit/plant_large", [-5.5, 0.02, -3.9], 20.0],
+			["room_kit/plant_large", [5.5, 0.02, -3.9], -20.0],
+			["room_kit/plant_broadleaf", [5.5, 0.02, 0.4], 0.0],
+			["plaza/wall_lantern", [-5.93, 1.8, -1.2], 90.0],
+			["plaza/wall_lantern", [-5.93, 1.8, 1.6], 90.0],
+			["plaza/wall_lantern", [5.4, 1.9, -4.43], 0.0],
+			["room_kit/poster_frame_bold", [-5.95, 1.6, 0.2], 90.0],
+			["home_themes/neon_wall_sign", [3.6, 2.35, -4.45], 0.0],  # over the duo cabinet, like the concept's marquee
+			["room_kit/entry_mat", [0.0, 0.03, 3.9], 0.0],
 		],
+		"palette": {"paving": "#E9D3AE", "paving_b": "#DEC197"},
+		"mood": {"background": "#E6D3BC", "ambient": "#FFE0C0", "sun": "#FFD9AC"},
 		"games": [["socket_cabinet_solo_0", "", "pac", "arcade", "socket_player"], ["socket_cabinet_solo_1", "", "tetris", "arcade", "socket_player"],
 			["socket_cabinet_solo_2", "", "dino", "arcade", "socket_player"], ["socket_cabinet_solo_3", "", "tetris", "arcade", "socket_player"],
 			["socket_cabinet_solo_4", "", "pac", "arcade", "socket_player"], ["socket_cabinet_duo", "", "arcade", "arcade", "socket_player"]],
@@ -79,7 +134,8 @@ const ROOMS := {
 			"socket_cabinet_solo_2": {"body": "#D9473B"}, "socket_cabinet_solo_3": {"body": "#E3A92B"},
 			"socket_cabinet_solo_4": {"body": "#3D7BD9"}},
 		"lights": [[-3.2, 2.4, -2.6], [1.6, 2.4, -2.6], [0.0, 2.6, 1.6]],
-		"camera": {"limit_x": 3.0, "limit_z": 2.2, "height": 9.0, "distance": 7.4},
+		"cut_right": 0.5,
+		"camera": {"limit_x": 3.0, "limit_z": 2.2, "height": 7.6, "distance": 9.0, "yaw_deg": 30.0},
 	},
 }
 
@@ -98,9 +154,12 @@ func _enter_tree() -> void:
 		for n in shell.find_children(pat, "", true, false):
 			(n as Node3D).visible = false
 	var size := AssetRegistry.size(shell_id)
+	_paint(shell)
 	WalkSurface.build(shell, nav, shell.position.y - 0.3, "ShellWalk")  # raised floors, steps
 	if _cfg.has("cut_front"):
-		_cut_front(shell, size.z * 0.5 - float(_cfg["cut_front"]))
+		_cut_front(shell, Vector3(0, 0, 1), size.z * 0.5 - float(_cfg["cut_front"]))
+	if _cfg.has("cut_right"):  # the three-quarter camera looks in over the right-hand wall
+		_cut_front(shell, Vector3(1, 0, 0), size.x * 0.5 - float(_cfg["cut_right"]))
 	var inner = AssetRegistry.entry(shell_id).get("interior_m", null)  # floor size; the bbox includes plinth and awning
 	var room := Vector3(float(inner[0]), size.y, float(inner[1])) if inner is Array else size
 	var pad := 0.1 if inner is Array else 0.0  # interior_m walls sit just outside the floor
@@ -122,7 +181,7 @@ func _enter_tree() -> void:
 		if p[1] is String:
 			placed[p[1]] = [node, p[0], at, p[2]]
 		var tints: Dictionary = _cfg.get("tints", {}).get(str(p[1]), {})
-		if node and not tints.is_empty():
+		if node and tints.has("body"):
 			Tints.apply(node, {"body": Color(tints["body"])})
 	if _cfg.get("slot_row", false):
 		_slot_row(nav, shell_id, sockets)
@@ -142,6 +201,9 @@ func _enter_tree() -> void:
 		light.omni_range = 4.5
 		light.position = _v(l)
 		add_child(light)
+	for child in nav.get_children():  # room-wide roles and palette over the props and seats
+		if child is Node3D and child != shell:
+			_paint(child, "room")
 	var spawn := Marker3D.new()
 	spawn.name = "Inside"
 	spawn.position = _point(sockets, _cfg["spawn"])
@@ -162,9 +224,10 @@ func _enter_tree() -> void:
 
 ## shortcut: removes faces whose vertices all sit in front of `z_cut` above the base course;
 ## replace with an authored *_cutaway child in the art kit when it exists.
-func _cut_front(shell: Node3D, z_cut: float) -> void:
-	for n in shell.find_children("part_door*", "", true, false):
-		(n as Node3D).visible = false
+func _cut_front(shell: Node3D, axis: Vector3, z_cut: float) -> void:
+	if axis.z > 0.0:
+		for n in shell.find_children("part_door*", "", true, false):
+			(n as Node3D).visible = false
 	for mi in shell.find_children("*", "MeshInstance3D", true, false):
 		if not mi.visible or String(mi.name).begins_with("part_"):
 			continue
@@ -179,7 +242,7 @@ func _cut_front(shell: Node3D, z_cut: float) -> void:
 				var low := true
 				for k in 3:
 					var v := mdt.get_vertex(mdt.get_face_vertex(f, k))
-					in_front = in_front and v.z >= z_cut
+					in_front = in_front and v.dot(axis) >= z_cut
 					low = low and v.y < 0.3
 				if in_front and not low:  # keep the stone base course as a low front lip
 					continue
@@ -195,7 +258,23 @@ func _cut_front(shell: Node3D, z_cut: float) -> void:
 			mi.set_surface_override_material(si, null)
 
 
+## Room palette from the concept sheet (InteriorMood): the shell gets its own tint roles; "roles"
+## and "palette" then apply to everything placed in the room.
+func _paint(node: Node3D, roles_key := "shell") -> void:
+	var roles: Dictionary = _cfg.get("tints", {}).get("shell", {}) if roles_key == "shell" else _cfg.get("roles", {})
+	InteriorMood.paint(node, roles, _cfg.get("palette", {}))
+
+
+var _saved_mood := {}
+
+
+func _exit_tree() -> void:
+	InteriorMood.restore(get_tree(), _saved_mood)
+
+
 func _ready() -> void:
+	_saved_mood = InteriorMood.apply(get_tree(), _cfg.get("mood", {}))
+	InteriorMood.calm(self)
 	AmbientFx.dress(self)  # steam on the coffee station and mugs; no snow indoors
 	_block_props.call_deferred()
 	for ap in find_children("*", "AnimationPlayer", true, false):  # roulette rotor, slot reels
@@ -218,7 +297,7 @@ func _block_props() -> void:
 func camera_for_spawn(_spawn_name: String) -> Dictionary:
 	var c: Dictionary = _cfg["camera"]
 	return {"center": Vector3(0, 0, 0.3), "limit_x": c["limit_x"], "limit_z": c["limit_z"],
-		"height": c["height"], "distance": c["distance"]}
+		"height": c["height"], "distance": c["distance"], "yaw_deg": c.get("yaw_deg", 0.0)}
 
 
 ## A seat prop (optional) plus a SeatSpot at every `prefix*` socket of a placed table/cabinet,

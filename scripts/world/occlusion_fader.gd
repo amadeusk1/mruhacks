@@ -10,7 +10,6 @@ const MIN_HEIGHT := 1.2  # benches, planters, lamps: the silhouette covers those
 const HOLE := preload("res://scripts/world/foliage_batch.gdshader")
 const FADE_IN := 0.15   # seconds to reach FADE_TO
 const FADE_OUT := 0.3   # seconds to come back
-const RADIUS := 0.25    # occluder AABBs are inflated by this (a cheap capsule sweep)
 const SKIP_NAMES := ["Terrain", "terrain_", "town_terrain", "water", "Shadow", "ClickMarker"]
 const ROOF_TAGS := ["_roof", "_cutaway"]
 const SILHOUETTE := preload("res://scripts/world/occluded_silhouette.gdshader")
@@ -48,10 +47,8 @@ func _physics_process(delta: float) -> void:
 	var target := _player.global_position + Vector3(0, 0.45, 0)
 	RenderingServer.global_shader_parameter_set("occlusion_target", target)  # batched foliage hole
 	RenderingServer.global_shader_parameter_set("occlusion_radius", 0.11)
-	var from := _camera.global_position
-	var to := target - (target - from).normalized() * 0.35
 	var support := _support_root()
-	var hits := {}
+	var candidates := {}
 	for e in _roots:
 		if e["node"] == support or not is_instance_valid(e["node"]):
 			continue
@@ -64,10 +61,10 @@ func _physics_process(delta: float) -> void:
 			continue
 		if box.has_point(_player.global_position + Vector3.UP * 0.3):
 			continue  # the room/shell the player is inside: never fade it (its roof is handled above)
-		if box.size.y < MIN_HEIGHT:
-			continue
-		if _covers_player(box, target):
-			hits[e["node"].get_instance_id()] = e
+		if box.end.y - _player.global_position.y < MIN_HEIGHT:
+			continue  # height above the player's feet: dock pilings below the deck don't count
+		candidates[e["node"]] = e
+	var hits := _blocking(candidates)
 	for r in _roofs_hidden.keys():  # roofs come back when the player leaves the footprint
 		if not is_instance_valid(r):
 			_roofs_hidden.erase(r)
@@ -209,47 +206,38 @@ func _inside_footprint(box: AABB, p: Vector3) -> bool:
 		and p.y < box.end.y
 
 
-## True when the occluder's screen rect overlaps the penguin's screen circle and its nearest
-## point is in front of the penguin along the view direction.
-func _covers_player(box: AABB, target: Vector3) -> bool:
-	var fwd := -_camera.global_basis.z
-	var player_depth := fwd.dot(target - _camera.global_position)
-	var near := INF
-	var lo := Vector2(INF, INF)
-	var hi := -lo
-	for i in 8:
-		var c := box.get_endpoint(i)
-		var depth := fwd.dot(c - _camera.global_position)
-		if depth <= 0.05:
-			return false  # straddles the camera: ignore rather than guess
-		near = minf(near, depth)
-		var sp := _camera.unproject_position(c)
-		lo = lo.min(sp)
-		hi = hi.max(sp)
-	if near > player_depth - 0.3:
-		return false
-	var centre := _camera.unproject_position(target)
-	var radius := _camera.get_viewport().get_visible_rect().size.y * 0.06
-	var closest := centre.clamp(lo, hi)
-	return closest.distance_to(centre) < radius
-
-
-func _segment_hits(box: AABB, a: Vector3, b: Vector3) -> bool:  # slab test
-	var d := b - a
-	var t0 := 0.0
-	var t1 := 1.0
-	for i in 3:
-		if absf(d[i]) < 1e-6:
-			if a[i] < box.position[i] or a[i] > box.end[i]:
-				return false
-			continue
-		var ta := (box.position[i] - a[i]) / d[i]
-		var tb := (box.end[i] - a[i]) / d[i]
-		t0 = maxf(t0, minf(ta, tb))
-		t1 = minf(t1, maxf(ta, tb))
-		if t0 > t1:
-			return false
-	return true
+## Occluders that really block the camera's view of the penguin: rays from the camera to its
+## feet, chest and head (colliders only, so lamps, bunting and small decor never count). An
+## occluder must block at least two of the three before it fades / the silhouette shows.
+func _blocking(candidates: Dictionary) -> Dictionary:
+	var hits := {}
+	if candidates.is_empty():
+		return hits
+	var space := _player.get_world_3d().direct_space_state
+	var from := _camera.global_position
+	var counts := {}
+	for h: float in [0.2, 0.45, 0.85]:
+		var to := _player.global_position + Vector3.UP * h
+		var q := PhysicsRayQueryParameters3D.create(from, to - (to - from).normalized() * 0.3)
+		q.exclude = [(_player as CollisionObject3D).get_rid()] if _player is CollisionObject3D else []
+		var seen := {}
+		for i in 6:  # step through everything along the ray
+			var hit := space.intersect_ray(q)
+			if hit.is_empty():
+				break
+			q.exclude = q.exclude + [hit.rid]
+			var n: Node = hit.collider
+			if n.has_meta("blocker_node"):  # Footprint colliders live under the navmesh, not the model
+				n = n.get_meta("blocker_node")
+			while n != null and n != _room and not candidates.has(n):
+				n = n.get_parent()
+			if n != null and candidates.has(n) and not seen.has(n):
+				seen[n] = true
+				counts[n] = counts.get(n, 0) + 1
+	for n in counts:
+		if counts[n] >= 2:
+			hits[n.get_instance_id()] = candidates[n]
+	return hits
 
 
 func _set_silhouette(on: bool) -> void:

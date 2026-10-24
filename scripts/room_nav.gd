@@ -67,8 +67,15 @@ func _carve_box(shape_node: CollisionShape3D) -> void:
 		xf * Vector3(half.x, 0.0, half.z),
 		xf * Vector3(half.x, 0.0, -half.z),
 	]
-	# from just under the box to its top: a box on a cinema tier must not carve the tiers below or above
-	var origin := Vector3(xf.origin.x, xf.origin.y - half.y * absf(xf.basis.y.y) - 0.3, xf.origin.z)
+	# from just under the box to its top: a box on a cinema tier must not carve the tiers below or
+	# above; a tilted box (a stair cheek) spans the full height of its eight corners
+	var low := INF
+	var high := -INF
+	for c in [Vector3(-1, -1, -1), Vector3(1, -1, -1), Vector3(-1, 1, -1), Vector3(1, 1, -1), Vector3(-1, -1, 1), Vector3(1, -1, 1), Vector3(-1, 1, 1), Vector3(1, 1, 1)]:
+		var y: float = (xf * (half * c)).y
+		low = minf(low, y)
+		high = maxf(high, y)
+	var origin := Vector3(xf.origin.x, low - 0.3, xf.origin.z)
 	var verts := PackedVector3Array()
 	for corner in corners:
 		verts.append(Vector3(corner.x - origin.x, 0.0, corner.z - origin.z))
@@ -81,7 +88,7 @@ func _carve_box(shape_node: CollisionShape3D) -> void:
 	# Sit on the snow and rise through the prop so the floor inside the
 	# footprint is discarded, including any ledge on top of a block.
 	obstacle.global_position = origin
-	obstacle.height = box.size.y + 0.6
+	obstacle.height = high - low + 0.6
 	obstacle.avoidance_enabled = false
 	obstacle.affect_navigation_mesh = true
 	obstacle.vertices = verts
