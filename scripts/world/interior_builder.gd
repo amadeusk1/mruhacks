@@ -97,6 +97,7 @@ func _enter_tree() -> void:
 		for n in shell.find_children(pat, "", true, false):
 			(n as Node3D).visible = false
 	var size := AssetRegistry.size(shell_id)
+	WalkSurface.build(shell, nav, shell.position.y - 0.3, "ShellWalk")  # raised floors, steps
 	if _cfg.has("cut_front"):
 		_cut_front(shell, size.z * 0.5 - float(_cfg["cut_front"]))
 	var inner = AssetRegistry.entry(shell_id).get("interior_m", null)  # floor size; the bbox includes plinth and awning
