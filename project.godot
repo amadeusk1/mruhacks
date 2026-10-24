@@ -37,6 +37,7 @@ UIRouter="*res://ui/ui_router.gd"
 ActivityScreens="*res://ui/activities/activity_screens.gd"
 CinemaService="*res://scripts/cinema/cinema_service.gd"
 Voice="*res://scripts/voice/voice.gd"
+SledRace="*res://scripts/activities/sled_race.gd"
 
 [display]
 
