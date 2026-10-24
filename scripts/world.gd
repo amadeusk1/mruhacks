@@ -147,6 +147,14 @@ func travel_to(location_id: String, spawn_name: String = "BusArrival", igloo_id:
 	_refresh_presence()
 
 
+## Stand outside the player's snow dome on the town island.
+func go_to_homes() -> void:
+	if _current_id == LocationCatalog.MAIN:
+		shift_to_marker("Home2DoorOut")
+	else:
+		travel_to(LocationCatalog.MAIN, "Home2DoorOut")
+
+
 ## Door trip inside the current room. The landing marker is outside the door volume.
 func shift_to_marker(marker_name: String) -> void:
 	if not _in_game or _traveling or _activity or _host.get_child_count() == 0:
@@ -571,7 +579,7 @@ func _accept_invite() -> void:
 	_hide_invite()
 	if host_id <= 0:
 		return
-	travel_to("home", "BusArrival", host_id)
+	go_to_homes()
 
 
 func _hide_invite() -> void:

@@ -1,6 +1,6 @@
 class_name PlayerCard
-## Player card (board panel 4, left). Visit home / Invite home are real (igloo travel); voice, block
-## and report have no service yet, so they are shown disabled with the reason as a tooltip.
+## Player card (board panel 4, left). Visit home takes you to the homes on the island.
+## Voice, block and report have no service yet, so they are shown disabled with the reason as a tooltip.
 
 const T := preload("res://ui/theme/ui_tokens.gd")
 
@@ -27,8 +27,8 @@ static func make(e: Dictionary) -> UIModal:
 	visit.pressed.connect(func() -> void:
 		var w := m.get_tree().get_first_node_in_group("world")
 		UIRouter.close_all()
-		if w and w.has_method("travel_to"):
-			w.call("travel_to", "home", "BusArrival", id))
+		if w and w.has_method("go_to_homes"):
+			w.call("go_to_homes"))
 	col.add_child(visit)
 	var invite := UIKit.button("Invite to my igloo", "outline", "door", Vector2(0, 60))
 	invite.pressed.connect(func() -> void:

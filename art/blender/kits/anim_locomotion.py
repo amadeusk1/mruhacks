@@ -1,6 +1,6 @@
-"""Locomotion clips: idle, idle_variant, walk, run, hop, start, stop, turn_left, turn_right.
+"""Locomotion clips: idle, idle_variant, walk, run, hop, jump, start, stop, turn_left, turn_right.
 All in place. Gameplay moves the character at clip speed_mps (= stride_m / duration) so stance feet stay
-planted. Only hop moves the root, vertically. Body bob lives on the body bone so planted feet never lift.
+planted. Only hop and jump move the root, vertically. Body bob lives on the body bone so planted feet never lift.
 """
 import math
 import animlib as L
@@ -86,6 +86,31 @@ def hop(t):
     }, morph={"eyes_happy": flight, "beak_open": 0.5 * flight})
 
 
+JUMP_D, JUMP_TAKEOFF, JUMP_TUCK, JUMP_LAND = 24 / 30, 0.20, 0.36, 0.53
+
+
+def jump(t):
+    """Crouch, push, tuck in the air, then squash on landing. Gameplay owns the arc and holds JUMP_TUCK."""
+    crouch = ss(0.0, 0.12, t) * (1 - ss(0.12, JUMP_TAKEOFF, t))
+    push = bump(t, 0.12, 0.12)
+    air = window(t, JUMP_TAKEOFF, JUMP_TAKEOFF + 0.08, JUMP_LAND - 0.06, JUMP_LAND)
+    tuck = bump(t, 0.22, 0.28)
+    land = bump(t, JUMP_LAND, 0.18)
+    return L.pose({
+        "root": {"loc": (0, 0, 0.18 * air)},
+        "body": {"loc": (0, 0, -0.07 * crouch - 0.05 * land),
+                 "scl": (1 + 0.06 * crouch + 0.05 * land - 0.02 * push,
+                         1 + 0.06 * crouch + 0.05 * land - 0.02 * push,
+                         1 - 0.10 * crouch - 0.07 * land + 0.06 * push),
+                 "rot": (X, 16 * crouch - 12 * air + 8 * land)},
+        "head": {"rot": (X, 14 * crouch - 16 * air + 6 * land)},
+        "foot.L": {"loc": (0.012 * air, -0.025 * air, 0.055 * tuck), "rot": (X, -42 * tuck - 10 * push)},
+        "foot.R": {"loc": (-0.012 * air, -0.025 * air, 0.055 * tuck), "rot": (X, -42 * tuck - 10 * push)},
+        "flipper.L": {"rot": [(X, 28 * crouch), (Y, -72 * air + 12 * land)]},
+        "flipper.R": {"rot": [(X, 28 * crouch), (Y, 72 * air - 12 * land)]},
+    }, morph={"eyes_happy": air, "beak_open": 0.7 * air, "eyes_wide": 0.4 * push})
+
+
 def start(t):
     w = ss(0.0, 0.3, t)
     p = L.mix(L.rest_pose(), walk(0.0), w)
@@ -162,6 +187,9 @@ def clips(arm):
     L.clip(arm, "run", RUN_D, run, loop=True, stride_m=RUN_STRIDE, cancel="none",
            events={"foot_L": 0.0, "foot_R": RUN_D / 2})
     L.clip(arm, "hop", HOP_D, hop, loop=False, cancel="none", events={"takeoff": HOP_UP, "land": HOP_DOWN})
+    L.clip(arm, "jump", JUMP_D, jump, loop=False, cancel="none",
+           events={"takeoff": JUMP_TAKEOFF, "tuck": JUMP_TUCK, "land": JUMP_LAND},
+           note="gameplay holds the tuck until the body lands, then plays from land")
     L.clip(arm, "start", 0.3, start, loop=False, cancel="none", note="ends on walk frame 0")
     L.clip(arm, "stop", 0.4, stop, loop=False, cancel="move", note="starts on walk frame 0")
     for side, nm in ((1, "turn_left"), (-1, "turn_right")):

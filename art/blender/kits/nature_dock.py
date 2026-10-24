@@ -303,7 +303,7 @@ def water_edge(name, corner=False):
 # heights wherever they meet on the 2 m seam grid. Land top z=0, water WATER_Z, bed -0.85.
 SHORE_N = 16                                    # 0.125 m grid
 SHORE_PROFILE = [(-0.6, -0.85), (-0.2, -0.58), (0.35, -0.32), (0.7, 0.0)]   # (d, z)
-SAND = tint("shore_sand", "tan")
+SAND = tint("shore_sand", "#E6D3AA")  # pale winter sand, like the sheet
 SHORE_ROCK = (tint("cliff_rock", "rock"), tint("cliff_rock_b", "rock_b"))   # shared with town_connections cliffs
 FOAM_Z = WATER_Z + 0.004
 
@@ -366,10 +366,12 @@ def shore_blobs(dfun, seed):
     """Boulders along the rock face (d about 0.5), kept clear of the seams."""
     rng = random.Random(seed)
     out = []
-    while len(out) < 5:
+    for _ in range(600):  # bounded: a short boulder line may only fit 3-4
+        if len(out) == 5:
+            break
         x, y = rng.uniform(-0.75, 0.75), rng.uniform(-0.75, 0.75)
         d = dfun(x, y)
-        if abs(d - 0.52) < 0.08 and all(math.hypot(x - o[0], y - o[1]) > 0.38 for o in out):
+        if abs(d - 0.52) < 0.08 and all(math.hypot(x - o[0], y - o[1]) > 0.34 for o in out):
             r = rng.uniform(0.17, 0.26)
             out.append((x, y, shore_h(d) + r * 0.25, r))
     return out

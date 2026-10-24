@@ -23,6 +23,8 @@ common.ensure_shade()
 common.export_kit("world")
 data = town.write_layout(os.path.join(OUT, "town_layout.json"))
 print(f"TOWN placements={len(data['placements'])} markers={len(data['markers'])}")
+import unused_props
+unused_props.report()          # coverage line in the export log + Renders/Map/coverage.md
 
 if "--no-preview" not in args:
     # 2. place linked copies of every referenced asset

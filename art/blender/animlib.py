@@ -236,7 +236,7 @@ def finalize(arm, kit):
         if a["obj"] is arm:
             a["meta"] = {"fps": FPS, "bones": [b[0] for b in A.BONES], "morphs": A.MORPHS, "clips": dict(CLIPS),
                          "rig": "avatar_base (same node and bone names as avatar/avatar_base.glb)",
-                         "root_motion": "none: clips play in place; only hop moves the root vertically"}
+                         "root_motion": "none: clips play in place; only hop and jump move the root vertically"}
     return arm
 
 

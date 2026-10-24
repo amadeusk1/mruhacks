@@ -35,6 +35,10 @@ func _enter_tree() -> void:
 	_build_markers(nav)
 	for b in _layout.get("nav_blockers", []):
 		_box_body(nav, _v(b["pos"]), _v(b["size"]), float(b.get("rot_y_deg", 0)), BLOCK_LAYER)
+	var play := Node.new()
+	play.name = "TownCourt"
+	play.set_script(load("res://scripts/town_court.gd"))
+	add_child(play)
 
 
 func _ready() -> void:
@@ -156,6 +160,12 @@ func _place(nav: Node, p: Dictionary) -> void:
 	node.name = str(p.get("name", id.get_file()))
 	node.transform = _xform(p)
 	nav.add_child(node)
+	if id == "activities/basketball_court_half":
+		node.add_to_group("town_court_half")
+	elif id == "activities/basketball_hoop":
+		node.add_to_group("town_hoop")
+	elif id == "activities/scoreboard":
+		node.add_to_group("town_scoreboard")
 	if not (p.get("tints", {}) as Dictionary).is_empty():
 		var colors := {}
 		for role in p["tints"]:
@@ -175,8 +185,10 @@ func _place(nav: Node, p: Dictionary) -> void:
 		if walk:
 			_walks.append([node, walk])
 	if tags.has("blocker"):
-		_blockers.append([node, id, float(p.get("scale", 1.0))])
+		_blockers.append([node, id, float(p.get("scale", 1.0))])  # posts only for the homes arch: see _footprint
 	_start_ambient(node)
+	if id == "activities/communal_table":  # Sketch Club: sitting here joins the table's game
+		SeatSpot.from_sockets(nav, node, "sketch", node.global_position, "sketch")
 
 
 ## Blocker collision from the model's own feet, not its AABB box (a box across bunting posts,
@@ -416,7 +428,6 @@ const DOORS := {
 	"cafe_interior": ["cafe", "Inside", "Café"],
 	"arcade_interior": ["arcade", "Inside", "Arcade"],
 	"casino_interior": ["casino", "Inside", "Casino"],
-	"home": ["home", "InsideSpawn", "your igloo"],
 }
 const ACTIVITY_TITLES := {"sled": "Sled Hill", "snowballs": "Snowball Arena", "basketball": "Basketball Court", "sketch": "Sketch Club"}
 
@@ -427,6 +438,9 @@ func _door(marker: Marker3D, target: String) -> void:
 	out.name = marker.name + "Out"
 	out.transform = Transform3D(marker.basis.rotated(Vector3.UP, PI), marker.position + marker.basis.z * 1.6)
 	add_child(out)
+	if marker.name == "Home2Door":  # the snow dome on the island is the player's house
+		_anchor(marker, "your house", "Enter", "", "home", "InsideSpawn")
+		return
 	if not DOORS.has(target):
 		return
 	var d: Array = DOORS[target]
@@ -446,7 +460,7 @@ func _activity_anchor(marker: Marker3D, activity: String) -> void:
 		"sled":
 			_anchor(marker, "Sled Hill", "Ride", "", "sled_hill", "BusArrival")
 		"basketball":
-			_anchor(marker, "The Court", "Play", "", "court", "BusArrival")
+			pass
 		"sled_finish":
 			pass
 		_:

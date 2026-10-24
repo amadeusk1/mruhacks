@@ -3,14 +3,14 @@ class_name LocationCatalog
 
 ## Places the bus can reach. Sled Hill is the downhill run.
 
-const ORDER: Array[String] = ["home", "town", "plaza", "cinema", "sled_hill", "court"]
+const ORDER: Array[String] = ["town", "plaza", "cinema", "sled_hill"]
 
 ## Where new sessions start and activities return to.
 const MAIN := "town"
 
 const _PLACES := {
 	"home": {
-		"title": "Home",
+		"title": "Your House",
 		"scene": "res://scenes/locations/home.tscn",
 		"map": Vector2(0.3, 0.28),
 	},
@@ -48,11 +48,6 @@ const _PLACES := {
 		"title": "Sled Hill",
 		"scene": "res://scenes/sled_run.tscn",
 		"map": Vector2(0.63, 0.4),
-	},
-	"court": {
-		"title": "The Court",
-		"scene": "res://scenes/locations/court.tscn",
-		"map": Vector2(0.78, 0.62),
 	},
 }
 

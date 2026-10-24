@@ -19,7 +19,7 @@ var _points := 0
 
 
 func _gui_input(event: InputEvent) -> void:
-	if not editable:
+	if not editable or size.x < 2.0 or size.y < 2.0:
 		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed and strokes.size() < MAX_STROKES:

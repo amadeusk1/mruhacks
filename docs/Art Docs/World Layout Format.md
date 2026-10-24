@@ -44,3 +44,15 @@ All positions are in **Godot space** (Y-up, metres, −Z = north/"up the map", +
 ## Coordinates
 
 Blender (x, y, z) → Godot (x, z, −y). Blender yaw `rz` → Godot `rot_y_deg` = degrees(rz). Assets face Blender −Y, which is Godot +Z (toward the camera's default south view).
+
+## Hand placement (source of truth)
+
+Placements and markers are authored by hand, not generated. They live as real objects in `Models/world/town_layout.blend`: the collection **Layout** holds props, each an instance of its GLB carrying the custom properties `asset_id`, `tags`, `tints` and `zone`; the collection **Markers** holds empties with `kind`, `target` and `activity`.
+
+`art/blender/world/layout_edit.py` round-trips that file to `town_layout.json`. The conversion is verified exact (0 mismatches across 769 placements):
+- `open_layout()`, `place()` and `save()` from a live Blender session (via MCP, or by you in the UI);
+- `-- export` from the command line.
+
+Terrain, paths, the sled hill and the deep coastal forest stay generated (`town.py`, `ground.py`, `sled_hill.py`). The authored district compositions are in `art/blender/world/hand_layout.py`.
+
+**To move things yourself:** open `town_layout.blend`, move or duplicate objects in **Layout** (keep their custom properties), save, then run `Blender -b --python art/blender/world/layout_edit.py -- export`.

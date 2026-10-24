@@ -243,6 +243,20 @@
         "axis": "x"
       }
     },
+    "part_clips": {
+      "part_flag_0": [
+        "flag_0_flutter"
+      ],
+      "part_flag_1": [
+        "flag_1_flutter"
+      ],
+      "part_flag_2": [
+        "flag_2_flutter"
+      ],
+      "part_flag_3": [
+        "flag_3_flutter"
+      ]
+    },
     "tints": {
       "flag_a": "#E86D58",
       "flag_b": "#3FB3B5",

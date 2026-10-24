@@ -122,7 +122,7 @@ func check(id: String, at: Vector2i, rot: int, slot := "", ignore: Dictionary = 
 		if slot == "":
 			return "Point at a wall to hang this"
 		for it in items:
-			if it != ignore and it["slot"] == slot:
+			if not _is_ignored(it, ignore) and it["slot"] == slot:
 				return "That wall spot is taken"
 		return ""
 	if layer == "ceiling" or layer == "surface":
@@ -135,12 +135,30 @@ func check(id: String, at: Vector2i, rot: int, slot := "", ignore: Dictionary = 
 	if layer != "rug":
 		var mine := footprint_cells(id, at, rot)
 		for it in items:
-			if it == ignore or it["layer"] != "floor":
+			if _is_ignored(it, ignore) or it["layer"] != "floor":
 				continue
 			for c in footprint_cells(it["id"], it["cell"], it["rot"]):
 				if c in mine:
 					return "Something is already there"
 	return ""
+
+
+func _is_ignored(it: Dictionary, ignore: Dictionary) -> bool:
+	var node = ignore.get("node")
+	return node != null and it.get("node") == node
+
+
+func _nearest_valid(id: String, around: Vector2i, rot: int, slot: String, ignore: Dictionary) -> Vector2i:
+	var best := Vector2i(-99, -99)
+	var best_d := 1.0e9
+	for c in _cells:
+		if check(id, c, rot, slot, ignore) != "":
+			continue
+		var d := Vector2(c - around).length_squared()
+		if d < best_d:
+			best_d = d
+			best = c
+	return best
 
 
 # ---------------------------------------------------------------- picking --
@@ -184,10 +202,24 @@ func begin_place(id: String) -> void:
 
 
 func begin_move(item: Dictionary) -> void:
+	if item.is_empty() or item.get("node") == null:
+		return
+	cancel_ghost()
 	_moving = item
 	item["node"].visible = false
-	begin_place(item["id"])
-	_ghost_rot = item["rot"]
+	_ghost_id = str(item["id"])
+	_ghost_rot = int(item["rot"])
+	_ghost = _spawn(_ghost_id)
+	if _ghost:
+		room.add_child(_ghost)
+		_tint_ghost(_ghost, GHOST_OK)
+	var cell: Vector2i = item["cell"]
+	var slot := str(item.get("slot", ""))
+	if check(_ghost_id, cell, _ghost_rot, slot, item) != "":
+		var near := _nearest_valid(_ghost_id, cell, _ghost_rot, slot, item)
+		if near != Vector2i(-99, -99):
+			cell = near
+	_update_ghost(cell, slot)
 
 
 func rotate_ghost() -> void:
@@ -307,6 +339,9 @@ func _pose_node(n: Node3D, id: String, c: Vector2i, rot: int, slot: String) -> v
 
 
 func item_at(screen: Vector2) -> Dictionary:
+	var picked := _item_under_ray(screen)
+	if not picked.is_empty():
+		return picked
 	var hit = _floor_hit(screen)
 	if hit == null:
 		return {}
@@ -317,9 +352,51 @@ func item_at(screen: Vector2) -> Dictionary:
 			best = it
 	if best.is_empty():
 		for it in items:
-			if it["layer"] == "wall" and room.to_global(it["node"].position).distance_to(hit) < 1.2:
+			if it["layer"] == "wall" and is_instance_valid(it.get("node")) and room.to_global(it["node"].position).distance_to(hit) < 1.2:
 				best = it
 	return best
+
+
+func _item_under_ray(screen: Vector2) -> Dictionary:
+	if camera == null:
+		return {}
+	var from := camera.project_ray_origin(screen)
+	var dir := camera.project_ray_normal(screen)
+	var best: Dictionary = {}
+	var best_d := 1.0e9
+	for it in items:
+		var n: Node3D = it.get("node")
+		if n == null or not is_instance_valid(n) or not n.visible:
+			continue
+		var point = _world_aabb(n).intersects_ray(from, dir)
+		if point == null:
+			continue
+		var d := from.distance_squared_to(point)
+		if d < best_d:
+			best_d = d
+			best = it
+	return best
+
+
+func _world_aabb(n: Node3D) -> AABB:
+	var box := AABB()
+	var started := false
+	var meshes: Array = n.find_children("*", "MeshInstance3D", true, false)
+	if n is MeshInstance3D:
+		meshes.append(n)
+	for m in meshes:
+		var mi := m as MeshInstance3D
+		if mi == null or mi.mesh == null:
+			continue
+		var b := mi.global_transform * mi.mesh.get_aabb()
+		if not started:
+			box = b
+			started = true
+		else:
+			box = box.merge(b)
+	if not started:
+		box = AABB(n.global_position - Vector3(0.3, 0.0, 0.3), Vector3(0.6, 1.0, 0.6))
+	return box.grow(0.08)
 
 
 func select(it: Dictionary) -> void:

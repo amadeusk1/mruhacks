@@ -5,7 +5,7 @@ extends RefCounted
 
 const GRAVITY := 9.8
 const BALL_R := 0.12
-const PICKUP := 0.7
+const PICKUP := 1.25
 const STEAL_REACH := 0.85
 const STEAL_COOLDOWN := 1.2
 const PASS_REACH := 6.0
@@ -34,6 +34,8 @@ var game_index := 0
 var solo := false
 
 var hoop := Vector3(0.0, 1.67, -3.0)
+var hoop_coral := Vector3(0.0, 1.67, -3.0)
+var hoop_teal := Vector3(0.0, 1.67, -3.0)
 var min_x := -4.35
 var max_x := 4.35
 var min_z := -3.85
@@ -50,16 +52,25 @@ var _flight_made := false
 var _flight_points := 2
 var _flight_from := 0
 var _flight_catch := 0
+var _flight_hoop := Vector3.ZERO
 var _ignore_until := 0.0
 var _ignore_id := 0
 
 
 func configure(next_hoop: Vector3, bounds: AABB) -> void:
-	hoop = next_hoop
+	configure_ends(next_hoop, next_hoop, bounds)
+
+
+func configure_ends(coral_at: Vector3, teal_at: Vector3, bounds: AABB) -> void:
+	hoop_coral = coral_at
+	hoop_teal = teal_at
+	hoop = coral_at
 	min_x = bounds.position.x
 	max_x = bounds.position.x + bounds.size.x
 	min_z = bounds.position.z
 	max_z = bounds.position.z + bounds.size.z
+	if phase == "practice" and ball_mode == "loose":
+		ball_pos = _center()
 
 
 func reset() -> void:
@@ -99,9 +110,9 @@ func tick(delta: float, present: Array, bodies: Dictionary) -> void:
 	var ids := _ints(present)
 	_sync_arrival(ids)
 	_sync_sides(ids)
-	if phase == "practice" and ids.size() == 1:
-		_begin_solo(ids[0])
-	elif phase == "practice" and ids.size() >= 2:
+	if ball_mode == "held" and not ids.has(possessor):
+		_drop_loose(ball_pos)
+	if phase == "practice" and ids.size() >= 2:
 		_open_lobby()
 	elif solo and ids.size() >= 2:
 		solo = false
@@ -136,6 +147,11 @@ func tick(delta: float, present: Array, bodies: Dictionary) -> void:
 		if _flight_kind != "":
 			_intercept(ids)
 		_check_out()
+	if phase == "practice":
+		if ball_mode == "held":
+			text = "Click to shoot"
+		elif text == "Click to shoot":
+			text = "Shoot around"
 
 
 func view() -> Dictionary:
@@ -268,11 +284,13 @@ func _shoot(id: int) -> void:
 	if body.is_empty():
 		return
 	var from := _carry(Vector3(float(body["x"]), float(body["y"]), float(body["z"])), float(body["yaw"]))
-	var dist := Vector2(from.x - hoop.x, from.z - hoop.z).length()
+	var aim_hoop := _attack_hoop(id)
+	var dist := Vector2(from.x - aim_hoop.x, from.z - aim_hoop.z).length()
 	var contested := _contested(id, Vector3(float(body["x"]), 0.0, float(body["z"])))
 	var chance := _chance(dist, contested)
 	var made := force_make or _roll() < chance
-	var aim := hoop
+	var aim := aim_hoop
+	_flight_hoop = aim_hoop
 	if not made:
 		aim.x += 0.62 if _roll() > 0.5 else -0.62
 		aim.y -= 0.05
@@ -422,6 +440,13 @@ func _check_out() -> void:
 
 func _score(points: int, shooter: int) -> void:
 	var side := str(teams.get(shooter, ""))
+	if phase == "practice":
+		coral_score += points
+		text = "+%d" % points
+		var drop := _flight_hoop.lerp(_center(), 0.18)
+		drop.y = BALL_R
+		_drop_loose(drop)
+		return
 	if phase == "live" and (side == "coral" or side == "teal"):
 		if side == "coral":
 			coral_score += points
@@ -470,7 +495,9 @@ func _give_inbound(side: String) -> void:
 	possessor = 0
 	ball_mode = "loose"
 	ball_vel = Vector3.ZERO
-	ball_pos = Vector3(0.0, 0.45, max_z - 0.85)
+	var spot := _center()
+	spot.y = 0.45
+	ball_pos = spot
 	_flight_kind = ""
 	text = "" if solo else "%s ball" % ("Coral" if side == "coral" else "Teal")
 
@@ -658,8 +685,23 @@ func _forward(yaw: float) -> Vector3:
 	return Vector3(-sin(yaw), 0.0, -cos(yaw))
 
 
+func _attack_hoop(id: int) -> Vector3:
+	var side := str(teams.get(id, ""))
+	if phase == "live" and side == "teal":
+		return hoop_teal
+	if phase == "live" and side == "coral":
+		return hoop_coral
+	var body: Dictionary = _bodies.get(id, {})
+	if body.is_empty():
+		return hoop_coral
+	var at := Vector3(float(body["x"]), 0.0, float(body["z"]))
+	if _flat(at, hoop_teal) < _flat(at, hoop_coral):
+		return hoop_teal
+	return hoop_coral
+
+
 func _center() -> Vector3:
-	return Vector3(0.0, BALL_R, (min_z + max_z) * 0.5)
+	return Vector3((min_x + max_x) * 0.5, BALL_R, (min_z + max_z) * 0.5)
 
 
 func _inside(at: Vector3) -> bool:

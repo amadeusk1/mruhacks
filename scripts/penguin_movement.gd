@@ -57,8 +57,15 @@ var _name_label: Label3D
 var _tint_applied := -1
 var _overlay := ""  # emote/activity clip playing until the penguin moves
 var _seat_kit := ""  # "casino": seated clips come from that kit instead of the bench "sit"
+var _hopping := false
+var _left_ground := false
 
 const _GRAVITY := 28.0
+const _JUMP_SPEED := 7.6   # about a metre; the jump clip's tuck sits on top
+const _HOP_TUCK := 0.42    # anim_locomotion hop, used when the jump clip is missing
+const _HOP_LAND := 0.57
+const _JUMP_TUCK := 0.36   # anim_locomotion jump: airborne pose between takeoff and land
+const _JUMP_LAND := 0.53
 const _CLICK_MASK := 3
 const _FLOOR_LAYER := 1
 
@@ -175,6 +182,8 @@ func stand_up() -> void:
 func halt() -> void:
 	_pending_bench = null
 	_cancel_click()
+	_hopping = false
+	_left_ground = false
 	velocity = Vector3.ZERO
 
 
@@ -233,10 +242,12 @@ func _physics_process(delta: float) -> void:
 	planar = planar.move_toward(direction * speed, acceleration * delta)
 	velocity.x = planar.x
 	velocity.z = planar.z
-	if not is_on_floor():
-		velocity.y -= _GRAVITY * delta
-	else:
+	if Input.is_action_just_pressed("jump"):
+		_try_jump()
+	if is_on_floor() and velocity.y <= 0.0:
 		velocity.y = 0.0
+	else:
+		velocity.y -= _GRAVITY * delta
 
 	var facing := Vector3(velocity.x, 0.0, velocity.z)
 	if facing.length() > 0.15:
@@ -244,8 +255,11 @@ func _physics_process(delta: float) -> void:
 
 	var before := global_position
 	var intended := Vector3(velocity.x, 0.0, velocity.z)  # move_and_slide zeroes it against the step
+	var rising := velocity.y > 1.0
+	floor_snap_length = 0.0 if rising else 0.25
 	move_and_slide()
-	_step_up(before, intended, delta)
+	if not rising:
+		_step_up(before, intended, delta)
 	_plant_shadow()
 	_animate(delta, facing.length())
 	_publish_pose()
@@ -419,6 +433,73 @@ func _follow_path() -> Vector3:
 	return to_next.normalized()
 
 
+func _try_jump() -> void:
+	if _sitting or _fishing or _reel_focus or _blocks_play() or not is_on_floor():
+		return
+	if UIRouter.is_open():
+		return
+	velocity.y = _JUMP_SPEED
+	_hopping = true
+	_left_ground = false
+	_overlay = ""
+	_play_jump()
+
+
+func _jump_clip() -> String:
+	if _clips != null and _clips.has_animation("jump"):
+		return "jump"
+	if _clips != null and _clips.has_animation("hop"):
+		return "hop"
+	return ""
+
+
+func _jump_tuck() -> float:
+	return _JUMP_TUCK if _jump_clip() == "jump" else _HOP_TUCK
+
+
+func _jump_land() -> float:
+	return _JUMP_LAND if _jump_clip() == "jump" else _HOP_LAND
+
+
+func _play_jump() -> void:
+	var clip := _jump_clip()
+	if clip == "":
+		return
+	_clips.speed_scale = 1.0
+	_clips.play(clip, 0.06)
+
+
+## Keeps the jump tucked in the air, then plays the landing once the body is back on the ground.
+func _animate_hop() -> bool:
+	var clip := _jump_clip()
+	if not _hopping or clip == "":
+		_hopping = false
+		return false
+	if _clips.current_animation != clip:
+		_play_jump()
+	var anim := _clips.get_animation(clip)
+	var pos := _clips.current_animation_position
+	if not is_on_floor():
+		_left_ground = true
+		if pos >= _jump_land():
+			_clips.seek(_jump_tuck(), true)
+			_clips.pause()
+		return true
+	if not _left_ground:
+		if pos >= anim.length - 0.05:
+			_hopping = false
+			return false
+		return true
+	if pos >= anim.length - 0.05:
+		_hopping = false
+		_left_ground = false
+		return false
+	if pos < _jump_land() or not _clips.is_playing():
+		_clips.play(clip)
+		_clips.seek(_jump_land(), true)
+	return true
+
+
 func _blocks_play() -> bool:
 	if _input_locked or _typing_locked:
 		return true
@@ -558,6 +639,21 @@ func _publish_pose() -> void:
 	Net.note_pose(global_position, rotation.y, court_speed(), _sitting)
 
 
+func _face_near_hoop() -> void:
+	var best: Node3D = null
+	var best_dist := 9999.0
+	for node in get_tree().get_nodes_in_group("town_hoop"):
+		var hoop := node as Node3D
+		if hoop == null:
+			continue
+		var flat := Vector2(hoop.global_position.x - global_position.x, hoop.global_position.z - global_position.z)
+		if flat.length() < best_dist:
+			best_dist = flat.length()
+			best = hoop
+	if best != null:
+		face_point(best.global_position)
+
+
 func court_speed() -> float:
 	if _remote_peer != 0:
 		return _net_speed
@@ -568,8 +664,11 @@ func _court_press(action: String) -> bool:
 	var world := get_tree().get_first_node_in_group("world")
 	if world == null or not world.has_method("current_location_id"):
 		return false
-	if str(world.call("current_location_id")) != "court":
+	if not Net.court_here(global_position):
 		return false
+	if action == "shoot":
+		_face_near_hoop()
+		Net.court_witness(Net.local_id(), global_position, rotation.y, court_speed())
 	if action == "shoot" or action == "pass":
 		if not Net.court_carrying():
 			return false
@@ -704,6 +803,8 @@ func _animate(delta: float, speed: float) -> void:
 		_swing_flipper(_flipper_l, _flipper_l_x, 0.0)
 		_swing_flipper(_flipper_r, _flipper_r_x, 0.0)
 		return
+	if _animate_hop():
+		return
 	var moving := speed > 0.25
 	if _clips:
 		var loco := PenguinAnims.locomotion(speed)
@@ -819,6 +920,7 @@ func _ensure_actions() -> void:
 	_add_keys("move_left", [KEY_A, KEY_LEFT])
 	_add_keys("move_right", [KEY_D, KEY_RIGHT])
 	_add_keys("interact", [KEY_F])
+	_add_keys("jump", [KEY_SPACE])
 	if not InputMap.has_action("click_walk"):
 		InputMap.add_action("click_walk")
 		var mouse := InputEventMouseButton.new()

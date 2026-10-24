@@ -245,9 +245,6 @@ static func _place_home_interior(home: Node3D, props: Node3D, nav: Node3D) -> vo
 		spawn_world = spawn_socket.global_position
 	_aim_marker(home.get_node("InsideReturn") as Node3D, spawn_world, room.global_position)
 	_aim_marker(home.get_node("InsideSpawn") as Node3D, spawn_world, room.global_position)
-	_furnish(room, "room_kit", "bed", Vector3(0.15, _DOME_FLOOR_Y, -1.05), 0.0)
-	_furnish(room, "room_kit", "rug_round", Vector3(0.2, _DOME_FLOOR_Y + 0.02, 0.35), 0.0)
-	_furnish(room, "room_kit", "floor_lamp", Vector3(1.15, _DOME_FLOOR_Y, 0.35), 0.0)
 
 
 ## Cinema exterior faces Godot +Z. Lobby and auditorium are separate rooms.
@@ -315,17 +312,18 @@ static func _place_cinema_lobby(room: Node3D, props: Node3D, nav: Node3D) -> voi
 	var screen_at := Vector3(max_p.x - 0.9, 0.0, -1.6)
 	if screen:
 		screen_at = lobby.to_local(screen.global_position)
-	_wall_along_z(nav, lobby.position, max_p.x + 0.22, min_p.z - 0.2, max_p.z + 0.2, screen_at.z, 1.05)
+	_wall_along_z(nav, lobby.position, max_p.x + 0.22, min_p.z - 0.2, max_p.z + 0.2, screen_at.z, 1.2)
 	var entrance_at := Vector3(0.0, 0.0, max_p.z + 0.05)
 	_set_door(room.get_node("LobbyStreetDoor") as Area3D, lobby.global_transform * entrance_at, Vector3(0.0, 0.0, 1.0), 2.7)
 	_aim_marker(room.get_node("InsideLobby") as Node3D, lobby.global_transform * Vector3(0.0, 0.0, max_p.z - 1.7), lobby.global_position)
 	var into_room := Vector3(max_p.x + 0.05, 0.0, screen_at.z)
-	_set_door(room.get_node("LobbyScreenDoor") as Area3D, lobby.global_transform * into_room, Vector3(1.0, 0.0, 0.0), 2.2)
+	_set_door(room.get_node("LobbyScreenDoor") as Area3D, lobby.global_transform * into_room, Vector3(1.0, 0.0, 0.0), 2.6)
 	_aim_marker(room.get_node("ScreenReturn") as Node3D, lobby.global_transform * Vector3(screen_at.x - 1.6, 0.0, screen_at.z), lobby.global_position)
 	_blocker_at(nav, lobby, "counter", Vector3(-2.35, 0.55, -1.45), Vector3(2.6, 1.1, 1.2), Vector3(0.0, 0.5, -0.45))
 	_blocker_at(nav, lobby, "kiosk", Vector3(1.0, 0.5, -0.95), Vector3(1.05, 1.0, 0.7), Vector3(0.0, 0.45, 0.0))
-	_axis_box(nav, Vector3(2.3, 0.7, 0.9), lobby.position + Vector3(-1.9, 0.35, 1.75), 2)
-	_axis_box(nav, Vector3(0.85, 0.7, 1.5), lobby.position + Vector3(-3.35, 0.35, -0.15), 2)
+	# lounge: table with two armchairs, and the two-seat sofa by the left wall (cinema_lobby.py layout)
+	_axis_box(nav, Vector3(3.0, 0.7, 0.9), lobby.position + Vector3(-3.6, 0.35, 2.6), 2)
+	_axis_box(nav, Vector3(0.85, 0.7, 2.2), lobby.position + Vector3(-5.2, 0.35, 0.2), 2)
 	_glow(lobby, Vector3(0.0, 2.35, 0.2), Color(1.0, 0.84, 0.68), 1.15, 9.0)
 
 
@@ -347,7 +345,7 @@ static func _place_cinema_hall(room: Node3D, props: Node3D, nav: Node3D) -> void
 	var exit_at := Vector3(min_p.x + 1.0, 0.0, max_p.z - 1.0)
 	if exit:
 		exit_at = hall.to_local(exit.global_position)
-	_wall_along_z(nav, hall.position, min_p.x - 0.22, min_p.z - 0.2, max_p.z + 0.2, exit_at.z, 0.95)
+	_wall_along_z(nav, hall.position, min_p.x - 0.22, min_p.z - 0.2, max_p.z + 0.2, exit_at.z, 1.0)
 	var into_aisle := Vector3(min_p.x + 0.15, 0.0, exit_at.z)
 	_set_door(room.get_node("AuditoriumDoor") as Area3D, hall.global_transform * into_aisle, Vector3(-1.0, 0.0, 0.0), 2.0)
 	var landing := Vector3(0.6, 0.0, exit_at.z)
@@ -356,9 +354,18 @@ static func _place_cinema_hall(room: Node3D, props: Node3D, nav: Node3D) -> void
 	if screen:
 		screen_at = hall.to_local(screen.global_position)
 	_aim_marker(room.get_node("InsideScreen") as Node3D, hall.global_transform * landing, hall.global_transform * screen_at)
-	for seat_z in [-0.47, 0.73, 1.93]:
-		_axis_box(nav, Vector3(3.15, 0.55, 0.72), hall.position + Vector3(-0.66, 0.28, seat_z), 2)
-	_axis_box(nav, Vector3(4.8, 1.5, 1.05), hall.position + Vector3(0.0, 0.75, screen_at.z), 2)
+	# one blocker per seat row, spanning that row's seat sockets (rows are 1.4 m apart)
+	var rows := {}
+	for s in hall.find_children("socket_seat*", "Node3D", true, false):
+		var p := hall.to_local((s as Node3D).global_position)
+		var key := snappedf(p.z, 0.1)
+		var span: Vector2 = rows.get(key, Vector2(p.x, p.x))
+		rows[key] = Vector2(minf(span.x, p.x), maxf(span.y, p.x))
+	for key in rows:
+		var span: Vector2 = rows[key]
+		_axis_box(nav, Vector3(span.y - span.x + 1.2, 0.55, 0.8), hall.position + Vector3((span.x + span.y) * 0.5, 0.28, key + 0.09), 2)
+	# full-width stage under the screen
+	_axis_box(nav, Vector3(bounds.size.x - 0.4, 1.5, 1.0), hall.position + Vector3(0.0, 0.75, screen_at.z + 0.25), 2)
 	_glow(hall, Vector3(0.2, 2.5, 0.4), Color(0.55, 0.72, 0.78), 0.7, 8.0)
 	_glow(hall, Vector3(screen_at.x, 2.1, screen_at.z + 0.8), Color(0.78, 0.88, 1.0), 1.5, 7.0)
 

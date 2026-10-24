@@ -59,7 +59,6 @@ func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO, size), Color(0.38, 0.66, 0.9))
 	_draw_water()
 	_draw_island()
-	_draw_igloo()
 	_draw_town_blocks()
 	_draw_cinema()
 	_draw_hill()
@@ -120,13 +119,6 @@ func _draw_hill() -> void:
 	]), Color(0.9, 0.95, 0.98))
 
 
-func _draw_igloo() -> void:
-	var dome := _pixel("home") + Vector2(-30, -2)
-	draw_circle(dome, 13.0, Color(0.8, 0.91, 0.97))
-	draw_arc(dome, 13.0, PI, TAU, 16, Color(0.5, 0.68, 0.8), 2.0, true)
-	draw_rect(Rect2(dome + Vector2(-4.5, -2.0), Vector2(9, 8)), Color(0.15, 0.22, 0.3))
-
-
 func _draw_cinema() -> void:
 	var origin := _pixel("cinema")
 	var house := Rect2(origin + Vector2(-16, -6), Vector2(32, 18))
@@ -135,10 +127,8 @@ func _draw_cinema() -> void:
 
 
 func _draw_route() -> void:
-	_draw_dashed("home", "plaza")
 	_draw_dashed("plaza", "sled_hill")
 	_draw_dashed("plaza", "cinema")
-	_draw_dashed("town", "court")
 
 
 func _draw_dashed(from_id: String, to_id: String) -> void:
