@@ -15,6 +15,7 @@
         0.41
       ]
     },
+    "icon": "room_kit/icons/armchair.png",
     "tints": {
       "finish": "#BC874E",
       "upholstery": "#E86D58",
@@ -71,6 +72,7 @@
         0.41
       ]
     },
+    "icon": "room_kit/icons/sofa_2seat.png",
     "tints": {
       "finish": "#BC874E",
       "upholstery": "#34408F",
@@ -123,6 +125,7 @@
         0.37
       ]
     },
+    "icon": "room_kit/icons/low_table_round.png",
     "tints": {
       "finish": "#BC874E"
     },
@@ -191,6 +194,7 @@
         0.92
       ]
     },
+    "icon": "room_kit/icons/cube_shelf.png",
     "tints": {
       "finish": "#207D85"
     },
@@ -262,6 +266,7 @@
         0.44
       ]
     },
+    "icon": "room_kit/icons/bed.png",
     "tints": {
       "finish": "#BC874E",
       "bedding": "#E86D58",
@@ -328,12 +333,19 @@
         ],
         "motion": "slide",
         "dir": [
-          0,
-          -1,
-          0
+          0.0,
+          -1.0,
+          0.0
         ],
         "dist": 0.25
       }
+    },
+    "icon": "room_kit/icons/writing_desk.png",
+    "part_clips": {
+      "part_drawer": [
+        "drawer_open",
+        "drawer_close"
+      ]
     },
     "tints": {
       "finish": "#BC874E"
@@ -384,6 +396,7 @@
         0.45
       ]
     },
+    "icon": "room_kit/icons/desk_stool.png",
     "tints": {
       "finish": "#BC874E",
       "cushion": "#FAF1DD"
@@ -433,6 +446,7 @@
         0.0
       ]
     },
+    "icon": "room_kit/icons/floor_lamp.png",
     "tints": {
       "finish": "#BC874E",
       "shade": "#E3A92B"
@@ -476,6 +490,7 @@
       0.382
     ],
     "sockets": {},
+    "icon": "room_kit/icons/flower_box.png",
     "tints": {
       "petal": "#FFFDF6",
       "petal_alt": "#E8524A"
@@ -592,6 +607,18 @@
         "max_deg": 22
       }
     },
+    "icon": "room_kit/icons/arcade_cabinet_home.png",
+    "part_clips": {
+      "part_btn_1_a": [
+        "btn_1_a_press"
+      ],
+      "part_btn_1_b": [
+        "btn_1_b_press"
+      ],
+      "part_btn_1_c": [
+        "btn_1_c_press"
+      ]
+    },
     "tints": {
       "body": "#7B4FC4",
       "decal": "#F2C230"
@@ -666,6 +693,15 @@
         "amp_deg": 14
       }
     },
+    "icon": "room_kit/icons/aquarium.png",
+    "part_clips": {
+      "part_fish_0": [
+        "fish_0_sway"
+      ],
+      "part_fish_1": [
+        "fish_1_sway"
+      ]
+    },
     "tints": {
       "finish": "#BC874E",
       "frame": "#207D85"
@@ -708,6 +744,7 @@
       0.816
     ],
     "sockets": {},
+    "icon": "room_kit/icons/plant_large.png",
     "tints": {
       "pot": "#FAF1DD"
     },
@@ -739,6 +776,7 @@
       0.257
     ],
     "sockets": {},
+    "icon": "room_kit/icons/plant_small.png",
     "tints": {
       "pot": "#FAF1DD"
     },
@@ -770,6 +808,7 @@
       0.647
     ],
     "sockets": {},
+    "icon": "room_kit/icons/plant_topiary.png",
     "tints": {
       "pot": "#FAF1DD"
     },
@@ -801,6 +840,7 @@
       0.489
     ],
     "sockets": {},
+    "icon": "room_kit/icons/plant_broadleaf.png",
     "tints": {
       "pot": "#C8663E"
     },
@@ -832,6 +872,7 @@
       0.617
     ],
     "sockets": {},
+    "icon": "room_kit/icons/plant_snake.png",
     "tints": {
       "pot": "#C8663E"
     },
@@ -863,6 +904,7 @@
       0.524
     ],
     "sockets": {},
+    "icon": "room_kit/icons/plant_cactus.png",
     "tints": {
       "pot": "#FAF1DD"
     },
@@ -894,6 +936,7 @@
       0.325
     ],
     "sockets": {},
+    "icon": "room_kit/icons/plant_flowerpot.png",
     "tints": {
       "pot": "#C8663E",
       "petal": "#FFFDF6"
@@ -937,6 +980,12 @@
         "amp_deg": 3
       }
     },
+    "icon": "room_kit/icons/plant_hanging.png",
+    "part_clips": {
+      "part_planter": [
+        "planter_sway"
+      ]
+    },
     "tints": {
       "pot": "#C8663E"
     },
@@ -964,6 +1013,7 @@
       0.023
     ],
     "sockets": {},
+    "icon": "room_kit/icons/rug_round.png",
     "tints": {
       "rug_base": "#FAF1DD",
       "rug": "#6E8A3A"
@@ -1005,6 +1055,7 @@
       0.018
     ],
     "sockets": {},
+    "icon": "room_kit/icons/rug_patchwork.png",
     "tints": {
       "rug_2": "#FAF1DD",
       "rug_0": "#207D85",
@@ -1050,6 +1101,7 @@
       0.022
     ],
     "sockets": {},
+    "icon": "room_kit/icons/rug_round_plain.png",
     "tints": {
       "rug_edge": "#E6CFAA",
       "rug": "#F7F4EE"
@@ -1088,6 +1140,7 @@
       0.83
     ],
     "sockets": {},
+    "icon": "room_kit/icons/wall_poster.png",
     "tints": {
       "frame": "#BC874E"
     },
@@ -1123,6 +1176,7 @@
       0.7
     ],
     "sockets": {},
+    "icon": "room_kit/icons/poster_frame_thin.png",
     "tints": {
       "frame": "#BC874E"
     },
@@ -1158,6 +1212,7 @@
       0.72
     ],
     "sockets": {},
+    "icon": "room_kit/icons/poster_frame_matted.png",
     "tints": {
       "frame": "#C99559"
     },
@@ -1193,6 +1248,7 @@
       0.78
     ],
     "sockets": {},
+    "icon": "room_kit/icons/poster_frame_bold.png",
     "tints": {
       "frame": "#7A4E2C"
     },
@@ -1234,6 +1290,7 @@
         0.025
       ]
     },
+    "icon": "room_kit/icons/wall_shelf.png",
     "tints": {
       "finish": "#BC874E"
     },
@@ -1285,6 +1342,12 @@
         "amp_deg": 4
       }
     },
+    "icon": "room_kit/icons/star_mobile.png",
+    "part_clips": {
+      "part_mobile": [
+        "mobile_sway"
+      ]
+    },
     "tints": {
       "finish": "#BC874E",
       "charm": "#F2C230",
@@ -1319,45 +1382,57 @@
     "file": "room_kit/window_curtains.glb",
     "category": "decor",
     "size_m": [
-      1.507,
-      0.13,
-      1.205
+      1.49,
+      0.14,
+      1.18
     ],
     "sockets": {},
     "parts": {
       "part_curtain_l": {
         "pivot": [
-          -0.325,
+          -0.335,
           -0.09,
           0.6
         ],
         "motion": "slide",
         "dir": [
-          -1,
-          0,
-          0
+          -1.0,
+          0.0,
+          0.0
         ],
-        "dist": 0.32
+        "dist": 0.3
       },
       "part_curtain_r": {
         "pivot": [
-          0.325,
+          0.335,
           -0.09,
           0.6
         ],
         "motion": "slide",
         "dir": [
-          1,
-          0,
-          0
+          1.0,
+          0.0,
+          0.0
         ],
-        "dist": 0.32
+        "dist": 0.3
       }
     },
+    "icon": "room_kit/icons/window_curtains.png",
+    "part_clips": {
+      "part_curtain_l": [
+        "curtain_l_open",
+        "curtain_l_close"
+      ],
+      "part_curtain_r": [
+        "curtain_r_open",
+        "curtain_r_close"
+      ]
+    },
     "tints": {
-      "rod": "#7A4E2C",
-      "curtain": "#E86D58",
-      "tieback": "#FAF1DD"
+      "rod": "#BC874E",
+      "curtain": "#FAF1DD",
+      "curtain_band": "#E86D58",
+      "curtain_hem": "#207D85"
     },
     "placement": {
       "layer": "wall",
@@ -1371,36 +1446,57 @@
     },
     "color_variants": {
       "curtain": [
+        "#FAF1DD",
+        "#F7F4EE"
+      ],
+      "curtain_band": [
         "#E86D58",
+        "#E3A92B"
+      ],
+      "curtain_hem": [
         "#207D85",
-        "#E3A92B",
-        "#A784D9"
+        "#153447"
       ],
       "rod": [
-        "#7A4E2C",
-        "#E2A93B"
+        "#BC874E",
+        "#7A4E2C"
       ]
     },
     "fits_window_m": [
       1.1,
-      1.0499999999999998
-    ]
+      1.0
+    ],
+    "opening_envelope_m": {
+      "closed": [
+        -0.65,
+        0.65
+      ],
+      "open": [
+        -0.95,
+        0.95
+      ],
+      "z": [
+        -0.5000000000000001,
+        0.6799999999999999
+      ],
+      "depth": 0.14
+    }
   },
   {
     "id": "room_kit/wall_clock",
     "file": "room_kit/wall_clock.glb",
     "category": "decor",
     "size_m": [
-      0.39,
-      0.09,
-      0.395
+      0.388,
+      0.096,
+      0.388
     ],
     "sockets": {},
     "parts": {
       "part_hand_hour": {
         "pivot": [
           0.0,
-          -0.064,
+          -0.07,
           0.0
         ],
         "motion": "spin",
@@ -1409,16 +1505,26 @@
       "part_hand_minute": {
         "pivot": [
           0.0,
-          -0.071,
+          -0.077,
           0.0
         ],
         "motion": "spin",
         "axis": "y"
       }
     },
+    "icon": "room_kit/icons/wall_clock.png",
+    "part_clips": {
+      "part_hand_hour": [
+        "hand_hour_spin"
+      ],
+      "part_hand_minute": [
+        "hand_minute_spin"
+      ]
+    },
     "tints": {
       "frame": "#BC874E",
-      "face": "#FAF1DD"
+      "face": "#FAF1DD",
+      "hands": "#207D85"
     },
     "placement": {
       "layer": "wall",
@@ -1440,6 +1546,296 @@
       "face": [
         "#FAF1DD",
         "#F7F4EE"
+      ],
+      "hands": [
+        "#207D85",
+        "#153447"
+      ]
+    }
+  },
+  {
+    "id": "room_kit/wall_hook_rail",
+    "file": "room_kit/wall_hook_rail.glb",
+    "category": "decor",
+    "size_m": [
+      0.72,
+      0.15,
+      0.158
+    ],
+    "sockets": {
+      "socket_hook_0": [
+        -0.2,
+        -0.12,
+        -0.03
+      ],
+      "socket_hook_1": [
+        0.0,
+        -0.12,
+        -0.03
+      ],
+      "socket_hook_2": [
+        0.2,
+        -0.12,
+        -0.03
+      ]
+    },
+    "icon": "room_kit/icons/wall_hook_rail.png",
+    "tints": {
+      "finish": "#BC874E",
+      "hook_a": "#207D85",
+      "hook_b": "#FAF1DD",
+      "hook_c": "#E86D58"
+    },
+    "placement": {
+      "layer": "wall",
+      "cell_m": 0.5,
+      "footprint": null,
+      "rotations": [
+        0
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "color_variants": {
+      "finish": [
+        "#BC874E",
+        "#7A4E2C"
+      ],
+      "hook_a": [
+        "#207D85"
+      ],
+      "hook_b": [
+        "#FAF1DD"
+      ],
+      "hook_c": [
+        "#E86D58"
+      ]
+    },
+    "hooks": [
+      "socket_hook_0",
+      "socket_hook_1",
+      "socket_hook_2"
+    ]
+  },
+  {
+    "id": "room_kit/oval_mirror",
+    "file": "room_kit/oval_mirror.glb",
+    "category": "decor",
+    "size_m": [
+      0.394,
+      0.062,
+      0.551
+    ],
+    "sockets": {},
+    "icon": "room_kit/icons/oval_mirror.png",
+    "tints": {
+      "frame": "#BC874E"
+    },
+    "placement": {
+      "layer": "wall",
+      "cell_m": 0.5,
+      "footprint": null,
+      "rotations": [
+        0
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "color_variants": {
+      "frame": [
+        "#BC874E",
+        "#7A4E2C",
+        "#207D85"
+      ]
+    },
+    "inserts": [
+      "insert_mirror"
+    ]
+  },
+  {
+    "id": "room_kit/entry_mat",
+    "file": "room_kit/entry_mat.glb",
+    "category": "decor",
+    "size_m": [
+      0.9,
+      0.58,
+      0.028
+    ],
+    "sockets": {},
+    "icon": "room_kit/icons/entry_mat.png",
+    "tints": {
+      "mat_border": "#207D85",
+      "mat_field": "#FAF1DD",
+      "mat_motif": "#207D85"
+    },
+    "placement": {
+      "layer": "rug",
+      "cell_m": 0.5,
+      "footprint": [
+        2,
+        2
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "color_variants": {
+      "mat_border": [
+        "#207D85",
+        "#E86D58"
+      ],
+      "mat_field": [
+        "#FAF1DD"
+      ],
+      "mat_motif": [
+        "#207D85",
+        "#153447"
+      ]
+    }
+  },
+  {
+    "id": "room_kit/patchwork_throw_armchair",
+    "file": "room_kit/patchwork_throw_armchair.glb",
+    "category": "decor",
+    "size_m": [
+      0.377,
+      0.376,
+      0.398
+    ],
+    "sockets": {},
+    "icon": "room_kit/icons/patchwork_throw_armchair.png",
+    "tints": {
+      "patch_a": "#E86D58",
+      "patch_b": "#FAF1DD",
+      "patch_c": "#207D85",
+      "tassel": "#FAF1DD"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "fits": "armchair",
+    "attach": "furniture origin (place with the same transform as the fitted asset)",
+    "color_variants": {
+      "patch_a": [
+        "#E86D58"
+      ],
+      "patch_b": [
+        "#FAF1DD"
+      ],
+      "patch_c": [
+        "#207D85"
+      ]
+    }
+  },
+  {
+    "id": "room_kit/patchwork_throw_sofa_2seat",
+    "file": "room_kit/patchwork_throw_sofa_2seat.glb",
+    "category": "decor",
+    "size_m": [
+      0.477,
+      0.356,
+      0.403
+    ],
+    "sockets": {},
+    "icon": "room_kit/icons/patchwork_throw_sofa_2seat.png",
+    "tints": {
+      "patch_a": "#E86D58",
+      "patch_b": "#FAF1DD",
+      "patch_c": "#207D85",
+      "tassel": "#FAF1DD"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "fits": "sofa_2seat",
+    "attach": "furniture origin (place with the same transform as the fitted asset)",
+    "color_variants": {
+      "patch_a": [
+        "#E86D58"
+      ],
+      "patch_b": [
+        "#FAF1DD"
+      ],
+      "patch_c": [
+        "#207D85"
+      ]
+    }
+  },
+  {
+    "id": "room_kit/patchwork_throw_bed",
+    "file": "room_kit/patchwork_throw_bed.glb",
+    "category": "decor",
+    "size_m": [
+      1.092,
+      0.376,
+      0.328
+    ],
+    "sockets": {},
+    "icon": "room_kit/icons/patchwork_throw_bed.png",
+    "tints": {
+      "patch_a": "#E86D58",
+      "patch_b": "#FAF1DD",
+      "patch_c": "#207D85",
+      "tassel": "#FAF1DD"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        3,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "fits": "bed",
+    "attach": "furniture origin (place with the same transform as the fitted asset)",
+    "color_variants": {
+      "patch_a": [
+        "#E86D58"
+      ],
+      "patch_b": [
+        "#FAF1DD"
+      ],
+      "patch_c": [
+        "#207D85"
       ]
     }
   },
@@ -1448,9 +1844,9 @@
     "file": "room_kit/woven_basket.glb",
     "category": "decor",
     "size_m": [
-      0.454,
-      0.443,
-      0.292
+      0.48,
+      0.46,
+      0.37
     ],
     "sockets": {
       "socket_surface_0": [
@@ -1459,8 +1855,11 @@
         0.03
       ]
     },
+    "icon": "room_kit/icons/woven_basket.png",
     "tints": {
-      "weave": "#D4A46A"
+      "weave": "#D4A46A",
+      "weave_alt": "#FAF1DD",
+      "weave_accent": "#207D85"
     },
     "placement": {
       "layer": "floor",
@@ -1481,8 +1880,14 @@
     "color_variants": {
       "weave": [
         "#D4A46A",
-        "#FAF1DD",
-        "#8DAA5B"
+        "#C99559"
+      ],
+      "weave_alt": [
+        "#FAF1DD"
+      ],
+      "weave_accent": [
+        "#207D85",
+        "#E86D58"
       ]
     },
     "also_surface": true,
@@ -1498,20 +1903,27 @@
     "file": "room_kit/storage_box.glb",
     "category": "decor",
     "size_m": [
-      0.45,
-      0.345,
-      0.26
+      0.44,
+      0.375,
+      0.292
     ],
     "sockets": {
+      "socket_stack": [
+        0.0,
+        0.0,
+        0.292
+      ],
       "socket_surface_0": [
         0.0,
         0.0,
-        0.26
+        0.292
       ]
     },
+    "icon": "room_kit/icons/storage_box.png",
     "tints": {
-      "box": "#207D85",
-      "label": "#FAF1DD"
+      "lid": "#207D85",
+      "box": "#FAF1DD",
+      "clip": "#E86D58"
     },
     "placement": {
       "layer": "floor",
@@ -1531,18 +1943,32 @@
     },
     "color_variants": {
       "box": [
+        "#FAF1DD",
+        "#F7F4EE"
+      ],
+      "lid": [
         "#207D85",
         "#E86D58",
-        "#E3A92B",
-        "#FAF1DD"
+        "#E3A92B"
+      ],
+      "clip": [
+        "#E86D58",
+        "#207D85"
       ]
     },
     "also_surface": true,
     "stackable": true,
+    "stack": {
+      "socket": "socket_stack",
+      "accepts": [
+        "storage_box"
+      ],
+      "max": 3
+    },
     "surfaces": {
       "surface_0": [
-        0.38,
-        0.28
+        0.33999999999999997,
+        0.26
       ]
     }
   },
@@ -1551,15 +1977,15 @@
     "file": "room_kit/lidded_chest.glb",
     "category": "furniture",
     "size_m": [
-      0.82,
-      0.5,
-      0.53
+      0.837,
+      0.512,
+      0.473
     ],
     "sockets": {
       "socket_surface_0": [
         0.0,
         0.0,
-        0.53
+        0.47
       ],
       "socket_use": [
         0.0,
@@ -1579,16 +2005,26 @@
         "open_deg": -100
       }
     },
+    "icon": "room_kit/icons/lidded_chest.png",
+    "part_clips": {
+      "part_lid": [
+        "lid_open",
+        "lid_close"
+      ]
+    },
     "tints": {
-      "band": "#3E3B3A",
-      "finish": "#BC874E"
+      "finish": "#BC874E",
+      "patch_a": "#E86D58",
+      "patch_b": "#FAF1DD",
+      "patch_c": "#207D85",
+      "caps": "#FAF1DD"
     },
     "placement": {
       "layer": "floor",
       "cell_m": 0.5,
       "footprint": [
         2,
-        1
+        2
       ],
       "rotations": [
         0,
@@ -1602,17 +2038,20 @@
     "color_variants": {
       "finish": [
         "#BC874E",
-        "#7A4E2C",
-        "#207D85"
+        "#7A4E2C"
       ],
-      "band": [
-        "#3E3B3A",
-        "#E2A93B"
+      "caps": [
+        "#FAF1DD"
       ]
+    },
+    "hinge_clearance_m": {
+      "above": 0.5,
+      "behind": 0.12,
+      "note": "keep free when the lid opens; blocks wall-flush back placement"
     },
     "surfaces": {
       "surface_0": [
-        0.56,
+        0.6000000000000001,
         0.32
       ]
     }
@@ -1627,6 +2066,7 @@
       0.03
     ],
     "sockets": {},
+    "icon": "room_kit/icons/book_single.png",
     "tints": {
       "cover": "#D9473B"
     },
@@ -1657,6 +2097,7 @@
       0.094
     ],
     "sockets": {},
+    "icon": "room_kit/icons/book_stack.png",
     "tints": {
       "cover_0": "#3D7BD9",
       "cover_1": "#207D85",
@@ -1689,6 +2130,7 @@
       0.085
     ],
     "sockets": {},
+    "icon": "room_kit/icons/mug.png",
     "tints": {
       "glaze": "#F7F4EE"
     },
@@ -1714,14 +2156,17 @@
     "file": "room_kit/cushion_square.glb",
     "category": "decor",
     "size_m": [
-      0.3,
+      0.369,
       0.152,
-      0.26
+      0.334
     ],
     "sockets": {},
+    "icon": "room_kit/icons/cushion_square.png",
     "tints": {
       "cushion": "#FAF1DD",
-      "cushion_accent": "#E86D58"
+      "cushion_accent": "#E86D58",
+      "cushion_centre": "#207D85",
+      "tassel": "#E86D58"
     },
     "placement": {
       "layer": "surface",
@@ -1745,44 +2190,16 @@
     "file": "room_kit/cushion_round.glb",
     "category": "decor",
     "size_m": [
-      0.29,
-      0.128,
-      0.29
+      0.447,
+      0.447,
+      0.155
     ],
     "sockets": {},
+    "icon": "room_kit/icons/cushion_round.png",
     "tints": {
-      "cushion": "#8DAA5B",
-      "cushion_accent": "#FAF1DD"
-    },
-    "placement": {
-      "layer": "surface",
-      "cell_m": 0.5,
-      "footprint": [
-        1,
-        1
-      ],
-      "rotations": [
-        0,
-        90,
-        180,
-        270
-      ],
-      "clearance_front": 0,
-      "recolor": true
-    }
-  },
-  {
-    "id": "room_kit/fruit_bowl",
-    "file": "room_kit/fruit_bowl.glb",
-    "category": "decor",
-    "size_m": [
-      0.247,
-      0.26,
-      0.206
-    ],
-    "sockets": {},
-    "tints": {
-      "bowl": "#FAF1DD"
+      "cushion": "#207D85",
+      "cushion_alt": "#FAF1DD",
+      "button": "#E86D58"
     },
     "placement": {
       "layer": "surface",
@@ -1811,8 +2228,164 @@
       0.065
     ],
     "sockets": {},
+    "icon": "room_kit/icons/cookie_plate.png",
     "tints": {
       "plate": "#F7F4EE"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "room_kit/fruit_apple",
+    "file": "room_kit/fruit_apple.glb",
+    "category": "decor",
+    "size_m": [
+      0.074,
+      0.073,
+      0.111
+    ],
+    "sockets": {},
+    "icon": "room_kit/icons/fruit_apple.png",
+    "tints": {
+      "fruit": "#D9473B"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "room_kit/fruit_pear",
+    "file": "room_kit/fruit_pear.glb",
+    "category": "decor",
+    "size_m": [
+      0.069,
+      0.07,
+      0.14
+    ],
+    "sockets": {},
+    "icon": "room_kit/icons/fruit_pear.png",
+    "tints": {
+      "fruit": "#8DAA5B"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "room_kit/fruit_orange",
+    "file": "room_kit/fruit_orange.glb",
+    "category": "decor",
+    "size_m": [
+      0.08,
+      0.084,
+      0.085
+    ],
+    "sockets": {},
+    "icon": "room_kit/icons/fruit_orange.png",
+    "tints": {
+      "fruit": "#F08A2E"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "room_kit/book_upright",
+    "file": "room_kit/book_upright.glb",
+    "category": "decor",
+    "size_m": [
+      0.054,
+      0.159,
+      0.21
+    ],
+    "sockets": {},
+    "icon": "room_kit/icons/book_upright.png",
+    "tints": {
+      "cover": "#207D85"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "room_kit/flower_stems",
+    "file": "room_kit/flower_stems.glb",
+    "category": "decor",
+    "size_m": [
+      0.132,
+      0.12,
+      0.207
+    ],
+    "sockets": {},
+    "icon": "room_kit/icons/flower_stems.png",
+    "tints": {
+      "petal": "#E86D58"
     },
     "placement": {
       "layer": "surface",
@@ -1847,6 +2420,7 @@
         0.13
       ]
     },
+    "icon": "room_kit/icons/teapot_set.png",
     "tints": {
       "tray": "#BC874E",
       "glaze": "#207D85"
@@ -1878,6 +2452,7 @@
       0.216
     ],
     "sockets": {},
+    "icon": "room_kit/icons/framed_photo.png",
     "tints": {
       "frame": "#BC874E"
     },
@@ -1908,6 +2483,7 @@
       0.216
     ],
     "sockets": {},
+    "icon": "room_kit/icons/tabletop_plant.png",
     "tints": {
       "pot": "#FAF1DD"
     },
@@ -1944,6 +2520,7 @@
         0.125
       ]
     },
+    "icon": "room_kit/icons/candle.png",
     "tints": {
       "wax": "#FAF1DD"
     },
@@ -1980,6 +2557,7 @@
         0.1
       ]
     },
+    "icon": "room_kit/icons/small_lantern.png",
     "tints": {},
     "placement": {
       "layer": "surface",
@@ -2008,6 +2586,7 @@
       0.182
     ],
     "sockets": {},
+    "icon": "room_kit/icons/trophy.png",
     "tints": {
       "metal": "#E2A93B"
     },
@@ -2033,11 +2612,12 @@
     "file": "room_kit/plush_penguin.glb",
     "category": "decor",
     "size_m": [
-      0.184,
-      0.165,
-      0.18
+      0.281,
+      0.24,
+      0.241
     ],
     "sockets": {},
+    "icon": "room_kit/icons/plush_penguin.png",
     "tints": {
       "body": "#3D7BD9"
     },
@@ -2068,6 +2648,7 @@
       0.207
     ],
     "sockets": {},
+    "icon": "room_kit/icons/pencil_cup.png",
     "tints": {
       "glaze": "#FAF1DD"
     },
@@ -2087,5 +2668,212 @@
       "clearance_front": 0,
       "recolor": true
     }
+  },
+  {
+    "id": "room_kit/fruit_bowl",
+    "file": "room_kit/fruit_bowl.glb",
+    "category": "decor",
+    "size_m": [
+      0.324,
+      0.324,
+      0.117
+    ],
+    "sockets": {
+      "socket_surface_0": [
+        -0.045,
+        -0.02,
+        0.035
+      ],
+      "socket_surface_1": [
+        0.05,
+        0.0,
+        0.035
+      ],
+      "socket_surface_2": [
+        0.0,
+        0.055,
+        0.035
+      ]
+    },
+    "icon": "room_kit/icons/fruit_bowl.png",
+    "tints": {
+      "bowl_band": "#207D85",
+      "bowl": "#FAF1DD"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "surfaces": {
+      "surface_0": [
+        0.09,
+        0.09
+      ],
+      "surface_1": [
+        0.09,
+        0.09
+      ],
+      "surface_2": [
+        0.09,
+        0.09
+      ]
+    }
+  },
+  {
+    "id": "room_kit/folded_blanket",
+    "file": "room_kit/folded_blanket.glb",
+    "category": "decor",
+    "size_m": [
+      0.463,
+      0.308,
+      0.15
+    ],
+    "sockets": {},
+    "icon": "room_kit/icons/folded_blanket.png",
+    "tints": {
+      "patch_a": "#E86D58",
+      "patch_b": "#FAF1DD",
+      "patch_c": "#207D85"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "also_floor": true
+  },
+  {
+    "id": "room_kit/small_vase",
+    "file": "room_kit/small_vase.glb",
+    "category": "decor",
+    "size_m": [
+      0.118,
+      0.118,
+      0.16
+    ],
+    "sockets": {
+      "socket_stems": [
+        0.0,
+        0.0,
+        0.16
+      ]
+    },
+    "icon": "room_kit/icons/small_vase.png",
+    "tints": {
+      "vase": "#FAF1DD",
+      "vase_band": "#207D85"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "holds": {
+      "socket_stems": [
+        "flower_stems"
+      ]
+    }
+  },
+  {
+    "id": "room_kit/bookend_left",
+    "file": "room_kit/bookend_left.glb",
+    "category": "decor",
+    "size_m": [
+      0.188,
+      0.15,
+      0.23
+    ],
+    "sockets": {},
+    "icon": "room_kit/icons/bookend_left.png",
+    "tints": {
+      "finish": "#BC874E",
+      "body": "#153447"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "pair": "bookend_right",
+    "books_between": true
+  },
+  {
+    "id": "room_kit/bookend_right",
+    "file": "room_kit/bookend_right.glb",
+    "category": "decor",
+    "size_m": [
+      0.188,
+      0.15,
+      0.23
+    ],
+    "sockets": {},
+    "icon": "room_kit/icons/bookend_right.png",
+    "tints": {
+      "finish": "#BC874E",
+      "body": "#153447"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "pair": "bookend_left",
+    "books_between": true
   }
 ]

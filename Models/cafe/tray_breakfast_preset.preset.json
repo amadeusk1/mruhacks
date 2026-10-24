@@ -1,0 +1,96 @@
+{
+  "id": "cafe/tray_breakfast_preset",
+  "placement": {
+    "layer": "surface",
+    "cell_m": 0.5,
+    "footprint": null,
+    "rotations": [
+      0,
+      90,
+      180,
+      270
+    ],
+    "clearance_front": 0,
+    "recolor": true
+  },
+  "parts": [
+    {
+      "asset_id": "cafe/serving_tray",
+      "offset": [
+        0,
+        0,
+        0
+      ],
+      "rot": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "asset_id": "cafe/plate",
+      "offset": [
+        -0.06,
+        -0.045,
+        0.016
+      ],
+      "rot": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "asset_id": "cafe/croissant",
+      "offset": [
+        -0.06,
+        -0.045,
+        0.022
+      ],
+      "rot": [
+        0,
+        0,
+        15
+      ]
+    },
+    {
+      "asset_id": "cafe/teacup",
+      "offset": [
+        0.15,
+        0.07,
+        0.016
+      ],
+      "rot": [
+        0,
+        0,
+        20
+      ]
+    },
+    {
+      "asset_id": "cafe/napkin_holder",
+      "offset": [
+        -0.168,
+        0.105,
+        0.016
+      ],
+      "rot": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "asset_id": "cafe/spoon",
+      "offset": [
+        0.15,
+        -0.09,
+        0.016
+      ],
+      "rot": [
+        0,
+        0,
+        35
+      ]
+    }
+  ]
+}

@@ -244,18 +244,25 @@ def tv_console():
     b = Builder("tv_console", seed=31)
     W, D, H = 1.5, 0.42, 0.42
     legs(b, W, D, 0.1, inset=0.08, s=0.05, mat="wood_dark", r2=0.018)
-    b.box(W, D, H - 0.1, 0, 0, 0.1, FINISH, bevel=0.02)
+    for sx in (-1, 1):                                                                     # hollow side cupboards
+        b.box(0.5, D, 0.03, sx * 0.5, 0, 0.1, FINISH, bevel=0.008)
+        b.box(0.5, D, 0.03, sx * 0.5, 0, H - 0.03, FINISH, bevel=0.008)
+        b.box(0.03, D, H - 0.1, sx * 0.735, 0, 0.1, FINISH, bevel=0.008)
+        b.box(0.03, D, H - 0.1, sx * 0.265, 0, 0.1, FINISH, bevel=0.008)
+        b.box(0.44, 0.02, H - 0.16, sx * 0.5, D / 2 - 0.02, 0.13, "wood_deep", bevel=0)
+        b.box(0.44, D - 0.06, 0.02, sx * 0.5, 0.01, 0.25, FINISH, bevel=0.004)             # inner shelf
+    b.box(0.5, D, 0.04, 0, 0, 0.1, FINISH, bevel=0.01)                                     # open centre niche
+    b.box(0.5, D, 0.04, 0, 0, H - 0.04, FINISH, bevel=0.01)
+    b.box(0.5, 0.03, H - 0.18, 0, D / 2 - 0.015, 0.14, "wood_deep", bevel=0)
     b.box(W + 0.04, D + 0.02, 0.04, 0, 0, H, FINISH, bevel=0.012)
     for sx in (-1, 1):                                                                     # side doors, hinged outside
         with b.part(f"door_{'l' if sx < 0 else 'r'}", pivot=(sx * 0.71, -D / 2 - 0.025, 0.13), motion="hinge",
                     axis="z", open_deg=-100 * sx):
             b.box(0.42, 0.03, 0.26, sx * 0.5, -D / 2 - 0.01, 0.13, tint("doors", "navy"), bevel=0.01)
             knob(b, sx * 0.33, -D / 2 - 0.04, 0.26)
-    b.box(0.5, D - 0.06, 0.02, 0, 0.02, 0.24, FINISH, bevel=0.004)                         # open centre shelf
-    b.box(0.5, 0.02, 0.26, 0, D / 2 - 0.04, 0.12, "wood_deep", bevel=0)
     b.socket("surface_0", (0, 0.04, H + 0.04))
-    b.socket("surface_shelf", (0, 0.0, 0.26))
-    return done(b, "floor", "furniture", meta={"surfaces": {"surface_0": [1.5, 0.4], "surface_shelf": [0.48, 0.3]}})
+    b.socket("surface_shelf", (0, 0.0, 0.14))
+    return done(b, "floor", "furniture", meta={"surfaces": {"surface_0": [1.5, 0.4], "surface_shelf": [0.46, 0.36]}})
 
 
 def tv():
@@ -292,7 +299,7 @@ def beanbag():
     m = tint("fabric", "purple")
     b.blob(0.4, 0.38, 0.22, 0, 0, 0.21, m, subdiv=2, jitter=0.015)
     b.blob(0.3, 0.16, 0.24, 0, 0.17, 0.4, m, subdiv=2, jitter=0.012, rot=(-15, 0, 0))     # slumped back
-    b.blob(0.22, 0.2, 0.06, 0, -0.06, 0.4, tint("fabric_b", "lavender"), subdiv=1, jitter=0.004)  # seat dent
+    b.blob(0.22, 0.2, 0.06, 0, -0.06, 0.4, tint("seat_dent", "lavender"), subdiv=1, jitter=0.004)  # seat dent: own role, not a shade of fabric
     b.socket("seat_0", (0, -0.05, 0.4))
     return done(b, "floor", "seating")
 
@@ -434,8 +441,13 @@ def tall_dresser():
     b.box(0.74, 0.46, 0.05, 0, 0, 1.18, body, bevel=0.015)
     for i in range(4):
         z = 0.12 + i * 0.26
+        b.box(0.58, 0.006, 0.2, 0, -0.211, z + 0.01, "wood_deep", bevel=0)                   # dark opening
         with b.part(f"drawer_{i}", pivot=(0, -0.215, z), motion="slide", dir=(0, -1, 0), dist=0.28):
             b.box(0.6, 0.03, 0.22, 0, -0.215, z, tint("drawers", "teal_light"), bevel=0.012)
+            for sx in (-1, 1):                                                             # drawer box, hidden when shut
+                b.box(0.02, 0.32, 0.17, sx * 0.27, -0.04, z + 0.02, "wood_c", bevel=0.004)
+            b.box(0.56, 0.32, 0.015, 0, -0.04, z + 0.02, "wood_c", bevel=0.004)
+            b.box(0.56, 0.02, 0.17, 0, 0.12, z + 0.02, "wood_c", bevel=0.004)
             for sx in (-1, 1):
                 knob(b, sx * 0.16, -0.24, z + 0.11)
     b.socket("surface_0", (0, 0, 1.23))
@@ -518,6 +530,8 @@ def curved_bookshelf():
         a = -span / 2 + step * i
         with b.at((0, R, 0), rotz=a):
             b.box(0.04, D, H, 0, -R + D / 2, 0, m, bevel=0.01)
+            for z in (0.0, H - 0.045):                                                     # caps hide chord joints
+                b.box(0.1, D + 0.02, 0.05, 0, -R + D / 2, z, m, bevel=0.012)
     for i in range(bays):
         a = -span / 2 + step * (i + 0.5)
         chord = 2 * (R - D / 2) * math.sin(math.radians(step / 2)) - 0.04

@@ -52,7 +52,7 @@ Each kit is its own GLB under `Models/anim_<set>/`: the skeleton, clips, and the
 
 **Retired clips:** the old `idle`, `waddle`, `sit` and `wave` on `avatar_base` are replaced by `idle`, `walk`, `sit_idle` and `emote_wave`.
 
-**Verified:** loop seams match exactly, and feet stay planted. Every worn item was ray-tested in the extreme poses; the remaining contact is 1–2 vertices under 1.5 cm on jackets in extreme waddle and wave frames. Contact strips are in [Renders](../../Renders) (`anim_*`).
+**Verified:** loop seams match exactly, and feet stay planted. Every worn item was ray-tested in the extreme poses; the remaining contact is 1–2 vertices under 1.5 cm on jackets in extreme waddle and wave frames. Contact strips are in [Renders](../Renders.md) (`anim_*`).
 
 **Known issue being fixed:** in `emote_cheer` and `hop`, raised flippers read as rigid slabs with a gap at the shoulder. The shoulder pivot is being moved inside the body.
 

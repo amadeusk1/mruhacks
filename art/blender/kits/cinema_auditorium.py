@@ -190,7 +190,7 @@ def auditorium_shell(b):
     b.box(0.05, AD, AH - 0.1, -AW / 2 + 0.025, 0, 0, WALL, bevel=0)
     for sx, sy, w_, d_ in ((0, AD / 2 + t / 2, AW + 2 * t + 0.06, t + 0.08), (-AW / 2 - t / 2, 0, t + 0.08, AD)):
         b.box(w_, d_, 0.14, sx, sy, AH, "taupe_dark", bevel=0.03)
-    # wood pilasters on the left wall and at the screen-wall corners
+    # wood pilasters on the left wall
     for py in (-2.25, -0.45, 1.4, 2.75):
         b.box(0.14, 0.24, AH - 0.3, -AW / 2 + 0.07, py, 0, "wood_dark", bevel=0.02)
     # low cutaway walls on the right (+X) and rear (-Y)

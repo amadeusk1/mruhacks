@@ -20,9 +20,9 @@
         0.239
       ],
       "socket_hand_R": [
-        0.0,
+        -0.003,
         -0.02,
-        -0.0
+        0.003
       ],
       "socket_head": [
         0.0,
@@ -105,7 +105,8 @@
         0.04
       ]
     },
-    "height_m": 0.9
+    "height_m": 0.9,
+    "icon": "avatar/icons/avatar_base.png"
   },
   {
     "id": "avatar/red_beanie",
@@ -126,7 +127,8 @@
       "red": "#D9473B",
       "teal": "#2FA3A3",
       "mustard": "#E3A92B"
-    }
+    },
+    "icon": "avatar/icons/red_beanie.png"
   },
   {
     "id": "avatar/frog_hood",
@@ -152,7 +154,8 @@
       "green": "#5DAA3C",
       "pink": "#F2A0B5",
       "yellow": "#F2C230"
-    }
+    },
+    "icon": "avatar/icons/frog_hood.png"
   },
   {
     "id": "avatar/explorer_hat",
@@ -174,7 +177,8 @@
       "tan": "#D4A46A",
       "olive": "#6E8A3A",
       "brown": "#9C6A3C"
-    }
+    },
+    "icon": "avatar/icons/explorer_hat.png"
   },
   {
     "id": "avatar/wizard_hat",
@@ -195,7 +199,8 @@
       "purple": "#7B4FC4",
       "navy": "#2E3F6E",
       "teal": "#2FA3A3"
-    }
+    },
+    "icon": "avatar/icons/wizard_hat.png"
   },
   {
     "id": "avatar/bucket_hat",
@@ -217,7 +222,8 @@
       "blue": "#3D7BD9",
       "coral": "#E86D58",
       "sage": "#8DAA5B"
-    }
+    },
+    "icon": "avatar/icons/bucket_hat.png"
   },
   {
     "id": "avatar/headphones",
@@ -238,7 +244,8 @@
       "red": "#D9473B",
       "teal": "#2FA3A3",
       "white": "#E9EEF2"
-    }
+    },
+    "icon": "avatar/icons/headphones.png"
   },
   {
     "id": "avatar/hoodie",
@@ -260,7 +267,8 @@
       "blue": "#3F7FD0",
       "olive": "#6E8A3A"
     },
-    "rig": "avatar_rig (rebind by bone name)"
+    "rig": "avatar_rig (rebind by bone name)",
+    "icon": "avatar/icons/hoodie.png"
   },
   {
     "id": "avatar/varsity_jacket",
@@ -282,7 +290,8 @@
       "coral": "#E8655A",
       "mustard": "#EDB33F"
     },
-    "rig": "avatar_rig (rebind by bone name)"
+    "rig": "avatar_rig (rebind by bone name)",
+    "icon": "avatar/icons/varsity_jacket.png"
   },
   {
     "id": "avatar/raincoat",
@@ -304,7 +313,8 @@
       "teal": "#3BB8B5",
       "olive": "#6E8A3A"
     },
-    "rig": "avatar_rig (rebind by bone name)"
+    "rig": "avatar_rig (rebind by bone name)",
+    "icon": "avatar/icons/raincoat.png"
   },
   {
     "id": "avatar/overalls",
@@ -326,7 +336,8 @@
       "coral": "#E8655A",
       "lavender": "#A77BD0"
     },
-    "rig": "avatar_rig (rebind by bone name)"
+    "rig": "avatar_rig (rebind by bone name)",
+    "icon": "avatar/icons/overalls.png"
   },
   {
     "id": "avatar/striped_tee",
@@ -348,7 +359,8 @@
       "cream": "#F7EEDD",
       "sky": "#3FA4D4"
     },
-    "rig": "avatar_rig (rebind by bone name)"
+    "rig": "avatar_rig (rebind by bone name)",
+    "icon": "avatar/icons/striped_tee.png"
   },
   {
     "id": "avatar/puffer_vest",
@@ -370,7 +382,8 @@
       "mustard": "#EDB33F",
       "blue": "#3F7FD0"
     },
-    "rig": "avatar_rig (rebind by bone name)"
+    "rig": "avatar_rig (rebind by bone name)",
+    "icon": "avatar/icons/puffer_vest.png"
   },
   {
     "id": "avatar/cafe_apron",
@@ -392,7 +405,8 @@
       "teal": "#3BB8B5",
       "coral": "#E8655A"
     },
-    "rig": "avatar_rig (rebind by bone name)"
+    "rig": "avatar_rig (rebind by bone name)",
+    "icon": "avatar/icons/cafe_apron.png"
   },
   {
     "id": "avatar/wizard_robe",
@@ -414,7 +428,8 @@
       "navy": "#2E3F6E",
       "mustard": "#EDB33F"
     },
-    "rig": "avatar_rig (rebind by bone name)"
+    "rig": "avatar_rig (rebind by bone name)",
+    "icon": "avatar/icons/wizard_robe.png"
   },
   {
     "id": "avatar/backpack",
@@ -434,7 +449,8 @@
     "socket": "socket_back",
     "excludes": [
       "back"
-    ]
+    ],
+    "icon": "avatar/icons/backpack.png"
   },
   {
     "id": "avatar/rolltop_backpack",
@@ -454,7 +470,8 @@
     "socket": "socket_back",
     "excludes": [
       "back"
-    ]
+    ],
+    "icon": "avatar/icons/rolltop_backpack.png"
   },
   {
     "id": "avatar/crossbody_bag",
@@ -475,7 +492,8 @@
     "excludes": [
       "back"
     ],
-    "note": "strap wraps the body; worn in the back slot"
+    "note": "strap wraps the body; worn in the back slot",
+    "icon": "avatar/icons/crossbody_bag.png"
   },
   {
     "id": "avatar/glasses",
@@ -491,7 +509,8 @@
       "cloth_primary": "#2B2B30"
     },
     "slot": "face",
-    "socket": "socket_face"
+    "socket": "socket_face",
+    "icon": "avatar/icons/glasses.png"
   },
   {
     "id": "avatar/scarf",
@@ -508,7 +527,8 @@
       "cloth_secondary": "#B23A33"
     },
     "slot": "neck",
-    "socket": "socket_neck"
+    "socket": "socket_neck",
+    "icon": "avatar/icons/scarf.png"
   },
   {
     "id": "avatar/mug",
@@ -524,7 +544,8 @@
       "cloth_primary": "#F7F4EE"
     },
     "slot": "hand",
-    "socket": "socket_hand_R"
+    "socket": "socket_hand_R",
+    "icon": "avatar/icons/mug.png"
   },
   {
     "id": "avatar/fishing_rod",
@@ -550,7 +571,8 @@
     "activity_item": true,
     "replaces": [
       "hand"
-    ]
+    ],
+    "icon": "avatar/icons/fishing_rod.png"
   },
   {
     "id": "avatar/watering_can",
@@ -566,7 +588,8 @@
       "cloth_primary": "#3BB8B5"
     },
     "slot": "hand",
-    "socket": "socket_hand_R"
+    "socket": "socket_hand_R",
+    "icon": "avatar/icons/watering_can.png"
   },
   {
     "id": "avatar/wand",
@@ -582,6 +605,7 @@
       "cloth_primary": "#7A4E2C"
     },
     "slot": "hand",
-    "socket": "socket_hand_R"
+    "socket": "socket_hand_R",
+    "icon": "avatar/icons/wand.png"
   }
 ]

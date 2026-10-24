@@ -1,0 +1,514 @@
+[
+  {
+    "id": "interaction_props/start_light",
+    "file": "interaction_props/start_light.glb",
+    "category": "track",
+    "size_m": [
+      0.515,
+      0.915,
+      2.126
+    ],
+    "sockets": {
+      "socket_lamp_0": [
+        0.0,
+        -0.68,
+        1.39
+      ],
+      "socket_lamp_1": [
+        0.0,
+        -0.68,
+        1.2
+      ],
+      "socket_lamp_2": [
+        0.0,
+        -0.68,
+        1.01
+      ]
+    },
+    "tints": {},
+    "lamps": [
+      "lamp_red",
+      "lamp_amber",
+      "lamp_green"
+    ],
+    "note": "each lamp has its own emissive material: set emission energy per countdown step",
+    "faces": "-Y (toward racers at the start line)",
+    "icon": "interaction_props/icons/start_light.png"
+  },
+  {
+    "id": "interaction_props/checkpoint_posts",
+    "file": "interaction_props/checkpoint_posts.glb",
+    "category": "track",
+    "size_m": [
+      3.76,
+      0.339,
+      1.221
+    ],
+    "sockets": {},
+    "parts": {
+      "part_pennant_l": {
+        "pivot": [
+          -1.58,
+          0.0,
+          0.98
+        ],
+        "motion": "flutter",
+        "amp_deg": 8
+      },
+      "part_pennant_r": {
+        "pivot": [
+          1.58,
+          0.0,
+          0.98
+        ],
+        "motion": "flutter",
+        "amp_deg": 8
+      }
+    },
+    "part_clips": {
+      "part_pennant_l": [
+        "pennant_l_flutter"
+      ],
+      "part_pennant_r": [
+        "pennant_r_flutter"
+      ]
+    },
+    "tints": {
+      "stripe_a": "#E86D58",
+      "stripe_b": "#207D85",
+      "pennant": "#E86D58"
+    },
+    "gap_m": 3.0,
+    "route_axis": "Y (racers pass between the posts along \u00b1Y)",
+    "note": "posts only: no rope or banner across the sled route",
+    "icon": "interaction_props/icons/checkpoint_posts.png"
+  },
+  {
+    "id": "interaction_props/finish_timer",
+    "file": "interaction_props/finish_timer.glb",
+    "category": "track",
+    "size_m": [
+      3.08,
+      0.471,
+      2.78
+    ],
+    "sockets": {
+      "socket_display": [
+        0.0,
+        -0.14,
+        1.26
+      ]
+    },
+    "parts": {
+      "part_flag_l": {
+        "pivot": [
+          -0.55,
+          0.0,
+          2.62
+        ],
+        "motion": "flutter",
+        "amp_deg": 10
+      },
+      "part_flag_r": {
+        "pivot": [
+          0.55,
+          0.0,
+          2.62
+        ],
+        "motion": "flutter",
+        "amp_deg": 10
+      }
+    },
+    "part_clips": {
+      "part_flag_l": [
+        "flag_l_flutter"
+      ],
+      "part_flag_r": [
+        "flag_r_flutter"
+      ]
+    },
+    "tints": {
+      "sign_frame": "#7A4E2C"
+    },
+    "insert": "display (blank insert_screen; the game draws the time)",
+    "icon": "interaction_props/icons/finish_timer.png"
+  },
+  {
+    "id": "interaction_props/team_badge",
+    "file": "interaction_props/team_badge.glb",
+    "category": "accessory",
+    "size_m": [
+      0.172,
+      0.104,
+      0.246
+    ],
+    "sockets": {},
+    "tints": {
+      "team": "#E86D58"
+    },
+    "slot": "neck",
+    "socket": "socket_neck",
+    "team_marker": true,
+    "color_variants": [
+      "#E86D58",
+      "#207D85"
+    ],
+    "note": "sits proud of the thickest torso items (puffer vest, robe)",
+    "icon": "interaction_props/icons/team_badge.png"
+  },
+  {
+    "id": "interaction_props/team_foot_ring",
+    "file": "interaction_props/team_foot_ring.glb",
+    "category": "accessory",
+    "size_m": [
+      0.996,
+      0.996,
+      0.064
+    ],
+    "sockets": {},
+    "tints": {
+      "team": "#E86D58",
+      "team_glow": "#F07A68"
+    },
+    "slot": "root",
+    "socket": "root",
+    "team_marker": true,
+    "color_variants": [
+      "#E86D58",
+      "#207D85"
+    ],
+    "note": "flat ring around the feet; team_glow is emissive, so set its emission colour with the albedo",
+    "icon": "interaction_props/icons/team_foot_ring.png"
+  },
+  {
+    "id": "interaction_props/respawn_pad",
+    "file": "interaction_props/respawn_pad.glb",
+    "category": "arena",
+    "size_m": [
+      1.35,
+      1.34,
+      0.148
+    ],
+    "sockets": {
+      "socket_spawn": [
+        0.0,
+        0.0,
+        0.1
+      ]
+    },
+    "tints": {
+      "team_glow": "#F07A68",
+      "team": "#E86D58"
+    },
+    "color_variants": [
+      "#E86D58",
+      "#207D85"
+    ],
+    "diameter_m": 1.3,
+    "note": "tints team (pad face) and team_glow (emissive rim): recolour both",
+    "icon": "interaction_props/icons/respawn_pad.png"
+  },
+  {
+    "id": "interaction_props/match_scoreboard",
+    "file": "interaction_props/match_scoreboard.glb",
+    "category": "arena",
+    "size_m": [
+      2.192,
+      0.406,
+      1.86
+    ],
+    "sockets": {
+      "socket_score_a": [
+        -0.46,
+        -0.11,
+        1.25
+      ],
+      "socket_score_b": [
+        0.46,
+        -0.11,
+        1.25
+      ]
+    },
+    "tints": {
+      "team_a": "#E86D58",
+      "team_b": "#207D85"
+    },
+    "insert": "score_a / score_b (blank insert_screen; the game draws digits)",
+    "icon": "interaction_props/icons/match_scoreboard.png"
+  },
+  {
+    "id": "interaction_props/catch_display_stand",
+    "file": "interaction_props/catch_display_stand.glb",
+    "category": "prop",
+    "size_m": [
+      1.821,
+      0.387,
+      1.9
+    ],
+    "sockets": {
+      "socket_hook_0": [
+        -0.4,
+        -0.07,
+        1.14
+      ],
+      "socket_hook_1": [
+        0.0,
+        -0.07,
+        1.14
+      ],
+      "socket_hook_2": [
+        0.4,
+        -0.07,
+        1.14
+      ]
+    },
+    "tints": {
+      "sign_frame": "#7A4E2C"
+    },
+    "insert": "top plaque (insert_sign)",
+    "note": "fish from the fishing kit hang at hook_0..2",
+    "icon": "interaction_props/icons/catch_display_stand.png"
+  },
+  {
+    "id": "interaction_props/mooring_post",
+    "file": "interaction_props/mooring_post.glb",
+    "category": "prop",
+    "size_m": [
+      0.636,
+      0.509,
+      1.006
+    ],
+    "sockets": {},
+    "tints": {},
+    "decorative": true,
+    "note": "dock dressing only; the fishing line runs rod tip -> bobber",
+    "icon": "interaction_props/icons/mooring_post.png"
+  },
+  {
+    "id": "interaction_props/double_control_deck",
+    "file": "interaction_props/double_control_deck.glb",
+    "category": "arcade",
+    "size_m": [
+      1.278,
+      0.505,
+      0.97
+    ],
+    "sockets": {
+      "socket_grip_1_L": [
+        -0.43,
+        -0.062,
+        0.965
+      ],
+      "socket_grip_1_R": [
+        -0.275,
+        -0.033,
+        0.88
+      ],
+      "socket_grip_2_L": [
+        0.19,
+        -0.062,
+        0.965
+      ],
+      "socket_grip_2_R": [
+        0.345,
+        -0.033,
+        0.88
+      ],
+      "socket_player_1": [
+        -0.32,
+        -0.62,
+        0.0
+      ],
+      "socket_player_2": [
+        0.32,
+        -0.62,
+        0.0
+      ]
+    },
+    "parts": {
+      "part_btn_1_a": {
+        "pivot": [
+          -0.31,
+          -0.007,
+          0.863
+        ],
+        "motion": "press",
+        "depth": 0.008,
+        "dir": [
+          0.0,
+          -0.316,
+          0.949
+        ]
+      },
+      "part_btn_1_b": {
+        "pivot": [
+          -0.24,
+          -0.045,
+          0.851
+        ],
+        "motion": "press",
+        "depth": 0.008,
+        "dir": [
+          0.0,
+          -0.316,
+          0.949
+        ]
+      },
+      "part_btn_2_a": {
+        "pivot": [
+          0.31,
+          -0.007,
+          0.863
+        ],
+        "motion": "press",
+        "depth": 0.008,
+        "dir": [
+          0.0,
+          -0.316,
+          0.949
+        ]
+      },
+      "part_btn_2_b": {
+        "pivot": [
+          0.38,
+          -0.045,
+          0.851
+        ],
+        "motion": "press",
+        "depth": 0.008,
+        "dir": [
+          0.0,
+          -0.316,
+          0.949
+        ]
+      },
+      "part_joystick_1": {
+        "pivot": [
+          -0.43,
+          -0.029,
+          0.866
+        ],
+        "motion": "tilt",
+        "axis": "xy",
+        "max_deg": 22
+      },
+      "part_joystick_2": {
+        "pivot": [
+          0.19,
+          -0.029,
+          0.866
+        ],
+        "motion": "tilt",
+        "axis": "xy",
+        "max_deg": 22
+      }
+    },
+    "part_clips": {
+      "part_btn_1_a": [
+        "btn_1_a_press"
+      ],
+      "part_btn_1_b": [
+        "btn_1_b_press"
+      ],
+      "part_btn_2_a": [
+        "btn_2_a_press"
+      ],
+      "part_btn_2_b": [
+        "btn_2_b_press"
+      ]
+    },
+    "tints": {
+      "station_1": "#E86D58",
+      "station_2": "#3FB3B5",
+      "deck": "#FAF1DD"
+    },
+    "slots": 2,
+    "matches": "arcade/arcade_cabinet_duo control scale and socket names",
+    "screen": "none (pair with a screen or cabinet; controls are independent)",
+    "icon": "interaction_props/icons/double_control_deck.png"
+  },
+  {
+    "id": "interaction_props/popcorn_tub",
+    "file": "interaction_props/popcorn_tub.glb",
+    "category": "accessory",
+    "size_m": [
+      0.235,
+      0.269,
+      0.288
+    ],
+    "sockets": {},
+    "tints": {
+      "stripe_b": "#FAF1DD",
+      "stripe_a": "#E86D58"
+    },
+    "slot": "hand",
+    "socket": "socket_hand_R",
+    "excludes": [
+      "hand"
+    ],
+    "replaces": [
+      "hand"
+    ],
+    "use": "cinema_snack",
+    "color_variants": {
+      "stripe_a": [
+        "#E86D58",
+        "#207D85"
+      ]
+    },
+    "icon": "interaction_props/icons/popcorn_tub.png"
+  },
+  {
+    "id": "interaction_props/drink_cup",
+    "file": "interaction_props/drink_cup.glb",
+    "category": "accessory",
+    "size_m": [
+      0.113,
+      0.113,
+      0.259
+    ],
+    "sockets": {},
+    "tints": {
+      "cup": "#207D85",
+      "cup_band": "#FAF1DD",
+      "straw": "#E86D58"
+    },
+    "slot": "hand",
+    "socket": "socket_hand_R",
+    "excludes": [
+      "hand"
+    ],
+    "replaces": [
+      "hand"
+    ],
+    "use": "cinema_snack",
+    "icon": "interaction_props/icons/drink_cup.png"
+  },
+  {
+    "id": "interaction_props/seat_reservation_marker",
+    "file": "interaction_props/seat_reservation_marker.glb",
+    "category": "prop",
+    "size_m": [
+      0.3,
+      0.287,
+      0.32
+    ],
+    "sockets": {},
+    "tints": {
+      "frame": "#BC874E"
+    },
+    "attach": {
+      "to": "cinema_auditorium seat_single / seat_row_4",
+      "relative_to": "socket_seat / socket_seat_<n>",
+      "offset_m": [
+        0.0,
+        0.37,
+        0.58
+      ],
+      "note": "hook rests on the seat-back top; sign hangs toward the front of the seat"
+    },
+    "insert": "insert_sign (the game writes 'Reserved' or the friend's name)",
+    "removable": true,
+    "icon": "interaction_props/icons/seat_reservation_marker.png"
+  }
+]

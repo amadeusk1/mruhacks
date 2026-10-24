@@ -31,12 +31,14 @@ FLIP_C = Vector((0.372, 0.035, 0.375))            # left flipper centre (mirror 
 FLIP_D = Vector((math.sin(math.radians(FLIP_ANG)), 0, -math.cos(math.radians(FLIP_ANG))))  # down-and-out
 FLIP_L = 0.19                                     # half length
 _fl = lambda sx, t: tuple((FLIP_C + FLIP_D * t) * Vector((sx, 1, 1)))
+FLIP_PIVOT = Vector((0.215, 0.035, 0.465))        # shoulder pivot buried ~10 cm inside the body (left side)
+FLIP_ROOT = Vector((0.315, 0.035, 0.49))          # where the flipper meets the body surface
 BONES = [  # name, head, tail, parent
     ("root", (0, 0, 0), (0, 0, 0.12), None),
     ("body", (0, 0, 0.12), (0, 0, 0.56), "root"),
     ("head", (0, 0, 0.56), (0, 0, 0.90), "body"),
-    ("flipper.L", _fl(1, -FLIP_L), _fl(1, FLIP_L), "body"),
-    ("flipper.R", _fl(-1, -FLIP_L), _fl(-1, FLIP_L), "body"),
+    ("flipper.L", tuple(FLIP_PIVOT), _fl(1, FLIP_L), "body"),
+    ("flipper.R", tuple(FLIP_PIVOT * Vector((-1, 1, 1))), _fl(-1, FLIP_L), "body"),
     ("foot.L", (0.13, -0.05, 0.05), (0.13, -0.22, 0.03), "root"),
     ("foot.R", (-0.13, -0.05, 0.05), (-0.13, -0.22, 0.03), "root"),
 ]
@@ -93,7 +95,16 @@ def weigh(b, faces, fn):
 
 def w_torso(co):
     h = ss(0.53, 0.66, co.z)
-    return {"head": h, "body": 1 - h}
+    w = {"head": h, "body": 1 - h}
+    # torso skin right around each shoulder follows the flipper a little, so a raised flipper pulls the
+    # body surface with it instead of leaving a seam (clothing shells use the same function)
+    for sx, bone in ((1, "flipper.L"), (-1, "flipper.R")):
+        d = (co - FLIP_ROOT * Vector((sx, 1, 1))).length
+        if d < 0.1:
+            f = 0.35 * (1 - d / 0.1) ** 2 * (1 - ss(0.5, 0.56, co.z))  # collars stay on the torso
+            w = {k: v * (1 - f) for k, v in w.items()}
+            w[bone] = f
+    return w
 
 
 def w_head(co):
@@ -107,7 +118,7 @@ def w_flipper(side):
 
     def fn(co):
         t = (co - h).dot(d) / d.length_squared
-        f = ss(-0.16, -0.04, t)  # blend inside the body so the visible flipper and its sleeve move rigidly together
+        f = ss(0.1, 0.34, t)  # soft bend over the flipper's upper third; the pivot itself is buried
         return {bone: f, "body": 1 - f}
     return fn
 
@@ -714,7 +725,7 @@ def hoodie(b):
     P, S = tint("cloth_primary", "#E8655A"), tint("cloth_secondary", "#F7F1E6")
     tube(b, body_rows(0.15, 0.55, 0.03, flare=0.012), lambda p, z: P, thick=0.02, axis=Z, weight=w_torso)
     hem_band(b, 0.12, 0.165, 0.042, P, rib=0.006)
-    hem_band(b, 0.53, 0.585, 0.05, P, rib=0.005)
+    hem_band(b, 0.53, 0.585, 0.05, P, rib=0.005, axis=NECK_AXIS)
     for sx in (-1, 1):
         sleeve(b, sx, P, cuff_m=P, upto=0.08)
     # hood resting on the back

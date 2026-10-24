@@ -9,6 +9,16 @@
       0.298
     ],
     "sockets": {
+      "socket_fx_spray_l": [
+        -0.2,
+        0.48,
+        0.03
+      ],
+      "socket_fx_spray_r": [
+        0.2,
+        0.48,
+        0.03
+      ],
       "socket_pull": [
         0.0,
         -0.78,
@@ -19,6 +29,18 @@
         0.05,
         0.215
       ]
+    },
+    "parts": {
+      "part_rope": {
+        "pivot": [
+          0.0,
+          -0.464,
+          0.255
+        ],
+        "motion": "tilt",
+        "axis": "z",
+        "max_deg": 20
+      }
     },
     "tints": {},
     "activity": "sledding"
@@ -134,8 +156,87 @@
         1.87
       ]
     },
+    "parts": {
+      "part_pennant_l_0": {
+        "pivot": [
+          -1.28,
+          -0.16,
+          2.227
+        ],
+        "motion": "flutter",
+        "amp_deg": 14
+      },
+      "part_pennant_l_1": {
+        "pivot": [
+          -1.08,
+          -0.16,
+          2.2
+        ],
+        "motion": "flutter",
+        "amp_deg": 14
+      },
+      "part_pennant_l_2": {
+        "pivot": [
+          -0.88,
+          -0.16,
+          2.227
+        ],
+        "motion": "flutter",
+        "amp_deg": 14
+      },
+      "part_pennant_r_0": {
+        "pivot": [
+          1.28,
+          -0.16,
+          2.227
+        ],
+        "motion": "flutter",
+        "amp_deg": 14
+      },
+      "part_pennant_r_1": {
+        "pivot": [
+          1.08,
+          -0.16,
+          2.2
+        ],
+        "motion": "flutter",
+        "amp_deg": 14
+      },
+      "part_pennant_r_2": {
+        "pivot": [
+          0.88,
+          -0.16,
+          2.227
+        ],
+        "motion": "flutter",
+        "amp_deg": 14
+      }
+    },
+    "part_clips": {
+      "part_pennant_l_0": [
+        "pennant_l_0_flutter"
+      ],
+      "part_pennant_l_1": [
+        "pennant_l_1_flutter"
+      ],
+      "part_pennant_l_2": [
+        "pennant_l_2_flutter"
+      ],
+      "part_pennant_r_0": [
+        "pennant_r_0_flutter"
+      ],
+      "part_pennant_r_1": [
+        "pennant_r_1_flutter"
+      ],
+      "part_pennant_r_2": [
+        "pennant_r_2_flutter"
+      ]
+    },
     "tints": {
-      "sign_frame": "#7A4E2C"
+      "sign_frame": "#7A4E2C",
+      "pennant_a": "#E86D58",
+      "pennant_b": "#3FB3B5",
+      "pennant_c": "#FAF1DD"
     },
     "sign_text": "START"
   },
@@ -153,6 +254,106 @@
         0.0,
         0.0,
         0.0
+      ]
+    },
+    "parts": {
+      "part_banner": {
+        "pivot": [
+          0.0,
+          0.0,
+          1.48
+        ],
+        "motion": "flutter",
+        "amp_deg": 4
+      },
+      "part_pennant_0": {
+        "pivot": [
+          -1.286,
+          0.0,
+          1.887
+        ],
+        "motion": "flutter",
+        "amp_deg": 14
+      },
+      "part_pennant_1": {
+        "pivot": [
+          -0.857,
+          0.0,
+          1.866
+        ],
+        "motion": "flutter",
+        "amp_deg": 14
+      },
+      "part_pennant_2": {
+        "pivot": [
+          -0.429,
+          0.0,
+          1.854
+        ],
+        "motion": "flutter",
+        "amp_deg": 14
+      },
+      "part_pennant_3": {
+        "pivot": [
+          0.0,
+          0.0,
+          1.85
+        ],
+        "motion": "flutter",
+        "amp_deg": 14
+      },
+      "part_pennant_4": {
+        "pivot": [
+          0.429,
+          0.0,
+          1.854
+        ],
+        "motion": "flutter",
+        "amp_deg": 14
+      },
+      "part_pennant_5": {
+        "pivot": [
+          0.857,
+          0.0,
+          1.866
+        ],
+        "motion": "flutter",
+        "amp_deg": 14
+      },
+      "part_pennant_6": {
+        "pivot": [
+          1.286,
+          0.0,
+          1.887
+        ],
+        "motion": "flutter",
+        "amp_deg": 14
+      }
+    },
+    "part_clips": {
+      "part_banner": [
+        "banner_flutter"
+      ],
+      "part_pennant_0": [
+        "pennant_0_flutter"
+      ],
+      "part_pennant_1": [
+        "pennant_1_flutter"
+      ],
+      "part_pennant_2": [
+        "pennant_2_flutter"
+      ],
+      "part_pennant_3": [
+        "pennant_3_flutter"
+      ],
+      "part_pennant_4": [
+        "pennant_4_flutter"
+      ],
+      "part_pennant_5": [
+        "pennant_5_flutter"
+      ],
+      "part_pennant_6": [
+        "pennant_6_flutter"
       ]
     },
     "tints": {
@@ -234,11 +435,27 @@
     "file": "winter/fir_tree_small.glb",
     "category": "nature",
     "size_m": [
-      0.982,
-      0.958,
-      1.566
+      0.953,
+      0.948,
+      1.573
     ],
     "sockets": {},
+    "parts": {
+      "part_crown": {
+        "pivot": [
+          0.0,
+          0.0,
+          0.196
+        ],
+        "motion": "sway",
+        "amp_deg": 2.5
+      }
+    },
+    "part_clips": {
+      "part_crown": [
+        "crown_sway"
+      ]
+    },
     "tints": {}
   },
   {
@@ -246,11 +463,27 @@
     "file": "winter/fir_tree_medium.glb",
     "category": "nature",
     "size_m": [
-      1.482,
-      1.431,
-      2.539
+      1.447,
+      1.425,
+      2.538
     ],
     "sockets": {},
+    "parts": {
+      "part_crown": {
+        "pivot": [
+          0.0,
+          0.0,
+          0.308
+        ],
+        "motion": "sway",
+        "amp_deg": 2.5
+      }
+    },
+    "part_clips": {
+      "part_crown": [
+        "crown_sway"
+      ]
+    },
     "tints": {}
   },
   {
@@ -258,11 +491,27 @@
     "file": "winter/fir_tree_large.glb",
     "category": "nature",
     "size_m": [
-      2.044,
-      1.969,
-      3.714
+      2.008,
+      2.006,
+      3.712
     ],
     "sockets": {},
+    "parts": {
+      "part_crown": {
+        "pivot": [
+          0.0,
+          0.0,
+          0.448
+        ],
+        "motion": "sway",
+        "amp_deg": 2.5
+      }
+    },
+    "part_clips": {
+      "part_crown": [
+        "crown_sway"
+      ]
+    },
     "tints": {}
   },
   {
@@ -282,7 +531,7 @@
     "file": "winter/rock_cluster_snow_large.glb",
     "category": "nature",
     "size_m": [
-      1.939,
+      1.932,
       1.37,
       1.264
     ],
@@ -369,7 +618,7 @@
     "file": "winter/snow_bank_cover.glb",
     "category": "cover",
     "size_m": [
-      1.452,
+      1.426,
       0.829,
       1.099
     ],
@@ -417,6 +666,22 @@
       1.93
     ],
     "sockets": {},
+    "parts": {
+      "part_cloth": {
+        "pivot": [
+          0.04,
+          0.0,
+          1.495
+        ],
+        "motion": "flutter",
+        "amp_deg": 12
+      }
+    },
+    "part_clips": {
+      "part_cloth": [
+        "cloth_flutter"
+      ]
+    },
     "tints": {
       "team": "#E86D58"
     },
@@ -578,6 +843,70 @@
         6.5,
         -2.62,
         0.46
+      ]
+    },
+    "parts": {
+      "part_pennant_0": {
+        "pivot": [
+          5.2,
+          -0.05,
+          1.351
+        ],
+        "motion": "flutter",
+        "amp_deg": 14
+      },
+      "part_pennant_1": {
+        "pivot": [
+          5.6,
+          -0.05,
+          1.313
+        ],
+        "motion": "flutter",
+        "amp_deg": 14
+      },
+      "part_pennant_2": {
+        "pivot": [
+          6.0,
+          -0.05,
+          1.3
+        ],
+        "motion": "flutter",
+        "amp_deg": 14
+      },
+      "part_pennant_3": {
+        "pivot": [
+          6.4,
+          -0.05,
+          1.313
+        ],
+        "motion": "flutter",
+        "amp_deg": 14
+      },
+      "part_pennant_4": {
+        "pivot": [
+          6.8,
+          -0.05,
+          1.351
+        ],
+        "motion": "flutter",
+        "amp_deg": 14
+      }
+    },
+    "part_clips": {
+      "part_pennant_0": [
+        "pennant_0_flutter"
+      ],
+      "part_pennant_1": [
+        "pennant_1_flutter"
+      ],
+      "part_pennant_2": [
+        "pennant_2_flutter"
+      ],
+      "part_pennant_3": [
+        "pennant_3_flutter"
+      ],
+      "part_pennant_4": [
+        "pennant_4_flutter"
       ]
     },
     "tints": {

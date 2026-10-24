@@ -80,6 +80,12 @@
         "open_deg": 100
       }
     },
+    "part_clips": {
+      "part_door_leaf": [
+        "door_leaf_open",
+        "door_leaf_close"
+      ]
+    },
     "tints": {
       "wall": "#F3E2C5",
       "trim": "#BC874E",
@@ -287,6 +293,12 @@
         "open_deg": 100
       }
     },
+    "part_clips": {
+      "part_door_leaf": [
+        "door_leaf_open",
+        "door_leaf_close"
+      ]
+    },
     "tints": {
       "trim": "#BC874E",
       "door": "#207D85"
@@ -367,6 +379,12 @@
         "axis": "z",
         "open_deg": 100
       }
+    },
+    "part_clips": {
+      "part_door_leaf": [
+        "door_leaf_open",
+        "door_leaf_close"
+      ]
     },
     "tints": {
       "wall": "#F3E2C5",

@@ -555,7 +555,10 @@ class Builder:
             po.location = p["pivot"]
             po["part"] = p["name"]
             for k, v in p["motion"].items():
-                po[k] = v if isinstance(v, (int, float, str)) else json.dumps(v)
+                if isinstance(v, (list, tuple)) and all(isinstance(x, (int, float)) for x in v):
+                    po[k] = [float(x) for x in v]  # real array in glTF extras, not a string
+                else:
+                    po[k] = v if isinstance(v, (int, float, str)) else json.dumps(v)
         for name, loc, rz in self.sockets:
             add_socket(obj, name, loc, rz)
         register(obj, kit, category, meta)
@@ -909,12 +912,112 @@ def _clean_names(o):
             holder.name = base + "__park"
         undo.append((c, c.name))
         c.name = base
+    # part clip actions: glTF names animations after actions, which are global too
+    for c in hierarchy(o)[1:]:
+        ad = c.animation_data
+        for tr in (ad.nla_tracks if ad else []):
+            for st in tr.strips:
+                act = st.action
+                if act is None:
+                    continue
+                base = re.sub(r"\.\d{3}$", "", act.name)
+                if base == act.name:
+                    continue
+                holder = bpy.data.actions.get(base)
+                if holder:
+                    undo.append((holder, base))
+                    holder.name = base + "__park"
+                undo.append((act, act.name))
+                act.name = base
     return undo
 
 
 def _restore_names(undo):
     for ob, name in reversed(undo):
         ob.name = name
+
+
+PART_FPS = 30
+_AX = {"x": 0, "y": 1, "z": 2}
+
+
+def part_clips(root):
+    """Generate glTF animation clips for every movable part from its motion metadata, so the
+    engine can just play them. Loops end in _loop (Godot sets loop mode and strips the suffix).
+      hinge -> <part>_open, <part>_close        slide -> <part>_open, <part>_close
+      sway  -> <part>_sway_loop                 flutter -> <part>_flutter_loop
+      spin  -> <part>_spin_loop                 press -> <part>_press
+      tilt / flow: input- or shader-driven, no clip.
+    Returns {part_node_name: [clip names]}. Idempotent per object."""
+    out = {}
+    for ob in hierarchy(root)[1:]:
+        m = ob.get("motion")
+        if not m or (ob.animation_data and ob.animation_data.nla_tracks):
+            continue
+        name = ob["part"]
+        rest_rot, rest_loc = tuple(ob.rotation_euler), tuple(ob.location)
+        ad = ob.animation_data_create()
+        made = []
+
+        def clip(cname, keys, loop=False, linear=False):
+            # keys: [(seconds, {"rot": (x, y, z) offset rad, "loc": (x, y, z) offset m})]
+            act = bpy.data.actions.new(cname)
+            ad.action = act
+            for t, d in keys:
+                f = 1 + round(t * PART_FPS)
+                r = d.get("rot", (0, 0, 0)); l = d.get("loc", (0, 0, 0))
+                ob.rotation_euler = [rest_rot[i] + r[i] for i in range(3)]
+                ob.location = [rest_loc[i] + l[i] for i in range(3)]
+                ob.keyframe_insert("rotation_euler", frame=f)
+                ob.keyframe_insert("location", frame=f)
+            if linear:
+                for fc in getattr(act, "fcurves", []) or []:
+                    for kp in fc.keyframe_points:
+                        kp.interpolation = "LINEAR"
+            nm = cname + ("_loop" if loop else "")
+            tr = ad.nla_tracks.new(); tr.name = nm
+            tr.strips.new(nm, 1, act)
+            tr.mute = True  # stored for export only; unmuted tracks would pose the rest state
+            act.name = nm
+            ad.action = None
+            made.append(cname)
+
+        def rot(axis, rad):
+            v = [0.0, 0.0, 0.0]; v[_AX.get(str(axis), 2)] = rad
+            return tuple(v)
+        if m == "hinge":
+            a = math.radians(float(ob.get("open_deg", 90)))
+            ax = ob.get("axis", "z")
+            clip(f"{name}_open", [(0, {}), (0.45, {"rot": rot(ax, a * 1.04)}), (0.6, {"rot": rot(ax, a)})])
+            clip(f"{name}_close", [(0, {"rot": rot(ax, a)}), (0.5, {"rot": rot(ax, 0)}), (0.6, {})])
+        elif m == "slide":
+            d = ob.get("dir", [1, 0, 0]); d = json.loads(d) if isinstance(d, str) else list(d)
+            dist = float(ob.get("dist", 0.5)); v = tuple(c * dist for c in d)
+            clip(f"{name}_open", [(0, {}), (0.8, {"loc": v})])
+            clip(f"{name}_close", [(0, {"loc": v}), (0.8, {})])
+        elif m == "sway":
+            a = math.radians(float(ob.get("amp_deg", 3)))
+            clip(f"{name}_sway", [(0, {}), (0.75, {"rot": (a * 0.5, a, 0)}), (1.5, {}),
+                                  (2.25, {"rot": (-a * 0.5, -a, 0)}), (3.0, {})], loop=True)
+        elif m == "flutter":
+            a = math.radians(float(ob.get("amp_deg", 8)))
+            clip(f"{name}_flutter", [(0, {}), (0.3, {"rot": (0, 0, a)}), (0.6, {"rot": (a * 0.3, 0, -a * 0.6)}),
+                                     (0.9, {"rot": (0, 0, a * 0.5)}), (1.2, {})], loop=True)
+        elif m == "spin":
+            ax = ob.get("axis", "z")
+            clip(f"{name}_spin", [(0, {}), (2.0, {"rot": rot(ax, math.pi)}), (4.0, {"rot": rot(ax, 2 * math.pi)})],
+                 loop=True, linear=True)
+        elif m == "press":
+            depth = float(ob.get("depth", 0.008))
+            d = ob.get("dir", [0, 0, -1]); d = json.loads(d) if isinstance(d, str) else list(d)
+            v = tuple(c * depth for c in d)
+            clip(f"{name}_press", [(0, {}), (0.06, {"loc": v}), (0.18, {})])
+        ob.rotation_euler, ob.location = rest_rot, rest_loc
+        if made:
+            out[ob.name] = made
+        elif not ad.nla_tracks:
+            ob.animation_data_clear()
+    return out
 
 
 def export_kit(kit):
@@ -929,6 +1032,7 @@ def export_kit(kit):
             ob.select_set(True)
         bpy.context.view_layer.objects.active = o
         path = os.path.join(out, f"{o.name}.glb")
+        clips = part_clips(o)
         undo = _clean_names(o)
         bpy.ops.export_scene.gltf(filepath=path, export_format="GLB", use_selection=True,
                                   export_apply=True, export_yup=True, export_extras=True,
@@ -936,7 +1040,8 @@ def export_kit(kit):
                                   export_vertex_color="MATERIAL")
         sockets = {c.name: [round(v, 3) for v in c.location] for c in hierarchy(o) if c.type == "EMPTY"}
         parts = {c.name: {"pivot": [round(v, 3) for v in c.location],
-                          **{k: (json.loads(c[k]) if isinstance(c[k], str) and c[k][:1] in "[{" else c[k])
+                          **{k: (json.loads(c[k]) if isinstance(c[k], str) and c[k][:1] in "[{"
+                                 else c[k].to_list() if hasattr(c[k], "to_list") else c[k])
                              for k in c.keys() if k not in ("part",)}}
                  for c in hierarchy(o)[1:] if "part" in c}
         _restore_names(undo)
@@ -946,6 +1051,8 @@ def export_kit(kit):
             "size_m": [round(hi[i] - lo[i], 3) for i in range(3)],
             "sockets": sockets,
             **({"parts": parts} if parts else {}),
+            **({"icon": f"{kit}/icons/{o.name}.png"} if os.path.exists(os.path.join(out, "icons", f"{o.name}.png")) else {}),
+            **({"part_clips": {re.sub(r"\.\d{3}$", "", k): v for k, v in clips.items()}} if clips else {}),
             "tints": {m.name.split("__")[0][5:]: rgb_hex(m.diffuse_color)
                       for ob in hierarchy(o) if ob.type == "MESH" for m in ob.data.materials if m and m.name.startswith("tint_")},
             **{k: v for k, v in a["meta"].items()},
@@ -965,6 +1072,7 @@ def layout_kit(kit, gap=0.6, max_w=14.0, origin=(0, 0)):
         o = a["obj"]
         if o.parent is not None:
             continue  # registered child parts (hideable roofs) travel with their parent
+        bpy.context.view_layer.update()  # children's world matrices must reflect earlier moves
         lo, hi = bbox(o)
         w, d = hi.x - lo.x, hi.y - lo.y
         if x > 0 and x + w > max_w:

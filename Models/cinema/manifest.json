@@ -117,6 +117,16 @@
         "open_deg": -90
       }
     },
+    "part_clips": {
+      "part_door_l": [
+        "door_l_open",
+        "door_l_close"
+      ],
+      "part_door_r": [
+        "door_r_open",
+        "door_r_close"
+      ]
+    },
     "tints": {
       "door": "#207D85"
     }
@@ -238,6 +248,16 @@
         "axis": "z",
         "open_deg": -90
       }
+    },
+    "part_clips": {
+      "part_door_l": [
+        "door_l_open",
+        "door_l_close"
+      ],
+      "part_door_r": [
+        "door_r_open",
+        "door_r_close"
+      ]
     },
     "tints": {
       "trim": "#E86D58",

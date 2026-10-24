@@ -34,7 +34,8 @@
       "bobber_b": [
         "white"
       ]
-    }
+    },
+    "icon": "fishing/icons/bobber.png"
   },
   {
     "id": "fishing/bucket",
@@ -56,7 +57,8 @@
         "red",
         "mustard"
       ]
-    }
+    },
+    "icon": "fishing/icons/bucket.png"
   },
   {
     "id": "fishing/bucket_fish",
@@ -83,7 +85,8 @@
         "red",
         "mustard"
       ]
-    }
+    },
+    "icon": "fishing/icons/bucket_fish.png"
   },
   {
     "id": "fishing/fish_round",
@@ -125,7 +128,8 @@
         "purple",
         "mustard"
       ]
-    }
+    },
+    "icon": "fishing/icons/fish_round.png"
   },
   {
     "id": "fishing/fish_slim",
@@ -166,7 +170,8 @@
         "purple",
         "mustard"
       ]
-    }
+    },
+    "icon": "fishing/icons/fish_slim.png"
   },
   {
     "id": "fishing/fish_spiky",
@@ -207,7 +212,8 @@
         "purple",
         "mustard"
       ]
-    }
+    },
+    "icon": "fishing/icons/fish_spiky.png"
   },
   {
     "id": "fishing/ripple",
@@ -221,7 +227,8 @@
     "sockets": {},
     "tints": {},
     "origin": "waterline",
-    "note": "scale/fade in game"
+    "note": "scale/fade in game",
+    "icon": "fishing/icons/ripple.png"
   },
   {
     "id": "fishing/life_ring",
@@ -247,7 +254,8 @@
       "stripe_b": [
         "white"
       ]
-    }
+    },
+    "icon": "fishing/icons/life_ring.png"
   },
   {
     "id": "fishing/ice_floe_a",
@@ -261,7 +269,8 @@
     "sockets": {},
     "tints": {},
     "floats_at": -0.5,
-    "walkable": false
+    "walkable": false,
+    "icon": "fishing/icons/ice_floe_a.png"
   },
   {
     "id": "fishing/ice_floe_b",
@@ -275,7 +284,8 @@
     "sockets": {},
     "tints": {},
     "floats_at": -0.5,
-    "walkable": false
+    "walkable": false,
+    "icon": "fishing/icons/ice_floe_b.png"
   },
   {
     "id": "fishing/ice_floe_c",
@@ -289,7 +299,8 @@
     "sockets": {},
     "tints": {},
     "floats_at": -0.5,
-    "walkable": false
+    "walkable": false,
+    "icon": "fishing/icons/ice_floe_c.png"
   },
   {
     "id": "fishing/tackle_crate",
@@ -302,7 +313,8 @@
     ],
     "sockets": {},
     "tints": {},
-    "seat_height": 0.345
+    "seat_height": 0.345,
+    "icon": "fishing/icons/tackle_crate.png"
   },
   {
     "id": "fishing/rowboat",
@@ -347,7 +359,8 @@
         "white",
         "cream"
       ]
-    }
+    },
+    "icon": "fishing/icons/rowboat.png"
   },
   {
     "id": "fishing/fishing_dock_spot",
@@ -409,6 +422,7 @@
       "+Y",
       "-Y"
     ],
-    "fishing_spots": 4
+    "fishing_spots": 4,
+    "icon": "fishing/icons/fishing_dock_spot.png"
   }
 ]

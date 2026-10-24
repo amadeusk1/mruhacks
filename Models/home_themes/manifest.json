@@ -37,6 +37,12 @@
         "open_deg": -100
       }
     },
+    "part_clips": {
+      "part_door": [
+        "door_open",
+        "door_close"
+      ]
+    },
     "tints": {
       "hearth": "#A9A49C",
       "stove": "#3A3D44"
@@ -57,7 +63,8 @@
       "clearance_front": 1,
       "recolor": true
     },
-    "light": "warm"
+    "light": "warm",
+    "icon": "home_themes/icons/wood_stove.png"
   },
   {
     "id": "home_themes/side_table",
@@ -100,7 +107,8 @@
         0.44,
         0.36
       ]
-    }
+    },
+    "icon": "home_themes/icons/side_table.png"
   },
   {
     "id": "home_themes/log_basket",
@@ -130,7 +138,8 @@
       ],
       "clearance_front": 0,
       "recolor": true
-    }
+    },
+    "icon": "home_themes/icons/log_basket.png"
   },
   {
     "id": "home_themes/window_seat_bench",
@@ -174,7 +183,8 @@
       ],
       "clearance_front": 0,
       "recolor": true
-    }
+    },
+    "icon": "home_themes/icons/window_seat_bench.png"
   },
   {
     "id": "home_themes/large_monstera",
@@ -205,7 +215,8 @@
       "clearance_front": 0,
       "recolor": true
     },
-    "also_layer": "surface_large"
+    "also_layer": "surface_large",
+    "icon": "home_themes/icons/large_monstera.png"
   },
   {
     "id": "home_themes/hanging_planter_cluster",
@@ -246,6 +257,17 @@
         "amp_deg": 5
       }
     },
+    "part_clips": {
+      "part_planter_0": [
+        "planter_0_sway"
+      ],
+      "part_planter_1": [
+        "planter_1_sway"
+      ],
+      "part_planter_2": [
+        "planter_2_sway"
+      ]
+    },
     "tints": {
       "finish": "#BC874E",
       "pot": "#C8663E"
@@ -262,7 +284,8 @@
       ],
       "clearance_front": 0,
       "recolor": true
-    }
+    },
+    "icon": "home_themes/icons/hanging_planter_cluster.png"
   },
   {
     "id": "home_themes/plant_stand_tiered",
@@ -322,7 +345,8 @@
         0.7,
         0.16
       ]
-    }
+    },
+    "icon": "home_themes/icons/plant_stand_tiered.png"
   },
   {
     "id": "home_themes/woven_round_rug",
@@ -352,7 +376,8 @@
       ],
       "clearance_front": 0,
       "recolor": true
-    }
+    },
+    "icon": "home_themes/icons/woven_round_rug.png"
   },
   {
     "id": "home_themes/tv_console",
@@ -372,7 +397,7 @@
       "socket_surface_shelf": [
         0.0,
         0.0,
-        0.26
+        0.14
       ]
     },
     "parts": {
@@ -396,6 +421,16 @@
         "axis": "z",
         "open_deg": -100
       }
+    },
+    "part_clips": {
+      "part_door_l": [
+        "door_l_open",
+        "door_l_close"
+      ],
+      "part_door_r": [
+        "door_r_open",
+        "door_r_close"
+      ]
     },
     "tints": {
       "finish": "#BC874E",
@@ -423,10 +458,11 @@
         0.4
       ],
       "surface_shelf": [
-        0.48,
-        0.3
+        0.46,
+        0.36
       ]
-    }
+    },
+    "icon": "home_themes/icons/tv_console.png"
   },
   {
     "id": "home_themes/tv",
@@ -462,7 +498,8 @@
       ],
       "clearance_front": 0,
       "recolor": true
-    }
+    },
+    "icon": "home_themes/icons/tv.png"
   },
   {
     "id": "home_themes/game_console",
@@ -493,7 +530,8 @@
       ],
       "clearance_front": 0,
       "recolor": true
-    }
+    },
+    "icon": "home_themes/icons/game_console.png"
   },
   {
     "id": "home_themes/beanbag",
@@ -512,7 +550,8 @@
       ]
     },
     "tints": {
-      "fabric": "#A784D9"
+      "fabric": "#7B4FC4",
+      "seat_dent": "#A784D9"
     },
     "placement": {
       "layer": "floor",
@@ -529,7 +568,8 @@
       ],
       "clearance_front": 0,
       "recolor": true
-    }
+    },
+    "icon": "home_themes/icons/beanbag.png"
   },
   {
     "id": "home_themes/pouf_round",
@@ -566,7 +606,8 @@
       ],
       "clearance_front": 0,
       "recolor": true
-    }
+    },
+    "icon": "home_themes/icons/pouf_round.png"
   },
   {
     "id": "home_themes/pouf_square",
@@ -602,7 +643,8 @@
       ],
       "clearance_front": 0,
       "recolor": true
-    }
+    },
+    "icon": "home_themes/icons/pouf_square.png"
   },
   {
     "id": "home_themes/neon_wall_sign",
@@ -628,7 +670,8 @@
       "clearance_front": 0,
       "recolor": true
     },
-    "light": "neon"
+    "light": "neon",
+    "icon": "home_themes/icons/neon_wall_sign.png"
   },
   {
     "id": "home_themes/gaming_chair",
@@ -657,6 +700,11 @@
         "axis": "z"
       }
     },
+    "part_clips": {
+      "part_seat": [
+        "seat_spin"
+      ]
+    },
     "tints": {
       "upholstery": "#3A3D44",
       "trim": "#E86D58"
@@ -676,7 +724,8 @@
       ],
       "clearance_front": 0,
       "recolor": true
-    }
+    },
+    "icon": "home_themes/icons/gaming_chair.png"
   },
   {
     "id": "home_themes/easel_with_canvas",
@@ -713,7 +762,8 @@
       ],
       "clearance_front": 1,
       "recolor": true
-    }
+    },
+    "icon": "home_themes/icons/easel_with_canvas.png"
   },
   {
     "id": "home_themes/drafting_table",
@@ -750,7 +800,8 @@
       ],
       "clearance_front": 1,
       "recolor": true
-    }
+    },
+    "icon": "home_themes/icons/drafting_table.png"
   },
   {
     "id": "home_themes/canvas_stack",
@@ -780,7 +831,8 @@
       ],
       "clearance_front": 0,
       "recolor": true
-    }
+    },
+    "icon": "home_themes/icons/canvas_stack.png"
   },
   {
     "id": "home_themes/paint_supplies",
@@ -810,7 +862,8 @@
       ],
       "clearance_front": 0,
       "recolor": true
-    }
+    },
+    "icon": "home_themes/icons/paint_supplies.png"
   },
   {
     "id": "home_themes/tall_dresser",
@@ -837,9 +890,9 @@
         ],
         "motion": "slide",
         "dir": [
-          0,
-          -1,
-          0
+          0.0,
+          -1.0,
+          0.0
         ],
         "dist": 0.28
       },
@@ -851,9 +904,9 @@
         ],
         "motion": "slide",
         "dir": [
-          0,
-          -1,
-          0
+          0.0,
+          -1.0,
+          0.0
         ],
         "dist": 0.28
       },
@@ -865,9 +918,9 @@
         ],
         "motion": "slide",
         "dir": [
-          0,
-          -1,
-          0
+          0.0,
+          -1.0,
+          0.0
         ],
         "dist": 0.28
       },
@@ -879,12 +932,30 @@
         ],
         "motion": "slide",
         "dir": [
-          0,
-          -1,
-          0
+          0.0,
+          -1.0,
+          0.0
         ],
         "dist": 0.28
       }
+    },
+    "part_clips": {
+      "part_drawer_0": [
+        "drawer_0_open",
+        "drawer_0_close"
+      ],
+      "part_drawer_1": [
+        "drawer_1_open",
+        "drawer_1_close"
+      ],
+      "part_drawer_2": [
+        "drawer_2_open",
+        "drawer_2_close"
+      ],
+      "part_drawer_3": [
+        "drawer_3_open",
+        "drawer_3_close"
+      ]
     },
     "tints": {
       "trim": "#7A4E2C",
@@ -912,7 +983,8 @@
         0.7,
         0.4
       ]
-    }
+    },
+    "icon": "home_themes/icons/tall_dresser.png"
   },
   {
     "id": "home_themes/storage_crate",
@@ -956,7 +1028,8 @@
         0.4
       ]
     },
-    "stackable": true
+    "stackable": true,
+    "icon": "home_themes/icons/storage_crate.png"
   },
   {
     "id": "home_themes/striped_rug",
@@ -987,7 +1060,8 @@
       ],
       "clearance_front": 0,
       "recolor": true
-    }
+    },
+    "icon": "home_themes/icons/striped_rug.png"
   },
   {
     "id": "home_themes/ship_wheel_wall",
@@ -1010,6 +1084,11 @@
         "axis": "y"
       }
     },
+    "part_clips": {
+      "part_wheel": [
+        "wheel_spin"
+      ]
+    },
     "tints": {
       "wood": "#BC874E"
     },
@@ -1022,7 +1101,8 @@
       ],
       "clearance_front": 0,
       "recolor": true
-    }
+    },
+    "icon": "home_themes/icons/ship_wheel_wall.png"
   },
   {
     "id": "home_themes/model_sailboat",
@@ -1053,16 +1133,17 @@
       ],
       "clearance_front": 0,
       "recolor": true
-    }
+    },
+    "icon": "home_themes/icons/model_sailboat.png"
   },
   {
     "id": "home_themes/curved_bookshelf",
     "file": "home_themes/curved_bookshelf.glb",
     "category": "furniture",
     "size_m": [
-      2.219,
-      0.569,
-      1.815
+      2.28,
+      0.594,
+      1.819
     ],
     "sockets": {
       "socket_surface_0_0": [
@@ -1234,7 +1315,8 @@
     },
     "fits_wall_radius_m": 2.5,
     "arc_deg": 52.0,
-    "note": "back is curved, convex toward -Y; snap its back to a round wall of this radius"
+    "note": "back is curved, convex toward -Y; snap its back to a round wall of this radius",
+    "icon": "home_themes/icons/curved_bookshelf.png"
   },
   {
     "id": "home_themes/anchor_wall_decor",
@@ -1258,7 +1340,8 @@
       ],
       "clearance_front": 0,
       "recolor": true
-    }
+    },
+    "icon": "home_themes/icons/anchor_wall_decor.png"
   },
   {
     "id": "home_themes/porthole_mirror",
@@ -1282,7 +1365,8 @@
       ],
       "clearance_front": 0,
       "recolor": true
-    }
+    },
+    "icon": "home_themes/icons/porthole_mirror.png"
   },
   {
     "id": "home_themes/canopy_bed",
@@ -1343,6 +1427,20 @@
         "amp_deg": 1.5
       }
     },
+    "part_clips": {
+      "part_drape_lb": [
+        "drape_lb_sway"
+      ],
+      "part_drape_lf": [
+        "drape_lf_sway"
+      ],
+      "part_drape_rb": [
+        "drape_rb_sway"
+      ],
+      "part_drape_rf": [
+        "drape_rf_sway"
+      ]
+    },
     "tints": {
       "frame": "#7A4E2C",
       "headboard": "#A784D9",
@@ -1365,7 +1463,8 @@
       ],
       "clearance_front": 1,
       "recolor": true
-    }
+    },
+    "icon": "home_themes/icons/canopy_bed.png"
   },
   {
     "id": "home_themes/telescope_on_tripod",
@@ -1414,7 +1513,8 @@
       ],
       "clearance_front": 1,
       "recolor": true
-    }
+    },
+    "icon": "home_themes/icons/telescope_on_tripod.png"
   },
   {
     "id": "home_themes/star_string_lights",
@@ -1447,7 +1547,8 @@
       "clearance_front": 0,
       "recolor": true
     },
-    "light": "warm"
+    "light": "warm",
+    "icon": "home_themes/icons/star_string_lights.png"
   },
   {
     "id": "home_themes/crystal_ball_lamp",
@@ -1479,7 +1580,8 @@
       "clearance_front": 0,
       "recolor": true
     },
-    "light": "violet"
+    "light": "violet",
+    "icon": "home_themes/icons/crystal_ball_lamp.png"
   },
   {
     "id": "home_themes/floor_cushion",
@@ -1516,7 +1618,8 @@
       ],
       "clearance_front": 0,
       "recolor": true
-    }
+    },
+    "icon": "home_themes/icons/floor_cushion.png"
   },
   {
     "id": "home_themes/moon_lamp",
@@ -1547,6 +1650,7 @@
       "clearance_front": 0,
       "recolor": true
     },
-    "light": "warm"
+    "light": "warm",
+    "icon": "home_themes/icons/moon_lamp.png"
   }
 ]

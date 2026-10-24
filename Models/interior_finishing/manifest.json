@@ -1,0 +1,408 @@
+[
+  {
+    "id": "interior_finishing/skirting_strip_05m",
+    "file": "interior_finishing/skirting_strip_05m.glb",
+    "category": "shell_finish",
+    "size_m": [
+      0.5,
+      0.04,
+      0.13
+    ],
+    "sockets": {},
+    "tints": {
+      "trim": "#BC874E"
+    },
+    "shell_finish": true,
+    "length_m": 0.5,
+    "height_m": 0.13,
+    "attach": "wall face (in front of any wall_panel), 3 mm proud"
+  },
+  {
+    "id": "interior_finishing/skirting_strip_1m",
+    "file": "interior_finishing/skirting_strip_1m.glb",
+    "category": "shell_finish",
+    "size_m": [
+      1.0,
+      0.04,
+      0.13
+    ],
+    "sockets": {},
+    "tints": {
+      "trim": "#BC874E"
+    },
+    "shell_finish": true,
+    "length_m": 1.0,
+    "height_m": 0.13,
+    "attach": "wall face (in front of any wall_panel), 3 mm proud"
+  },
+  {
+    "id": "interior_finishing/skirting_strip_2m",
+    "file": "interior_finishing/skirting_strip_2m.glb",
+    "category": "shell_finish",
+    "size_m": [
+      2.0,
+      0.04,
+      0.13
+    ],
+    "sockets": {},
+    "tints": {
+      "trim": "#BC874E"
+    },
+    "shell_finish": true,
+    "length_m": 2.0,
+    "height_m": 0.13,
+    "attach": "wall face (in front of any wall_panel), 3 mm proud"
+  },
+  {
+    "id": "interior_finishing/inside_corner_skirting",
+    "file": "interior_finishing/inside_corner_skirting.glb",
+    "category": "shell_finish",
+    "size_m": [
+      0.31,
+      0.329,
+      0.145
+    ],
+    "sockets": {},
+    "tints": {
+      "trim": "#C99559"
+    },
+    "shell_finish": true,
+    "attach": "inside corner; walls on planes y=0 and x=0"
+  },
+  {
+    "id": "interior_finishing/wall_panel_1m",
+    "file": "interior_finishing/wall_panel_1m.glb",
+    "category": "shell_finish",
+    "size_m": [
+      1.01,
+      0.042,
+      0.78
+    ],
+    "sockets": {},
+    "tints": {
+      "panel": "#207D85",
+      "panel_upper": "#FAF1DD",
+      "trim": "#BC874E"
+    },
+    "shell_finish": true,
+    "length_m": 1.0,
+    "height_m": 0.78,
+    "attach": "wall face, in front of the stone base course (0.038 m proud)"
+  },
+  {
+    "id": "interior_finishing/wall_panel_05m",
+    "file": "interior_finishing/wall_panel_05m.glb",
+    "category": "shell_finish",
+    "size_m": [
+      0.51,
+      0.042,
+      0.78
+    ],
+    "sockets": {},
+    "tints": {
+      "panel": "#207D85",
+      "panel_upper": "#FAF1DD",
+      "trim": "#BC874E"
+    },
+    "shell_finish": true,
+    "length_m": 0.5,
+    "height_m": 0.78,
+    "attach": "wall face, in front of the stone base course (0.038 m proud)"
+  },
+  {
+    "id": "interior_finishing/door_frame",
+    "file": "interior_finishing/door_frame.glb",
+    "category": "shell_finish",
+    "size_m": [
+      1.18,
+      0.326,
+      1.803
+    ],
+    "sockets": {},
+    "tints": {
+      "frame": "#FAF1DD",
+      "trim_b": "#A9743F"
+    },
+    "shell_finish": true,
+    "fits_opening_m": [
+      1.02,
+      1.68
+    ],
+    "wall_thickness_m": 0.22,
+    "attach": "plain masonry_wall opening (no door_unit); origin at the opening bottom centre"
+  },
+  {
+    "id": "interior_finishing/room_divider",
+    "file": "interior_finishing/room_divider.glb",
+    "category": "furniture",
+    "size_m": [
+      1.62,
+      0.12,
+      0.95
+    ],
+    "sockets": {
+      "socket_block": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "tints": {
+      "frame": "#FAF1DD",
+      "panel": "#207D85",
+      "trim": "#C99559"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        3,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "height_m": 0.95,
+    "note": "low enough not to hide the 0.9 m penguin from the game camera"
+  },
+  {
+    "id": "interior_finishing/corner_shelf",
+    "file": "interior_finishing/corner_shelf.glb",
+    "category": "furniture",
+    "size_m": [
+      0.385,
+      0.388,
+      0.718
+    ],
+    "sockets": {
+      "socket_surface_0": [
+        0.144,
+        -0.144,
+        0.03
+      ],
+      "socket_surface_1": [
+        0.144,
+        -0.144,
+        0.36
+      ]
+    },
+    "tints": {
+      "trim": "#C99559"
+    },
+    "placement": {
+      "layer": "wall",
+      "cell_m": 0.5,
+      "footprint": null,
+      "rotations": [
+        0
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "surfaces": {
+      "surface_0": [
+        0.2,
+        0.2
+      ],
+      "surface_1": [
+        0.2,
+        0.2
+      ]
+    },
+    "attach": "inside corner, walls on planes y=0 and x=0; hang at about 0.9 m"
+  },
+  {
+    "id": "interior_finishing/ceiling_beam",
+    "file": "interior_finishing/ceiling_beam.glb",
+    "category": "furniture",
+    "size_m": [
+      3.008,
+      0.22,
+      0.264
+    ],
+    "sockets": {},
+    "tints": {
+      "trim": "#C99559"
+    },
+    "placement": {
+      "layer": "ceiling",
+      "cell_m": 0.5,
+      "footprint": [
+        6,
+        1
+      ],
+      "rotations": [
+        0,
+        90
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "visibility_group": "roof",
+    "length_m": 3.0
+  },
+  {
+    "id": "interior_finishing/ceiling_pendant",
+    "file": "interior_finishing/ceiling_pendant.glb",
+    "category": "light",
+    "size_m": [
+      0.231,
+      0.231,
+      0.68
+    ],
+    "sockets": {
+      "socket_light": [
+        0.0,
+        0.0,
+        -0.62
+      ]
+    },
+    "tints": {},
+    "placement": {
+      "layer": "ceiling",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "interior_finishing/wall_sconce",
+    "file": "interior_finishing/wall_sconce.glb",
+    "category": "light",
+    "size_m": [
+      0.18,
+      0.26,
+      0.247
+    ],
+    "sockets": {
+      "socket_light": [
+        0.0,
+        -0.17,
+        -0.11
+      ]
+    },
+    "tints": {
+      "trim": "#BC874E"
+    },
+    "placement": {
+      "layer": "wall",
+      "cell_m": 0.5,
+      "footprint": null,
+      "rotations": [
+        0
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "mount_height_m": 1.45
+  },
+  {
+    "id": "interior_finishing/radiator",
+    "file": "interior_finishing/radiator.glb",
+    "category": "furniture",
+    "size_m": [
+      0.71,
+      0.1,
+      0.5
+    ],
+    "sockets": {},
+    "tints": {
+      "frame": "#FAF1DD"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        2,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "attach": "against a wall, back at y=0 (sits clear of skirting and panels)",
+    "note": "decorative; must not cover a door or interaction spot"
+  },
+  {
+    "id": "interior_finishing/small_waste_bin",
+    "file": "interior_finishing/small_waste_bin.glb",
+    "category": "furniture",
+    "size_m": [
+      0.322,
+      0.322,
+      0.33
+    ],
+    "sockets": {},
+    "tints": {
+      "bin": "#207D85",
+      "frame": "#FAF1DD"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "interior_finishing/floor_vent",
+    "file": "interior_finishing/floor_vent.glb",
+    "category": "decal",
+    "size_m": [
+      0.42,
+      0.24,
+      0.015
+    ],
+    "sockets": {},
+    "tints": {},
+    "placement": {
+      "layer": "rug",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "offset_m": 0.003,
+    "note": "place 3 mm above the floor; no collision"
+  }
+]

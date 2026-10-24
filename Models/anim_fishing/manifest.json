@@ -1,0 +1,205 @@
+[
+  {
+    "id": "anim_fishing/avatar_base",
+    "file": "anim_fishing/avatar_base.glb",
+    "category": "animation",
+    "size_m": [
+      0.977,
+      0.654,
+      0.9
+    ],
+    "sockets": {
+      "socket_back": [
+        0.0,
+        -0.16,
+        -0.302
+      ],
+      "socket_face": [
+        0.0,
+        -0.2,
+        0.239
+      ],
+      "socket_hand_R": [
+        -0.003,
+        -0.02,
+        0.003
+      ],
+      "socket_head": [
+        0.0,
+        -0.18,
+        0.0
+      ],
+      "socket_neck": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "socket_seat": [
+        0.0,
+        -0.08,
+        0.0
+      ]
+    },
+    "tints": {
+      "body": "#3E7DD6"
+    },
+    "fps": 30,
+    "bones": [
+      "root",
+      "body",
+      "head",
+      "flipper.L",
+      "flipper.R",
+      "foot.L",
+      "foot.R"
+    ],
+    "morphs": [
+      "eyes_closed",
+      "eyes_happy",
+      "eyes_wide",
+      "beak_open",
+      "blush"
+    ],
+    "clips": {
+      "fish_equip": {
+        "duration_s": 0.6,
+        "frames": 18,
+        "loop": false,
+        "events": {
+          "grip": 0.2
+        },
+        "cancel": "move",
+        "gltf_name": "fish_equip",
+        "props": [
+          {
+            "asset": "avatar/fishing_rod",
+            "socket": "socket_hand_R",
+            "line_from": "socket_line_tip",
+            "visible": [
+              0.2,
+              0.6
+            ]
+          }
+        ]
+      },
+      "fish_cast": {
+        "duration_s": 1.0,
+        "frames": 30,
+        "loop": false,
+        "events": {
+          "line_release": 0.5
+        },
+        "cancel": "none",
+        "gltf_name": "fish_cast",
+        "props": [
+          {
+            "asset": "avatar/fishing_rod",
+            "socket": "socket_hand_R",
+            "line_from": "socket_line_tip"
+          }
+        ]
+      },
+      "fish_wait": {
+        "duration_s": 3.0,
+        "frames": 90,
+        "loop": true,
+        "events": {},
+        "cancel": "move",
+        "gltf_name": "fish_wait_loop",
+        "props": [
+          {
+            "asset": "avatar/fishing_rod",
+            "socket": "socket_hand_R",
+            "line_from": "socket_line_tip"
+          }
+        ]
+      },
+      "fish_hook": {
+        "duration_s": 0.4,
+        "frames": 12,
+        "loop": false,
+        "events": {},
+        "cancel": "none",
+        "gltf_name": "fish_hook",
+        "note": "play on the authoritative bite, then fish_reel",
+        "props": [
+          {
+            "asset": "avatar/fishing_rod",
+            "socket": "socket_hand_R",
+            "line_from": "socket_line_tip"
+          }
+        ]
+      },
+      "fish_reel": {
+        "duration_s": 0.8,
+        "frames": 24,
+        "loop": true,
+        "events": {},
+        "cancel": "none",
+        "gltf_name": "fish_reel_loop",
+        "props": [
+          {
+            "asset": "avatar/fishing_rod",
+            "socket": "socket_hand_R",
+            "line_from": "socket_line_tip"
+          }
+        ]
+      },
+      "fish_catch": {
+        "duration_s": 1.4,
+        "frames": 42,
+        "loop": false,
+        "events": {
+          "show_fish": 0.3
+        },
+        "cancel": "move",
+        "gltf_name": "fish_catch",
+        "props": [
+          {
+            "asset": "avatar/fishing_rod",
+            "socket": "socket_hand_R",
+            "line_from": "socket_line_tip"
+          }
+        ]
+      },
+      "fish_escape": {
+        "duration_s": 1.2,
+        "frames": 36,
+        "loop": false,
+        "events": {},
+        "cancel": "move",
+        "gltf_name": "fish_escape",
+        "props": [
+          {
+            "asset": "avatar/fishing_rod",
+            "socket": "socket_hand_R",
+            "line_from": "socket_line_tip"
+          }
+        ]
+      },
+      "fish_stow": {
+        "duration_s": 0.6,
+        "frames": 18,
+        "loop": false,
+        "events": {
+          "release_rod": 0.4
+        },
+        "cancel": "move",
+        "gltf_name": "fish_stow",
+        "props": [
+          {
+            "asset": "avatar/fishing_rod",
+            "socket": "socket_hand_R",
+            "line_from": "socket_line_tip",
+            "visible": [
+              0.0,
+              0.4
+            ]
+          }
+        ]
+      }
+    },
+    "rig": "avatar_base (same node and bone names as avatar/avatar_base.glb)",
+    "root_motion": "none: clips play in place; only hop moves the root vertically"
+  }
+]

@@ -23,8 +23,12 @@ static func apply(root: Node, colors: Dictionary) -> void:
 			if m == null:
 				continue
 			var r := role_of(m)
+			if r.ends_with("_glow") and not colors.has(r):
+				r = r.trim_suffix("_glow")  # glow regions follow their base role unless set explicitly
 			if r != "" and colors.has(r):
 				m.albedo_color = colors[r]
+				if m.emission_enabled:  # glowing tints (team pad rims, lamp shades) glow in the new colour
+					m.emission = colors[r]
 
 ## Tint roles present on an asset, for building colour pickers.
 static func roles(root: Node) -> PackedStringArray:

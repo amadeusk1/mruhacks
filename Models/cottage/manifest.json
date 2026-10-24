@@ -42,6 +42,12 @@
         "open_deg": 100
       }
     },
+    "part_clips": {
+      "part_door_leaf": [
+        "door_leaf_open",
+        "door_leaf_close"
+      ]
+    },
     "tints": {
       "wall": "#F3E2C5",
       "trim": "#BC874E",
@@ -139,6 +145,12 @@
         "axis": "z",
         "open_deg": 100
       }
+    },
+    "part_clips": {
+      "part_door_leaf": [
+        "door_leaf_open",
+        "door_leaf_close"
+      ]
     },
     "tints": {
       "wall": "#F3E2C5",
@@ -262,8 +274,8 @@
     "category": "nature",
     "size_m": [
       0.725,
-      0.586,
-      0.506
+      0.583,
+      0.505
     ],
     "sockets": {},
     "tints": {}

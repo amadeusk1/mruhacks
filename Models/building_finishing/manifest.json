@@ -1,0 +1,317 @@
+[
+  {
+    "id": "building_finishing/foundation_skirt_1m",
+    "file": "building_finishing/foundation_skirt_1m.glb",
+    "category": "trim",
+    "size_m": [
+      0.985,
+      0.117,
+      0.288
+    ],
+    "sockets": {},
+    "tints": {
+      "stone": "#DDCBAE"
+    },
+    "length_m": 1.0,
+    "height_m": 0.3,
+    "attach": "front of plinth/wall base, 3 mm proud"
+  },
+  {
+    "id": "building_finishing/foundation_skirt_2m",
+    "file": "building_finishing/foundation_skirt_2m.glb",
+    "category": "trim",
+    "size_m": [
+      1.985,
+      0.119,
+      0.288
+    ],
+    "sockets": {},
+    "tints": {
+      "stone": "#DDCBAE"
+    },
+    "length_m": 2.0,
+    "height_m": 0.3,
+    "attach": "front of plinth/wall base, 3 mm proud"
+  },
+  {
+    "id": "building_finishing/foundation_skirt_corner",
+    "file": "building_finishing/foundation_skirt_corner.glb",
+    "category": "trim",
+    "size_m": [
+      0.14,
+      0.14,
+      0.288
+    ],
+    "sockets": {},
+    "tints": {
+      "stone": "#D9CBB4"
+    },
+    "attach": "outer corner where two skirt runs meet"
+  },
+  {
+    "id": "building_finishing/exterior_corner_trim",
+    "file": "building_finishing/exterior_corner_trim.glb",
+    "category": "trim",
+    "size_m": [
+      0.28,
+      0.23,
+      1.82
+    ],
+    "sockets": {},
+    "tints": {
+      "trim": "#C99559"
+    },
+    "height_m": 1.82,
+    "attach": "outer wall corner above the stone base course; origin at the corner, front face y=0, side face x=0"
+  },
+  {
+    "id": "building_finishing/window_sill",
+    "file": "building_finishing/window_sill.glb",
+    "category": "trim",
+    "size_m": [
+      0.96,
+      0.2,
+      0.22
+    ],
+    "sockets": {},
+    "tints": {
+      "trim": "#C99559"
+    },
+    "fits_window_w_m": 0.62,
+    "attach": "under a window_unit(sill=False); top at the glass bottom - 0.13"
+  },
+  {
+    "id": "building_finishing/window_shutters",
+    "file": "building_finishing/window_shutters.glb",
+    "category": "trim",
+    "size_m": [
+      1.548,
+      0.055,
+      0.92
+    ],
+    "sockets": {},
+    "parts": {
+      "part_shutter_l": {
+        "pivot": [
+          -0.48,
+          -0.023,
+          0.0
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 165,
+        "rest": "open_against_wall"
+      },
+      "part_shutter_r": {
+        "pivot": [
+          0.48,
+          -0.023,
+          0.0
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": -165,
+        "rest": "open_against_wall"
+      }
+    },
+    "part_clips": {
+      "part_shutter_l": [
+        "shutter_l_open",
+        "shutter_l_close"
+      ],
+      "part_shutter_r": [
+        "shutter_r_open",
+        "shutter_r_close"
+      ]
+    },
+    "tints": {
+      "shutter": "#E86D58"
+    },
+    "fits_window_w_m": 0.62,
+    "rest": "open against the wall; *_open clips close them over the window",
+    "attach": "origin at the window centre line, z = glass bottom - 0.06, on the wall face"
+  },
+  {
+    "id": "building_finishing/doorstep_threshold",
+    "file": "building_finishing/doorstep_threshold.glb",
+    "category": "trim",
+    "size_m": [
+      1.18,
+      0.41,
+      0.06
+    ],
+    "sockets": {},
+    "tints": {
+      "stone": "#D9CBB4"
+    },
+    "step_height_m": 0.06,
+    "traversable": true,
+    "attach": "back edge against the door threshold"
+  },
+  {
+    "id": "building_finishing/roof_ridge_cap",
+    "file": "building_finishing/roof_ridge_cap.glb",
+    "category": "roof_trim",
+    "size_m": [
+      0.492,
+      0.408,
+      0.195
+    ],
+    "sockets": {},
+    "tints": {
+      "roof": "#E86D58"
+    },
+    "visibility_group": "roof",
+    "segment_m": 0.42,
+    "fits_pitch_deg": 40.5,
+    "attach": "on top of a tiled_gable ridge row, 3 mm above it"
+  },
+  {
+    "id": "building_finishing/roof_end_cap",
+    "file": "building_finishing/roof_end_cap.glb",
+    "category": "roof_trim",
+    "size_m": [
+      0.492,
+      0.329,
+      0.283
+    ],
+    "sockets": {},
+    "tints": {
+      "roof": "#F07E66"
+    },
+    "visibility_group": "roof",
+    "fits_pitch_deg": 40.5,
+    "attach": "last ridge cap at a gable end; diamond plate faces -Y"
+  },
+  {
+    "id": "building_finishing/eave_trim",
+    "file": "building_finishing/eave_trim.glb",
+    "category": "roof_trim",
+    "size_m": [
+      1.0,
+      0.212,
+      0.38
+    ],
+    "sockets": {},
+    "tints": {
+      "trim": "#C99559"
+    },
+    "visibility_group": "roof",
+    "fits_pitch_deg": 40.5,
+    "top_below_wall_top_m": 0.02,
+    "length_m": 1.0,
+    "attach": "eave wall face, z=0 at the wall top"
+  },
+  {
+    "id": "building_finishing/chimney_cap",
+    "file": "building_finishing/chimney_cap.glb",
+    "category": "roof_trim",
+    "size_m": [
+      0.76,
+      0.76,
+      0.51
+    ],
+    "sockets": {
+      "socket_fx_smoke": [
+        0.0,
+        0.0,
+        0.56
+      ]
+    },
+    "tints": {
+      "stone": "#DDCBAE"
+    },
+    "visibility_group": "roof",
+    "fits_chimney_cap_w_m": 0.68,
+    "attach": "on top of an existing chimney cap; flue stays open"
+  },
+  {
+    "id": "building_finishing/porch_canopy",
+    "file": "building_finishing/porch_canopy.glb",
+    "category": "building_part",
+    "size_m": [
+      2.08,
+      1.214,
+      2.887
+    ],
+    "sockets": {
+      "socket_door_approach": [
+        0.0,
+        -1.35,
+        0.0
+      ]
+    },
+    "tints": {
+      "stone": "#D9CBB4",
+      "trim": "#C99559",
+      "roof": "#F07E66"
+    },
+    "clear_width_m": 1.5,
+    "clear_height_m": 2.05,
+    "depth_m": 0.95,
+    "fits_door": "buildings.door_unit 0.86 x 1.6 (heavy surround 1.4 m wide)",
+    "attach": "back edge on the door wall face, centred on the door"
+  },
+  {
+    "id": "building_finishing/snow_eave_overlay",
+    "file": "building_finishing/snow_eave_overlay.glb",
+    "category": "roof_trim",
+    "size_m": [
+      1.0,
+      0.351,
+      0.448
+    ],
+    "sockets": {},
+    "tints": {
+      "snow": "#EEF4F7"
+    },
+    "visibility_group": "roof",
+    "length_m": 1.0,
+    "removable": true,
+    "fits_pitch_deg": 40.5,
+    "attach": "eave outer edge on the tile top"
+  },
+  {
+    "id": "building_finishing/wall_sign_bracket",
+    "file": "building_finishing/wall_sign_bracket.glb",
+    "category": "wall_prop",
+    "size_m": [
+      0.14,
+      0.897,
+      0.901
+    ],
+    "sockets": {},
+    "parts": {
+      "part_sign": {
+        "pivot": [
+          0.0,
+          -0.6,
+          -0.01
+        ],
+        "motion": "sway",
+        "amp_deg": 4
+      }
+    },
+    "part_clips": {
+      "part_sign": [
+        "sign_sway"
+      ]
+    },
+    "tints": {
+      "trim": "#C99559",
+      "sign": "#207D85"
+    },
+    "placement": {
+      "layer": "wall",
+      "cell_m": 0.5,
+      "footprint": null,
+      "rotations": [
+        0
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "insert": "insert_sign on both faces",
+    "attach": "wall face, top of the plate at the origin"
+  }
+]

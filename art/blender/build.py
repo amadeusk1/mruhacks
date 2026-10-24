@@ -17,3 +17,7 @@ for kit in kits:
 
 import render_index
 render_index.main()
+
+import subprocess
+subprocess.run([sys.executable if not sys.executable.endswith("Blender") else "python3",
+                os.path.join(os.path.dirname(os.path.abspath(__file__)), "check_parts.py")])

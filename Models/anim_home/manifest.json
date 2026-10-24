@@ -1,0 +1,119 @@
+[
+  {
+    "id": "anim_home/avatar_base",
+    "file": "anim_home/avatar_base.glb",
+    "category": "animation",
+    "size_m": [
+      0.977,
+      0.654,
+      0.9
+    ],
+    "sockets": {
+      "socket_back": [
+        0.0,
+        -0.16,
+        -0.302
+      ],
+      "socket_face": [
+        0.0,
+        -0.2,
+        0.239
+      ],
+      "socket_hand_R": [
+        -0.003,
+        -0.02,
+        0.003
+      ],
+      "socket_head": [
+        0.0,
+        -0.18,
+        0.0
+      ],
+      "socket_neck": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "socket_seat": [
+        0.0,
+        -0.08,
+        0.0
+      ]
+    },
+    "tints": {
+      "body": "#3E7DD6"
+    },
+    "fps": 30,
+    "bones": [
+      "root",
+      "body",
+      "head",
+      "flipper.L",
+      "flipper.R",
+      "foot.L",
+      "foot.R"
+    ],
+    "morphs": [
+      "eyes_closed",
+      "eyes_happy",
+      "eyes_wide",
+      "beak_open",
+      "blush"
+    ],
+    "clips": {
+      "door_reach": {
+        "duration_s": 1.0,
+        "frames": 30,
+        "loop": false,
+        "events": {
+          "handle": 0.5
+        },
+        "cancel": "move",
+        "gltf_name": "door_reach",
+        "note": "handle ~0.75 m high, ~0.3 m ahead; swing the door's part_door_leaf on 'handle'"
+      },
+      "place_item": {
+        "duration_s": 1.2,
+        "frames": 36,
+        "loop": false,
+        "events": {
+          "place": 0.55
+        },
+        "cancel": "move",
+        "gltf_name": "place_item",
+        "note": "starts on anim_social hold_item_idle's pose (item in socket_hand_R); detach the item at 'place'"
+      },
+      "armchair_sit": {
+        "duration_s": 0.6,
+        "frames": 18,
+        "loop": false,
+        "events": {
+          "seated": 0.5
+        },
+        "cancel": "none",
+        "gltf_name": "armchair_sit",
+        "note": "snap socket_seat to the armchair/sofa socket_seat_N (0.41 m)"
+      },
+      "armchair_idle": {
+        "duration_s": 3.0,
+        "frames": 90,
+        "loop": true,
+        "events": {},
+        "cancel": "none",
+        "gltf_name": "armchair_idle_loop"
+      },
+      "armchair_stand": {
+        "duration_s": 0.6,
+        "frames": 18,
+        "loop": false,
+        "events": {
+          "stand": 0.42
+        },
+        "cancel": "none",
+        "gltf_name": "armchair_stand"
+      }
+    },
+    "rig": "avatar_base (same node and bone names as avatar/avatar_base.glb)",
+    "root_motion": "none: clips play in place; only hop moves the root vertically"
+  }
+]
