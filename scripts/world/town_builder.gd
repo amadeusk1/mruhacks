@@ -282,6 +282,8 @@ func _activity_anchor(marker: Marker3D, activity: String) -> void:
 			add_child(spot)
 		"sled":
 			_anchor(marker, "Sled Hill", "Ride", "", "sled_hill", "BusArrival")
+		"basketball":
+			_anchor(marker, "The Court", "Play", "", "court", "BusArrival")
 		"sled_finish":
 			pass
 		_:
