@@ -4,15 +4,17 @@
     "file": "world/town_terrain.glb",
     "category": "terrain",
     "size_m": [
-      181.174,
-      181.154,
-      9.738
+      181.161,
+      181.082,
+      10.219
     ],
     "sockets": {},
     "tints": {
       "rock": "#A39E96",
       "snow": "#E8EFF4",
       "sand": "#E8D3A6",
+      "track": "#D6E2EC",
+      "track_groove": "#BCCDDB",
       "water": "#1E9FC2"
     }
   }
