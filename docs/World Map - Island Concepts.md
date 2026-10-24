@@ -6,13 +6,13 @@ Game domain: **pengloo.party**. Both maps are visual proposals, not final geomet
 
 Angled overview for atmosphere, landmarks and district relationships.
 
-![Island overview](concepts/World%20Map%20-%20Island%20Overview.png)
+![World Map - Island Overview](concepts/World%20Map%20-%20Island%20Overview.png)
 
 ## Overhead layout
 
 Overhead planning concept showing paths, building footprints and activity areas. Some illustrative building perspective remains; this is not a surveyed orthographic plan.
 
-![Overhead layout](concepts/World%20Map%20-%20Overhead%20Layout.png)
+![World Map - Overhead Layout](concepts/World%20Map%20-%20Overhead%20Layout.png)
 
 ## Shared layout
 
@@ -23,3 +23,7 @@ Use the overhead sheet for layout discussion and the angled overview for visual 
 ## Generation
 
 Created with the built-in image generation tool. The overview uses the supplied island mockup as a visual reference; the overhead image is a separate generation to improve camera angle. Exact prompts are in [World Map - Generation Prompts](World%20Map%20-%20Generation%20Prompts.md).
+
+## Casino placement update
+
+See [Casino - Concept Index](Casino%20-%20Concept%20Index.md) for the revised island map placing the casino east of the arcade.

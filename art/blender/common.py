@@ -57,7 +57,7 @@ PALETTE = {
     # nature
     "leaf": ("#5FA83A", 0.9, 0), "leaf_b": ("#7CBF45", 0.9, 0), "leaf_dark": ("#3F8A35", 0.9, 0),
     "pine": ("#2F7A4A", 0.9, 0), "pine_b": ("#3E8F55", 0.9, 0), "bark": ("#8A5A34", 0.9, 0),
-    "rock": ("#D8CBB8", 0.95, 0), "rock_b": ("#C4B7A4", 0.95, 0), "rock_grey": ("#B4B2AE", 0.95, 0),
+    "rock": ("#B9B4AC", 0.95, 0), "rock_b": ("#A39E96", 0.95, 0), "rock_grey": ("#B4B2AE", 0.95, 0),
     "snow": ("#EEF4F7", 0.9, 0), "snow_shade": ("#D9E6EE", 0.9, 0), "ice": ("#CDEFF5", 0.6, 0),
     "water": ("#69C9D8", 0.3, 0), "water_deep": ("#3FA9C4", 0.3, 0),
     "petal_white": ("#FFFDF6", 0.9, 0), "petal_red": ("#E8524A", 0.9, 0), "petal_yellow": ("#F6C33B", 0.9, 0),
@@ -530,8 +530,11 @@ class Builder:
     # ---- output ----------------------------------------------------------
     def finish(self, kit, category="prop", meta=None, collection=None):
         self.apply_tint_families()
-        self.zfix = self.fix_coplanar()
-        self.zleft = self.fix_coplanar(push=0.0)  # count only
+        if getattr(self, "skip_zfix", False):  # huge procedural meshes laid out without overlaps (terrain, paving)
+            self.zfix = self.zleft = 0
+        else:
+            self.zfix = self.fix_coplanar()
+            self.zleft = self.fix_coplanar(push=0.0)  # count only
         mov = self.bm.faces.layers.int.get("movable")
         part_meshes = []
         for i, p in enumerate(self.parts, start=1):
