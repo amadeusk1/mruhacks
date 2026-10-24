@@ -38,6 +38,11 @@ var _foot_r_z := 0.0
 var _flipper_l_x := 0.0
 var _flipper_r_x := 0.0
 var _sitting := false
+var _fishing := false
+var _reel_focus := false
+var _fisher_phase := ""
+var _fish_hud: Node
+var _tackle: Node3D
 var _seat_bench: Node
 var _seat_point := Vector3.ZERO
 var _stand_point := Vector3.ZERO
@@ -98,8 +103,53 @@ func is_sitting() -> bool:
 	return _sitting
 
 
+func is_fishing() -> bool:
+	return _fishing
+
+
 func current_bench() -> Node:
 	return _seat_bench
+
+
+func plant_fish(spot: Node, stand: Vector3, yaw: float) -> bool:
+	if _blocks_play():
+		return false
+	if _fishing and _seat_bench == spot:
+		return true
+	halt()
+	_sitting = true
+	_fishing = true
+	_seat_bench = spot
+	_seat_point = stand
+	_stand_point = stand
+	global_position = stand
+	velocity = Vector3.ZERO
+	rotation.y = yaw
+	if _fish_hud == null:
+		_fish_hud = load("res://scripts/fishing_hud.gd").new()
+		add_child(_fish_hud)
+		_fish_hud.call("open", self)
+	return true
+
+
+func set_fish_phase(phase: String) -> void:
+	_fisher_phase = phase
+	_tackle_node().set_phase(phase)
+	if _remote_peer == 0:
+		Net.note_fisher(phase)
+
+
+func set_reel_focus(locked: bool) -> void:
+	_reel_focus = locked
+
+
+func apply_fisher(phase: String) -> void:
+	if _remote_peer == 0 or phase == _fisher_phase:
+		return
+	_fisher_phase = phase
+	if phase == "" and visual:
+		visual.rotation.x = 0.0
+	_tackle_node().set_phase(phase)
 
 
 func sit_down(bench: Node, seat: Vector3, yaw: float, stand: Vector3) -> void:
@@ -133,7 +183,11 @@ func face_point(point: Vector3) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if _remote_peer != 0 or _blocks_play():
+	if _remote_peer != 0 or _blocks_play() or _reel_focus:
+		return
+	if event.is_action_pressed("interact"):
+		if _try_interact():
+			get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("click_walk"):
 		_try_click(event)
@@ -193,6 +247,44 @@ func command_walk_to(world_point: Vector3) -> void:
 	_begin_click(_closest_nav_point(world_point))
 
 
+## Uses the nearest bench, fishing spot, or bus stop whose prompt is showing.
+func _try_interact() -> bool:
+	if _sitting:
+		return false
+	var best: Node = null
+	var best_dist := INF
+	for group in ["bench", "fish_spot", "bus_stop"]:
+		for node in get_tree().get_nodes_in_group(group):
+			if not node.has_method("can_interact") or not bool(node.call("can_interact")):
+				continue
+			var at := _interact_point(node)
+			var dist := Vector2(global_position.x - at.x, global_position.z - at.z).length()
+			if dist < best_dist:
+				best = node
+				best_dist = dist
+	if best == null:
+		return false
+	if best.has_method("try_fish"):
+		return bool(best.call("try_fish", true))
+	if best.has_method("try_sit"):
+		return bool(best.call("try_sit", true))
+	if best.has_method("try_open"):
+		return bool(best.call("try_open"))
+	return false
+
+
+func _interact_point(node: Node) -> Vector3:
+	if node.has_method("approach_point"):
+		return node.call("approach_point") as Vector3
+	var stand := node.get_node_or_null("StandArea/Collision") as Node3D
+	if stand != null:
+		return stand.global_position
+	var body := node as Node3D
+	if body != null:
+		return body.global_position
+	return global_position
+
+
 func _try_click(event: InputEvent = null) -> void:
 	if _camera_wish() != Vector3.ZERO:
 		return
@@ -213,6 +305,18 @@ func _try_click(event: InputEvent = null) -> void:
 	if collider != null and collider.is_in_group("bus_stop") and collider.has_method("try_open"):
 		if bool(collider.call("try_open")):
 			return
+	if collider != null and collider.is_in_group("fish_spot") and collider.has_method("try_fish"):
+		if _fishing and _seat_bench == collider:
+			return
+		if collider.has_method("bench_key") and Net.bench_held_by_other(str(collider.call("bench_key"))):
+			return
+		if _sitting:
+			stand_up()
+		if bool(collider.call("try_fish")):
+			return
+		_pending_bench = collider
+		_begin_click(_closest_nav_point(collider.call("approach_point")))
+		return
 	if collider != null and collider.is_in_group("bench") and collider.has_method("try_sit"):
 		if _sitting and _seat_bench == collider:
 			return
@@ -256,7 +360,9 @@ func _follow_path() -> Vector3:
 		var bench := _pending_bench
 		_pending_bench = null
 		_cancel_click()
-		if bench != null and bench.has_method("try_sit"):
+		if bench != null and bench.has_method("try_fish"):
+			bench.call("try_fish", true)
+		elif bench != null and bench.has_method("try_sit"):
 			bench.call("try_sit", true)
 		return Vector3.ZERO
 	if agent.is_navigation_finished():
@@ -323,6 +429,7 @@ func _clear_seat(relocate: bool) -> void:
 	if not _sitting:
 		return
 	_sitting = false
+	_end_fishing()
 	_seat_bench = null
 	_restore_feet()
 	if relocate:
@@ -422,6 +529,17 @@ func _restore_feet() -> void:
 
 
 func _animate(delta: float, speed: float) -> void:
+	if _fisher_phase != "":
+		if _clips and _clips.has_animation("idle") and _clips.current_animation != "idle":
+			_clips.play("idle")
+		var lean := 12.0
+		if _fisher_phase == "cast" or _fisher_phase == "bite":
+			lean = 20.0
+		elif _fisher_phase.begins_with("catch"):
+			lean = 4.0
+		visual.rotation.x = deg_to_rad(lean)
+		visual.position.y = 0.0
+		return
 	if _sitting:
 		if _clips and _clips.has_animation("sit"):
 			if _clips.current_animation != "sit":
@@ -481,6 +599,29 @@ func _swing_flipper(flipper: Node3D, rest_x: float, wave: float) -> void:
 	flipper.rotation.x = rest_x + wave * 0.55
 
 
+func _end_fishing() -> void:
+	_fishing = false
+	_reel_focus = false
+	if visual:
+		visual.rotation.x = 0.0
+	if _fisher_phase != "":
+		_fisher_phase = ""
+		if _tackle != null and is_instance_valid(_tackle):
+			_tackle.set_phase("")
+		if _remote_peer == 0:
+			Net.note_fisher("")
+	if _fish_hud != null and is_instance_valid(_fish_hud):
+		_fish_hud.queue_free()
+	_fish_hud = null
+
+
+func _tackle_node() -> Node:
+	if _tackle == null or not is_instance_valid(_tackle):
+		_tackle = load("res://scripts/fishing_tackle.gd").new()
+		add_child(_tackle)
+	return _tackle
+
+
 func _mount_pack(body: Color) -> void:
 	AssetPack.mount_bird(visual, body, "hoodie", "red_beanie", "head")
 
@@ -520,6 +661,7 @@ func _ensure_actions() -> void:
 	_add_keys("move_back", [KEY_S, KEY_DOWN])
 	_add_keys("move_left", [KEY_A, KEY_LEFT])
 	_add_keys("move_right", [KEY_D, KEY_RIGHT])
+	_add_keys("interact", [KEY_F])
 	if not InputMap.has_action("click_walk"):
 		InputMap.add_action("click_walk")
 		var mouse := InputEventMouseButton.new()

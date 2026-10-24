@@ -11,6 +11,7 @@ const _PETS := Vector3(120.0, 0.0, 100.0)
 
 func _ready() -> void:
 	AssetPack.dress_town(self)
+	FishingDock.build(self)
 
 
 func camera_for_spawn(spawn_name: String) -> Dictionary:
@@ -22,7 +23,7 @@ func camera_for_spawn(spawn_name: String) -> Dictionary:
 		return {"center": _PETS, "limit_x": 2.2, "limit_z": 2.3}
 	return {
 		"center": Vector3.ZERO,
-		"limit_x": 10.0,
+		"limit_x": 16.0,
 		"limit_z": 8.5,
 		"height": 14.2,
 		"distance": 10.8,

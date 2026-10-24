@@ -324,6 +324,10 @@ func _end_session(message: String) -> void:
 	_lobby.show_lobby(message)
 
 
+func grant_coins(amount: int) -> void:
+	_hud.add_coins(amount)
+
+
 func send_chat(message: String) -> void:
 	var text := message.strip_edges()
 	if text == "":
@@ -417,6 +421,8 @@ func _ensure_puppet(entry: Dictionary) -> void:
 		puppet.visible = false
 		print("Net avatar %s (%s) entered %s" % [str(entry.get("name", "")), id, str(entry.get("location", ""))])
 	puppet.apply_identity(str(entry.get("name", "Penguin")), int(entry.get("color", 0)))
+	if puppet.has_method("apply_fisher"):
+		puppet.apply_fisher(str(entry.get("fisher", "")))
 	if _poses.has(id):
 		var pose: Dictionary = _poses[id]
 		puppet.present_remote(pose["at"], float(pose["yaw"]), float(pose["speed"]), bool(pose["sitting"]))
