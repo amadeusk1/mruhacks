@@ -27,7 +27,7 @@ static func paint(node: Node, roles: Dictionary, palette: Dictionary) -> void:
 					d.albedo_color = Color(v.trim_prefix("glow:"))
 					d.emission_enabled = true
 					d.emission = d.albedo_color
-					d.emission_energy_multiplier = 2.2
+					d.emission_energy_multiplier = 0.9
 				else:
 					d.albedo_color = Color(v)
 				m3.set_surface_override_material(si, d)
@@ -39,17 +39,39 @@ static func apply(tree: SceneTree, mood: Dictionary) -> Dictionary:
 		return {}
 	var we := world.get_node("WorldEnvironment") as WorldEnvironment
 	var sun := world.get_node("DirectionalLight3D") as DirectionalLight3D
-	var saved := {"env": we.environment, "light_color": sun.light_color, "light_energy": sun.light_energy}
-	var env := we.environment.duplicate() as Environment
+	var saved := {"env": we.environment, "sun_visible": sun.visible, "light_color": sun.light_color, "light_energy": sun.light_energy}
+	var compat := RenderingServer.get_current_rendering_method() == "gl_compatibility"
+	# one indoor environment: no sun, a low warm ambient, filmic tone and (almost) no glow; the
+	# outdoor sky ambient and sun stacked with the room lamps washed every room out
+	var env := Environment.new()
 	env.background_mode = Environment.BG_COLOR
 	env.background_color = Color(mood["background"])
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	env.ambient_light_color = Color(mood["ambient"])
-	env.ambient_light_energy = float(mood.get("ambient_energy", 0.75))
+	env.ambient_light_energy = float(mood.get("ambient_energy", 0.32)) * (0.85 if compat else 1.0)
+	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
+	env.tonemap_exposure = float(mood.get("exposure", 1.0)) * (0.9 if compat else 1.0)
+	env.glow_enabled = not compat
+	env.glow_intensity = 0.15
+	env.glow_bloom = 0.0
+	env.glow_hdr_threshold = 1.4
 	we.environment = env
-	sun.light_color = Color(mood["sun"])
-	sun.light_energy = float(mood.get("sun_energy", 0.85))
+	sun.visible = false
 	return saved
+
+
+## Indoor lamps glow, they don't flood: emission on glow, bulb and window materials is clamped.
+static func calm(node: Node, max_energy := 0.9) -> void:
+	for mi in node.find_children("*", "MeshInstance3D", true, false):
+		var m3 := mi as MeshInstance3D
+		if m3.mesh == null:
+			continue
+		for si in m3.mesh.get_surface_count():
+			var m := m3.get_active_material(si) as BaseMaterial3D
+			if m and m.emission_enabled and m.emission_energy_multiplier > max_energy:
+				var d := m.duplicate() as BaseMaterial3D
+				d.emission_energy_multiplier = max_energy
+				m3.set_surface_override_material(si, d)
 
 
 static func restore(tree: SceneTree, saved: Dictionary) -> void:
@@ -58,5 +80,6 @@ static func restore(tree: SceneTree, saved: Dictionary) -> void:
 		return
 	(world.get_node("WorldEnvironment") as WorldEnvironment).environment = saved["env"]
 	var sun := world.get_node("DirectionalLight3D") as DirectionalLight3D
+	sun.visible = saved["sun_visible"]
 	sun.light_color = saved["light_color"]
 	sun.light_energy = saved["light_energy"]

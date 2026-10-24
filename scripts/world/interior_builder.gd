@@ -87,7 +87,7 @@ const ROOMS := {
 		# deep green felt and upholstery, walnut rails, red slots: the casino sheets' palette
 		"roles": {"upholstery": "#2F6B55", "cushion": "#2F6B55", "felt": "#1E6A4A", "rail": "#5B3A24", "trim": "#2A6A5C"},
 		"palette": {"insert_felt": "#1E6A4A"},
-		"mood": {"background": "#3A2A22", "ambient": "#FFD7A8", "sun": "#FFD2A0"},
+		"mood": {"background": "#3A2A22", "ambient": "#FFD7A8", "sun": "#FFD2A0", "ambient_energy": 0.45},  # dark walnut needs a touch more
 		# [table placement anchor, seat prop, game, seat height]; seats come from the table's socket_seat_*
 		"games": [["socket_roulette", "casino/roulette_stool", "roulette", "casino"], ["socket_poker", "casino/casino_chair", "poker", "casino"],
 			["socket_blackjack", "casino/casino_chair", "blackjack", "casino"],
@@ -270,6 +270,7 @@ func _exit_tree() -> void:
 
 func _ready() -> void:
 	_saved_mood = InteriorMood.apply(get_tree(), _cfg.get("mood", {}))
+	InteriorMood.calm(self)
 	AmbientFx.dress(self)  # steam on the coffee station and mugs; no snow indoors
 	_block_props.call_deferred()
 	for ap in find_children("*", "AnimationPlayer", true, false):  # roulette rotor, slot reels

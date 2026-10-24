@@ -7,7 +7,7 @@ extends Node3D
 
 ## 13 Cinema Lobby / 14 Auditorium / Movie Night: warm sand floor and plaster, velvet reds, a
 ## warm room light in the lobby that the dark auditorium keeps to its own lamps.
-const MOOD := {"background": "#2A1E1A", "ambient": "#FFD9B4", "sun": "#FFD6A6", "ambient_energy": 0.7}
+const MOOD := {"background": "#2A1E1A", "ambient": "#FFD9B4", "sun": "#FFD6A6", "ambient_energy": 0.36}
 const PALETTE := {"paving": "#E8CFA6", "paving_b": "#DDBF94", "stone": "#D7BE9C"}
 var _saved_mood := {}
 
@@ -18,7 +18,7 @@ func _exit_tree() -> void:
 
 func _ready() -> void:
 	AssetPack.dress_cinema(self)
-	_saved_mood = InteriorMood.apply(get_tree(), MOOD)
+	InteriorMood.calm(self)
 	for n in find_children("cinema_lobby*", "Node3D", true, false):
 		if n.get_parent().name == "PackProps":
 			InteriorMood.paint(n, {"wall": "#F1DCBC"}, PALETTE)
@@ -76,7 +76,17 @@ func voice_room_at(pos: Vector3) -> String:
 	return "cinema_front"
 
 
+## Indoor light only while the player is inside: the yard / forecourt keep the town's sky and sun.
+func _set_indoor(on: bool) -> void:
+	if on and _saved_mood.is_empty():
+		_saved_mood = InteriorMood.apply(get_tree(), MOOD)
+	elif not on and not _saved_mood.is_empty():
+		InteriorMood.restore(get_tree(), _saved_mood)
+		_saved_mood = {}
+
+
 func camera_for_spawn(spawn_name: String) -> Dictionary:
+	_set_indoor(spawn_name.begins_with("Inside") or spawn_name == "ScreenReturn")
 	if spawn_name == "InsideScreen":
 		return {
 			"center": get_meta("hall_center", Vector3(240.0, 0.0, 50.0)),
