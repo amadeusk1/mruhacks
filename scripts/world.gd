@@ -491,38 +491,9 @@ func _shares_room(location: String, hidden: bool, igloo: int) -> bool:
 
 
 func _refresh_presence() -> void:
-	if _rows == null:
-		return
-	_clear_presence()
-	if not _in_game or not Net.is_online():
-		return
-	var mine := Net.local_profile()
-	var self_place := ""
-	for entry in Net.roster():
-		if int(entry.get("id", 0)) == Net.local_id():
-			self_place = _place_label(entry)
-			break
-	var head := "You are %s" % str(mine["name"])
-	if self_place != "":
-		head += " — " + self_place
-	_rows.add_child(_presence_label(head))
-	for entry in Net.roster():
-		var id := int(entry.get("id", 0))
-		if id == Net.local_id():
-			continue
-		var row := HBoxContainer.new()
-		row.add_theme_constant_override("separation", 8)
-		row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		var text := "%s — %s" % [str(entry.get("name", "Penguin")), _place_label(entry)]
-		row.add_child(_presence_label(text))
-		if not _in_their_igloo(entry):
-			var button := Button.new()
-			button.text = "Invite"
-			button.custom_minimum_size = Vector2(72, 28)
-			button.add_theme_font_size_override("font_size", 14)
-			button.pressed.connect(_invite_player.bind(id, str(entry.get("name", "Penguin"))))
-			row.add_child(button)
-		_rows.add_child(row)
+	# No corner roster: players shouldn't see where everyone is. Invites live in Friends -> player card.
+	if _rows != null:
+		_clear_presence()
 
 
 func _in_their_igloo(entry: Dictionary) -> bool:
