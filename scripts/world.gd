@@ -312,6 +312,22 @@ func _on_session_started() -> void:
 		_penguin.visible = false
 		_penguin.process_mode = Node.PROCESS_MODE_DISABLED
 	_refresh_presence()
+	if OS.has_feature("web"):
+		_goto_from_url()
+
+
+## Probe hook (headless Chrome): ?goto=location:Marker puts the penguin on that marker after joining.
+func _goto_from_url() -> void:
+	var trip := str(JavaScriptBridge.eval("new URLSearchParams(location.search).get('goto') || ''")).split(":")
+	if trip.size() != 2:
+		return
+	if trip[0] != _current_id:
+		await travel_to(trip[0], trip[1])
+		return
+	var marker := _host.find_child(trip[1], true, false) as Node3D
+	if marker:
+		_penguin.global_position = _ground_at(marker.global_position)
+		_penguin.halt()
 
 
 func _on_host_lost() -> void:
