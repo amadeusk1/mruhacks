@@ -43,6 +43,7 @@ EXCLUDE = {
     "town_connections/cliff_corner_inner": "no concave cliff corner anywhere on this coastline",
     "town_connections/snow_overlay_cliff_corner_inner": "no concave cliff corner anywhere on this coastline",
     "nature_dock/water_tile_2x2": "water is one generated plane",
+    "nature_dock/water_edge_2m": "the cove's north quay became the boardwalk joining the piers",
     **{f"nature_dock/{n}": "the cove is a sculpted sand beach with a quay wall; modular shore banks would double that edge"
        for n in ("shore_bank_sloped", "snow_overlay_shore_bank_sloped", "shore_inner_corner", "snow_overlay_shore_inner_corner",
                  "shore_outer_corner", "snow_overlay_shore_outer_corner")},
