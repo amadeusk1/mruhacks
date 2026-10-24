@@ -27,6 +27,24 @@ var _has_film := false
 var _shown := Vector2i(-1, -1)
 var _audio: AudioStreamPlayer
 var _audio_seg := -1
+var _views := {}            ## nodes currently showing this player (screen, overlay, watch UI)
+
+
+## A view (3D screen, overlay, watch UI) starts showing the film: chunks download only while at least
+## one view is open, and stop when the last one closes or is freed.
+func watch(view: Node) -> void:
+	_views[view] = true
+
+
+func unwatch(view: Node) -> void:
+	_views.erase(view)
+
+
+func has_views() -> bool:
+	for v in _views.keys():
+		if not is_instance_valid(v):
+			_views.erase(v)
+	return not _views.is_empty()
 
 
 func _ready() -> void:
@@ -73,7 +91,9 @@ func stop() -> void:
 
 
 func _process(_d: float) -> void:
-	if not _has_film or client == null or not client.signed_in:
+	if not _has_film or client == null or not client.signed_in or not has_views():
+		if _audio.playing and not has_views():
+			_audio.stop()  # nobody watching: silence too
 		return
 	var pos := position()
 	var k := int(pos / SEG)

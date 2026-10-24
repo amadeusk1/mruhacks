@@ -59,6 +59,8 @@ func is_controller() -> bool:
 
 
 func _build() -> void:
+	if mode != "watch" and CinemaService.player:
+		CinemaService.player.unwatch(self)
 	if _root:
 		_root.queue_free()
 	_root = A.screen_root()
@@ -211,6 +213,7 @@ func _build_watch() -> void:
 		screen.add_child(live)
 		if not CinemaService.player.texture_changed.is_connected(_on_live_texture):
 			CinemaService.player.texture_changed.connect(_on_live_texture)
+		CinemaService.player.watch(self)  # released when the screen leaves watch mode or closes
 	else:
 		var po := poster(t, 1280, 720)
 		po.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -280,6 +283,11 @@ func _build_watch() -> void:
 	leave.pressed.connect(close)
 	ctl.add_child(leave)
 	_sync_time()
+
+
+func _exit_tree() -> void:
+	if CinemaService.player:
+		CinemaService.player.unwatch(self)
 
 
 func _on_live_texture(t: Texture2D) -> void:
