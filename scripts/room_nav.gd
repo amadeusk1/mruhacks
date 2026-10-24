@@ -4,7 +4,7 @@ extends NavigationRegion3D
 ## Floor colliders (physics layer 1) are the only walkable surface.
 ## Blockers (physics layer 2) carve holes so paths go around the ice, not over it.
 
-const AGENT_RADIUS := 0.3  # the penguin capsule (0.28); 0.5 erased narrow bridges, docks and stairs
+const AGENT_RADIUS := 0.35  # the penguin capsule (0.28) plus the hull margin; 0.5 erased narrow bridges, docks and stairs
 const AGENT_HEIGHT := 1.25
 
 
@@ -29,6 +29,7 @@ func _bake() -> void:
 	mesh.agent_max_climb = 0.35  # matches penguin_movement STEP_HEIGHT
 	mesh.agent_max_slope = 50.0  # under the penguin's 55 degree floor_max_angle: click where you can walk
 	mesh.cell_size = 0.15
+	mesh.region_min_size = 6.0  # drop islands under ~0.8 m² (inside a ring of chairs): clicks snapped onto them and stalled
 	mesh.cell_height = 0.1
 	mesh.geometry_parsed_geometry_type = NavigationMesh.PARSED_GEOMETRY_STATIC_COLLIDERS
 	mesh.geometry_collision_mask = 1
@@ -66,7 +67,8 @@ func _carve_box(shape_node: CollisionShape3D) -> void:
 		xf * Vector3(half.x, 0.0, half.z),
 		xf * Vector3(half.x, 0.0, -half.z),
 	]
-	var origin := Vector3(xf.origin.x, 0.0, xf.origin.z)
+	# from just under the box to its top: a box on a cinema tier must not carve the tiers below or above
+	var origin := Vector3(xf.origin.x, xf.origin.y - half.y * absf(xf.basis.y.y) - 0.3, xf.origin.z)
 	var verts := PackedVector3Array()
 	for corner in corners:
 		verts.append(Vector3(corner.x - origin.x, 0.0, corner.z - origin.z))
@@ -79,7 +81,7 @@ func _carve_box(shape_node: CollisionShape3D) -> void:
 	# Sit on the snow and rise through the prop so the floor inside the
 	# footprint is discarded, including any ledge on top of a block.
 	obstacle.global_position = origin
-	obstacle.height = 4.0
+	obstacle.height = box.size.y + 0.6
 	obstacle.avoidance_enabled = false
 	obstacle.affect_navigation_mesh = true
 	obstacle.vertices = verts

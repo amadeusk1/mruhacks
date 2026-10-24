@@ -39,21 +39,21 @@ const ROOMS := {
 			["casino/roulette_table", "socket_roulette", 0.0],
 			["casino/poker_table", "socket_poker", 0.0],
 			["casino/blackjack_table", "socket_blackjack", 0.0],
-			["casino/lounge_chair", "socket_lounge_0", 30.0],
-			["casino/lounge_chair", "socket_lounge_1", -30.0],
-			["casino/side_table", [-4.6, 0.12, 2.6], 0.0],
-			["casino/side_table", [4.6, 0.12, 2.6], 0.0],
-			["casino/standing_lamp", [-4.7, 0.12, -3.6], 0.0],
-			["casino/standing_lamp", [4.7, 0.12, -3.6], 0.0],
-			["casino/casino_planter", [-4.7, 0.12, 0.3], 0.0],
-			["casino/coat_stand", [3.6, 0.12, 2.7], 0.0],
+			# lounge chairs in the front corners turn to face the room, so you sit down from inside it
+			["casino/lounge_chair", "socket_lounge_0", 125.0],
+			["casino/lounge_chair", "socket_lounge_1", -125.0],
+			# decor hugs the walls, clear of the 16 x 12 m shell's tables (they used to stand on them)
+			["casino/standing_lamp", [-7.5, 0.12, -5.5], 0.0],
+			["casino/standing_lamp", [7.5, 0.12, -5.5], 0.0],
+			["casino/casino_planter", [-7.5, 0.12, -0.6], 0.0],
+			["casino/coat_stand", [7.5, 0.12, -1.8], 0.0],
 		],
 		# [table placement anchor, seat prop, game, seat height]; seats come from the table's socket_seat_*
 		"games": [["socket_roulette", "casino/roulette_stool", "roulette", "casino"], ["socket_poker", "casino/casino_chair", "poker", "casino"],
 			["socket_blackjack", "casino/casino_chair", "blackjack", "casino"],
 			["socket_lounge_0", "", "", "armchair", "socket_seat"], ["socket_lounge_1", "", "", "armchair", "socket_seat"]],
 		"slot_row": true,  # machines, stools and tints from the shell's slot_row meta
-		"lights": [[-4.7, 1.6, -3.6], [4.7, 1.6, -3.6], [0.0, 2.6, 0.0]],
+		"lights": [[-7.5, 1.6, -5.5], [7.5, 1.6, -5.5], [0.0, 2.6, 0.0]],
 		"camera": {"limit_x": 3.4, "limit_z": 2.4, "height": 9.5, "distance": 7.8},
 	},
 	"arcade": {

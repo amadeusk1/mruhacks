@@ -160,17 +160,17 @@ def shops():
     place("cinema/cinema_topiary", -2.7, 20.1, 0, tags=BLOCK)
     place("cinema/cinema_topiary", 1.93, 21.95, 0, tags=BLOCK)
     place("cinema/poster_frame_a", -4.2, 19.7, 0)
-    place("cinema/poster_frame_b", 4.2, 18.9, 0)
+    place("cinema/poster_frame_b", -4.6, 18.4, 0)
     place("plaza/string_lights", -2.2, 19.3, 0, z=2.4, tags=("light",))
     place("plaza/string_lights", 2.2, 19.3, 0, z=2.4, tags=("light",))
     for k in range(4):
         y = 18.3 - 1.25 * k
-        place("cinema_lobby/stanchion", 2.2, y, 0)
-        place("cinema_lobby/stanchion", 3.6, y, 0)
-        place("world_misc/queue_spot_marker", 2.9, y, 0, tags=DECOR)
+        place("cinema_lobby/stanchion", -2.2, y, 0)
+        place("cinema_lobby/stanchion", -3.6, y, 0)
+        place("world_misc/queue_spot_marker", -2.9, y, 0, tags=DECOR)
         if k < 3:
-            place("cinema_lobby/stanchion_rope", 2.2, y - 0.62, 90, tags=DECOR)
-            place("cinema_lobby/stanchion_rope", 3.6, y - 0.62, 90, tags=DECOR)
+            place("cinema_lobby/stanchion_rope", -2.2, y - 0.62, 90, tags=DECOR)
+            place("cinema_lobby/stanchion_rope", -3.6, y - 0.62, 90, tags=DECOR)
     wall_beds("cinema/cinema_exterior", 0.0, 24.7, 0, 3.4, back=0.6, shrubs=("cottage/shrub_round",), sides=(-1,))   # east side is the arena path
     for x in (-3.85, 3.85):                                                # drifts against the side walls
         place("winter/snowbank_small", x, 26.4, 90)
@@ -183,7 +183,7 @@ def shops():
 
     def A(u, v):
         return ax + u * ca - v * sa, ay + u * sa + v * ca
-    place("arcade/arcade_chalkboard", *A(-3.4, -5.6), ayaw - 15)
+    place("arcade/arcade_chalkboard", *A(2.4, -6.6), ayaw - 15)
     place("arcade/arcade_bench", *A(3.4, -5.25), ayaw, tags=BLOCK)
     place("world_misc/crate", *A(4.7, -5.3), ayaw + 15, tags=BLOCK)
     place("world_misc/queue_spot_marker_stone", *A(1.3, -5.6), 0, tags=DECOR)
@@ -191,10 +191,7 @@ def shops():
     place("interaction_props/double_control_deck", *A(-4.6, -5.4), ayaw, tags=BLOCK)
     for u in (-4.92, -4.28):                                              # stools at the deck's player spots
         place("arcade/arcade_stool", *A(u, -6.0), ayaw)
-    wall_beds("arcade/arcade_exterior", ax, ay, ayaw, 2.5, scale=asc)
-    place("world_misc/crate", *A(6.2, 3.6), ayaw + 10, tags=BLOCK)          # service corner on the east side
-    place("world_misc/crate", *A(6.25, 3.6), ayaw + 35, z=ground(*A(6.2, 3.6)) + 0.53)
-    place("world_misc/barrel", *A(6.3, 2.8), 0, tags=BLOCK)
+    wall_beds("arcade/arcade_exterior", ax, ay, ayaw, 2.5, scale=asc, sides=(1,))   # west side is the plaza spoke
 
     # casino forecourt: lanterns, bunting, a two-stone queue, beds against the front wall
     ZONE = "casino"
@@ -213,8 +210,8 @@ def shops():
 # ------------------------------------------------------------------------------------------- homes --
 LOTS = [  # (asset, x, y, yaw, tints, yard tree): yaw 0 faces the main street to the south, 180 to the north
     ("cottage/cottage_exterior", -29.25, 4.75, 0, {"roof": "#E86D58"}, "nature_dock/small_tree_snow"),
-    ("homes/round_cottage_exterior", -17.75, 4.75, 0, {"roof": "#207D85"}, "nature_dock/broad_tree_snow"),
-    ("homes/snow_dome_exterior", -29.25, -4.75, 180, {}, "nature_dock/small_tree_snow"),
+    ("homes/round_cottage_exterior", -17.75, 4.9, 0, {"roof": "#207D85"}, "nature_dock/broad_tree_snow"),
+    ("homes/snow_dome_exterior", -29.25, -4.9, 180, {}, "nature_dock/small_tree_snow"),
     ("cottage/cottage_exterior", -17.75, -4.75, 180, {"roof": "#2F8F94"}, "nature_dock/broad_tree_snow"),
 ]
 
@@ -231,7 +228,7 @@ def homes():
         place("nature_dock/leaf_tuft_small", -10.0, y + (1.2 if y > 0 else -1.2), 40, tags=DECOR)
 
     for i, (asset, x, y, yaw, tn, tree) in enumerate(LOTS):
-        building(asset, x, y, yaw, f"Home{i}", "home", tints=tn)
+        building(asset, x, y, yaw, f"Home{i}", "home", tints=tn, scale=1.0 if "cottage/" in asset else 0.95)   # 7 m deep: fits the 7 m lot
         f = 1 if yaw == 0 else -1                      # +1: the street is to the south
         # plaque at the front-left corner, mailbox front-right, low fence across the back with end posts
         place("world_misc/home_number_plaque", x - 3.4 * f, y - 2.9 * f, yaw)
@@ -256,10 +253,10 @@ def homes():
         place("building_finishing/porch_canopy", dsk[0] - fx * 0.62, dsk[1] - fy * 0.62, yaw, z=dsk[2])
 
     # landmark homes on the north street: the treehouse in its fir grove, the A-frame at the west end
-    building("homes/treehouse_exterior", -22.5, 13.6, 0, "Home4")            # door is up the stairs: marker at their foot
-    w = at_socket("homes/treehouse_exterior", "socket_approach", -22.5, 13.6, 0, ground(-22.5, 13.6))
+    building("homes/treehouse_exterior", -22.5, 14.3, 0, "Home4")            # door is up the stairs: marker at their foot
+    w = at_socket("homes/treehouse_exterior", "socket_approach", -22.5, 14.3, 0, ground(-22.5, 14.3))
     mark("Home4Door", w[0], w[1], 0, kind="door", target="home", z=w[2])
-    building("homes/aframe_cabin_exterior", -33.0, 13.0, 0, "Home5", "home", tints={"roof": "#207D85"})
+    building("homes/aframe_cabin_exterior", -32.4, 14.6, 0, "Home5", "home", tints={"roof": "#207D85"})
     grove([("winter/fir_tree_large", -26.9, 17.4, 30, 1.05), ("winter/fir_tree_small", -27.6, 12.0, 200, 0.95),
            ("winter/fir_tree_medium", -17.6, 11.4, 75, 0.9)],
           zone="homes")
@@ -281,8 +278,8 @@ def stream():
             ("nature_dock/rock_cluster_snow", 13.8, 34.4, 20, 0.8), ("nature_dock/rock_small_a_snow", 17.1, 33.2, 140, 1.0),   # spring
             ("nature_dock/rock_small_b_snow", 14.65, 25.0, 60, 0.9), ("nature_dock/rock_small_a_snow", 17.55, 24.9, 200, 0.9),   # N bridge
             ("nature_dock/rock_small_b_snow", 14.85, 20.4, 300, 0.8), ("winter/rock_cluster_snow_small", 17.75, 20.5, 10, 1.0),
-            ("nature_dock/rock_cluster_snow", 20.85, 16.5, 110, 0.85), ("nature_dock/rock_small_a_snow", 20.5, 17.7, 30, 0.9),  # E bend
-            ("nature_dock/rock_small_b_snow", 20.7, 15.1, 250, 0.8),
+            ("nature_dock/rock_cluster_snow", 20.15, 16.5, 110, 0.85), ("nature_dock/rock_small_a_snow", 19.8, 17.7, 30, 0.9),  # E bend
+            ("nature_dock/rock_small_b_snow", 20.0, 15.1, 250, 0.8),
             ("winter/rock_cluster_snow_small", 14.5, 8.9, 70, 1.0), ("nature_dock/rock_small_a_snow", 14.65, 7.7, 190, 0.8), ("nature_dock/pebble_cluster_snow", 14.9, 6.6, 160, 0.9),  # W bend
             ("nature_dock/rock_small_a_snow", 12.65, 2.3, 30, 0.8), ("nature_dock/rock_small_b_snow", 15.45, 2.0, 160, 0.8),    # E spoke bridge
             ("winter/rock_cluster_snow_small", 11.5, -2.7, 220, 0.9), ("nature_dock/rock_small_b_snow", 14.35, -2.4, 80, 0.8),
@@ -487,7 +484,7 @@ def sketch():
     place("activities/sketch_pavilion", sx, sy, 90, z=0.0, tags=("building", "blocker"), name="SketchClub")
     place("activities/communal_table", sx, sy, 0, z=0.0, tags=BLOCK)
     place("activities/easel_display", sx + 3.6, sy + 2.4, -120)
-    place("world_misc/notice_board_club", 27.48, 2.83, 150, tags=BLOCK)
+    place("world_misc/notice_board_club", 29.0, -4.5, 200, tags=BLOCK)
     mark("SketchEntry", sx - 3.6, sy, -90, kind="activity", activity="sketch")
     # outdoor drawing table south of the pavilion: six stools, lantern, pads, pencils, timer, paper tray
     tx, ty = 33.08, -6.57
@@ -512,40 +509,43 @@ def sketch():
 def arena():
     global ZONE
     ZONE = "arena"
-    az = T.ARENA_Z
-    ax, ay = 21.8, 18.3                                     # blockout origin (its local 0,0)
-    place("winter/snowball_arena_blockout", ax, ay, 0, z=az, tags=("prop",), name="SnowballArena")
-    mark("ArenaGate", 24.7, 18.8, 0, kind="activity", activity="snowballs", z=az)
-    # team ready pads with foot rings, respawn pads, flags, the snowball pile, scoreboard
-    place("winter/ready_pad", 26.6, 18.6, 0, tints={"team": "#E86D58"})
-    place("winter/ready_pad", 28.9, 18.6, 0, tints={"team": "#207D85"})
-    place("interaction_props/team_foot_ring", 26.6, 20.0, 0, z=az + 0.02, tags=DECOR, tints={"team": "#E86D58"})
-    place("interaction_props/team_foot_ring", 28.9, 20.0, 0, z=az + 0.02, tags=DECOR, tints={"team": "#207D85"})
-    place("interaction_props/respawn_pad", 24.32, 21.02, 0, tints={"team": "#E86D58"})
-    place("interaction_props/respawn_pad", 31.3, 18.8, 0, tints={"team": "#207D85"})
-    place("winter/team_flag", ax - 0.2, ay + 8.6, 0, z=az, tints={"team": "#E86D58"})
-    place("winter/team_flag", ax + 12.4, ay + 8.6, 0, z=az, tints={"team": "#207D85"})
-    place("winter/snowball_pile", 27.8, 25.8, 0, z=az)
-    place("interaction_props/match_scoreboard", 30.8, 17.7, 0, tags=BLOCK)
-    place("winter/spectator_bench_snow", 30.0, 18.2, 180, tags=BLOCK)
-    place("winter/spectator_bench_snow", 33.0, 18.2, 180, tags=BLOCK)
-    # north-east corner: snow bank cover, puff, snow fence and a boundary fence along the east edge
-    place("winter/snow_bank_cover", 33.2, 27.9, 0, tags=BLOCK)
-    place("winter/snow_puff", 34.8, 22.3, 0, tags=DECOR)
-    place("winter/snow_fence_1m", 33.3, 28.5, 90, tags=BLOCK)
-    run("winter/arena_boundary_fence", (35.4, 19.4), (35.4, 23.8), 2.2)
-    # a little snow fort below the plateau beside the stairs, where waiting players hang out
-    place("winter/snow_wall_straight", 28.68, 15.68, 0, tags=BLOCK)
-    place("winter/snow_wall_straight", 30.73, 15.68, 0, tags=BLOCK)
-    place("winter/snow_wall_corner", 27.38, 16.28, 90, tags=BLOCK)
-    place("winter/snowball_pile", 29.68, 16.68, 0)
+    az, sc, o = T.ARENA_Z, T.ARENA_S, T.ARENA_O
+
+    def A(u, v):                                            # blockout-local metres -> world
+        return o.x + u * sc, o.y + v * sc
+    place("winter/snowball_arena_blockout", o.x, o.y, 0, z=az, tags=("prop",), name="SnowballArena", scale=sc)
+    mark("ArenaGate", T.ARENA_GATE_X, 18.2, 0, kind="activity", activity="snowballs", z=az)
+    # team ready pads with foot rings, respawn pads, flags, the snowball pile, scoreboard, spectator benches
+    for team, col, u in (("coral", "#E86D58", 4.8), ("teal", "#207D85", 7.3)):
+        place("winter/ready_pad", *A(u, 0.3), 0, z=az, tints={"team": col})
+        place("interaction_props/team_foot_ring", *A(u, 1.7), 0, z=az + 0.02, tags=DECOR, tints={"team": col})
+    place("interaction_props/respawn_pad", *A(2.5, 2.7), 0, z=az, tints={"team": "#E86D58"})
+    place("interaction_props/respawn_pad", *A(9.5, 2.7), 0, z=az, tints={"team": "#207D85"})
+    place("winter/team_flag", *A(-0.2, 6.8), 0, z=az, tints={"team": "#E86D58"})
+    place("winter/team_flag", *A(11.0, 6.8), 0, z=az, tints={"team": "#207D85"})
+    w = at_socket("winter/snowball_arena_blockout", "socket_snowball_pile", 0, 0, 0)
+    place("winter/snowball_pile", *A(w[0], w[1]), 0, z=az)
+    place("interaction_props/match_scoreboard", *A(10.4, -1.6), 0, z=az, tags=BLOCK)
+    for u in (2.6, 9.0):
+        place("winter/spectator_bench_snow", *A(u, -1.9), 180, z=az, tags=BLOCK)
+    # cover in mid-field, a puff of snow, fences along the spectator band either side of the gate
+    place("winter/snow_bank_cover", *A(6.0, 3.6), 0, z=az, tags=BLOCK)
+    place("winter/snow_puff", *A(2.0, 6.4), 0, z=az, tags=DECOR)
+    place("winter/snow_fence_1m", *A(12.3, -1.0), 90, z=az, tags=BLOCK)
+    for u in (0.6, 11.4):
+        place("winter/arena_boundary_fence", *A(u, -2.6), 0, z=az, tags=BLOCK)
+    # a little snow fort below the plateau east of the stairs, where waiting players hang out
+    place("winter/snow_wall_straight", 33.6, 15.3, 0, tags=BLOCK)
+    place("winter/snow_wall_straight", 35.65, 15.3, 0, tags=BLOCK)
+    place("winter/snow_wall_corner", 32.3, 15.9, 90, tags=BLOCK)
+    place("winter/snowball_pile", 34.6, 16.3, 0)
     # rock faces on the plateau's south edge (gap at the stairs), corner modules at both ends
-    for x, big in [(22.1, 1), (26.3, 1), (28.4, 0), (30.5, 1), (32.6, 0), (34.7, 1)]:
-        place("town_connections/cliff_straight_2m" if big else "town_connections/cliff_straight_1m", x, 16.7, 0,
+    for x, big in [(24.4, 1), (26.5, 0), (27.6, 1), (32.0, 1), (34.1, 0), (35.2, 1)]:
+        place("town_connections/cliff_straight_2m" if big else "town_connections/cliff_straight_1m", x, 17.0, 0,
               z=az - (2.05 if big else 1.0), tags=("rock", "blocker", "coast"))
-    for x, yaw in [(20.75, 0), (35.95, 90)]:
-        place("town_connections/cliff_corner_outer", x, 16.7, yaw, z=az - 2.05, tags=("rock", "blocker", "coast"))
-        place("town_connections/snow_overlay_cliff_corner_outer", x, 16.7, yaw, z=az + 0.02, tags=("decor", "coast"))
+    for x, yaw in [(23.1, 0), (36.5, 90)]:
+        place("town_connections/cliff_corner_outer", x, 17.0, yaw, z=az - 2.05, tags=("rock", "blocker", "coast"))
+        place("town_connections/snow_overlay_cliff_corner_outer", x, 17.0, yaw, z=az + 0.02, tags=("decor", "coast"))
 
 
 # ------------------------------------------------------------------------------------------- woods --
@@ -573,8 +573,7 @@ def woods():
     grove([(M_, 5.6, 29.0, 80, 1.0), (L, 9.6, 28.4, 160, 1.05), (M_, 11.2, 30.6, 260, 0.9), (F, 7.4, 31.4, 330, 1.0),
            (F, 3.8, 30.6, 45, 0.95), (L, 12.6, 28.0, 120, 1.0)])
     # around the A-frame at the west end of the north street (kept off the sled hill)
-    grove([(L, -35.4, 15.4, 20, 1.05), (M_, -35.2, 11.6, 140, 1.0), (F, -29.4, 16.0, 260, 0.95), (M_, -31.0, 16.9, 60, 0.9),
-           (F, -35.4, 17.6, 300, 0.9)], zone="homes")
+    grove([(M_, -34.2, 19.8, 140, 1.0), (F, -30.4, 19.2, 260, 0.95)], zone="homes")
     # east of the casino and the east loop path
     grove([(L, 33.2, 13.6, 10, 1.05), (M_, 34.8, 11.4, 110, 1.0), (F, 33.0, 9.8, 230, 0.9), (M_, 35.4, 7.8, 300, 0.95),
            (L, 36.2, 13.2, 70, 1.0), (F, 33.8, 6.0, 160, 0.9)])
@@ -585,7 +584,7 @@ def woods():
     # behind the cinema
     grove([(L, -1.5, 31.0, 30, 1.0), (M_, 1.8, 31.6, 150, 0.95), (F, -4.5, 29.8, 260, 0.9)])
     # east of the picnic, south of the plaza bridge path
-    grove([(M_, 25.0, -3.6, 70, 0.95), (F, 23.4, -4.4, 190, 0.9)])
+    grove([(F, 23.0, -4.6, 190, 0.9)])
     # between the sketch club and the court's east end
     grove([(M_, 35.6, -12.4, 20, 0.9), (F, 33.6, -12.0, 140, 0.85)], zone="sketch")
     # behind the cafe, below the sled stairs
@@ -603,17 +602,17 @@ def wayfinding():
     sign(8.72, 5.18, 146.3, "icon_arcade")
     sign(-10.26, -8.09, 63.4, "icon_fishing")
     sign(-7.8, 16.9, 113.2, "icon_sled")
-    sign(22.6, 13.6, 123.7, "icon_snowball")
+    sign(27.0, 12.3, 140.0, "icon_snowball")
     sign(18.28, -11.72, 31.0, "icon_basketball")
     sign(26.0, 2.2, 19.7, "icon_drawing")
     # destination signposts at the junctions
-    for x, y, yaw in [(-14.08, 2.81, 0), (10.32, -2.48, 60), (-14.78, -8.02, 0), (7.0, 20.2, 30), (32.6, 5.6, 0),
+    for x, y, yaw in [(-14.08, 2.81, 0), (10.32, -2.48, 60), (-14.78, -8.02, 0), (8.6, 24.7, 30), (32.6, 5.6, 0),
                       (26.12, -12.32, 0), (-7.6, 15.6, 90), (-22.02, -7.39, 90), (-21.5, 8.0, 0)]:
         place("world_misc/destination_signpost", x, y, yaw, tags=BLOCK)
     # path lanterns where they mean something: bridge ends, the homes crossroads, the cove path, the pier head
     for x, y in [(10.6, 1.65), (16.1, -1.95),                     # plaza bridge
                  (9.09, -7.46), (11.77, -13.46),                  # court-path bridge
-                 (13.2, 24.2), (19.0, 21.3),                      # cinema-arena bridge
+                 (13.2, 24.2),                                    # cinema-arena bridge
                  (-33.6, 1.75),                                   # homes (none at the crossroads: doors)
                  (-0.35, -27.5), (3.35, -27.5), (-0.95, -18.5),    # south spoke and pier head
                  (31.85, 8.3), (-8.4, 16.4)]:                     # east loop, sled stairs foot
