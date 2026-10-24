@@ -2,7 +2,7 @@ extends Control
 
 ## Title screen. Enter town loads the world; Quit leaves the game.
 
-const TITLE := "Welcome"
+const TITLE := "Pengloo"
 const WORLD_SCENE := "res://scenes/world.tscn"
 
 @onready var _title: Label = $Center/Stack/Title

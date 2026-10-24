@@ -48,6 +48,8 @@ func bench_key() -> String:
 	var world := get_tree().get_first_node_in_group("world")
 	if world != null and world.has_method("current_location_id"):
 		location = str(world.call("current_location_id"))
+		if location == "home" and world.has_method("home_owner_id"):
+			location = "home:%s" % int(world.call("home_owner_id"))
 	var room: Node = self
 	while room != null:
 		var parent := room.get_parent()

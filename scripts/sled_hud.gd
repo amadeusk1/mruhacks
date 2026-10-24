@@ -26,6 +26,10 @@ func set_distance(meters: int) -> void:
 	distance_label.text = "%d m" % meters
 
 
+func set_hint(text: String) -> void:
+	hint_label.text = text
+
+
 func set_countdown(text: String) -> void:
 	countdown_label.text = text
 	countdown_label.visible = text != ""

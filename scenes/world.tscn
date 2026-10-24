@@ -22,6 +22,10 @@ sky = SubResource("Sky_main")
 ambient_light_source = 3
 ambient_light_energy = 0.75
 tonemap_mode = 2
+glow_enabled = true
+glow_intensity = 0.35
+glow_strength = 0.7
+glow_bloom = 0.05
 
 [node name="World" type="Node3D"]
 script = ExtResource("1_world")
