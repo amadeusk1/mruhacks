@@ -127,8 +127,9 @@ func _town_targets() -> Array:
 			for e in ends:
 				list.append(["%s %s" % [tag, e.name], (e as Node3D).global_position])
 			if ends.is_empty():
-				list.append([tag + " far", _far_side(node, plaza)])
-				list.append([tag + " near", _far_side(node, plaza + 2.0 * (node.global_position - plaza))])
+				# deck ends often meet a building or a guard rail: the navmesh stops 0.35 m short of those
+				list.append([tag + " far", _far_side(node, plaza), 1.4])
+				list.append([tag + " near", _far_side(node, plaza + 2.0 * (node.global_position - plaza)), 1.4])
 	var zone: Dictionary = _room.get("_layout").get("zones", [{}])[0]
 	var c: Array = zone.get("center", [0, 0, 0])
 	var ring := float(zone.get("radius", 9.5)) - 1.0
