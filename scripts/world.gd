@@ -223,8 +223,11 @@ func _apply_camera(room: Node, spawn_name: String) -> void:
 			float(frame.get("height", -1.0)),
 			float(frame.get("distance", -1.0))
 		)
+		# a room may turn the view to its concept's three-quarter angle (the walls on that side are cut away)
+		_camera_rig.rotation.y = deg_to_rad(float(frame.get("yaw_deg", 0.0)))
 	else:
 		_camera_rig.call("set_frame", Vector3.ZERO, 7.5, 5.0)
+		_camera_rig.rotation.y = 0.0
 
 
 func _enter_activity() -> void:

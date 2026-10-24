@@ -38,14 +38,23 @@ const ROOMS := {
 			["room_kit/plant_hanging", [-4.0, 1.53, -3.95], 0.0],
 			["interior_finishing/wall_sconce", [-4.95, 1.75, -1.9], 90.0],
 			["interior_finishing/wall_sconce", [-4.95, 1.75, 1.9], 90.0],
+			["plaza/wall_lantern", [-1.45, 1.9, -3.93], 0.0],
+			["plaza/wall_lantern", [0.45, 1.9, -3.93], 0.0],
+			["interior_finishing/ceiling_pendant", [-2.9, 2.45, -1.9], 0.0],
+			["interior_finishing/ceiling_pendant", [-2.9, 2.45, 1.9], 0.0],
+			["interior_finishing/ceiling_pendant", [2.6, 2.45, 1.9], 0.0],
+			["interior_finishing/ceiling_pendant", [2.9, 2.45, -2.0], 0.0],
+			["room_kit/plant_large", [-4.3, 0.1, 3.3], 0.0],
 			["room_kit/entry_mat", [-0.2, 0.11, 3.2], 0.0],
 		],
-		"palette": {"paving": "#E8CDA2", "paving_b": "#DCBA8A", "stone": "#D6BC98"},  # warm terracotta-sand tiles
+		"palette": {"paving": "#C98D58", "paving_b": "#B97C49", "stone": "#A86F43", "glow_window": "glow:#FFD58A"},  # warm wood floor, lit windows
+		"lights": [[-2.9, 2.0, -1.9], [-2.9, 2.0, 1.9], [2.6, 2.0, 1.9], [2.9, 2.0, -2.0]],
+		"cut_right": 0.6,
 		"tints": {"shell": {"wall": "#F4E0C2"}},
 		"mood": {"background": "#EAD9C2", "ambient": "#FFE2BE", "sun": "#FFDDB0"},
 		# seats authored in the shell to the Interior Spacing Standard: socket_<anchor>_seat_<k> faces socket_<anchor>
 		"shell_seats": ["plaza/stool", "stool"],
-		"camera": {"limit_x": 3.0, "limit_z": 2.4, "height": 9.0, "distance": 7.4},
+		"camera": {"limit_x": 2.6, "limit_z": 2.0, "height": 7.4, "distance": 8.6, "yaw_deg": 35.0},
 	},
 	"casino": {
 		"shell": "casino/casino_interior_shell",
@@ -147,7 +156,9 @@ func _enter_tree() -> void:
 	_paint(shell)
 	WalkSurface.build(shell, nav, shell.position.y - 0.3, "ShellWalk")  # raised floors, steps
 	if _cfg.has("cut_front"):
-		_cut_front(shell, size.z * 0.5 - float(_cfg["cut_front"]))
+		_cut_front(shell, Vector3(0, 0, 1), size.z * 0.5 - float(_cfg["cut_front"]))
+	if _cfg.has("cut_right"):  # the three-quarter camera looks in over the right-hand wall
+		_cut_front(shell, Vector3(1, 0, 0), size.x * 0.5 - float(_cfg["cut_right"]))
 	var inner = AssetRegistry.entry(shell_id).get("interior_m", null)  # floor size; the bbox includes plinth and awning
 	var room := Vector3(float(inner[0]), size.y, float(inner[1])) if inner is Array else size
 	var pad := 0.1 if inner is Array else 0.0  # interior_m walls sit just outside the floor
@@ -208,9 +219,10 @@ func _enter_tree() -> void:
 
 ## shortcut: removes faces whose vertices all sit in front of `z_cut` above the base course;
 ## replace with an authored *_cutaway child in the art kit when it exists.
-func _cut_front(shell: Node3D, z_cut: float) -> void:
-	for n in shell.find_children("part_door*", "", true, false):
-		(n as Node3D).visible = false
+func _cut_front(shell: Node3D, axis: Vector3, z_cut: float) -> void:
+	if axis.z > 0.0:
+		for n in shell.find_children("part_door*", "", true, false):
+			(n as Node3D).visible = false
 	for mi in shell.find_children("*", "MeshInstance3D", true, false):
 		if not mi.visible or String(mi.name).begins_with("part_"):
 			continue
@@ -225,7 +237,7 @@ func _cut_front(shell: Node3D, z_cut: float) -> void:
 				var low := true
 				for k in 3:
 					var v := mdt.get_vertex(mdt.get_face_vertex(f, k))
-					in_front = in_front and v.z >= z_cut
+					in_front = in_front and v.dot(axis) >= z_cut
 					low = low and v.y < 0.3
 				if in_front and not low:  # keep the stone base course as a low front lip
 					continue
@@ -279,7 +291,7 @@ func _block_props() -> void:
 func camera_for_spawn(_spawn_name: String) -> Dictionary:
 	var c: Dictionary = _cfg["camera"]
 	return {"center": Vector3(0, 0, 0.3), "limit_x": c["limit_x"], "limit_z": c["limit_z"],
-		"height": c["height"], "distance": c["distance"]}
+		"height": c["height"], "distance": c["distance"], "yaw_deg": c.get("yaw_deg", 0.0)}
 
 
 ## A seat prop (optional) plus a SeatSpot at every `prefix*` socket of a placed table/cabinet,

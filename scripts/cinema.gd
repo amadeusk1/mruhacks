@@ -39,9 +39,9 @@ func _ready() -> void:
 	if lobby_model and nav:
 		await get_tree().physics_frame  # floors registered for the footprint's ground rays
 		Footprint.blocker(nav, lobby_model, "cinema_lobby/cinema_lobby", 1.0, get_world_3d().direct_space_state)
-	var hall_model := find_child("cinema_auditorium", true, false) as Node3D
-	if hall_model:
-		_dress_hall(hall_model)
+	for n in find_children("cinema_auditorium*", "Node3D", true, false):
+		if n.get_parent().name == "PackProps":  # the dressed instance, not its inner mesh node
+			_dress_hall(n)
 	if nav and nav.has_method("rebake"):
 		nav.call("rebake")
 	var hall := find_child("cinema_auditorium", true, false) as Node3D  # claimable, net-safe seats
@@ -80,10 +80,11 @@ func camera_for_spawn(spawn_name: String) -> Dictionary:
 	if spawn_name == "InsideScreen":
 		return {
 			"center": get_meta("hall_center", Vector3(240.0, 0.0, 50.0)),
-			"limit_x": 6.0,
-			"limit_z": 5.0,
-			"height": 11.0,
-			"distance": 7.5,
+			"limit_x": 5.0,
+			"limit_z": 3.5,
+			"height": 6.2,  # Movie Night: low over the back rows, the screen and curtains filling the top half
+			"distance": 9.5,
+			"yaw_deg": 25.0,
 		}
 	if spawn_name.begins_with("Inside") or spawn_name == "ScreenReturn":
 		return {
@@ -111,6 +112,14 @@ func _dress_hall(hall: Node3D) -> void:
 		var b: AABB = mi.global_transform * mi.get_aabb()
 		box = b if first else box.merge(b)
 		first = false
+	# dark stepped floor in warm browns with glowing step and aisle lights, as in the concept
+	InteriorMood.paint(hall, {}, {"floor_dark": "#3A2A25", "floor_dark_b": "#2F221E", "aisle_light": "glow:#FFB347"})
 	for z in [0.3, 0.55, 0.8]:  # the left (teal) wall; the right side is open to the camera
 		var at := Vector3(box.position.x + 0.12, 1.9, lerpf(box.position.z, box.end.z, z))
 		AssetPack.place(hall.get_parent(), "plaza", "wall_lantern", hall.get_parent().to_local(at), deg_to_rad(90.0))
+		var pool := OmniLight3D.new()  # the lantern's warm pool on the wall and the end of the rows
+		pool.light_color = Color("#FFB866")
+		pool.light_energy = 1.3
+		pool.omni_range = 3.5
+		hall.get_parent().add_child(pool)
+		pool.global_position = at + Vector3(0.5, 0.0, 0.0)

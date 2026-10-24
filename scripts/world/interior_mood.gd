@@ -22,7 +22,14 @@ static func paint(node: Node, roles: Dictionary, palette: Dictionary) -> void:
 			var m := m3.get_active_material(si) as BaseMaterial3D
 			if m and palette.has(String(m.resource_name)):
 				var d := m.duplicate() as BaseMaterial3D
-				d.albedo_color = Color(palette[String(m.resource_name)])
+				var v := String(palette[String(m.resource_name)])
+				if v.begins_with("glow:"):  # step and aisle lights, lamp glass: lit, not just coloured
+					d.albedo_color = Color(v.trim_prefix("glow:"))
+					d.emission_enabled = true
+					d.emission = d.albedo_color
+					d.emission_energy_multiplier = 2.2
+				else:
+					d.albedo_color = Color(v)
 				m3.set_surface_override_material(si, d)
 
 
