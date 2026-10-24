@@ -22,15 +22,15 @@
 
 **Walk anywhere (~7 s)**
 
-> Click anywhere and your penguin walks there. Take the bus to go anywhere on the island.
+> On this island, you can walk to the cinema, cafe, arcade, the Sled Hill
 
 **Multiplayer (~7 s)**
 
-> It's multiplayer: your friends walk around with you in real time, and with proximity voice chat you hear them when you're close.
+> this game is multiplayer that means you guys can hang out together and have funs like we were kids
 
 **Minigames (~5 s)**
 
-> And there are things to do together: basketball, sled races, and movie night in the cinema.
+> And there are things to do together: snowball, sled races, dancing, gambling, movie night in the cinema.
 
 **What we learned (~6 s)**
 
@@ -38,7 +38,7 @@
 
 **Let's play (~2 s)**
 
-> Let me show you.
+> Let's go into the game and go back to our childhood.
 
 **Close (~10 s)**
 

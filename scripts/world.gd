@@ -51,6 +51,7 @@ func _ready() -> void:
 	Net.host_lost.connect(_on_host_lost)
 	Net.chat_received.connect(_on_chat)
 	Net.home_invite.connect(_on_home_invite)
+	Net.emote_played.connect(_on_emote)
 	var arcade := preload("res://scripts/arcade_session.gd").new()
 	arcade.name = "ArcadeSession"
 	add_child(arcade)
@@ -338,6 +339,7 @@ func _on_host_lost() -> void:
 
 
 func _end_session(message: String) -> void:
+	Music.stop()
 	_epoch += 1
 	_in_game = false
 	_traveling = false
@@ -402,6 +404,12 @@ func _on_remote_pose(peer_id: int, x: float, y: float, z: float, yaw: float, spe
 	puppet.visible = true
 
 
+func _on_emote(peer_id: int, clip: String) -> void:
+	var puppet: Node = _puppets.get(peer_id)
+	if puppet != null and is_instance_valid(puppet) and puppet.has_method("play_emote"):
+		puppet.play_emote(clip)
+
+
 func _on_seat_denied(key: String) -> void:
 	if not _penguin.is_sitting():
 		return
@@ -460,6 +468,9 @@ func _ensure_puppet(entry: Dictionary) -> void:
 		puppet.apply_fisher(str(entry.get("fisher", "")))
 	if puppet.has_method("apply_act"):
 		puppet.apply_act(str(entry.get("act", "")))
+	if puppet.has_method("apply_anim"):
+		puppet.apply_anim(str(entry.get("anim", "")), bool(entry.get("anim_loop", false)),
+			float(entry.get("anim_age", 0.0)), int(entry.get("anim_n", 0)))
 	if _poses.has(id):
 		var pose: Dictionary = _poses[id]
 		puppet.present_remote(pose["at"], float(pose["yaw"]), float(pose["speed"]), bool(pose["sitting"]))
@@ -494,38 +505,9 @@ func _shares_room(location: String, hidden: bool, igloo: int) -> bool:
 
 
 func _refresh_presence() -> void:
-	if _rows == null:
-		return
-	_clear_presence()
-	if not _in_game or not Net.is_online():
-		return
-	var mine := Net.local_profile()
-	var self_place := ""
-	for entry in Net.roster():
-		if int(entry.get("id", 0)) == Net.local_id():
-			self_place = _place_label(entry)
-			break
-	var head := "You are %s" % str(mine["name"])
-	if self_place != "":
-		head += " — " + self_place
-	_rows.add_child(_presence_label(head))
-	for entry in Net.roster():
-		var id := int(entry.get("id", 0))
-		if id == Net.local_id():
-			continue
-		var row := HBoxContainer.new()
-		row.add_theme_constant_override("separation", 8)
-		row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		var text := "%s — %s" % [str(entry.get("name", "Penguin")), _place_label(entry)]
-		row.add_child(_presence_label(text))
-		if not _in_their_igloo(entry):
-			var button := Button.new()
-			button.text = "Invite"
-			button.custom_minimum_size = Vector2(72, 28)
-			button.add_theme_font_size_override("font_size", 14)
-			button.pressed.connect(_invite_player.bind(id, str(entry.get("name", "Penguin"))))
-			row.add_child(button)
-		_rows.add_child(row)
+	# No corner roster: players shouldn't see where everyone is. Invites live in Friends -> player card.
+	if _rows != null:
+		_clear_presence()
 
 
 func _in_their_igloo(entry: Dictionary) -> bool:
