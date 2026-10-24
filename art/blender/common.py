@@ -200,6 +200,9 @@ class Builder:
         self.name = name
         self.bm = bmesh.new()
         self.bm.faces.layers.int.new("piece")  # part id, for fix_coplanar
+        self.bm.faces.layers.int.new("movable")  # 0 = static body, n = self.parts[n-1]
+        self.parts = []
+        self._cur_part = 0
         self.mats = []
         self.sockets = []
         self.rng = random.Random(seed or zlib.crc32(name.encode()))  # stable across runs
@@ -217,6 +220,24 @@ class Builder:
             yield self
         finally:
             self.xf = prev
+
+    @contextmanager
+    def part(self, name, pivot=(0, 0, 0), **motion):
+        """Movable sub-part: everything built inside becomes a child object 'part_<name>' with
+        its origin at `pivot` (in the current frame), so the engine can rotate/slide/sway it.
+        Build in the asset's own coordinates as usual. Describe the motion as keywords, e.g.
+          with b.part("door_leaf", pivot=(-0.45, -0.1, 0), motion="hinge", axis="z", open_deg=100): ...
+          with b.part("crown", pivot=(0, 0, 1.2), motion="sway", amp_deg=3): ...
+          with b.part("curtain_l", pivot=(-1, 0, 2), motion="slide", dir=(-1, 0, 0), dist=0.8): ...
+        Motion vocabulary: hinge(axis, open_deg) | slide(dir, dist) | sway(amp_deg) |
+        flutter(amp_deg) | spin(axis) | press(depth) | tilt(axis, max_deg). Z-fight fixing still
+        runs on the whole asset before the parts are split off."""
+        self.parts.append({"name": name, "pivot": tuple(self.xf @ Vector(pivot)), "motion": motion})
+        prev, self._cur_part = self._cur_part, len(self.parts)
+        try:
+            yield self
+        finally:
+            self._cur_part = prev
 
     def _mi(self, m):
         if m not in self.mats:
@@ -240,12 +261,28 @@ class Builder:
         bmesh.ops.transform(self.bm, matrix=m, verts=verts)
         mi = self._mi(mat_name)
         lay = self.bm.faces.layers.int.get("piece")
+        mov = self.bm.faces.layers.int.get("movable")
         self._pid = getattr(self, "_pid", 0) + 1
         for f in new:
             f.material_index = mi
             f.smooth = smooth
             f[lay] = self._pid
+            f[mov] = self._cur_part
         return new
+
+    def _to_mesh(self, bm, name):
+        """Weld, write a mesh, and keep only the materials its faces use."""
+        bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=1e-5)
+        used = sorted({f.material_index for f in bm.faces})
+        idx = {old: new for new, old in enumerate(used)}
+        for f in bm.faces:
+            f.material_index = idx[f.material_index]
+        me = bpy.data.meshes.new(name)
+        bm.to_mesh(me)
+        bm.free()
+        for i in used:
+            me.materials.append(mat(self.mats[i]))
+        return me
 
     def apply_tint_families(self):
         """Collapse shade variants into single engine tints and bake the variation as a
@@ -495,14 +532,30 @@ class Builder:
         self.apply_tint_families()
         self.zfix = self.fix_coplanar()
         self.zleft = self.fix_coplanar(push=0.0)  # count only
-        bmesh.ops.remove_doubles(self.bm, verts=self.bm.verts, dist=1e-5)
-        me = bpy.data.meshes.new(self.name)
-        self.bm.to_mesh(me)
-        self.bm.free()
-        for m in self.mats:
-            me.materials.append(mat(m))
+        mov = self.bm.faces.layers.int.get("movable")
+        part_meshes = []
+        for i, p in enumerate(self.parts, start=1):
+            pb = self.bm.copy()
+            pm = pb.faces.layers.int.get("movable")
+            bmesh.ops.delete(pb, geom=[f for f in pb.faces if f[pm] != i], context="FACES")
+            bmesh.ops.delete(pb, geom=[v for v in pb.verts if not v.link_faces], context="VERTS")
+            bmesh.ops.translate(pb, vec=-Vector(p["pivot"]), verts=pb.verts)
+            part_meshes.append((p, self._to_mesh(pb, f"{self.name}_{p['name']}")))
+        if self.parts:
+            bmesh.ops.delete(self.bm, geom=[f for f in self.bm.faces if f[mov] != 0], context="FACES")
+            bmesh.ops.delete(self.bm, geom=[v for v in self.bm.verts if not v.link_faces], context="VERTS")
+        me = self._to_mesh(self.bm, self.name)
         obj = bpy.data.objects.new(self.name, me)
-        (collection or kit_collection(kit)).objects.link(obj)
+        coll = collection or kit_collection(kit)
+        coll.objects.link(obj)
+        for p, pme in part_meshes:
+            po = bpy.data.objects.new(f"part_{p['name']}", pme)
+            coll.objects.link(po)
+            po.parent = obj
+            po.location = p["pivot"]
+            po["part"] = p["name"]
+            for k, v in p["motion"].items():
+                po[k] = v if isinstance(v, (int, float, str)) else json.dumps(v)
         for name, loc, rz in self.sockets:
             add_socket(obj, name, loc, rz)
         register(obj, kit, category, meta)
@@ -882,12 +935,17 @@ def export_kit(kit):
                                   export_skins=True, export_materials="EXPORT",
                                   export_vertex_color="MATERIAL")
         sockets = {c.name: [round(v, 3) for v in c.location] for c in hierarchy(o) if c.type == "EMPTY"}
+        parts = {c.name: {"pivot": [round(v, 3) for v in c.location],
+                          **{k: (json.loads(c[k]) if isinstance(c[k], str) and c[k][:1] in "[{" else c[k])
+                             for k in c.keys() if k not in ("part",)}}
+                 for c in hierarchy(o)[1:] if "part" in c}
         _restore_names(undo)
         lo, hi = bbox(o)
         manifest.append({
             "id": f"{kit}/{o.name}", "file": f"{kit}/{o.name}.glb", "category": a["category"],
             "size_m": [round(hi[i] - lo[i], 3) for i in range(3)],
             "sockets": sockets,
+            **({"parts": parts} if parts else {}),
             "tints": {m.name.split("__")[0][5:]: rgb_hex(m.diffuse_color)
                       for ob in hierarchy(o) if ob.type == "MESH" for m in ob.data.materials if m and m.name.startswith("tint_")},
             **{k: v for k, v in a["meta"].items()},

@@ -1,5 +1,6 @@
 """Arcade kit (concepts 15 Arcade Building, Arcade Social Scene)."""
 import math
+from contextlib import nullcontext
 from common import *
 
 KIT = "arcade"
@@ -23,19 +24,38 @@ def _inner(p):
     return [(y + INSET if y < 0.29 else y, z) for y, z in p]
 
 
-def _station(b, x, plate=None, stick="red", buttons=("yellow", "red", "sky")):
-    """Joystick plus buttons on the deck's local frame (deck top at z=0)."""
+DECK_TILT = 18.4
+# buttons press along the tilted deck's normal, in asset axes
+DECK_NORMAL = (0.0, round(-math.sin(math.radians(DECK_TILT)), 3), round(math.cos(math.radians(DECK_TILT)), 3))
+
+
+def _station(b, x, plate=None, stick="red", buttons=("yellow", "red", "sky"), n=1, static=False):
+    """Station n on the deck's local frame (deck top at z=0): movable joystick (tilt) and
+    buttons (press) named joystick_<n> / btn_<n>_<a|b|c>, plus flipper grip sockets."""
     if plate:
         b.box(0.44, 0.17, 0.012, x, 0, 0, plate, bevel=0.004)
     z = 0.012 if plate else 0
-    b.cyl(0.04, 0.015, x - 0.12, 0, z, "black", segs=8)
-    b.cyl(0.011, 0.075, x - 0.12, 0, z, "iron_light", segs=6)
-    b.sphere(0.034, x - 0.12, 0, z + 0.09, stick, u=8, v=6)
+    jx = x - 0.12
+    b.cyl(0.04, 0.015, jx, 0, z, "black", segs=8)
+    part = (lambda *a, **k: nullcontext()) if static else b.part
+    with part(f"joystick_{n}", pivot=(jx, 0, z + 0.015), motion="tilt", axis="xy", max_deg=22):
+        b.cyl(0.011, 0.075, jx, 0, z + 0.012, "iron_light", segs=6)
+        b.sphere(0.034, jx, 0, z + 0.09, stick, u=8, v=6)
+    bx = []
     for i, c in enumerate(buttons):
-        b.cyl(0.024, 0.022, x + 0.0 + i * 0.07, 0.02 - (i % 2) * 0.04, z, c, segs=8, bevel=0.004)
+        px, py = x + i * 0.07, 0.02 - (i % 2) * 0.04
+        b.cyl(0.03, 0.006, px, py, z, "black", segs=8)                                   # bezel ring
+        with part(f"btn_{n}_{'abc'[i]}", pivot=(px, py, z + 0.006), motion="press", depth=0.008, dir=DECK_NORMAL):
+            b.cyl(0.024, 0.02, px, py, z + 0.004, c, segs=8, bevel=0.004)
+        bx.append((px, py))
+    if static:
+        return
+    b.socket(f"grip_{n}_L", (jx, 0, z + 0.12))
+    b.socket(f"grip_{n}_R", (sum(p[0] for p in bx) / len(bx), 0, z + 0.03))
 
 
-def cabinet(b, body="purple", width=0.62, stations=None, coin_doors=None):
+def cabinet(b, body="purple", width=0.62, stations=None, coin_doors=None, static=False):
+    """static=True builds scenery with no movable parts or grip sockets (prefab dressing)."""
     """Upright cabinet: side panels with the full profile, inset body, angled marquee, recessed
     tilted screen, angled control deck, kick plate and coin door."""
     W = width
@@ -58,10 +78,10 @@ def cabinet(b, body="purple", width=0.62, stations=None, coin_doors=None):
         b.box(sw, 0.01, sh, 0, -0.011, 0, "insert_arcade", center=True)                         # 1 cm behind bezel face
     b.socket("screen", (0, -0.17, 1.08))
     # control deck (front edge lower)
-    with b.at((0, -0.255, 0.90), rot=(18.4, 0, 0)):
+    with b.at((0, -0.255, 0.90), rot=(DECK_TILT, 0, 0)):
         b.box(W - 0.07, 0.21, 0.022, 0, 0, -0.012, "charcoal", bevel=0.006)
-        for st in stations or [dict(x=0, plate=None)]:
-            _station(b, **st)
+        for n, st in enumerate(stations or [dict(x=0, plate=None)], start=1):
+            _station(b, n=n, static=static, **st)
     # kick plate and coin door on the lower front
     yf = -0.26 + INSET
     b.box(W - 0.09, 0.02, 0.12, 0, yf - 0.01, 0.035, "black", bevel=0.004)
@@ -166,6 +186,7 @@ def marquee(b, w=1.8):
             px += (cx - px) * 0.06
             pz += (cz - pz) * 0.1
             b.sphere(0.03 * s, px, -0.135, pz, "bulb", u=6, v=4)
+    b.socket("fx_sparkle", (0, -0.17, 1.0 * s))
     # controller emblem in the arch
     with b.at((0, -0.16, 0.84 * s), scale=s):
         b.box(0.36, 0.05, 0.17, 0, 0, 0, "pink", bevel=0.05, center=True)
@@ -192,7 +213,7 @@ def door_leaf(b, w, h, s=1):
     b.torus(0.07, 0.014, s * w * 0.82, -0.075, h * 0.45, "gold", segs=10, ring=4, rot=(90, 0, 0))
 
 
-def shell(b, open_doors=True, roofed=False):
+def shell(b, roofed=False):
     rng = b.rng
     hx, hy = SW / 2, SD / 2
     # foundation slab and checker floor
@@ -245,9 +266,11 @@ def shell(b, open_doors=True, roofed=False):
     b.box(DOOR_W + 0.1, 0.4, 0.08, 0, -hy - 0.65, -0.04, "paving_b", bevel=0.03)
     lw = DOOR_W / 2 - 0.02
     for sx in (-1, 1):
-        # hinge just in front of the frame post, lifted clear of the entrance step
-        with b.at((sx * (DOOR_W / 2 - 0.04), -hy - 0.1, 0.07), rotz=sx * 72 if open_doors else 0):
-            door_leaf(b, lw - 0.02, DOOR_H - 0.1, s=-sx)
+        # leaves rest closed; hinge just in front of the frame post, clear of the entrance step,
+        # swinging outward (open_deg sign) so they never pass through the frame
+        with b.at((sx * (DOOR_W / 2 - 0.04), -hy - 0.1, 0.07)):
+            with b.part("door_l" if sx < 0 else "door_r", pivot=(0, 0, 0), motion="hinge", axis="z", open_deg=sx * 72):
+                door_leaf(b, lw - 0.035, DOOR_H - 0.1, s=-sx)
     # windows, flower boxes, lanterns on the front
     for sx in (-1, 1):
         window(b, 0.75, 0.75, x=sx * 2.1, y=-hy, z=1.05)
@@ -293,6 +316,7 @@ def roof(b):
     for x in (-2.4, -1.1, 0.2, 1.4, 2.6):
         b.blob(rng.uniform(0.3, 0.45), 0.2, 0.1, x, 0, rise + 0.15, "snow", subdiv=1, jitter=0.02)
     chimney(b, 1.9, 0.9, rise * 0.4, h=1.1, snow=True)
+    b.socket("fx_smoke", (1.9, 0.9, rise * 0.4 + 1.1 + 0.16 + 0.08))   # above the snowy cap
 
 
 def lantern_post(b, x, y, h=1.8):
@@ -371,7 +395,7 @@ def build():
         b.box(0.08, 0.36, 0.08, sx * 0.8, -SD / 2 - 0.18, 2.3, "iron", bevel=0.01)
     for x, c in ((-1.0, "purple"), (0.0, "teal_light"), (0.9, "red")):
         with b.at((x, SD / 2 - ST - 0.36, 0)):
-            cabinet(b, tint(f"cabinet_{c}", c))
+            cabinet(b, tint(f"cabinet_{c}", c), static=True)
     for sx in (-1, 1):
         lantern_post(b, sx * 1.55, -SD / 2 - 0.9)
     chalkboard(b, -2.6, -SD / 2 - 0.85, rotz=-15)

@@ -9,6 +9,11 @@
       2.06
     ],
     "sockets": {
+      "socket_fx_flame": [
+        0.0,
+        -0.1,
+        0.24
+      ],
       "socket_light": [
         0.0,
         -0.25,
@@ -19,6 +24,18 @@
         -0.75,
         0.0
       ]
+    },
+    "parts": {
+      "part_door": {
+        "pivot": [
+          -0.18,
+          -0.23,
+          0.25
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": -100
+      }
     },
     "tints": {
       "hearth": "#A9A49C",
@@ -200,6 +217,35 @@
       1.193
     ],
     "sockets": {},
+    "parts": {
+      "part_planter_0": {
+        "pivot": [
+          -0.32,
+          0.0,
+          -0.06
+        ],
+        "motion": "sway",
+        "amp_deg": 3
+      },
+      "part_planter_1": {
+        "pivot": [
+          0.0,
+          0.0,
+          -0.06
+        ],
+        "motion": "sway",
+        "amp_deg": 4
+      },
+      "part_planter_2": {
+        "pivot": [
+          0.32,
+          0.0,
+          -0.06
+        ],
+        "motion": "sway",
+        "amp_deg": 5
+      }
+    },
     "tints": {
       "finish": "#BC874E",
       "pot": "#C8663E"
@@ -328,6 +374,28 @@
         0.0,
         0.26
       ]
+    },
+    "parts": {
+      "part_door_l": {
+        "pivot": [
+          -0.71,
+          -0.235,
+          0.13
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 100
+      },
+      "part_door_r": {
+        "pivot": [
+          0.71,
+          -0.235,
+          0.13
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": -100
+      }
     },
     "tints": {
       "finish": "#BC874E",
@@ -578,6 +646,17 @@
         0.46
       ]
     },
+    "parts": {
+      "part_seat": {
+        "pivot": [
+          0.0,
+          0.0,
+          0.36
+        ],
+        "motion": "spin",
+        "axis": "z"
+      }
+    },
     "tints": {
       "upholstery": "#3A3D44",
       "trim": "#E86D58"
@@ -749,6 +828,64 @@
         1.23
       ]
     },
+    "parts": {
+      "part_drawer_0": {
+        "pivot": [
+          0.0,
+          -0.215,
+          0.12
+        ],
+        "motion": "slide",
+        "dir": [
+          0,
+          -1,
+          0
+        ],
+        "dist": 0.28
+      },
+      "part_drawer_1": {
+        "pivot": [
+          0.0,
+          -0.215,
+          0.38
+        ],
+        "motion": "slide",
+        "dir": [
+          0,
+          -1,
+          0
+        ],
+        "dist": 0.28
+      },
+      "part_drawer_2": {
+        "pivot": [
+          0.0,
+          -0.215,
+          0.64
+        ],
+        "motion": "slide",
+        "dir": [
+          0,
+          -1,
+          0
+        ],
+        "dist": 0.28
+      },
+      "part_drawer_3": {
+        "pivot": [
+          0.0,
+          -0.215,
+          0.9
+        ],
+        "motion": "slide",
+        "dir": [
+          0,
+          -1,
+          0
+        ],
+        "dist": 0.28
+      }
+    },
     "tints": {
       "trim": "#7A4E2C",
       "finish": "#207D85",
@@ -862,6 +999,17 @@
       1.12
     ],
     "sockets": {},
+    "parts": {
+      "part_wheel": {
+        "pivot": [
+          0.0,
+          -0.09,
+          0.0
+        ],
+        "motion": "spin",
+        "axis": "y"
+      }
+    },
     "tints": {
       "wood": "#BC874E"
     },
@@ -1157,6 +1305,44 @@
         0.55
       ]
     },
+    "parts": {
+      "part_drape_lb": {
+        "pivot": [
+          -0.68,
+          0.88,
+          1.73
+        ],
+        "motion": "sway",
+        "amp_deg": 1.5
+      },
+      "part_drape_lf": {
+        "pivot": [
+          -0.68,
+          -0.88,
+          1.73
+        ],
+        "motion": "sway",
+        "amp_deg": 1.5
+      },
+      "part_drape_rb": {
+        "pivot": [
+          0.68,
+          0.88,
+          1.73
+        ],
+        "motion": "sway",
+        "amp_deg": 1.5
+      },
+      "part_drape_rf": {
+        "pivot": [
+          0.68,
+          -0.88,
+          1.73
+        ],
+        "motion": "sway",
+        "amp_deg": 1.5
+      }
+    },
     "tints": {
       "frame": "#7A4E2C",
       "headboard": "#A784D9",
@@ -1197,6 +1383,18 @@
         0.0
       ]
     },
+    "parts": {
+      "part_tube": {
+        "pivot": [
+          0.0,
+          0.0,
+          1.1
+        ],
+        "motion": "tilt",
+        "axis": "x",
+        "max_deg": 25
+      }
+    },
     "tints": {
       "tripod": "#7A4E2C",
       "tube": "#153447"
@@ -1229,7 +1427,15 @@
     ],
     "sockets": {},
     "tints": {
-      "bulb": "#FFC23F"
+      "bulb_0": "#FFC23F",
+      "bulb_1": "#FFC23F",
+      "bulb_2": "#FFC23F",
+      "bulb_3": "#FFC23F",
+      "bulb_4": "#FFC23F",
+      "bulb_5": "#FFC23F",
+      "bulb_6": "#FFC23F",
+      "bulb_7": "#FFC23F",
+      "bulb_8": "#FFC23F"
     },
     "placement": {
       "layer": "wall",

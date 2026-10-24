@@ -67,7 +67,13 @@
       0.282,
       1.125
     ],
-    "sockets": {},
+    "sockets": {
+      "socket_fx_sparkle": [
+        0.0,
+        -0.06,
+        1.1
+      ]
+    },
     "tints": {
       "marquee_frame": "#E86D58"
     },
@@ -88,6 +94,28 @@
         -0.6,
         0.0
       ]
+    },
+    "parts": {
+      "part_door_l": {
+        "pivot": [
+          -0.88,
+          0.06,
+          0.0
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 90
+      },
+      "part_door_r": {
+        "pivot": [
+          0.88,
+          0.06,
+          0.0
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": -90
+      }
     },
     "tints": {
       "door": "#207D85"
@@ -163,6 +191,11 @@
         -3.5,
         0.4
       ],
+      "socket_fx_sparkle": [
+        0.0,
+        -3.3,
+        3.97
+      ],
       "socket_queue_0": [
         0.0,
         -5.49,
@@ -183,6 +216,28 @@
         -7.74,
         0.0
       ]
+    },
+    "parts": {
+      "part_door_l": {
+        "pivot": [
+          -0.88,
+          -2.62,
+          0.4
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 90
+      },
+      "part_door_r": {
+        "pivot": [
+          0.88,
+          -2.62,
+          0.4
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": -90
+      }
     },
     "tints": {
       "trim": "#E86D58",

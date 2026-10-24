@@ -3,7 +3,7 @@ Plaza/dock deck top is z=0. Water surface is WATER_Z (-0.5).
 Docks run along Y and extend out toward -Y (the water). A straight module carries posts only at its
 far (-Y) end, so modules chain without doubled posts. The plaza edge supports the land end."""
 from common import *
-from kits.plaza import leafy, edge_run, WATER_Z, LEAVES, PETAL_VARIANTS, FLAG_VARIANTS
+from kits.plaza import leafy, edge_run, flutter_bunting, WATER_Z, LEAVES, PETAL_VARIANTS, FLAG_VARIANTS
 
 KIT = "nature_dock"
 PREVIEW_WIDTH = 13.0
@@ -59,8 +59,9 @@ def broad_tree(name, snow=False, bed=False):
     trunk(b, 1.9, 0.22, 0.13, seed=1)
     branch(b, 0, 1.1, 0.8, -42, 0)
     branch(b, 0, 1.25, 0.75, 40, 20)
-    canopy(b, [(0, 0, 2.55, 0.78), (-0.68, 0.12, 2.15, 0.62), (0.7, -0.1, 2.2, 0.66), (0.12, 0.62, 2.3, 0.6),
-               (-0.2, -0.58, 2.1, 0.56), (0.32, 0.22, 2.95, 0.52), (-0.4, -0.1, 2.85, 0.48)], snow, seed=5)
+    with b.part("crown", pivot=(0, 0, 1.6), motion="sway", amp_deg=2.0):  # trunk static, snow rides the crown
+        canopy(b, [(0, 0, 2.55, 0.78), (-0.68, 0.12, 2.15, 0.62), (0.7, -0.1, 2.2, 0.66), (0.12, 0.62, 2.3, 0.6),
+                   (-0.2, -0.58, 2.1, 0.56), (0.32, 0.22, 2.95, 0.52), (-0.4, -0.1, 2.85, 0.48)], snow, seed=5)
     if bed:
         b.socket("sit_rim_0", (0, -1.05, 0.24), 0)
     return b.finish(KIT, "nature", {"collision_radius": 0.3 if not bed else 1.05, **(FLOWER_VARIANTS if bed else {})})
@@ -72,25 +73,28 @@ def small_tree(name, snow=False, bed=False):
         ring_bed(b, 0.78, seed=7)
     trunk(b, 1.35, 0.15, 0.09, seed=2)
     branch(b, 0, 0.85, 0.5, 38, -30, r=0.05)
-    canopy(b, [(0, 0, 1.85, 0.56), (-0.42, 0.05, 1.6, 0.44), (0.4, -0.08, 1.62, 0.46), (0.05, 0.4, 1.66, 0.42),
-               (0.12, -0.05, 2.22, 0.38)], snow, seed=9)
+    with b.part("crown", pivot=(0, 0, 1.2), motion="sway", amp_deg=2.5):
+        canopy(b, [(0, 0, 1.85, 0.56), (-0.42, 0.05, 1.6, 0.44), (0.4, -0.08, 1.62, 0.46), (0.05, 0.4, 1.66, 0.42),
+                   (0.12, -0.05, 2.22, 0.38)], snow, seed=9)
     return b.finish(KIT, "nature", {"collision_radius": 0.2 if not bed else 0.78, **(FLOWER_VARIANTS if bed else {})})
 
 
 # ---- shrubs, flowers ------------------------------------------------------------------
 def shrub(name, blobs, flowers=None, seed=0):
+    """First blob is the rooted core (static); the rest and the flowers sway as part 'top'."""
     b = Builder(name, seed=110 + seed)
     rng = random.Random(seed)
-    for i, (x, y, z, r) in enumerate(blobs):
-        b.blob(r, r, r * 0.85, x, y, z, pick(LEAVES, i + seed), subdiv=1, jitter=r * 0.06)
-    if flowers:
-        top = max(z + r * 0.85 for _, _, z, r in blobs)
-        for i in range(7):
+    x0, y0, z0, r0 = blobs[0]
+    b.blob(r0, r0, r0 * 0.85, x0, y0, z0, pick(LEAVES, seed), subdiv=1, jitter=r0 * 0.06)
+    with b.part("top", pivot=(x0, y0, 0.08), motion="sway", amp_deg=3.0):
+        for i, (x, y, z, r) in enumerate(blobs[1:], 1):
+            b.blob(r, r, r * 0.85, x, y, z, pick(LEAVES, i + seed), subdiv=1, jitter=r * 0.06)
+        for i in range(7 if flowers else 0):
             x, y, z, r = blobs[i % len(blobs)]
-            a = rng.uniform(0, 2 * math.pi)
+            a_ = rng.uniform(0, 2 * math.pi)
             rr = r * rng.uniform(0.3, 0.7)
             fz = z + math.sqrt(max(0, r * r - rr * rr)) * 0.85
-            flower(b, x + rr * math.cos(a), y + rr * math.sin(a), fz, pick(flowers, i), size=0.08)
+            flower(b, x + rr * math.cos(a_), y + rr * math.sin(a_), fz, pick(flowers, i), size=0.08)
     return b.finish(KIT, "nature", FLOWER_VARIANTS if flowers else None)
 
 
@@ -221,8 +225,8 @@ def rope_posts(name, flags=False):
         b.torus(0.105, 0.03, x, 0, 0.66, "rope", segs=10, ring=5)
     p0, p1 = (-span / 2 + 0.1, 0, 0.7), (span / 2 - 0.1, 0, 0.7)
     if flags:
-        bunting(b, p0, p1, n=3, colors=(tint("flag_a", "coral"), tint("flag_c", "cream"), tint("flag_b", "teal_light")), size=0.2, sag=0.16)
-        rope_between(b, p0, p1, sag=0.16, r=0.024, segs=8)
+        flutter_bunting(b, p0, p1, n=3, colors=(tint("flag_a", "coral"), tint("flag_c", "cream"), tint("flag_b", "teal_light")),
+                        size=0.2, sag=0.16, rope_r=0.024)
     else:
         rope_between(b, p0, p1, sag=0.2, r=0.028, segs=8)
     return b.finish(KIT, "modular", {"module": "rope_rail", "span": span, **({"color_variants": FLAG_VARIANTS} if flags else {})})
@@ -259,6 +263,20 @@ def water_tile():
     return b.finish(KIT, "modular", {"module": "water", "grid": 2.0, "surface_z": WATER_Z})
 
 
+def foam_strip(b, x0, x1, rng, y=-0.21, n=12):
+    """Irregular shoreline foam lying on the water along a wall face at y, spreading toward -Y."""
+    z = WATER_Z + 0.025  # clears the waterline ledge of the lowest stone course
+    verts, faces = [], []
+    for i in range(n + 1):
+        t = i / n
+        w = rng.uniform(0.05, 0.13) * min(1.0, 4 * t, 4 * (1 - t)) + 0.02
+        x = x0 + (x1 - x0) * t
+        verts += [(x, y, z), (x, y - w, z)]
+    for i in range(n):
+        faces.append((2 * i, 2 * i + 1, 2 * i + 3, 2 * i + 2))
+    b.mesh(verts, faces, mat="snow")
+
+
 def water_edge(name, corner=False):
     b = Builder(name, seed=210 + corner)
     rng = random.Random(21 + corner)
@@ -269,6 +287,11 @@ def water_edge(name, corner=False):
             edge_run(b, 2.0 - 0.28, rng)
         water_surface(b, 1.25, 2.25, 1.625, 0.875, n=4, seed=4)
         water_surface(b, 1.25, 1.25, 1.625, -0.875, n=3, seed=5)
+    with b.part("foam", pivot=(0, -0.25, WATER_Z), motion="flow"):  # shoreline foam, shader-driven
+        foam_strip(b, -1.0, 1.0 if not corner else 0.98, rng)
+        if corner:
+            with b.at((0.98 + 0.21, 0, 0), rotz=90):  # along the +X-facing wall, spreading toward +X
+                foam_strip(b, -0.21, 2.0, rng)
     return b.finish(KIT, "modular", {"module": "water_edge", "length": 2.0, "corner": corner,
                                     "water_z": WATER_Z, "water_side": "-Y" if not corner else "-Y,+X"})
 

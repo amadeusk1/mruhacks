@@ -38,6 +38,7 @@ def bobber():
     b.cyl(0.011, 0.07, 0, 0, 0.075, B, segs=6)
     b.cyl(0.014, 0.03, 0, 0, -0.095, B, segs=6)
     b.socket("line", (0, 0, 0.145))
+    b.socket("fx_ripple", (0, 0, 0))
     return b.finish(KIT, "fishing", {"origin": "waterline", "color_variants": {"bobber_a": ["red", "orange", "teal"], "bobber_b": ["white"]}})
 
 

@@ -86,11 +86,14 @@ def wood_stove():
     b.box(0.6, 0.48, 0.05, 0, 0, 0.67, body, bevel=0.015)                                  # top plate
     b.box(0.5, 0.38, 0.03, 0, 0, 0.72, "iron_light", bevel=0.01)
     # door with glowing window and fire logs behind
-    b.box(0.36, 0.03, 0.3, 0, -0.215, 0.25, "iron_light", bevel=0.012)
-    b.box(0.26, 0.03, 0.18, 0, -0.226, 0.3, "glow_fire", bevel=0.004)
-    for i in range(3):
-        b.box(0.016, 0.035, 0.18, -0.08 + 0.08 * i, -0.236, 0.3, "iron", bevel=0)
-    b.box(0.03, 0.06, 0.04, 0.15, -0.25, 0.34, "gold", bevel=0.008)
+    b.box(0.28, 0.01, 0.2, 0, -0.212, 0.29, "glow_fire", bevel=0)                             # fire seen when open
+    with b.part("door", pivot=(-0.18, -0.23, 0.25), motion="hinge", axis="z", open_deg=-100):
+        b.box(0.36, 0.03, 0.3, 0, -0.23, 0.25, "iron_light", bevel=0.012)
+        b.box(0.26, 0.03, 0.18, 0, -0.24, 0.3, "glow_fire", bevel=0.004)
+        for i in range(3):
+            b.box(0.016, 0.035, 0.18, -0.08 + 0.08 * i, -0.25, 0.3, "iron", bevel=0)
+        b.box(0.03, 0.06, 0.04, 0.15, -0.265, 0.34, "gold", bevel=0.008)
+    b.socket("fx_flame", (0, -0.1, 0.24))
     b.box(0.4, 0.04, 0.02, 0, -0.226, 0.215, "iron_light", bevel=0.004)                      # ash lip
     # stovepipe with damper and collar
     b.cyl(0.085, 0.06, 0, 0.06, 0.75, body, segs=10)
@@ -189,21 +192,26 @@ def hanging_planter_cluster():
     b.torus(0.03, 0.008, 0, 0, -0.005, "iron", segs=8, ring=4, rot=(90, 0, 0))
     for i, (x, drop, r) in enumerate(((-0.32, 0.55, 0.12), (0.0, 0.85, 0.15), (0.32, 0.4, 0.11))):
         z = -0.06 - drop
-        for k in range(3):
-            a = math.radians(90 + 120 * k)
-            rope_between(b, (x, 0, -0.06), (x + math.cos(a) * r * 0.9, math.sin(a) * r * 0.9, z + r * 0.9),
-                         sag=0.0, r=0.006, segs=1)
-        b.cyl(r * 0.7, r * 0.9, x, 0, z, tint("pot", "terracotta"), segs=8, r2=r, bevel=0.008)
-        b.cyl(r * 0.9, 0.015, x, 0, z + r * 0.85, "soil", segs=8)
-        for j in range(4):                                                                 # foliage + trailing vine
-            b.blob(r * 0.55, r * 0.55, r * 0.45, x + b.rng.uniform(-r, r) * 0.5, b.rng.uniform(-r, r) * 0.5,
-                   z + r * 1.1, pick(("leaf", "leaf_b", "leaf_dark"), i + j), subdiv=1, jitter=0.006)
-        for v in range(2):
-            vx = x + (v - 0.5) * r * 1.2
-            for s in range(4 + i):
-                b.blob(0.035, 0.03, 0.03, vx + 0.015 * math.sin(s), -r * 0.6, z + r * 0.4 - 0.07 * s,
-                       pick(("leaf_b", "leaf"), s), subdiv=1)
+        with b.part(f"planter_{i}", pivot=(x, 0, -0.06), motion="sway", amp_deg=3 + i):
+            hang_pot(b, i, x, z, r)
     return done(b, "ceiling", "plant", rotations=(0, 90, 180, 270))
+
+
+def hang_pot(b, i, x, z, r):
+    for k in range(3):
+        a = math.radians(90 + 120 * k)
+        rope_between(b, (x, 0, -0.06), (x + math.cos(a) * r * 0.9, math.sin(a) * r * 0.9, z + r * 0.9),
+                     sag=0.0, r=0.006, segs=1)
+    b.cyl(r * 0.7, r * 0.9, x, 0, z, tint("pot", "terracotta"), segs=8, r2=r, bevel=0.008)
+    b.cyl(r * 0.9, 0.015, x, 0, z + r * 0.85, "soil", segs=8)
+    for j in range(4):                                                                 # foliage + trailing vine
+        b.blob(r * 0.55, r * 0.55, r * 0.45, x + b.rng.uniform(-r, r) * 0.5, b.rng.uniform(-r, r) * 0.5,
+               z + r * 1.1, pick(("leaf", "leaf_b", "leaf_dark"), i + j), subdiv=1, jitter=0.006)
+    for v in range(2):
+        vx = x + (v - 0.5) * r * 1.2
+        for s in range(4 + i):
+            b.blob(0.035, 0.03, 0.03, vx + 0.015 * math.sin(s), -r * 0.6, z + r * 0.4 - 0.07 * s,
+                   pick(("leaf_b", "leaf"), s), subdiv=1)
 
 
 def plant_stand_tiered():
@@ -238,9 +246,11 @@ def tv_console():
     legs(b, W, D, 0.1, inset=0.08, s=0.05, mat="wood_dark", r2=0.018)
     b.box(W, D, H - 0.1, 0, 0, 0.1, FINISH, bevel=0.02)
     b.box(W + 0.04, D + 0.02, 0.04, 0, 0, H, FINISH, bevel=0.012)
-    for sx in (-1, 1):                                                                     # side doors
-        b.box(0.42, 0.03, 0.26, sx * 0.5, -D / 2 - 0.01, 0.13, tint("doors", "navy"), bevel=0.01)
-        knob(b, sx * 0.33, -D / 2 - 0.04, 0.26)
+    for sx in (-1, 1):                                                                     # side doors, hinged outside
+        with b.part(f"door_{'l' if sx < 0 else 'r'}", pivot=(sx * 0.71, -D / 2 - 0.025, 0.13), motion="hinge",
+                    axis="z", open_deg=-100 * sx):
+            b.box(0.42, 0.03, 0.26, sx * 0.5, -D / 2 - 0.01, 0.13, tint("doors", "navy"), bevel=0.01)
+            knob(b, sx * 0.33, -D / 2 - 0.04, 0.26)
     b.box(0.5, D - 0.06, 0.02, 0, 0.02, 0.24, FINISH, bevel=0.004)                         # open centre shelf
     b.box(0.5, 0.02, 0.26, 0, D / 2 - 0.04, 0.12, "wood_deep", bevel=0)
     b.socket("surface_0", (0, 0.04, H + 0.04))
@@ -333,6 +343,13 @@ def gaming_chair():
         b.box(0.3, 0.05, 0.04, math.cos(a) * 0.15, math.sin(a) * 0.15, 0.06, "black", bevel=0.01, rot=(0, 0, 72 * k + 90))
         b.sphere(0.03, math.cos(a) * 0.29, math.sin(a) * 0.29, 0.03, "charcoal", u=6, v=4)
     b.cyl(0.03, 0.3, 0, 0, 0.08, "steel", segs=8)
+    with b.part("seat", pivot=(0, 0, 0.36), motion="spin", axis="z"):
+        chair_top(b, up, trim)
+    b.socket("seat_0", (0, -0.03, 0.46))
+    return done(b, "floor", "seating")
+
+
+def chair_top(b, up, trim):
     b.box(0.5, 0.48, 0.1, 0, 0, 0.36, up, bevel=0.035)
     for sx in (-1, 1):
         b.box(0.07, 0.42, 0.06, sx * 0.25, 0, 0.42, trim, bevel=0.025)                      # seat bolsters
@@ -343,8 +360,6 @@ def gaming_chair():
         for sx in (-1, 1):
             b.box(0.07, 0.12, 0.6, sx * 0.23, -0.02, 0.05, trim, bevel=0.03)
         b.box(0.22, 0.06, 0.12, 0, -0.07, 0.5, trim, bevel=0.03)                            # headrest pad
-    b.socket("seat_0", (0, -0.03, 0.46))
-    return done(b, "floor", "seating")
 
 
 # ---------------------------------------------------------------- artist studio
@@ -419,9 +434,10 @@ def tall_dresser():
     b.box(0.74, 0.46, 0.05, 0, 0, 1.18, body, bevel=0.015)
     for i in range(4):
         z = 0.12 + i * 0.26
-        b.box(0.6, 0.03, 0.22, 0, -0.215, z, tint("drawers", "teal_light"), bevel=0.012)
-        for sx in (-1, 1):
-            knob(b, sx * 0.16, -0.24, z + 0.11)
+        with b.part(f"drawer_{i}", pivot=(0, -0.215, z), motion="slide", dir=(0, -1, 0), dist=0.28):
+            b.box(0.6, 0.03, 0.22, 0, -0.215, z, tint("drawers", "teal_light"), bevel=0.012)
+            for sx in (-1, 1):
+                knob(b, sx * 0.16, -0.24, z + 0.11)
     b.socket("surface_0", (0, 0, 1.23))
     return done(b, "floor", "furniture", meta={"surfaces": {"surface_0": [0.7, 0.4]}})
 
@@ -460,7 +476,7 @@ def striped_rug():
 def ship_wheel_wall():
     b = Builder("ship_wheel_wall", seed=51)
     w = tint("wood", "wood")
-    with b.at((0, -0.09, 0), rot=(90, 0, 0)):
+    with b.part("wheel", pivot=(0, -0.09, 0), motion="spin", axis="y"), b.at((0, -0.09, 0), rot=(90, 0, 0)):
         b.torus(0.3, 0.035, 0, 0, 0, w, segs=20, ring=6)
         b.torus(0.17, 0.02, 0, 0, 0, "wood_dark", segs=16, ring=5)
         b.cyl(0.07, 0.08, 0, 0, -0.04, "wood_dark", segs=10, bevel=0.01)
@@ -584,10 +600,12 @@ def canopy_bed():
             b.box(W / 6, 0.03, 0.14, -W / 2 + W / 12 + k * W / 6, sy * (L / 2 + 0.02), Hp - 0.15, drape, bevel=0.012)
     for sx in (-1, 1):                                                                      # gathered side curtains
         for sy in (-1, 1):
-            for f in range(3):
-                b.box(0.07, 0.07, Hp - 0.5, sx * (W / 2 + 0.03 - f * 0.05), sy * (L / 2 - 0.12 - f * 0.05),
-                      0.38, pick((drape, tint("drape_b", "lavender")), f), bevel=0.03)
-            b.box(0.2, 0.2, 0.04, sx * (W / 2 - 0.02), sy * (L / 2 - 0.16), 1.0, "gold", bevel=0.012)
+            with b.part(f"drape_{'l' if sx < 0 else 'r'}{'f' if sy < 0 else 'b'}",
+                        pivot=(sx * (W / 2 + 0.03), sy * (L / 2 - 0.12), Hp - 0.12), motion="sway", amp_deg=1.5):
+                for f in range(3):
+                    b.box(0.07, 0.07, Hp - 0.5, sx * (W / 2 + 0.03 - f * 0.05), sy * (L / 2 - 0.12 - f * 0.05),
+                          0.38, pick((drape, tint("drape_b", "lavender")), f), bevel=0.03)
+                b.box(0.2, 0.2, 0.04, sx * (W / 2 - 0.02), sy * (L / 2 - 0.16), 1.0, "gold", bevel=0.012)
     b.socket("sleep", (0, 0.1, 0.55))
     b.socket("seat_0", (0, -L / 2 + 0.2, 0.46))
     return done(b, "floor", "furniture", clearance=1)
@@ -604,7 +622,7 @@ def telescope_on_tripod():
         b.cyl(0.022, d.length, foot.x, foot.y, 0, tint("tripod", "wood_dark"), segs=6, rot=tuple(math.degrees(v) for v in q))
         b.cyl(0.03, 0.03, foot.x, foot.y, 0, "black", segs=6)
     b.cyl(0.07, 0.08, 0, 0, 0.98, "iron", segs=8)
-    with b.at((0, 0, 1.1), rot=(55, 0, 0)):
+    with b.part("tube", pivot=(0, 0, 1.1), motion="tilt", axis="x", max_deg=25), b.at((0, 0, 1.1), rot=(55, 0, 0)):
         tube = tint("tube", "navy")
         b.cyl(0.075, 0.75, 0, 0, -0.25, tube, segs=10, r2=0.065)
         b.cyl(0.085, 0.08, 0, 0, 0.45, "gold", segs=10)                                     # dew cap
@@ -624,7 +642,7 @@ def star_string_lights():
         s = 0.075 if i % 2 else 0.06
         b.cyl(0.004, 0.05, p.x, p.y, p.z - 0.05, "charcoal", segs=4)
         with b.at((p.x, p.y, p.z - 0.05 - s)):
-            b.prism(star_pts(s), 0.03, mat=tint("bulb", "star_glow"), bevel=0.004)
+            b.prism(star_pts(s), 0.03, mat=tint(f"bulb_{i}", "star_glow"), bevel=0.004)  # own material: phased glow
     return done(b, "wall", "light", rotations=(0,), meta={"light": "warm"})
 
 

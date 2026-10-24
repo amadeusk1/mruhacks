@@ -126,8 +126,9 @@ def writing_desk():
     # drawer box on the right, front at -Y
     dx = w / 2 - 0.27
     b.box(0.36, d - 0.1, 0.13, dx, 0, h - 0.19, FINISH, bevel=0.012)
-    b.box(0.3, 0.03, 0.09, dx, -d / 2 + 0.035, h - 0.17, "wood_c", bevel=0.01)
-    b.sphere(0.022, dx, -d / 2 + 0.01, h - 0.125, "gold", u=6, v=4)
+    with b.part("drawer", pivot=(dx, -d / 2 + 0.035, h - 0.17), motion="slide", dir=(0, -1, 0), dist=0.25):
+        b.box(0.3, 0.03, 0.09, dx, -d / 2 + 0.035, h - 0.17, "wood_c", bevel=0.01)
+        b.sphere(0.022, dx, -d / 2 + 0.01, h - 0.125, "gold", u=6, v=4)
     b.socket("surface_0", (0, 0, h))
     b.socket("use", (-0.2, -d / 2 - 0.25, 0), rotz=0)
     return done(b, "floor", clearance=1, surfaces={"surface_0": [w - 0.1, d - 0.08]},
@@ -289,17 +290,18 @@ def plant(b, kind, x=0, y=0, z=0, s=1.0):
             # origin is the ceiling hook; everything hangs below z=0
             b.torus(0.03, 0.008, 0, 0, -0.03, "iron", segs=8, ring=4, rot=(90, 0, 0))
             bot = -0.55
-            for i in range(3):
-                a = math.radians(90 + 120 * i)
-                rope_between(b, (0, 0, -0.05), (math.cos(a) * 0.12, math.sin(a) * 0.12, bot + 0.16), sag=0, r=0.008, segs=1)
-            t = pot(b, 0, 0, bot, r=0.13, h=0.16, segs=8)
-            foliage(b, 0.16, 0.16, t - 0.02, flowers=None, height=0.1)
-            for i in range(6):
-                a = math.radians(i * 60 + 20)
-                px, py = math.cos(a) * 0.14, math.sin(a) * 0.14
-                for k in range(rng.randint(3, 5)):
-                    b.blob(0.035, 0.035, 0.04, px * (1 + k * 0.08), py * (1 + k * 0.08), t - 0.06 - k * 0.07,
-                           pick(("leaf", "leaf_dark"), k + i), subdiv=1, jitter=0.006)
+            with b.part("planter", pivot=(0, 0, -0.05), motion="sway", amp_deg=3):
+                for i in range(3):
+                    a = math.radians(90 + 120 * i)
+                    rope_between(b, (0, 0, -0.05), (math.cos(a) * 0.12, math.sin(a) * 0.12, bot + 0.16), sag=0, r=0.008, segs=1)
+                t = pot(b, 0, 0, bot, r=0.13, h=0.16, segs=8)
+                foliage(b, 0.16, 0.16, t - 0.02, flowers=None, height=0.1)
+                for i in range(6):
+                    a = math.radians(i * 60 + 20)
+                    px, py = math.cos(a) * 0.14, math.sin(a) * 0.14
+                    for k in range(rng.randint(3, 5)):
+                        b.blob(0.035, 0.035, 0.04, px * (1 + k * 0.08), py * (1 + k * 0.08), t - 0.06 - k * 0.07,
+                               pick(("leaf", "leaf_dark"), k + i), subdiv=1, jitter=0.006)
 
 
 def flower_box():
@@ -407,36 +409,37 @@ def star_mobile():
     b = Builder("star_mobile")
     wood = tint("finish", "wood")
     b.torus(0.03, 0.008, 0, 0, -0.03, "gold", segs=8, ring=4, rot=(90, 0, 0))
-    hz = -0.32
-    for i in range(4):                                                               # hanger strings
-        a = math.radians(45 + 90 * i)
-        rope_between(b, (0, 0, -0.06), (math.cos(a) * 0.3, math.sin(a) * 0.3, hz), sag=0, r=0.004, segs=1, mat="cream")
-    b.torus(0.3, 0.022, 0, 0, hz, wood, segs=16, ring=6)
-    b.cyl(0.025, 0.06, 0, 0, hz - 0.03, wood, segs=6)
-    hang = [("star", 0, 0.24), ("crystal", 36, 0.3), ("star", 72, 0.2), ("crystal", 108, 0.36), ("star", 144, 0.26),
-            ("crystal", 180, 0.28), ("star", 216, 0.22), ("crystal", 252, 0.34), ("star", 288, 0.18), ("crystal", 324, 0.3)]
-    for kind, deg, drop in hang:
-        a = math.radians(deg)
-        px, py = math.cos(a) * 0.3, math.sin(a) * 0.3
-        rope_between(b, (px, py, hz - 0.01), (px, py, hz - drop), sag=0, r=0.003, segs=1, mat="cream")
-        if kind == "star":
-            with b.at((px, py, hz - drop - 0.07), rotz=deg + 90):
-                star(b, 0, 0, 0, 0.07, tint("charm", "yellow"))
-        else:
-            with b.at((px, py, hz - drop - 0.04)):
-                b.cyl(0.035, 0.05, 0, 0, 0, tint("crystal", "lavender"), segs=5, r2=0.0)
-                b.cyl(0.035, 0.08, 0, 0, 0, tint("crystal", "lavender"), segs=5, r2=0.0, rot=(180, 0, 0))
-    # centre crescent moon
-    moon = []
-    for i in range(13):
-        a = math.radians(-120 + i * 20)
-        moon.append((math.cos(a) * 0.13, math.sin(a) * 0.13))
-    for i in range(13):
-        a = math.radians(120 - i * 20)
-        moon.append((math.cos(a) * 0.1 + 0.055, math.sin(a) * 0.1))
-    rope_between(b, (0, 0, hz - 0.06), (0, 0, hz - 0.26), sag=0, r=0.003, segs=1, mat="cream")
-    with b.at((0, 0, hz - 0.4), rotz=90):
-        b.prism(moon, 0.04, mat=tint("charm", "yellow"))
+    with b.part("mobile", pivot=(0, 0, -0.06), motion="sway", amp_deg=4):
+        hz = -0.32
+        for i in range(4):                                                               # hanger strings
+            a = math.radians(45 + 90 * i)
+            rope_between(b, (0, 0, -0.06), (math.cos(a) * 0.3, math.sin(a) * 0.3, hz), sag=0, r=0.004, segs=1, mat="cream")
+        b.torus(0.3, 0.022, 0, 0, hz, wood, segs=16, ring=6)
+        b.cyl(0.025, 0.06, 0, 0, hz - 0.03, wood, segs=6)
+        hang = [("star", 0, 0.24), ("crystal", 36, 0.3), ("star", 72, 0.2), ("crystal", 108, 0.36), ("star", 144, 0.26),
+                ("crystal", 180, 0.28), ("star", 216, 0.22), ("crystal", 252, 0.34), ("star", 288, 0.18), ("crystal", 324, 0.3)]
+        for kind, deg, drop in hang:
+            a = math.radians(deg)
+            px, py = math.cos(a) * 0.3, math.sin(a) * 0.3
+            rope_between(b, (px, py, hz - 0.01), (px, py, hz - drop), sag=0, r=0.003, segs=1, mat="cream")
+            if kind == "star":
+                with b.at((px, py, hz - drop - 0.07), rotz=deg + 90):
+                    star(b, 0, 0, 0, 0.07, tint("charm", "yellow"))
+            else:
+                with b.at((px, py, hz - drop - 0.04)):
+                    b.cyl(0.035, 0.05, 0, 0, 0, tint("crystal", "lavender"), segs=5, r2=0.0)
+                    b.cyl(0.035, 0.08, 0, 0, 0, tint("crystal", "lavender"), segs=5, r2=0.0, rot=(180, 0, 0))
+        # centre crescent moon
+        moon = []
+        for i in range(13):
+            a = math.radians(-120 + i * 20)
+            moon.append((math.cos(a) * 0.13, math.sin(a) * 0.13))
+        for i in range(13):
+            a = math.radians(120 - i * 20)
+            moon.append((math.cos(a) * 0.1 + 0.055, math.sin(a) * 0.1))
+        rope_between(b, (0, 0, hz - 0.06), (0, 0, hz - 0.26), sag=0, r=0.003, segs=1, mat="cream")
+        with b.at((0, 0, hz - 0.4), rotz=90):
+            b.prism(moon, 0.04, mat=tint("charm", "yellow"))
     return done(b, "ceiling", category="decor", rotations=(0, 90, 180, 270),
                 meta=variants(charm=("yellow", "white"), crystal=("lavender", "sky")))
 
@@ -446,7 +449,7 @@ def arcade_home():
     b = Builder("arcade_cabinet_home")
     body = tint("body", "purple")
     with b.at(scale=0.78):
-        cabinet(b, body)
+        cabinet(b, body)   # joystick_1 (tilt) and btn_1_* (press) parts come from the arcade cabinet
         for sx in (-1, 1):                                                          # star decals on the sides
             for (yy, zz, r) in ((0.12, 1.2, 0.06), (0.0, 0.85, 0.05), (0.15, 0.55, 0.06), (-0.08, 0.3, 0.045)):
                 with b.at((sx * 0.312, yy, zz), rotz=90 * sx):
@@ -491,8 +494,8 @@ def aquarium():
                  rng.uniform(5, 18), pick(("leaf_dark", "leaf"), k + i))
     b.blob(0.07, 0.06, 0.05, 0.18, 0.05, gz + 0.05, "rock_grey", subdiv=1, jitter=0.01)
 
-    def fish(x, y, z, body, stripe, yaw):
-        with b.at((x, y, z), rotz=yaw):
+    def fish(name, x, y, z, body, stripe, yaw):
+        with b.part(name, pivot=(x, y, z), motion="sway", amp_deg=14), b.at((x, y, z), rotz=yaw):
             b.blob(0.06, 0.025, 0.04, 0, 0, 0, body, subdiv=1)
             b.prism([(0.05, 0), (0.1, 0.035), (0.1, -0.035)], 0.012, mat=body)  # tail fin
             if stripe:
@@ -500,8 +503,9 @@ def aquarium():
                 b.box(0.012, 0.054, 0.06, 0.025, 0, 0, stripe, bevel=0, center=True)
             for sy in (-1, 1):
                 b.sphere(0.008, -0.04, sy * 0.02, 0.012, "eye", u=5, v=3)
-    fish(0.12, -0.05, tz + 0.27, "orange", "white", 180)
-    fish(-0.16, 0.02, tz + 0.2, "blue", None, 0)
+    fish("fish_0", 0.12, -0.05, tz + 0.27, "orange", "white", 180)
+    fish("fish_1", -0.16, 0.02, tz + 0.2, "blue", None, 0)
+    b.socket("fx_bubbles", (0.18, 0.05, gz + 0.1))
     b.socket("use", (0, -d / 2 - 0.3, 0))
     return done(b, "floor", clearance=1, meta=variants(frame=("teal", "wood_dark", "charcoal"), finish=("wood", "wood_dark")))
 
@@ -561,10 +565,12 @@ def candle(b):
     b.cyl(0.03, 0.09, 0, 0, 0.015, tint("wax", "cream"), segs=8)
     b.cyl(0.004, 0.015, 0, 0, 0.105, "black", segs=4)
     b.blob(0.012, 0.012, 0.024, 0, 0, 0.13, "glow", subdiv=1)
+    b.socket("fx_flame", (0, 0, 0.125))
 
 
 def small_lantern(b):
     lantern_head(b, 0, 0, 0, s=0.65, frame="iron")
+    b.socket("fx_flame", (0, 0, 0.1))
     b.torus(0.025, 0.006, 0, 0, 0.27, "iron", segs=8, ring=4, rot=(90, 0, 0))
 
 
@@ -598,6 +604,170 @@ def pencil_cup(b):
             b.cyl(0.008, 0.025, 0, 0, 0.17, "tan", segs=6, r2=0.0)
 
 
+# ---------------------------------------------------------------- curtains, clock, storage, food
+def window_curtains():
+    """Wall item: rod with two pleated panels that slide apart (part_curtain_l / _r, pivot at the top edge)."""
+    b = Builder("window_curtains")
+    rod = tint("rod", "wood_dark")
+    cloth = tint("curtain", "coral")
+    W, H, top = 1.3, 1.15, 0.6          # origin = centre of the back face; rod near the top
+    for sx in (-1, 1):
+        b.box(0.04, 0.1, 0.06, sx * (W / 2 - 0.05), -0.05, top - 0.02, rod, bevel=0.008)   # brackets
+    b.cyl(0.022, W + 0.12, -(W + 0.12) / 2, -0.09, top + 0.02, rod, segs=8, rot=(0, 90, 0), center=False)
+    for sx in (-1, 1):
+        b.sphere(0.035, sx * (W / 2 + 0.07), -0.09, top + 0.02, rod, u=8, v=5)              # finials
+    pw = W / 2 - 0.04
+    for name, sx in (("curtain_l", -1), ("curtain_r", 1)):
+        cx = sx * (pw / 2 + 0.02)
+        with b.part(name, pivot=(cx, -0.09, top), motion="slide", dir=(sx, 0, 0), dist=0.32):
+            n = 5
+            for i in range(n):                                                               # pleats
+                px = cx - pw / 2 + pw / n * (i + 0.5)
+                b.box(pw / n + 0.01, 0.045 if i % 2 else 0.065, H, px, -0.09, top - H, cloth, bevel=0.012)
+            b.box(pw + 0.02, 0.07, 0.07, cx, -0.09, top - 0.06, cloth, bevel=0.015)           # header
+            b.box(pw * 0.7, 0.08, 0.05, cx, -0.09, top - H * 0.55, tint("tieback", "cream"), bevel=0.012)
+    return done(b, "wall", category="decor", rotations=(0,),
+                meta={**variants(curtain=("coral", "teal", "mustard", "lavender"), rod=("wood_dark", "gold")),
+                      "fits_window_m": [W - 0.2, H - 0.1]})
+
+
+def wall_clock():
+    """Wall item: round clock, hands are spin parts about the face normal (Y)."""
+    b = Builder("wall_clock")
+    frame = tint("frame", "wood")
+    R = 0.2
+    with b.at((0, 0, 0), rot=(90, 0, 0)):        # local +Z -> world -Y (out of the wall)
+        b.cyl(R, 0.05, 0, 0, 0, frame, segs=14, bevel=0.012)
+        b.cyl(R - 0.03, 0.012, 0, 0, 0.045, tint("face", "cream"), segs=14)
+        for i in range(12):                                                                  # hour ticks
+            a = math.radians(i * 30)
+            L = 0.035 if i % 3 == 0 else 0.02
+            b.box(0.012, L, 0.006, math.sin(a) * (R - 0.06), math.cos(a) * (R - 0.06), 0.057, "charcoal", bevel=0,
+                  rot=(0, 0, -i * 30))
+    hand_y = -0.064
+    with b.part("hand_hour", pivot=(0, hand_y, 0), motion="spin", axis="y"):
+        b.box(0.016, 0.006, 0.09, 0, hand_y, 0, "black", bevel=0)
+    with b.part("hand_minute", pivot=(0, hand_y - 0.007, 0), motion="spin", axis="y"):
+        b.box(0.01, 0.006, 0.14, 0, hand_y - 0.007, 0, "black", bevel=0, rot=(0, 120, 0))
+    b.cyl(0.014, 0.02, 0, hand_y - 0.016, 0, "gold", segs=8, rot=(90, 0, 0), center=True)
+    return done(b, "wall", category="decor", rotations=(0,), meta=variants(frame=("wood", "teal", "coral", "charcoal"), face=("cream", "white")))
+
+
+def woven_basket():
+    b = Builder("woven_basket")
+    m1, m2 = tint("weave", "tan"), tint("weave_b", "wood_c")
+    R, H, n = 0.2, 0.26, 14
+    b.cyl(R * 0.9, 0.03, 0, 0, 0, m2, segs=n)
+    for i in range(n):                                                                       # staves
+        a = math.radians(i * 360 / n)
+        b.box(2 * math.pi * R / n * 0.95, 0.03, H, math.cos(a) * R, math.sin(a) * R, 0, m1 if i % 2 else m2,
+              bevel=0.006, rot=(0, 0, math.degrees(a) + 90))
+    for z in (0.08, 0.17):                                                                   # weave bands
+        b.torus(R + 0.012, 0.014, 0, 0, z, m2, segs=n, ring=4)
+    b.torus(R + 0.005, 0.022, 0, 0, H, m1, segs=n, ring=5)                                   # rim
+    for sx in (-1, 1):
+        b.torus(0.05, 0.012, sx * (R + 0.01), 0, H - 0.03, m1, segs=8, ring=4, rot=(90, 0, 90))
+    b.socket("surface_0", (0, 0, 0.03))
+    return done(b, "floor", category="decor", surfaces={"surface_0": [0.3, 0.3]},
+                meta={**variants(weave=("tan", "cream", "sage")), "also_surface": True})
+
+
+def storage_box():
+    b = Builder("storage_box")
+    col = tint("box", "teal")
+    w, d, h = 0.42, 0.32, 0.26
+    b.box(w, d, h - 0.06, 0, 0, 0, col, bevel=0.02)
+    b.box(w + 0.02, d + 0.02, 0.07, 0, 0, h - 0.07, col, bevel=0.02)                          # lid
+    b.box(0.12, 0.02, 0.04, 0, -d / 2 - 0.005, h - 0.13, tint("label", "cream"), bevel=0.006)  # label plate
+    for sx in (-1, 1):
+        b.box(0.02, 0.1, 0.03, sx * (w / 2 + 0.005), 0, h - 0.14, "charcoal", bevel=0.005)  # handle slots
+    b.socket("surface_0", (0, 0, h))
+    return done(b, "floor", category="decor", surfaces={"surface_0": [w - 0.04, d - 0.04]},
+                meta={**variants(box=("teal", "coral", "mustard", "cream")), "also_surface": True, "stackable": True})
+
+
+def lidded_chest():
+    b = Builder("lidded_chest")
+    wood = tint("finish", "wood")
+    band = tint("band", "iron")
+    w, d, h = 0.8, 0.46, 0.4
+    planks(b, w, d, z=0, plank=0.115, thick=0.04, along="x")
+    for i, z in enumerate((0.04, 0.16, 0.28)):                                               # plank walls
+        b.box(w, 0.04, 0.12, 0, -d / 2 + 0.02, z, pick(WOOD, i), bevel=0.01)
+        b.box(w, 0.04, 0.12, 0, d / 2 - 0.02, z, pick(WOOD, i + 1), bevel=0.01)
+        b.box(0.04, d - 0.08, 0.12, -w / 2 + 0.02, 0, z, pick(WOOD, i + 2), bevel=0.01)
+        b.box(0.04, d - 0.08, 0.12, w / 2 - 0.02, 0, z, pick(WOOD, i), bevel=0.01)
+    for sx in (-1, 1):
+        b.box(0.05, d + 0.01, h, sx * (w / 2 - 0.12), 0, 0, band, bevel=0.008)               # metal bands
+    with b.part("lid", pivot=(0, d / 2, h), motion="hinge", axis="x", open_deg=-100):
+        b.box(w + 0.02, d + 0.02, 0.09, 0, 0, h, wood, bevel=0.02)
+        b.box(w - 0.2, d - 0.1, 0.04, 0, 0, h + 0.09, wood, bevel=0.015)
+        for sx in (-1, 1):
+            b.box(0.05, d + 0.03, 0.1, sx * (w / 2 - 0.12), 0, h, band, bevel=0.008)
+        b.box(0.08, 0.03, 0.09, 0, -d / 2 - 0.01, h - 0.04, "gold", bevel=0.008)            # clasp
+    b.socket("use", (0, -d / 2 - 0.35, 0))
+    b.socket("surface_0", (0, 0, h + 0.13))
+    return done(b, "floor", clearance=1, surfaces={"surface_0": [w - 0.24, d - 0.14]},
+                meta=variants(finish=("wood", "wood_dark", "teal"), band=("iron", "gold")))
+
+
+def fruit_bowl(b):
+    bowl = tint("bowl", "cream")
+    b.cyl(0.07, 0.02, 0, 0, 0, bowl, segs=10)
+    b.cyl(0.075, 0.07, 0, 0, 0.02, bowl, segs=10, r2=0.13, cap=False)
+    b.cyl(0.13, 0.012, 0, 0, 0.085, bowl, segs=10)
+    for i, (x, y, z, r, c) in enumerate(((-0.04, -0.02, 0.1, 0.045, "orange"), (0.045, 0.0, 0.1, 0.045, "red"),
+                                        (0.0, 0.05, 0.1, 0.043, "green"), (0.0, -0.01, 0.15, 0.04, "red"))):
+        b.blob(r, r, r * 0.95, x, y, z, c, subdiv=1, jitter=0.003)
+        b.cyl(0.004, 0.02, x, y, z + r * 0.9, "bark", segs=4)
+    with b.at((0.02, 0.0, 0.16), rot=(0, 0, 30)):                                            # banana
+        for k in range(4):
+            b.blob(0.03, 0.018, 0.018, -0.05 + k * 0.033, 0, abs(k - 1.5) * 0.012, "yellow", subdiv=1)
+
+
+def cookie_plate(b):
+    plate = tint("plate", "white")
+    b.cyl(0.08, 0.008, 0, 0, 0, plate, segs=12)
+    b.cyl(0.12, 0.012, 0, 0, 0.008, plate, segs=12, r2=0.13)
+    for i, (x, y, z, tilt) in enumerate(((-0.04, -0.03, 0.022, 0), (0.045, -0.01, 0.022, 0), (0.0, 0.05, 0.022, 0),
+                                         (0.0, 0.0, 0.042, 12))):
+        with b.at((x, y, z), rot=(tilt, 0, i * 40)):
+            b.cyl(0.04, 0.016, 0, 0, 0, "tan", segs=9, bevel=0.004)
+            for k in range(3):
+                a = math.radians(k * 120 + 20)
+                b.blob(0.008, 0.008, 0.005, math.cos(a) * 0.02, math.sin(a) * 0.02, 0.016, "wood_deep", subdiv=1)
+
+
+def teapot_set(b):
+    glaze = tint("glaze", "teal")
+    b.box(0.34, 0.22, 0.02, 0, 0, 0, tint("tray", "wood"), bevel=0.008)
+    with b.at((-0.05, 0.01, 0.02)):
+        b.blob(0.075, 0.075, 0.065, 0, 0, 0.07, glaze, subdiv=2)
+        b.cyl(0.04, 0.02, 0, 0, 0.125, glaze, segs=8)
+        b.sphere(0.014, 0, 0, 0.15, glaze, u=6, v=4)
+        b.cyl(0.013, 0.09, 0.06, 0, 0.05, glaze, segs=6, r2=0.008, rot=(0, 55, 0))          # spout
+        b.torus(0.04, 0.01, -0.075, 0, 0.075, glaze, segs=8, ring=4, rot=(90, 0, 0))         # handle
+        b.socket("fx_steam", (0.135, 0, 0.11))
+    for i, x in enumerate((0.095, 0.12)):
+        y = -0.05 if i == 0 else 0.06
+        b.cyl(0.03, 0.008, x, y, 0.02, "white", segs=8)
+        b.cyl(0.025, 0.045, x, y, 0.028, glaze, segs=8, r2=0.03)
+        b.cyl(0.02, 0.004, x, y, 0.068, "wood_deep", segs=8)
+
+
+def cushion_square(b):
+    cushion(b)
+
+
+def cushion_round(b):
+    c, acc = tint("cushion", "sage"), tint("cushion_accent", "cream")
+    with b.at((0, 0, 0.14), rot=(90, 0, 0)):
+        b.cyl(0.14, 0.1, 0, 0, -0.05, c, segs=12, bevel=0.03)
+        for z in (-0.052, 0.052):
+            b.torus(0.135, 0.01, 0, 0, z, acc, segs=12, ring=4)                               # piping
+            b.cyl(0.022, 0.012, 0, 0, z - (0.006 if z < 0 else -0.006), acc, segs=6, center=True)  # button
+
+
 def build():
     armchair()
     sofa()
@@ -625,7 +795,14 @@ def build():
         poster(f"poster_frame_{style}", style)
     wall_shelf()
     star_mobile()
-    for name, fn in (("book_single", book_single), ("book_stack", book_stack), ("mug", mug), ("cushion", cushion),
+    window_curtains()
+    wall_clock()
+    woven_basket()
+    storage_box()
+    lidded_chest()
+    for name, fn in (("book_single", book_single), ("book_stack", book_stack), ("mug", mug), ("cushion_square", cushion_square),
+                     ("cushion_round", cushion_round), ("fruit_bowl", fruit_bowl), ("cookie_plate", cookie_plate),
+                     ("teapot_set", teapot_set),
                      ("framed_photo", framed_photo), ("tabletop_plant", tabletop_plant), ("candle", candle),
                      ("small_lantern", small_lantern), ("trophy", trophy), ("plush_penguin", plush_penguin),
                      ("pencil_cup", pencil_cup)):

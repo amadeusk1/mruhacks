@@ -60,6 +60,18 @@ def leafy(b, x, y, z, r=0.14, n=6, mats=LEAVES, seed=0, tilt=28):
             b.blob(L * 0.6, L * 0.33, L * 0.1, 0, 0, 0, pick(mats, i + seed))
 
 
+def flutter_bunting(b, p0, p1, n=4, colors=None, size=0.2, sag=0.12, rope_r=0.012, amp=14):
+    """Static rope with each pennant as its own flutter part hinged on its top edge (the rope)."""
+    pts = rope_between(b, p0, p1, sag=sag, r=rope_r, segs=n * 2)
+    d = (Vector(p1) - Vector(p0)).normalized()
+    rz = math.degrees(math.atan2(d.y, d.x))
+    for i in range(n):
+        p = pts[1 + i * 2]
+        with b.part(f"flag_{i}", pivot=tuple(p), motion="flutter", amp_deg=amp, axis="x"):
+            with b.at(tuple(p), rotz=rz):
+                b.prism([(-size / 2, -rope_r), (size / 2, -rope_r), (0, -size * 1.15)], 0.015, mat=pick(colors, i))
+
+
 def face_center_rot(x, y):
     """rotz (deg) so a socket at (x,y) faces the origin (asset front is -Y)."""
     return math.degrees(math.atan2(y, x)) - 90
@@ -218,8 +230,8 @@ def bunting_posts():
     for sx in (-1, 1):
         post(b, sx * span / 2, 0, 0, h=0.85, w=0.15)
         b.box(0.17, 0.17, 0.05, sx * span / 2, 0, 0.66, "iron_light", bevel=0.01)
-    bunting(b, (-span / 2 + 0.08, 0, 0.72), (span / 2 - 0.08, 0, 0.72), n=4,
-            colors=FLAGS, size=0.22, sag=0.14)
+    flutter_bunting(b, (-span / 2 + 0.08, 0, 0.72), (span / 2 - 0.08, 0, 0.72), n=4,
+                    colors=FLAGS, size=0.22, sag=0.14)
     return b.finish(KIT, "decor", {"span": span, "color_variants": FLAG_VARIANTS})
 
 
@@ -253,25 +265,33 @@ def small_fountain():
         b.box(side * 0.98, 0.3, H * 0.45, cx * 1.005, cy * 1.005, H * 0.55, pick(("stone", "paving_b", "stone"), i + 1),
               bevel=0.035, rot=(0, 0, rz))
     b.cyl(R - 0.22, 0.06, 0, 0, 0.0, "stone_dark", segs=8)
-    b.cyl(R - 0.24, 0.04, 0, 0, H - 0.1, "water", segs=8, cap=True)
+    WZ = H - 0.06
+    with b.part("basin_water", pivot=(0, 0, WZ), motion="flow"):
+        b.cyl(R - 0.24, 0.04, 0, 0, H - 0.1, "water", segs=8, cap=True)
+    b.socket("fx_ripple", (0, 0, WZ))
     # central pillar
     b.cyl(0.24, 0.16, 0, 0, 0, "stone_dark", segs=8, bevel=0.02)
     b.cyl(0.17, 0.62, 0, 0, 0.16, "stone", segs=8, bevel=0.015)
     b.cyl(0.22, 0.08, 0, 0, 0.78, "paving_b", segs=8, bevel=0.015)
     b.cyl(0.15, 0.2, 0, 0, 0.86, "stone", segs=8, r2=0.02, bevel=0.01)
-    # water arcs: four jets from the collar curving into the basin
-    for k in range(4):
-        a = math.radians(45 + 90 * k)
-        pts = []
-        for i in range(9):
-            t = i / 8
-            rr = 0.2 + t * 0.48
-            pts.append(Vector((rr * math.cos(a), rr * math.sin(a), 0.72 + 0.16 * math.sin(t * math.pi * 0.85) - t * 0.35)))
-        for p0, p1 in zip(pts, pts[1:]):
-            d = p1 - p0
-            rot = d.to_track_quat("Z", "Y").to_euler()
-            b.cyl(0.028, d.length + 0.02, p0.x, p0.y, p0.z, "water", segs=6, rot=tuple(math.degrees(v) for v in rot))
-        b.cyl(0.09, 0.015, pts[-1].x, pts[-1].y, H - 0.065, "ice", segs=8)     # splash ring
+    # water arcs: four jets from the collar curving into the basin, one flow part for all streams
+    landings = []
+    with b.part("streams", pivot=(0, 0, 0.72), motion="flow"):
+        for k in range(4):
+            a = math.radians(45 + 90 * k)
+            pts = []
+            for i in range(9):
+                t = i / 8
+                rr = 0.2 + t * 0.48
+                pts.append(Vector((rr * math.cos(a), rr * math.sin(a), 0.72 + 0.16 * math.sin(t * math.pi * 0.85) - t * 0.35)))
+            for p0, p1 in zip(pts, pts[1:]):
+                d = p1 - p0
+                rot = d.to_track_quat("Z", "Y").to_euler()
+                b.cyl(0.028, d.length + 0.02, p0.x, p0.y, p0.z, "water", segs=6, rot=tuple(math.degrees(v) for v in rot))
+            b.cyl(0.09, 0.015, pts[-1].x, pts[-1].y, H - 0.065, "ice", segs=8)     # splash ring
+            landings.append(pts[-1])
+    for k, p in enumerate(landings):
+        b.socket(f"fx_splash_{k}", (p.x, p.y, WZ))
     for i, a in enumerate((-90, -30)):
         x, y = (R - 0.12) * math.cos(math.radians(a)), (R - 0.12) * math.sin(math.radians(a))
         b.socket(f"sit_rim_{i}", (x, y, H), a + 90 + 180)
@@ -296,16 +316,20 @@ def street_bin():
     return b.finish(KIT, "prop")
 
 
+BULB_COLORS = ("bulb", "glow", "glow_teal")  # amber, gold, teal like the sheet's string bulbs
+
+
 def string_lights():
     b = Builder("string_lights", seed=26)
     L, z = 4.0, 2.4
     pts = rope_between(b, (-L / 2, 0, z), (L / 2, 0, z), sag=0.35, r=0.01, segs=10, mat="iron")
-    for i, p in enumerate(pts[1:-1]):
-        bulb(b, p.x, p.y, p.z, tint("bulb", "bulb"))
+    for i, p in enumerate(pts[1:-1]):  # one glow material per bulb so the engine can phase each
+        bulb(b, p.x, p.y, p.z, tint(f"bulb_{i}", pick(BULB_COLORS, i)))
     b.socket("anchor_a", (-L / 2, 0, z))
     b.socket("anchor_b", (L / 2, 0, z))
     return b.finish(KIT, "light", {"span": L, "anchor_height": z, "note": "hang between lantern posts or building eaves",
-                                   "color_variants": {"bulb": ["bulb", "glow", "glow_teal"]}})
+                                   "color_variants": {f"bulb_{i}": list(BULB_COLORS) for i in range(9)},
+                                   "glow_roles": [f"bulb_{i}" for i in range(9)]})
 
 
 def paving(name, size, seed):

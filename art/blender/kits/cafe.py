@@ -97,7 +97,7 @@ def build_exterior():
         door_unit(b, DOOR_X, socket=False)
     with b.at((0, D / 2 - T / 2, SLAB), rotz=180):                            # back
         masonry_wall(b, W, H, openings=[(0.4, 1.02, 0, 1.68)], quoins=(True, True), timber=True)
-        door_unit(b, 0.4, socket=False)
+        door_unit(b, 0.4, socket=False, part_name="door_leaf_back")
     with b.at((-W / 2 + T / 2, 0, SLAB), rotz=-90):                           # left
         masonry_wall(b, D - 2 * T, H, openings=[(0, 0.76, 0.86, 1.72)], timber=True)
         window_unit(b, 0, 0.93, box=True)
@@ -169,6 +169,7 @@ def build_exterior():
         r.box(0.53, 0.53, 0.05, cx, cy, zr + 0.25 + k * 0.3, "stone_grey", bevel=0.015)
     r.box(0.6, 0.6, 0.12, cx, cy, TOP + RISE + 0.45, "chimney_cap", bevel=0.025)
     r.box(0.3, 0.3, 0.05, cx, cy, TOP + RISE + 0.55, "black", bevel=0)
+    r.socket("fx_smoke", (cx, cy, TOP + RISE + 0.68))
     roof = r.finish(KIT, "roof")
     attach(roof, house)
     return house
@@ -187,7 +188,7 @@ def build_interior_shell():
     # walls are built with their detailed face (-Y local) pointing into the room
     with b.at((0, D / 2 - T / 2, SLAB)):                                      # back
         masonry_wall(b, W, H, openings=[(-0.3, 1.02, 0, 1.68)], quoins=(True, True), cap=ROOF_T[0])
-        door_unit(b, -0.3, socket=False)
+        door_unit(b, -0.3, socket=False, part_name="door_leaf_back")
     with b.at((-W / 2 + T / 2, 0, SLAB), rotz=90):                            # left, two windows
         masonry_wall(b, D - 2 * T, H, openings=[(-0.65, 0.76, 0.86, 1.72), (0.65, 0.76, 0.86, 1.72)], cap=ROOF_T[0])
         window_unit(b, -0.65, 0.93)
@@ -209,7 +210,7 @@ def build_interior_shell():
     with c.at((0, -D / 2 + T / 2, SLAB)):
         masonry_wall(c, W, H, openings=[(DOOR_X, 1.02, 0, 1.68), (SERV_X, SERV_W, SERV_ZB, SERV_ZT)],
                      quoins=(True, True), cap=ROOF_T[0])
-        door_unit(c, DOOR_X, socket=False)
+        door_unit(c, DOOR_X, socket=False, part_name="door_leaf_front")
         c.box(SERV_W + 0.06, T + 0.3, 0.06, SERV_X, -0.08, SERV_ZB - 0.06, "wood_c", bevel=0.015)
         c.box(SERV_W, 0.03, SERV_ZT - SERV_ZB, SERV_X, 0, SERV_ZB, "glass", bevel=0)
         c.box(0.07, T + 0.02, SERV_ZT - SERV_ZB, SERV_X, 0, SERV_ZB, "wood", bevel=0.008)          # centre post
@@ -273,6 +274,7 @@ def build_props():
         b.cyl(0.065, 0.1, 0, 0, 0.34, "wood_deep", segs=8, r2=0.09)
         b.cyl(0.115, 0.03, 0, 0, 0.52, "iron", segs=8)
     b.socket("use", (0, -0.6, 0), rotz=180)
+    b.socket("fx_steam", (-0.15, -0.26, 1.07))                     # espresso spouts
     b.finish(KIT, "furniture")
 
     b = Builder("wall_shelf", seed=323)
@@ -294,12 +296,14 @@ def build_props():
     b = Builder("mug", seed=324)
     mug(b, 0, 0, 0, s=1.4)
     b.socket("hold", (0, 0, 0.06))
+    b.socket("fx_steam", (0, 0, 0.14))
     b.finish(KIT, "prop", {"slot": "held"})
 
     b = Builder("mug_set", seed=325)
     b.box(0.42, 0.24, 0.02, 0, 0, 0, "wood_c", bevel=0.006)
     for i, c in enumerate(("white", "cream", "teal_light")):
         mug(b, -0.13 + i * 0.12, -0.03 + (i % 2) * 0.05, 0.02, body=c)
+        b.socket(f"fx_steam_{i}", (-0.13 + i * 0.12, -0.03 + (i % 2) * 0.05, 0.13))
     b.cyl(0.045, 0.1, 0.16, 0.06, 0.02, "glass", segs=8)
     b.cyl(0.04, 0.06, 0.16, 0.06, 0.022, "wood_deep", segs=8)
     b.cyl(0.05, 0.03, 0.16, 0.06, 0.12, "coral", segs=8, bevel=0.006)
@@ -310,16 +314,97 @@ def build_props():
     b.finish(KIT, "prop")
 
     b = Builder("menu_board", seed=327)
+    b.xf = Matrix.Translation((0, 0, -0.335))  # wall-layer origin: centre of the back face
     b.box(0.9, 0.05, 0.62, 0, -0.03, 0, "wood_b", bevel=0.015)
     b.box(0.8, 0.02, 0.52, 0, -0.065, 0.05, "insert_chalk", bevel=0)
-    for i in range(4):  # chalk lines
-        b.box(0.3 + (i % 2) * 0.2, 0.005, 0.02, -0.1 + (i % 2) * 0.05, -0.078, 0.14 + i * 0.1, "white", bevel=0)
-    b.box(0.08, 0.005, 0.08, -0.25, -0.078, 0.42, "white", bevel=0)
+    # menu text lives on the insert_chalk face (textured in the engine)
     b.box(1.0, 0.06, 0.05, 0, -0.03, 0.62, "wood_dark", bevel=0.012)
-    b.finish(KIT, "wall_prop", {"note": "origin at the board bottom on the wall face"})
+    b.finish(KIT, "wall_prop", {"note": "origin at the centre of the back face (wall layer)", **placement("wall")})
+
+
+# ---------------------------------------------------------------------------
+# Small surface-layer extras (placement('surface'), origin at the bottom centre)
+# ---------------------------------------------------------------------------
+def croissant(b, x=0, y=0, z=0, s=1.0):
+    """Crescent of five faceted lobes opening toward +Y."""
+    for i, (a, r) in enumerate(((-72, 0.022), (-38, 0.032), (0, 0.042), (38, 0.032), (72, 0.022))):
+        t = math.radians(a)
+        b.blob(r * 1.15 * s, r * 0.95 * s, r * 0.75 * s, x + math.sin(t) * 0.055 * s, y - math.cos(t) * 0.03 * s + 0.02 * s,
+               z + r * 0.72 * s, pick(("mustard", "tan", "brown"), 0 if abs(a) < 50 else 2 if abs(a) > 60 else 1),
+               subdiv=1, rot=(0, 0, a))
+
+
+def plate(b, x=0, y=0, z=0, r=0.11):
+    P = tint("plate", "white")
+    b.cyl(r * 0.6, 0.008, x, y, z, P, segs=12)
+    b.cyl(r, 0.01, x, y, z + 0.008, P, segs=12, r2=r * 0.98, bevel=0.003)
+    b.torus(r * 0.9, 0.007, x, y, z + 0.02, P, segs=12, ring=4)
+    return z + 0.018
+
+
+def build_extras():
+    surf = placement("surface")
+
+    b = Builder("croissant", seed=331)
+    croissant(b, s=1.3)
+    b.finish(KIT, "prop", surf)
+
+    b = Builder("muffin", seed=332)
+    case = tint("muffin_case", "coral")
+    b.cyl(0.04, 0.05, 0, 0, 0, case, segs=10, r2=0.05, bevel=0.004)
+    b.blob(0.058, 0.058, 0.038, 0, 0, 0.058, "brown", subdiv=2, jitter=0.004)
+    for i in range(5):
+        a = i * 1.3
+        b.blob(0.008, 0.008, 0.006, math.cos(a) * 0.03, math.sin(a) * 0.03, 0.088 - (i % 2) * 0.006, "purple", subdiv=1)
+    b.finish(KIT, "prop", surf)
+
+    b = Builder("cake_slice", seed=333)
+    wedge = [(0, -0.075), (0.05, 0.06), (-0.05, 0.06)]
+    z = 0.0
+    for m, h in (("tan", 0.03), (tint("cake_filling", "pink"), 0.012), ("tan", 0.03), (tint("cake_frosting", "white"), 0.014)):
+        b.prism(wedge, h, z=z, mat=m, plane="xy")
+        z += h
+    b.blob(0.016, 0.016, 0.014, 0, 0.025, z + 0.01, "red", subdiv=1)
+    b.blob(0.01, 0.006, 0.003, 0, 0.03, z + 0.024, "leaf", subdiv=1)
+    b.finish(KIT, "prop", surf)
+
+    b = Builder("plate", seed=334)
+    top = plate(b)
+    b.socket("surface_0", (0, 0, top))
+    b.finish(KIT, "prop", {**surf, "surfaces": {"surface_0": [0.16, 0.16]}})
+
+    b = Builder("plate_with_pastry", seed=335)
+    top = plate(b)
+    croissant(b, 0, -0.01, top, s=1.2)
+    b.finish(KIT, "prop", surf)
+
+    b = Builder("takeaway_cup", seed=336)
+    b.cyl(0.035, 0.12, 0, 0, 0, tint("cup", "white"), segs=10, r2=0.045, bevel=0.003)
+    b.cyl(0.0405, 0.05, 0, 0, 0.035, tint("cup_sleeve", "tan"), segs=10, r2=0.0447)
+    b.box(0.03, 0.004, 0.026, 0, -0.0445, 0.047, "insert_sign", bevel=0)          # logo insert
+    lid = tint("cup_lid", "charcoal")
+    b.cyl(0.048, 0.012, 0, 0, 0.118, lid, segs=10, bevel=0.003)
+    b.cyl(0.044, 0.012, 0, 0, 0.13, lid, segs=10, r2=0.036)
+    b.box(0.018, 0.012, 0.008, 0, -0.026, 0.142, lid, bevel=0.002)                # sip spout
+    b.socket("fx_steam", (0, -0.026, 0.152))
+    b.socket("hold", (0, 0, 0.06))
+    b.finish(KIT, "prop", {**surf, "slot": "held"})
+
+    b = Builder("sugar_jar", seed=337)
+    b.cyl(0.042, 0.085, 0, 0, 0, "glass", segs=10)
+    for i in range(3):
+        for j in range(2):
+            a = i * 2.1 + j
+            b.box(0.022, 0.022, 0.02, math.cos(a) * 0.014, math.sin(a) * 0.014, 0.004 + j * 0.022, "white", bevel=0.003,
+                  rot=(0, 0, math.degrees(a)))
+    jl = tint("jar_lid", "teal")
+    b.cyl(0.046, 0.02, 0, 0, 0.085, jl, segs=10, bevel=0.004)
+    b.sphere(0.012, 0, 0, 0.112, jl, u=6, v=4)
+    b.finish(KIT, "prop", surf)
 
 
 def build():
     build_exterior()
     build_interior_shell()
     build_props()
+    build_extras()

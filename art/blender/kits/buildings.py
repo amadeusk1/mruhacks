@@ -86,9 +86,13 @@ def masonry_wall(b, L, H=WALL_H, openings=(), quoins=(False, False), base=True, 
         b.box(L + 0.02, T + 0.06, 0.1, 0, y, H, cap, bevel=0.02)
 
 
-def door_unit(b, cx, w=0.86, h=1.6, z=0.0, y=0.0, mat=DOOR_T, surround=TRIM_T, heavy=False, socket=True):
-    """Door set in a wall of thickness T centred on y: deep frame, plank leaf with
-    a 4-pane glowing light, gold knob and threshold. Front is -Y."""
+def door_unit(b, cx, w=0.86, h=1.6, z=0.0, y=0.0, mat=DOOR_T, surround=TRIM_T, heavy=False, socket=True,
+              open_deg=100, part_name="door_leaf"):
+    """Door set in a wall of thickness T centred on y: deep static frame, threshold and a
+    plank leaf with a 4-pane glowing light and gold knobs. The leaf is a hinge part
+    'part_door_leaf' pivoting on its back (+Y) face at the left (-X) jamb; positive open_deg
+    swings it toward +Y (into the wall's back side) and it clears the frame through the arc.
+    Front is -Y."""
     fy = y - T / 2
     # frame lining through the wall
     for s in (-1, 1):
@@ -100,21 +104,23 @@ def door_unit(b, cx, w=0.86, h=1.6, z=0.0, y=0.0, mat=DOOR_T, surround=TRIM_T, h
         b.box(sw, 0.07, h + 0.06, cx + s * (w / 2 + sw / 2 + 0.03), fy - 0.03, z, surround, bevel=0.02)
     b.box(w + 2 * sw + (0.24 if heavy else 0.1), 0.12 if heavy else 0.08, 0.16 if heavy else 0.12,
           cx, fy - 0.05, z + h + 0.04, surround, bevel=0.025)
-    # leaf: three vertical planks with grooves, recessed slightly
-    pw = w / 3
-    for i in range(3):
-        b.box(pw - 0.012, 0.07, h - 0.02, cx - w / 2 + pw * (i + 0.5), fy + 0.07, z + 0.01, mat, bevel=0.012)
-    # rails
-    b.box(w - 0.04, 0.03, 0.07, cx, fy + 0.025, z + 0.25, mat, bevel=0.01)
-    # window light
-    lw, lh, lz = w * 0.46, h * 0.24, z + h * 0.6
-    b.box(lw + 0.07, 0.04, lh + 0.07, cx, fy + 0.02, lz - 0.035, surround, bevel=0.01)
-    b.box(lw, 0.03, lh, cx, fy + 0.015, lz, "glow_window", bevel=0)
-    b.box(0.025, 0.04, lh, cx, fy + 0.0, lz, surround, bevel=0)
-    b.box(lw, 0.04, 0.025, cx, fy + 0.0, lz + lh / 2 - 0.012, surround, bevel=0)
-    b.sphere(0.04, cx + w * 0.34, fy + 0.0, z + h * 0.46, "gold", u=6, v=4)
     # threshold
     b.box(w + 0.2, T + 0.12, 0.05, cx, y - 0.02, z, "stone_dark", bevel=0.012)
+    # leaf: sits on the threshold, 1 cm clear of the jambs and head
+    lw, lz0, lh0 = w - 0.02, z + 0.06, h - 0.08
+    back = fy + 0.105
+    with b.part(part_name, pivot=(cx - w / 2, back, lz0), motion="hinge", axis="z", open_deg=open_deg):
+        pw = lw / 3
+        for i in range(3):
+            b.box(pw - 0.012, 0.07, lh0, cx - lw / 2 + pw * (i + 0.5), fy + 0.07, lz0, mat, bevel=0.012)
+        b.box(lw - 0.04, 0.03, 0.07, cx, fy + 0.025, lz0 + 0.2, mat, bevel=0.01)              # rail
+        gw, gh, gz = w * 0.46, h * 0.24, z + h * 0.6
+        b.box(gw + 0.07, 0.04, gh + 0.07, cx, fy + 0.02, gz - 0.035, surround, bevel=0.01)
+        b.box(gw, 0.03, gh, cx, fy + 0.015, gz, "glow_window", bevel=0)
+        b.box(0.025, 0.04, gh, cx, fy + 0.0, gz, surround, bevel=0)
+        b.box(gw, 0.04, 0.025, cx, fy + 0.0, gz + gh / 2 - 0.012, surround, bevel=0)
+        for ky in (fy + 0.0, back + 0.035):                                                     # knobs both faces
+            b.sphere(0.04, cx + w * 0.34, ky, z + h * 0.46, "gold", u=6, v=4)
     if socket:
         b.socket("door", (cx, y - T / 2 - 0.55, z), rotz=180)
 
@@ -383,6 +389,7 @@ def build():
         b.box(0.53, 0.53, 0.05, 0, 0, 0.25 + k * 0.3, "stone_grey", bevel=0.015)
     b.box(0.6, 0.6, 0.12, 0, 0, 1.4, "chimney_cap", bevel=0.025)
     b.box(0.3, 0.3, 0.05, 0, 0, 1.5, "black", bevel=0)
+    b.socket("fx_smoke", (0, 0, 1.62))
     b.finish(KIT, "trim", {"note": "sink the bottom into the roof; top at 1.52 m"})
 
     b = seeded("door_insert", 25)

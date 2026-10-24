@@ -201,6 +201,48 @@
       0.89
     ],
     "sockets": {},
+    "parts": {
+      "part_flag_0": {
+        "pivot": [
+          -0.54,
+          0.0,
+          0.659
+        ],
+        "motion": "flutter",
+        "amp_deg": 14,
+        "axis": "x"
+      },
+      "part_flag_1": {
+        "pivot": [
+          -0.18,
+          0.0,
+          0.589
+        ],
+        "motion": "flutter",
+        "amp_deg": 14,
+        "axis": "x"
+      },
+      "part_flag_2": {
+        "pivot": [
+          0.18,
+          0.0,
+          0.589
+        ],
+        "motion": "flutter",
+        "amp_deg": 14,
+        "axis": "x"
+      },
+      "part_flag_3": {
+        "pivot": [
+          0.54,
+          0.0,
+          0.659
+        ],
+        "motion": "flutter",
+        "amp_deg": 14,
+        "axis": "x"
+      }
+    },
     "tints": {
       "flag_a": "#E86D58",
       "flag_b": "#3FB3B5",
@@ -301,6 +343,31 @@
       1.06
     ],
     "sockets": {
+      "socket_fx_ripple": [
+        0.0,
+        0.0,
+        0.32
+      ],
+      "socket_fx_splash_0": [
+        0.481,
+        0.481,
+        0.32
+      ],
+      "socket_fx_splash_1": [
+        -0.481,
+        0.481,
+        0.32
+      ],
+      "socket_fx_splash_2": [
+        -0.481,
+        -0.481,
+        0.32
+      ],
+      "socket_fx_splash_3": [
+        0.481,
+        -0.481,
+        0.32
+      ],
       "socket_sit_rim_0": [
         0.0,
         -0.93,
@@ -311,6 +378,24 @@
         -0.465,
         0.38
       ]
+    },
+    "parts": {
+      "part_basin_water": {
+        "pivot": [
+          0.0,
+          0.0,
+          0.32
+        ],
+        "motion": "flow"
+      },
+      "part_streams": {
+        "pivot": [
+          0.0,
+          0.0,
+          0.72
+        ],
+        "motion": "flow"
+      }
     },
     "tints": {},
     "water_surface_z": 0.32
@@ -349,18 +434,77 @@
       ]
     },
     "tints": {
-      "bulb": "#FFE2A0"
+      "bulb_0": "#FFE2A0",
+      "bulb_1": "#FFC76B",
+      "bulb_2": "#7FE9F0",
+      "bulb_3": "#FFE2A0",
+      "bulb_4": "#FFC76B",
+      "bulb_5": "#7FE9F0",
+      "bulb_6": "#FFE2A0",
+      "bulb_7": "#FFC76B",
+      "bulb_8": "#7FE9F0"
     },
     "span": 4.0,
     "anchor_height": 2.4,
     "note": "hang between lantern posts or building eaves",
     "color_variants": {
-      "bulb": [
+      "bulb_0": [
+        "bulb",
+        "glow",
+        "glow_teal"
+      ],
+      "bulb_1": [
+        "bulb",
+        "glow",
+        "glow_teal"
+      ],
+      "bulb_2": [
+        "bulb",
+        "glow",
+        "glow_teal"
+      ],
+      "bulb_3": [
+        "bulb",
+        "glow",
+        "glow_teal"
+      ],
+      "bulb_4": [
+        "bulb",
+        "glow",
+        "glow_teal"
+      ],
+      "bulb_5": [
+        "bulb",
+        "glow",
+        "glow_teal"
+      ],
+      "bulb_6": [
+        "bulb",
+        "glow",
+        "glow_teal"
+      ],
+      "bulb_7": [
+        "bulb",
+        "glow",
+        "glow_teal"
+      ],
+      "bulb_8": [
         "bulb",
         "glow",
         "glow_teal"
       ]
-    }
+    },
+    "glow_roles": [
+      "bulb_0",
+      "bulb_1",
+      "bulb_2",
+      "bulb_3",
+      "bulb_4",
+      "bulb_5",
+      "bulb_6",
+      "bulb_7",
+      "bulb_8"
+    ]
   },
   {
     "id": "plaza/paving_1x1",

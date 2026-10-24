@@ -148,9 +148,9 @@ def dance(t):
 def clips(arm):
     L.clip(arm, "emote_wave", 1.2, wave)
     L.clip(arm, "emote_happy_bounce", 1.0, happy_bounce, events={"land": 0.6})
-    L.clip(arm, "emote_laugh_in", 0.3, laugh_in, note="then emote_laugh_loop")
-    L.clip(arm, "emote_laugh_loop", LAUGH_LOOP, laugh_loop, loop=True)
-    L.clip(arm, "emote_laugh_out", 0.3, laugh_out, note="from any laugh_loop frame blend 0.1 s, then this")
+    L.clip(arm, "emote_laugh_in", 0.3, laugh_in, note="then emote_laugh (loop)")
+    L.clip(arm, "emote_laugh", LAUGH_LOOP, laugh_loop, loop=True, note="loop body of emote_laugh_in -> emote_laugh -> emote_laugh_out")
+    L.clip(arm, "emote_laugh_out", 0.3, laugh_out, note="from any emote_laugh frame: blend 0.1 s, then this")
     L.clip(arm, "emote_shy", 1.8, shy)
     L.clip(arm, "emote_cheer", 1.3, cheer, events={"land": 0.5})
     L.clip(arm, "emote_sleepy", SLEEPY_D, sleepy, loop=True, events={"yawn": 0.9})

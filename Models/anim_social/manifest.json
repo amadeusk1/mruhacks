@@ -68,7 +68,8 @@
         "events": {
           "seated": 0.42
         },
-        "cancel": "none"
+        "cancel": "none",
+        "gltf_name": "sit_enter"
       },
       "sit_idle": {
         "duration_s": 3.0,
@@ -76,6 +77,7 @@
         "loop": true,
         "events": {},
         "cancel": "none",
+        "gltf_name": "sit_idle_loop",
         "note": "leave the seat with sit_exit, not by moving"
       },
       "sit_exit": {
@@ -85,7 +87,8 @@
         "events": {
           "stand": 0.36
         },
-        "cancel": "none"
+        "cancel": "none",
+        "gltf_name": "sit_exit"
       },
       "interact_reach": {
         "duration_s": 0.8,
@@ -94,7 +97,8 @@
         "events": {
           "contact": 0.4
         },
-        "cancel": "move"
+        "cancel": "move",
+        "gltf_name": "interact_reach"
       },
       "hold_item_idle": {
         "duration_s": 2.0,
@@ -102,6 +106,7 @@
         "loop": true,
         "events": {},
         "cancel": "move",
+        "gltf_name": "hold_item_idle_loop",
         "note": "right-flipper hold pose for socket_hand_R; layer it over idle/walk with a flipper.R bone mask"
       }
     },

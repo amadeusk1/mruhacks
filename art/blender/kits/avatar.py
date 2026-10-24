@@ -552,6 +552,8 @@ def add_face_morphs(obj):
         for i in ids(bp):
             k.data[i].co = full[i]
     me.attributes.remove(me.attributes["avpart"])
+    for kb in me.shape_keys.key_blocks[1:]:
+        kb.value = 0.0  # new shape keys start at 1.0; the exported default weights must be neutral
     return [kb.name for kb in me.shape_keys.key_blocks[1:]]
 
 

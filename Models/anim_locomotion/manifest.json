@@ -68,7 +68,8 @@
         "events": {
           "blink": 1.65
         },
-        "cancel": "move"
+        "cancel": "move",
+        "gltf_name": "idle_loop"
       },
       "idle_variant": {
         "duration_s": 3.0,
@@ -78,6 +79,7 @@
           "blink": 2.7
         },
         "cancel": "move",
+        "gltf_name": "idle_variant_loop",
         "note": "play occasionally between idle loops"
       },
       "walk": {
@@ -89,6 +91,7 @@
           "foot_R": 0.4
         },
         "cancel": "none",
+        "gltf_name": "walk_loop",
         "stride_m": 0.2667,
         "speed_mps": 0.3334
       },
@@ -101,6 +104,7 @@
           "foot_R": 0.25
         },
         "cancel": "none",
+        "gltf_name": "run_loop",
         "stride_m": 0.55,
         "speed_mps": 1.1
       },
@@ -112,7 +116,8 @@
           "takeoff": 0.27,
           "land": 0.57
         },
-        "cancel": "none"
+        "cancel": "none",
+        "gltf_name": "hop"
       },
       "start": {
         "duration_s": 0.3,
@@ -120,6 +125,7 @@
         "loop": false,
         "events": {},
         "cancel": "none",
+        "gltf_name": "start",
         "note": "ends on walk frame 0"
       },
       "stop": {
@@ -128,6 +134,7 @@
         "loop": false,
         "events": {},
         "cancel": "move",
+        "gltf_name": "stop",
         "note": "starts on walk frame 0"
       },
       "turn_left": {
@@ -135,14 +142,16 @@
         "frames": 10,
         "loop": false,
         "events": {},
-        "cancel": "move"
+        "cancel": "move",
+        "gltf_name": "turn_left"
       },
       "turn_right": {
         "duration_s": 0.3333,
         "frames": 10,
         "loop": false,
         "events": {},
-        "cancel": "move"
+        "cancel": "move",
+        "gltf_name": "turn_right"
       }
     },
     "rig": "avatar_base (same node and bone names as avatar/avatar_base.glb)",

@@ -66,7 +66,8 @@
         "frames": 36,
         "loop": false,
         "events": {},
-        "cancel": "move"
+        "cancel": "move",
+        "gltf_name": "emote_wave"
       },
       "emote_happy_bounce": {
         "duration_s": 1.0,
@@ -75,7 +76,8 @@
         "events": {
           "land": 0.6
         },
-        "cancel": "move"
+        "cancel": "move",
+        "gltf_name": "emote_happy_bounce"
       },
       "emote_laugh_in": {
         "duration_s": 0.3,
@@ -83,14 +85,17 @@
         "loop": false,
         "events": {},
         "cancel": "move",
-        "note": "then emote_laugh_loop"
+        "gltf_name": "emote_laugh_in",
+        "note": "then emote_laugh (loop)"
       },
-      "emote_laugh_loop": {
+      "emote_laugh": {
         "duration_s": 0.6,
         "frames": 18,
         "loop": true,
         "events": {},
-        "cancel": "move"
+        "cancel": "move",
+        "gltf_name": "emote_laugh_loop",
+        "note": "loop body of emote_laugh_in -> emote_laugh -> emote_laugh_out"
       },
       "emote_laugh_out": {
         "duration_s": 0.3,
@@ -98,14 +103,16 @@
         "loop": false,
         "events": {},
         "cancel": "move",
-        "note": "from any laugh_loop frame blend 0.1 s, then this"
+        "gltf_name": "emote_laugh_out",
+        "note": "from any emote_laugh frame: blend 0.1 s, then this"
       },
       "emote_shy": {
         "duration_s": 1.8,
         "frames": 54,
         "loop": false,
         "events": {},
-        "cancel": "move"
+        "cancel": "move",
+        "gltf_name": "emote_shy"
       },
       "emote_cheer": {
         "duration_s": 1.3,
@@ -114,7 +121,8 @@
         "events": {
           "land": 0.5
         },
-        "cancel": "move"
+        "cancel": "move",
+        "gltf_name": "emote_cheer"
       },
       "emote_sleepy": {
         "duration_s": 3.0,
@@ -123,14 +131,16 @@
         "events": {
           "yawn": 0.9
         },
-        "cancel": "move"
+        "cancel": "move",
+        "gltf_name": "emote_sleepy_loop"
       },
       "emote_surprised": {
         "duration_s": 0.9,
         "frames": 27,
         "loop": false,
         "events": {},
-        "cancel": "move"
+        "cancel": "move",
+        "gltf_name": "emote_surprised"
       },
       "emote_dance": {
         "duration_s": 2.4,
@@ -144,7 +154,8 @@
             1.7999999999999998
           ]
         },
-        "cancel": "move"
+        "cancel": "move",
+        "gltf_name": "emote_dance_loop"
       }
     },
     "rig": "avatar_base (same node and bone names as avatar/avatar_base.glb)",

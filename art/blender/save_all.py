@@ -12,5 +12,6 @@ KITS = ["avatar", "plaza", "nature_dock", "fishing", "buildings", "cafe", "cotta
 kits = [k for k in KITS if os.path.exists(os.path.join(common.ART, "blender", "kits", f"{k}.py"))]
 show(kits)
 common.setup_render()
+bpy.context.preferences.filepaths.save_version = 0  # no .blend1 backups in the vault
 bpy.ops.wm.save_as_mainfile(filepath=os.path.join(common.MODELS, "all_assets.blend"), compress=True)
 print("SAVED", len(common.ASSETS), "assets from", len(kits), "kits")

@@ -9,6 +9,17 @@
       3.442
     ],
     "sockets": {},
+    "parts": {
+      "part_crown": {
+        "pivot": [
+          0.0,
+          0.0,
+          1.6
+        ],
+        "motion": "sway",
+        "amp_deg": 2.0
+      }
+    },
     "tints": {},
     "collision_radius": 0.3
   },
@@ -27,6 +38,17 @@
         -1.05,
         0.24
       ]
+    },
+    "parts": {
+      "part_crown": {
+        "pivot": [
+          0.0,
+          0.0,
+          1.6
+        ],
+        "motion": "sway",
+        "amp_deg": 2.0
+      }
     },
     "tints": {
       "petal": "#FFFDF6",
@@ -60,6 +82,17 @@
       3.443
     ],
     "sockets": {},
+    "parts": {
+      "part_crown": {
+        "pivot": [
+          0.0,
+          0.0,
+          1.6
+        ],
+        "motion": "sway",
+        "amp_deg": 2.0
+      }
+    },
     "tints": {},
     "collision_radius": 0.3
   },
@@ -73,6 +106,17 @@
       2.568
     ],
     "sockets": {},
+    "parts": {
+      "part_crown": {
+        "pivot": [
+          0.0,
+          0.0,
+          1.2
+        ],
+        "motion": "sway",
+        "amp_deg": 2.5
+      }
+    },
     "tints": {},
     "collision_radius": 0.2
   },
@@ -86,6 +130,17 @@
       2.57
     ],
     "sockets": {},
+    "parts": {
+      "part_crown": {
+        "pivot": [
+          0.0,
+          0.0,
+          1.2
+        ],
+        "motion": "sway",
+        "amp_deg": 2.5
+      }
+    },
     "tints": {
       "petal": "#FFFDF6",
       "petal_b": "#E8524A"
@@ -118,6 +173,17 @@
       2.567
     ],
     "sockets": {},
+    "parts": {
+      "part_crown": {
+        "pivot": [
+          0.0,
+          0.0,
+          1.2
+        ],
+        "motion": "sway",
+        "amp_deg": 2.5
+      }
+    },
     "tints": {},
     "collision_radius": 0.2
   },
@@ -131,6 +197,17 @@
       0.761
     ],
     "sockets": {},
+    "parts": {
+      "part_top": {
+        "pivot": [
+          0.0,
+          0.0,
+          0.08
+        ],
+        "motion": "sway",
+        "amp_deg": 3.0
+      }
+    },
     "tints": {}
   },
   {
@@ -143,6 +220,17 @@
       0.397
     ],
     "sockets": {},
+    "parts": {
+      "part_top": {
+        "pivot": [
+          0.0,
+          0.0,
+          0.08
+        ],
+        "motion": "sway",
+        "amp_deg": 3.0
+      }
+    },
     "tints": {}
   },
   {
@@ -150,11 +238,22 @@
     "file": "nature_dock/shrub_flowering.glb",
     "category": "nature",
     "size_m": [
-      0.914,
+      0.89,
       0.502,
-      0.501
+      0.512
     ],
     "sockets": {},
+    "parts": {
+      "part_top": {
+        "pivot": [
+          0.0,
+          0.0,
+          0.08
+        ],
+        "motion": "sway",
+        "amp_deg": 3.0
+      }
+    },
     "tints": {
       "petal": "#FFFDF6",
       "petal_b": "#E8524A"
@@ -463,6 +562,38 @@
       0.99
     ],
     "sockets": {},
+    "parts": {
+      "part_flag_0": {
+        "pivot": [
+          -0.533,
+          0.0,
+          0.611
+        ],
+        "motion": "flutter",
+        "amp_deg": 14,
+        "axis": "x"
+      },
+      "part_flag_1": {
+        "pivot": [
+          0.0,
+          0.0,
+          0.54
+        ],
+        "motion": "flutter",
+        "amp_deg": 14,
+        "axis": "x"
+      },
+      "part_flag_2": {
+        "pivot": [
+          0.533,
+          0.0,
+          0.611
+        ],
+        "motion": "flutter",
+        "amp_deg": 14,
+        "axis": "x"
+      }
+    },
     "tints": {
       "flag_a": "#E86D58",
       "flag_c": "#FAF1DD",
@@ -514,6 +645,16 @@
       0.954
     ],
     "sockets": {},
+    "parts": {
+      "part_foam": {
+        "pivot": [
+          0.0,
+          -0.25,
+          -0.5
+        ],
+        "motion": "flow"
+      }
+    },
     "tints": {},
     "module": "water_edge",
     "length": 2.0,
@@ -531,6 +672,16 @@
       0.958
     ],
     "sockets": {},
+    "parts": {
+      "part_foam": {
+        "pivot": [
+          0.0,
+          -0.25,
+          -0.5
+        ],
+        "motion": "flow"
+      }
+    },
     "tints": {},
     "module": "water_edge",
     "length": 2.0,

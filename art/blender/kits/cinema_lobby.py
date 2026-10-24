@@ -186,19 +186,19 @@ def screen_doors(b, x=0, y=0, z=0, rotz=0, sock=True):
                    (ri * math.cos(math.radians(a1)), ri * math.sin(math.radians(a1)))]
             b.prism(pts, 0.3, y=-0.15, z=rect, mat=pick(STONE, i), bevel=0.02)
         b.box(0.36, 0.34, 0.12, 0, -0.16, rect + r + 0.22, "stone_dark", bevel=0.03)
-        # door leaves (two halves of an arched slab)
+        # fixed arched transom over the doors carries the sign; a bar separates it from the leaves
+        b.prism(arch_points(0, rect, r, 0, 180, 10), 0.1, y=-0.14, mat=DOOR, bevel=0.01)
+        b.box(dw + 0.02, 0.12, 0.05, 0, -0.15, rect - 0.025, "brass", bevel=0.01)
         for sx in (-1, 1):
-            half = [(0, 0), (sx * r, 0)] + [(px, pz) for px, pz in arch_points(0, rect, r, 0 if sx > 0 else 180, 90, 6)]
-            if sx < 0:
-                half = [(0, 0), (sx * r, 0)] + list(reversed(arch_points(0, rect, r, 90, 180, 6)))[::-1][::-1]
-            b.prism(half, 0.1, y=-0.14, mat=DOOR, bevel=0.01)
-            # porthole window
-            b.torus(0.15, 0.03, sx * 0.33, -0.2, 1.08, "brass", segs=14, ring=6, rot=(90, 0, 0))
-            b.cyl(0.13, 0.03, sx * 0.33, -0.19, 1.08, "glow_window", segs=14, rot=(90, 0, 0), center=True)
-            # push bar handle and kick plate
-            b.box(0.04, 0.05, 0.36, sx * 0.08, -0.22, 0.72, "brass", bevel=0.01)
-            b.box(r - 0.12, 0.03, 0.16, sx * (r / 2), -0.2, 0.05, "brass", bevel=0.008)
-        b.box(0.03, 0.04, rect + r - 0.02, 0, -0.2, 0, "navy", bevel=0)
+            b.box(0.05, 0.1, rect, sx * (r - 0.025), -0.15, 0, DOOR, bevel=0.01)   # jamb liner
+            # leaves hinge just inside the liner and swing 90 degrees through the doorway (+Y)
+            with b.part(f"door_{'l' if sx < 0 else 'r'}", pivot=(sx * (r - 0.12), -0.14, 0),
+                        motion="hinge", axis="z", open_deg=-90 * sx):
+                b.box(r - 0.08, 0.1, rect - 0.06, sx * (0.01 + (r - 0.08) / 2), -0.14, 0.01, DOOR, bevel=0.01)
+                b.torus(0.15, 0.03, sx * 0.33, -0.2, 1.0, "brass", segs=14, ring=6, rot=(90, 0, 0))
+                b.cyl(0.13, 0.03, sx * 0.33, -0.19, 1.0, "glow_window", segs=14, rot=(90, 0, 0), center=True)
+                b.box(0.04, 0.05, 0.36, sx * 0.08, -0.22, 0.6, "brass", bevel=0.01)
+                b.box(r - 0.16, 0.03, 0.16, sx * (r / 2 - 0.02), -0.2, 0.05, "brass", bevel=0.008)
         # SCREEN sign plate in the arch
         sign = arch_points(0, rect + 0.06, r - 0.14, 0, 180, 10)
         b.prism(sign, 0.04, y=-0.21, mat="insert_sign", bevel=0.005)

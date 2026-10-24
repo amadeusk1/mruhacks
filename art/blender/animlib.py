@@ -9,6 +9,8 @@ A kit module does:
 pose_fn(t) returns L.pose({bone: {"rot": [(axis, deg), ...], "loc": world_vec, "scl": world_scale}}, morph={...}).
 Rotations and locations are given in WORLD axes at the bind pose and converted to each bone's local space.
 Clips are sampled at every frame (30 fps) with linear keys, so planted feet stay exactly planted.
+Looping clips are exported as "<name>_loop": Godot's importer turns that suffix into loop mode and strips it,
+so in Godot every clip appears under its plain name with the right loop flag.
 Each clip is ONE Blender action with two slots (armature + face shape keys), which the glTF exporter writes as
 one animation carrying bone channels plus the mesh's morph 'weights'.
 
@@ -24,6 +26,7 @@ FPS = 30
 X, Y, Z = (1, 0, 0), (0, 1, 0), (0, 0, 1)
 A = common.load_kit("avatar")
 CLIPS = {}  # name -> manifest info, per build
+ACTION = {}  # clip name -> exported action name (loops get a _loop suffix: Godot loops and strips it on import)
 
 
 # ---------------------------------------------------------------------------
@@ -129,7 +132,8 @@ def clip(arm, name, duration, pose_fn, loop=False, events=None, stride_m=None, c
     bpy.context.preferences.edit.keyframe_new_interpolation_type = "LINEAR"
     mesh = _key_mesh(arm)
     key = mesh.data.shape_keys
-    act = bpy.data.actions.new(name)
+    act = bpy.data.actions.new(name + "_loop" if loop else name)
+    ACTION[name] = act.name
     act.use_fake_user = True
     for idb in (arm, key):
         ad = idb.animation_data or idb.animation_data_create()
@@ -150,15 +154,16 @@ def clip(arm, name, duration, pose_fn, loop=False, events=None, stride_m=None, c
     for idb in (arm, key):
         ad = idb.animation_data
         tr = ad.nla_tracks.new()
-        tr.name = name
-        tr.strips.new(name, 0, act)
+        tr.name = act.name
+        tr.strips.new(act.name, 0, act)
         tr.mute = True  # the scene stays in rest pose; the exporter still writes every track's action
         ad.action = None
     for pb in arm.pose.bones:
         pb.rotation_quaternion, pb.location, pb.scale = (1, 0, 0, 0), (0, 0, 0), (1, 1, 1)
     for kb in key.key_blocks[1:]:
         kb.value = 0.0
-    info = {"duration_s": round(n / FPS, 4), "frames": n, "loop": loop, "events": events or {}, "cancel": cancel}
+    info = {"duration_s": round(n / FPS, 4), "frames": n, "loop": loop, "events": events or {}, "cancel": cancel,
+            "gltf_name": act.name}
     if stride_m is not None:
         info["stride_m"] = stride_m
         info["speed_mps"] = round(stride_m / duration, 4)
@@ -170,7 +175,7 @@ def clip(arm, name, duration, pose_fn, loop=False, events=None, stride_m=None, c
 
 def play(arm, name, frame):
     """Pose the rig (and face) at a frame of a clip: for checks and renders."""
-    act = bpy.data.actions[name]
+    act = bpy.data.actions[ACTION.get(name, name)]
     mesh = _key_mesh(arm)
     for idb in (arm, mesh.data.shape_keys):
         ad = idb.animation_data or idb.animation_data_create()
@@ -201,6 +206,8 @@ def rig(kit):
     """Build avatar_base (rig + skinned bird + face morphs) and file it under this animation kit."""
     CLIPS.clear()
     _REST.clear()
+    for a in list(bpy.data.actions):  # the exporter attaches every compatible action, so start clean
+        bpy.data.actions.remove(a)
     arm = A.build_base()
     for a in common.ASSETS:
         if a["obj"] is arm:

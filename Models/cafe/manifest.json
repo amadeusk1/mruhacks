@@ -9,6 +9,11 @@
       4.756
     ],
     "sockets": {
+      "socket_fx_smoke": [
+        1.15,
+        0.75,
+        4.83
+      ],
       "socket_chalkboard": [
         -0.3,
         -2.3,
@@ -45,13 +50,35 @@
         0.46
       ]
     },
+    "parts": {
+      "part_door_leaf": {
+        "pivot": [
+          -1.48,
+          -1.595,
+          0.16
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 100
+      },
+      "part_door_leaf_back": {
+        "pivot": [
+          0.03,
+          1.595,
+          0.16
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 100
+      }
+    },
     "tints": {
       "wall": "#F3E2C5",
       "trim": "#BC874E",
-      "door": "#207D85",
       "awning_a": "#E86D58",
       "awning_b": "#FAF1DD",
-      "roof": "#F07E66"
+      "roof": "#F07E66",
+      "door": "#207D85"
     },
     "footprint_m": [
       4.4,
@@ -65,7 +92,7 @@
     "file": "cafe/cafe_interior_shell.glb",
     "category": "room",
     "size_m": [
-      4.87,
+      4.879,
       4.34,
       2.72
     ],
@@ -111,13 +138,35 @@
         1.45
       ]
     },
+    "parts": {
+      "part_door_leaf_front": {
+        "pivot": [
+          -1.48,
+          -1.595,
+          0.16
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 100
+      },
+      "part_door_leaf_back": {
+        "pivot": [
+          -0.73,
+          1.585,
+          0.16
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 100
+      }
+    },
     "tints": {
       "wall": "#F3E2C5",
       "roof": "#E86D58",
       "trim": "#BC874E",
-      "door": "#207D85",
       "awning_a": "#E86D58",
-      "awning_b": "#FAF1DD"
+      "awning_b": "#FAF1DD",
+      "door": "#207D85"
     },
     "footprint_m": [
       4.4,
@@ -162,6 +211,11 @@
       1.43
     ],
     "sockets": {
+      "socket_fx_steam": [
+        -0.15,
+        -0.26,
+        1.07
+      ],
       "socket_use": [
         0.0,
         -0.6,
@@ -193,6 +247,11 @@
       0.126
     ],
     "sockets": {
+      "socket_fx_steam": [
+        0.0,
+        0.0,
+        0.14
+      ],
       "socket_hold": [
         0.0,
         0.0,
@@ -211,7 +270,23 @@
       0.24,
       0.15
     ],
-    "sockets": {},
+    "sockets": {
+      "socket_fx_steam_0": [
+        -0.13,
+        -0.03,
+        0.13
+      ],
+      "socket_fx_steam_1": [
+        -0.01,
+        0.02,
+        0.13
+      ],
+      "socket_fx_steam_2": [
+        0.11,
+        -0.03,
+        0.13
+      ]
+    },
     "tints": {}
   },
   {
@@ -232,11 +307,259 @@
     "category": "wall_prop",
     "size_m": [
       1.0,
-      0.084,
+      0.075,
       0.67
     ],
     "sockets": {},
     "tints": {},
-    "note": "origin at the board bottom on the wall face"
+    "note": "origin at the centre of the back face (wall layer)",
+    "placement": {
+      "layer": "wall",
+      "cell_m": 0.5,
+      "footprint": null,
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "cafe/croissant",
+    "file": "cafe/croissant.glb",
+    "category": "prop",
+    "size_m": [
+      0.186,
+      0.099,
+      0.082
+    ],
+    "sockets": {},
+    "tints": {},
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "cafe/muffin",
+    "file": "cafe/muffin.glb",
+    "category": "prop",
+    "size_m": [
+      0.116,
+      0.124,
+      0.097
+    ],
+    "sockets": {},
+    "tints": {
+      "muffin_case": "#E86D58"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "cafe/cake_slice",
+    "file": "cafe/cake_slice.glb",
+    "category": "prop",
+    "size_m": [
+      0.1,
+      0.135,
+      0.113
+    ],
+    "sockets": {},
+    "tints": {
+      "cake_filling": "#F2A0B5",
+      "cake_frosting": "#F7F4EE"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "cafe/plate",
+    "file": "cafe/plate.glb",
+    "category": "prop",
+    "size_m": [
+      0.217,
+      0.217,
+      0.027
+    ],
+    "sockets": {
+      "socket_surface_0": [
+        0.0,
+        0.0,
+        0.018
+      ]
+    },
+    "tints": {
+      "plate": "#F7F4EE"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "surfaces": {
+      "surface_0": [
+        0.16,
+        0.16
+      ]
+    }
+  },
+  {
+    "id": "cafe/plate_with_pastry",
+    "file": "cafe/plate_with_pastry.glb",
+    "category": "prop",
+    "size_m": [
+      0.217,
+      0.217,
+      0.092
+    ],
+    "sockets": {},
+    "tints": {
+      "plate": "#F7F4EE"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "cafe/takeaway_cup",
+    "file": "cafe/takeaway_cup.glb",
+    "category": "prop",
+    "size_m": [
+      0.091,
+      0.094,
+      0.15
+    ],
+    "sockets": {
+      "socket_fx_steam": [
+        0.0,
+        -0.026,
+        0.152
+      ],
+      "socket_hold": [
+        0.0,
+        0.0,
+        0.06
+      ]
+    },
+    "tints": {
+      "cup": "#F7F4EE",
+      "cup_sleeve": "#D4A46A",
+      "cup_lid": "#3A3D44"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "slot": "held"
+  },
+  {
+    "id": "cafe/sugar_jar",
+    "file": "cafe/sugar_jar.glb",
+    "category": "prop",
+    "size_m": [
+      0.087,
+      0.09,
+      0.124
+    ],
+    "sockets": {},
+    "tints": {
+      "jar_lid": "#207D85"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
   }
 ]

@@ -26,6 +26,7 @@ def roof(name, seed):
         r.box(0.59, 0.59, 0.05, CH_X, CH_Y, zr + 0.2 + k * 0.28, "stone", bevel=0.015)
     r.box(0.68, 0.68, 0.14, CH_X, CH_Y, top, "chimney_cap", bevel=0.03)
     r.box(0.36, 0.36, 0.05, CH_X, CH_Y, top + 0.11, "black", bevel=0)
+    r.socket("fx_smoke", (CH_X, CH_Y, top + 0.24))
     return r
 
 

@@ -90,6 +90,7 @@ def marquee(b, w=2.9, h=0.86, x=0, y=0, z=0, bump=0.26, depth=0.22):
         b.prism(shrink(outline, 0.11), 0.03, y=-depth / 2 + 0.005, mat="mustard")
         for p in poly_perimeter(shrink(outline, 0.07), BULB_SPACING):
             b.sphere(0.042, p.x, -depth / 2 - 0.02, p.y, "bulb", u=6, v=4)
+        b.socket("fx_sparkle", (0, -depth / 2 - 0.06, h + bump - 0.02), 0)
 
 
 def poster_frame(b, x=0, y=0, z=0, w=0.86, h=1.28, insert="insert_poster", frame="brass"):
@@ -241,14 +242,19 @@ def double_doors(b, w=1.9, h=2.25, x=0, y=0, z=0):
     b.box(w + 0.16, 0.12, 0.12, x, y + 0.06, z + h, DOOR, bevel=0.02)
     for sx in (-1, 1):
         b.box(0.1, 0.12, h, x + sx * (w / 2 + 0.03), y + 0.06, z, DOOR, bevel=0.02)
-        cx = x + sx * w / 4
-        dw = w / 2 - 0.03
-        b.box(dw, 0.08, h, cx, y + 0.06, z, DOOR, bevel=0.02)
-        b.box(dw - 0.2, 0.03, h * 0.52, cx, y + 0.01, z + h * 0.4, "glow_window", bevel=0)
-        b.box(dw - 0.12, 0.04, 0.06, cx, y, z + h * 0.4 - 0.05, "teal_light", bevel=0.01)
-        b.box(dw - 0.12, 0.04, 0.24, cx, y, z + 0.08, "teal_light", bevel=0.01)
-        b.torus(0.13, 0.025, cx - sx * (dw / 2 - 0.2), y - 0.03, z + h * 0.42, "brass", segs=14, ring=6, rot=(90, 0, 0))
-    b.box(0.05, 0.06, h, x, y + 0.04, z, "navy", bevel=0)
+        # each leaf hinges at its outer edge and swings 90 degrees into the building (+Y)
+        # pivot sits 4 cm inside the leaf edge so the swinging corner clears the frame post
+        cx = x + sx * (w / 4 - 0.025)
+        dw = w / 2 - 0.08
+        with b.part(f"door_{'l' if sx < 0 else 'r'}", pivot=(x + sx * (w / 2 - 0.07), y + 0.06, z),
+                    motion="hinge", axis="z", open_deg=-90 * sx):
+            b.box(dw, 0.08, h, cx, y + 0.06, z, DOOR, bevel=0.02)
+            b.box(dw - 0.2, 0.03, h * 0.52, cx, y + 0.01, z + h * 0.4, "glow_window", bevel=0)
+            b.box(dw - 0.12, 0.04, 0.06, cx, y, z + h * 0.4 - 0.05, "teal_light", bevel=0.01)
+            b.box(dw - 0.12, 0.04, 0.24, cx, y, z + 0.08, "teal_light", bevel=0.01)
+            b.torus(0.13, 0.025, cx - sx * (dw / 2 - 0.2), y - 0.03, z + h * 0.42, "brass", segs=14, ring=6, rot=(90, 0, 0))
+            if sx > 0:
+                b.box(0.03, 0.04, h - 0.02, x + 0.025, y + 0.0, z + 0.01, "navy", bevel=0)  # astragal on the right leaf
 
 
 def entrance_stair(b, w=4.6, steps=3, run=0.36, landing=0.75):

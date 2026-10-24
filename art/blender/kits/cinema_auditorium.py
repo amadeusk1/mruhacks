@@ -79,18 +79,20 @@ def carpet_strip(b, w, d, x, y, z, border=True):
             b.box(0.12, 0.12, 0.022, x, yy, z, "red_dark", bevel=0, rot=(0, 0, 45))
 
 
-def screen_unit(b, x=0, y=0, z=0, w=4.3, h=2.15, base=0.85, stage_w=None):
-    """Framed projection screen on a dark stage block, with a low centre speaker. Faces -Y."""
+def screen_unit(b, x=0, y=0, z=0, w=4.3, h=2.15, base=0.85, stage_w=None, stage_d=0.7):
+    """Framed projection screen on a dark stage block, with a low centre speaker. Faces -Y.
+    The screen insert is static geometry, separate from any curtain part."""
     with b.at((x, y, z)):
         sw = stage_w or w + 0.6
-        b.box(sw, 0.7, base, 0, -0.15, 0, "floor_dark", bevel=0.02)
-        b.box(sw + 0.02, 0.05, 0.06, 0, -0.5, base - 0.06, "charcoal", bevel=0.01)
+        front = 0.1 - stage_d
+        b.box(sw, stage_d, base, 0, 0.1 - stage_d / 2, 0, "floor_dark", bevel=0.02)
+        b.box(sw + 0.02, 0.05, 0.06, 0, front + 0.02, base - 0.06, "charcoal", bevel=0.01)
         b.box(w + 0.3, 0.16, h + 0.3, 0, 0.0, base, "charcoal", bevel=0.03)
         b.box(w + 0.18, 0.04, h + 0.18, 0, -0.08, base + 0.06, "black", bevel=0.01)
         b.box(w, 0.04, h, 0, -0.1, base + 0.15, "insert_cinema_screen", bevel=0)
         # low centre speaker in front of the stage
-        b.box(0.62, 0.34, 0.3, 0, -0.75, 0, "charcoal", bevel=0.03)
-        b.box(0.5, 0.02, 0.18, 0, -0.93, 0.06, "black", bevel=0.005)
+        b.box(0.62, 0.34, 0.3, 0, front - 0.2, 0, "charcoal", bevel=0.03)
+        b.box(0.5, 0.02, 0.18, 0, front - 0.38, 0.06, "black", bevel=0.005)
         b.socket("screen", (0, -0.1, base + 0.15 + h / 2), 0)
 
 
@@ -101,23 +103,31 @@ def _segment(b, p0, p1, r, mat, segs=6):
     b.cyl(r, d.length, p0.x, p0.y, p0.z, mat, segs=segs, rot=tuple(math.degrees(v) for v in e))
 
 
-def curtain(b, x=0, y=0, z=0, w=0.8, h=3.3, tie=1.35):
-    """Pleated stage curtain gathered by a brass tie-back; back at y, faces -Y."""
-    with b.at((x, y, z)):
-        n = 5
-        for i in range(n):
-            u = (i + 0.5) / n - 0.5
-            yy = -0.1 - 0.05 * (i % 2)
-            r = 0.085 + 0.015 * (i % 2)
-            bot = (u * w * 1.05, yy, 0.0)
-            mid = (u * w * 0.32, yy - 0.03, tie)
-            top = (u * w, yy, h - 0.2)
-            _segment(b, bot, mid, r, CURTAIN, segs=6)
-            _segment(b, mid, top, r, CURTAIN, segs=6)
-            b.sphere(r, *mid, mat=CURTAIN, u=6, v=4)
-        b.cyl(w * 0.25, 0.1, 0, -0.13, tie - 0.05, "brass", segs=8, r2=w * 0.25)
-        b.box(w + 0.2, 0.26, 0.24, 0, -0.1, h - 0.24, CURTAIN, bevel=0.04)
-        b.box(w + 0.24, 0.3, 0.06, 0, -0.1, h, "wood_dark", bevel=0.02)
+def curtain_panel(b, x0, x1, y, z0, z1, r=0.08):
+    """Straight pleated panel: vertical faceted folds between x0 and x1, hem at z0, top at z1."""
+    n = max(3, round((x1 - x0) / 0.16))
+    for i in range(n):
+        xx = x0 + r + (x1 - x0 - 2 * r) * i / (n - 1)
+        b.cyl(r, z1 - z0, xx, y - 0.03 * (i % 2), z0, CURTAIN, segs=6)
+    b.box(x1 - x0 - 0.02, 0.05, 0.05, (x0 + x1) / 2, y - 0.1, z0 + 0.04, "mustard", bevel=0.01)   # hem braid
+
+
+def curtain_set(b, y=0, z0=0, z1=3.0, half=1.68, open_to=2.5):
+    """Stage curtains, resting CLOSED over the screen. Each side is two slide parts (outer on the
+    back track at y, inner on the front track at y-0.23) that open sideways and stack between
+    open_to-0.84 and open_to; the engine eases them so they settle. The valance stays fixed."""
+    inner_w = half / 2 + 0.02
+    for sx in (-1, 1):
+        side = "l" if sx < 0 else "r"
+        for name, a, c, yy in (("outer", half - inner_w + 0.02, half, y), ("inner", 0.02, inner_w, y - 0.23)):
+            x0, x1 = sorted((sx * a, sx * c))
+            with b.part(f"curtain_{side}_{name}", pivot=((x0 + x1) / 2, yy, z1), motion="slide",
+                        dir=[sx, 0, 0], dist=round(open_to - c, 3)):
+                curtain_panel(b, x0, x1, yy, z0, z1)
+    # fixed valance and rail trim hide the tracks
+    b.box(2 * open_to + 0.1, 0.56, 0.34, 0, y - 0.17, z1, CURTAIN, bevel=0.04)
+    b.box(2 * open_to + 0.12, 0.06, 0.06, 0, y - 0.47, z1, "brass", bevel=0.01)
+    b.box(2 * open_to + 0.14, 0.6, 0.05, 0, y - 0.17, z1 + 0.34, "wood_dark", bevel=0.015)
 
 
 def wall_panel(b, x=0, y=0, z=0, w=0.62, h=1.05):
@@ -142,12 +152,14 @@ def exit_door(b, x=0, y=0, z=0, w=0.86, h=1.72):
         b.box(w + 0.24, 0.12, 0.14, 0, -0.05, h, "wood", bevel=0.02)
         for sx in (-1, 1):
             b.box(0.12, 0.12, h, sx * (w / 2 + 0.06), -0.05, 0, "wood", bevel=0.02)
-        b.box(w, 0.07, h, 0, -0.03, 0, DOOR, bevel=0.02)
-        b.box(0.34, 0.03, 0.3, 0, -0.07, h * 0.62, "wood", bevel=0.01)
-        b.box(0.26, 0.03, 0.22, 0, -0.08, h * 0.62 + 0.04, "glow_window", bevel=0)
-        b.box(w - 0.16, 0.03, 0.15, 0, -0.07, 0.05, "brass", bevel=0.008)
-        b.box(0.05, 0.05, 0.08, w / 2 - 0.14, -0.08, h * 0.46, "brass", bevel=0.008)
-        b.box(0.16, 0.04, 0.035, w / 2 - 0.2, -0.11, h * 0.48, "brass", bevel=0.008)
+        # leaf hinges on its left edge and swings 90 degrees into the room (-Y)
+        with b.part("door_leaf", pivot=(-w / 2 + 0.06, -0.03, 0), motion="hinge", axis="z", open_deg=-90):
+            b.box(w - 0.04, 0.07, h - 0.01, 0, -0.03, 0.005, DOOR, bevel=0.02)
+            b.box(0.34, 0.03, 0.3, 0, -0.08, h * 0.62, "wood", bevel=0.01)
+            b.box(0.26, 0.03, 0.22, 0, -0.09, h * 0.62 + 0.04, "glow_window", bevel=0)
+            b.box(w - 0.18, 0.03, 0.15, 0, -0.08, 0.05, "brass", bevel=0.008)
+            b.box(0.05, 0.05, 0.08, w / 2 - 0.14, -0.09, h * 0.46, "brass", bevel=0.008)
+            b.box(0.16, 0.04, 0.035, w / 2 - 0.2, -0.12, h * 0.48, "brass", bevel=0.008)
 
 
 def auditorium_shell(b):
@@ -179,10 +191,8 @@ def auditorium_shell(b):
     for sx, sy, w_, d_ in ((0, AD / 2 + t / 2, AW + 2 * t + 0.06, t + 0.08), (-AW / 2 - t / 2, 0, t + 0.08, AD)):
         b.box(w_, d_, 0.14, sx, sy, AH, "taupe_dark", bevel=0.03)
     # wood pilasters on the left wall and at the screen-wall corners
-    for py in (-2.25, -0.45, 1.4, 3.0):
+    for py in (-2.25, -0.45, 1.4, 2.75):
         b.box(0.14, 0.24, AH - 0.3, -AW / 2 + 0.07, py, 0, "wood_dark", bevel=0.02)
-    for px in (-AW / 2 + 0.12, AW / 2 - 0.12):
-        b.box(0.24, 0.14, AH - 0.3, px, AD / 2 - 0.07, 0, "wood_dark", bevel=0.02)
     # low cutaway walls on the right (+X) and rear (-Y)
     lh = FZ + STEP * 4 + 0.3
     b.box(t, AD + t, lh, AW / 2 + t / 2, -t / 2, 0, "taupe", bevel=0.03)
@@ -213,8 +223,8 @@ def build():
     b.finish(KIT, "interactive", {"activity": "cinema_screen", "note": "insert_cinema_screen shows the synced video"})
 
     b = Builder("curtain")
-    curtain(b)
-    b.finish(KIT, "wall_decor")
+    curtain_set(b, y=-0.27, z0=0.0, z1=2.2, half=1.68)
+    b.finish(KIT, "wall_decor", {"note": "rests closed; four slide parts open sideways, valance static"})
 
     b = Builder("wall_panel")
     wall_panel(b)
@@ -241,11 +251,11 @@ def build():
     b = Builder("cinema_auditorium")
     auditorium_shell(b)
     wy = AD / 2                                     # screen wall inner face
-    # stage narrower than the frame so the curtain hems hang clear of it
-    screen_unit(b, 0, wy - 0.1, FZ, w=3.4, h=1.95, stage_w=3.0)
+    # full-width stage so curtain hems always land on it, open or closed
+    screen_unit(b, 0, wy - 0.1, FZ, w=3.0, h=1.7, stage_w=AW - 0.1, stage_d=0.85)
+    curtain_set(b, y=wy - 0.27, z0=FZ + 0.855, z1=FZ + 3.0, half=1.68, open_to=2.5)
     for sx in (-1, 1):
-        curtain(b, sx * 1.9, wy - 0.22, FZ, w=0.44)   # hangs on a rail in front of the screen frame
-        speaker(b, sx * 2.42, wy, 2.05, w=0.32, h=0.7)
+        speaker(b, sx * 2.2, wy - 0.9, FZ, w=0.4, h=1.1)
     # rows of four seats on tiers 0..2, facing the screen
     cx = -0.66
     n = 0
@@ -267,9 +277,7 @@ def build():
         wall_banner(b, -1.35, 0, 1.45)
         exit_door(b, -3.05, 0, FZ + STEP * 4)
     potted_plant(b, AW / 2 - 0.3, -3.3, FZ + STEP * 4, s=1.0)
-    potted_plant(b, AW / 2 - 0.35, AD / 2 - 0.8, FZ, s=1.2)
-    potted_plant(b, -AW / 2 + 0.35, AD / 2 - 0.8, FZ, s=1.2)
     b.socket("exit", (-AW / 2 + 0.7, -3.05, FZ + STEP * 4), -90)
-    b.socket("screen", (0, wy - 0.2, FZ + 0.85 + 0.15 + 1.95 / 2), 0)
+    b.socket("screen", (0, wy - 0.2, FZ + 0.85 + 0.15 + 1.7 / 2), 0)
     b.finish(KIT, "room", {"prefab": True, "interior_m": [AW, AD], "seats": n,
                            "note": "seat_0..11 face the screen (+Y); exit door on the left wall at the rear landing"})

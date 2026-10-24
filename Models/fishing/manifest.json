@@ -9,6 +9,11 @@
       0.24
     ],
     "sockets": {
+      "socket_fx_ripple": [
+        0.0,
+        0.0,
+        0.0
+      ],
       "socket_line": [
         0.0,
         0.0,
