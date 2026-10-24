@@ -39,7 +39,8 @@ ARENA_C, ARENA_HALF, ARENA_Z = Vector((28.5, 23.7)), Vector((7.4, 6.1)), 1.5
 SKETCH_C, SKETCH_Z = C(1050, 595), 0.0
 COURT_C = Vector((25.5, -19.2))
 COVE = [(Vector((-16.5, -22.0)), Vector((12.0, 9.0))), (Vector((-24.0, -31.0)), Vector((9.0, 5.5)))]
-CINEMA_P, CAFE_P, ARCADE_P = C(575, 200), C(455, 370), Vector((8.8, 12.8))
+CAFE_SHIFT = Vector((2.2, -1.0))   # keeps the cafe clear of the sled stair foot and the path to it
+CINEMA_P, CAFE_P, ARCADE_P = C(575, 200), C(455, 370) + CAFE_SHIFT, Vector((8.8, 12.8))
 ARCADE_YAW, ARCADE_S = -15.0, 0.85   # the 13 x 11 m exterior only fits the NE pocket (plaza/stream/cinema path) at 0.85
 CASINO_P = Vector((23.2, 8.4))   # Images/World Map - Casino Placement.png: east of the arcade, across the stream
 
@@ -48,14 +49,14 @@ HX, HY = (-35.0, -23.5, -12.0), (9.5, 0.0, -9.5)
 
 PATHS = [  # (polyline, width)
     ([C(575, 440), C(575, 290)], 3.0),                                  # N spoke -> cinema
-    ([C(495, 505), C(470, 425)], 2.6),                                  # NW spoke -> cafe
+    ([Vector((-4.6, 7.0)), C(470, 425) + CAFE_SHIFT], 2.6),                                  # NW spoke -> cafe
     ([C(655, 505), Vector((7.55, 8.12))], 2.6),                         # NE spoke -> arcade door
     ([Vector((-PLAZA_R + 0.4, 0)), Vector((HX[0], 0))], 2.8),           # W spoke = homes main street
     ([Vector((PLAZA_R - 0.4, 0)), C(1000, 595)], 2.8),                  # E spoke -> sketch club
     ([Vector((0, -PLAZA_R + 0.4)), C(600, 1030)], 2.8),                 # S spoke -> south pier
     ([Vector((-6.2, -7.2)), Vector((-11.4, -11.7))], 2.6),              # SW spoke -> cove
     ([Vector((6.2, -7.2)), C(760, 760), Vector((19.2, -14.3))], 2.6),   # SE spoke -> court
-    ([C(470, 425), C(420, 340), sled_hill.STAIRS_FOOT], 2.4),           # cafe -> sled stairs foot
+    ([C(470, 425) + CAFE_SHIFT, Vector((-7.4, 8.6)), Vector((-11.6, 9.6))], 2.4),   # cafe door -> homes/sled-stairs path, round the cafe's west side
     ([C(575, 290), C(700, 230), C(880, 230), Vector((24.7, 14.4))], 2.4),   # cinema -> arena stairs foot
     ([Vector((24.7, 14.4)), Vector((30.4, 12.6)), Vector((30.4, 4.0)), C(1000, 595)], 2.4),  # arena -> east loop -> sketch
     ([Vector((23.2, 4.2)), Vector((23.2, -0.6))], 2.6),               # casino forecourt -> east spoke
@@ -204,7 +205,8 @@ STAIR_CHAINS = []
 for _foot, _u, _n, _z0 in STAIR_FLIGHTS:
     _mods = [(_foot + _u * (k + 0.5), _z0 + 0.5 * k) for k in range(_n)]
     STAIR_CHAINS.append({"mods": _mods, "dir": _u, "foot": (_foot, _z0), "top": (_foot + _u * _n, _z0 + 0.5 * _n)})
-PADS += [(Vector((24.7, 18.6)), Vector((1.2, 0.6)), ARENA_Z),                 # arena stair top
+PADS += [(Vector((-10.1, 13.9)), Vector((1.2, 1.9)), 0.0),                   # approach to the sled stair foot (sled_hill's mound buried it)
+         (Vector((24.7, 18.6)), Vector((1.2, 0.6)), ARENA_Z),                 # arena stair top
          (Vector((24.7, 14.1)), Vector((1.2, 0.6)), 0.0)]                     # arena stair foot
 
 
