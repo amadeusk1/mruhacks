@@ -52,6 +52,7 @@
         "open_deg": -95
       }
     },
+    "icon": "casino/icons/casino_exterior.png",
     "part_clips": {
       "part_door_l": [
         "door_l_open",
@@ -74,8 +75,7 @@
     ],
     "floor_z": 0.12,
     "roof_child": "casino_exterior_roof",
-    "interior": "casino/casino_interior_shell",
-    "icon": "casino/icons/casino_exterior.png"
+    "interior": "casino/casino_interior_shell"
   },
   {
     "id": "casino/casino_interior_shell",
@@ -117,19 +117,44 @@
         1.9,
         0.12
       ],
+      "socket_slot_stool_0": [
+        1.25,
+        2.68,
+        0.12
+      ],
+      "socket_slot_stool_1": [
+        2.15,
+        2.68,
+        0.12
+      ],
+      "socket_slot_stool_2": [
+        3.05,
+        2.68,
+        0.12
+      ],
+      "socket_slot_stool_3": [
+        3.95,
+        2.68,
+        0.12
+      ],
       "socket_slots_0": [
-        1.6,
-        3.3,
+        1.25,
+        3.38,
         0.12
       ],
       "socket_slots_1": [
-        2.6,
-        3.3,
+        2.15,
+        3.38,
         0.12
       ],
       "socket_slots_2": [
-        3.6,
-        3.3,
+        3.05,
+        3.38,
+        0.12
+      ],
+      "socket_slots_3": [
+        3.95,
+        3.38,
         0.12
       ],
       "socket_spawn_inside": [
@@ -138,6 +163,7 @@
         0.12
       ]
     },
+    "icon": "casino/icons/casino_interior_shell.png",
     "tints": {
       "cushion": "#2F7F86",
       "trim": "#2F7F86",
@@ -149,8 +175,37 @@
     ],
     "floor_z": 0.12,
     "ceiling_child": "casino_interior_shell_ceiling",
-    "layout_sockets": "roulette, poker, blackjack, slots_0..2, lounge_*",
-    "icon": "casino/icons/casino_interior_shell.png"
+    "layout_sockets": "roulette, poker, blackjack, slots_0..3 (+ slot_stool_0..3), lounge_*",
+    "slot_row": {
+      "slots_0": {
+        "asset": "casino/slot_machine",
+        "tint": {
+          "body": "#E86D58"
+        },
+        "stool": "slot_stool_0"
+      },
+      "slots_1": {
+        "asset": "casino/slot_machine",
+        "tint": {
+          "body": "#207D85"
+        },
+        "stool": "slot_stool_1"
+      },
+      "slots_2": {
+        "asset": "casino/slot_machine",
+        "tint": {
+          "body": "#7A3A6B"
+        },
+        "stool": "slot_stool_2"
+      },
+      "slots_3": {
+        "asset": "casino/slot_machine",
+        "tint": {
+          "body": "#E86D58"
+        },
+        "stool": "slot_stool_3"
+      }
+    }
   },
   {
     "id": "casino/roulette_table",
@@ -219,6 +274,7 @@
         "axis": "z"
       }
     },
+    "icon": "casino/icons/roulette_table.png",
     "part_clips": {
       "part_rotor": [
         "rotor_spin"
@@ -234,8 +290,7 @@
     "seats": 4,
     "felt_insert": "insert_felt",
     "rotor_insert": "insert_rotor",
-    "notes": "single-zero layout authored as texture",
-    "icon": "casino/icons/roulette_table.png"
+    "notes": "single-zero layout authored as texture"
   },
   {
     "id": "casino/roulette_ball",
@@ -247,9 +302,9 @@
       0.036
     ],
     "sockets": {},
+    "icon": "casino/icons/roulette_ball.png",
     "tints": {},
-    "origin": "centre-bottom; engine drives its orbit toward the server result",
-    "icon": "casino/icons/roulette_ball.png"
+    "origin": "centre-bottom; engine drives its orbit toward the server result"
   },
   {
     "id": "casino/table_marker",
@@ -261,6 +316,7 @@
       0.14
     ],
     "sockets": {},
+    "icon": "casino/icons/table_marker.png",
     "tints": {},
     "placement": {
       "layer": "surface",
@@ -277,8 +333,7 @@
       ],
       "clearance_front": 0,
       "recolor": true
-    },
-    "icon": "casino/icons/table_marker.png"
+    }
   },
   {
     "id": "casino/roulette_stool",
@@ -296,6 +351,7 @@
         0.42
       ]
     },
+    "icon": "casino/icons/roulette_stool.png",
     "tints": {
       "cushion": "#2F7F86"
     },
@@ -314,8 +370,7 @@
       ],
       "clearance_front": 0,
       "recolor": true
-    },
-    "icon": "casino/icons/roulette_stool.png"
+    }
   },
   {
     "id": "casino/slot_machine",
@@ -396,6 +451,7 @@
         "axis": "x"
       }
     },
+    "icon": "casino/icons/slot_machine.png",
     "part_clips": {
       "part_button": [
         "button_press"
@@ -442,8 +498,7 @@
       ],
       "clearance_front": 2,
       "recolor": true
-    },
-    "icon": "casino/icons/slot_machine.png"
+    }
   },
   {
     "id": "casino/slot_stool",
@@ -461,6 +516,7 @@
         0.42
       ]
     },
+    "icon": "casino/icons/slot_stool.png",
     "tints": {
       "cushion": "#E86D58"
     },
@@ -486,8 +542,7 @@
       ],
       "clearance_front": 0,
       "recolor": true
-    },
-    "icon": "casino/icons/slot_stool.png"
+    }
   },
   {
     "id": "casino/poker_table",
@@ -595,14 +650,14 @@
         0.42
       ]
     },
+    "icon": "casino/icons/poker_table.png",
     "tints": {
       "rail": "#225C63",
       "upholstery": "#E86D58"
     },
     "game": "poker",
     "seats": 6,
-    "felt_insert": "insert_felt",
-    "icon": "casino/icons/poker_table.png"
+    "felt_insert": "insert_felt"
   },
   {
     "id": "casino/casino_chair",
@@ -620,6 +675,7 @@
         0.42
       ]
     },
+    "icon": "casino/icons/casino_chair.png",
     "tints": {
       "upholstery": "#E86D58"
     },
@@ -644,8 +700,7 @@
       ],
       "clearance_front": 0,
       "recolor": true
-    },
-    "icon": "casino/icons/casino_chair.png"
+    }
   },
   {
     "id": "casino/dealer_button",
@@ -657,6 +712,7 @@
       0.016
     ],
     "sockets": {},
+    "icon": "casino/icons/dealer_button.png",
     "tints": {},
     "label": "DEALER",
     "placement": {
@@ -674,8 +730,7 @@
       ],
       "clearance_front": 0,
       "recolor": true
-    },
-    "icon": "casino/icons/dealer_button.png"
+    }
   },
   {
     "id": "casino/small_blind_button",
@@ -687,6 +742,7 @@
       0.016
     ],
     "sockets": {},
+    "icon": "casino/icons/small_blind_button.png",
     "tints": {},
     "label": "SMALL BLIND",
     "placement": {
@@ -704,8 +760,7 @@
       ],
       "clearance_front": 0,
       "recolor": true
-    },
-    "icon": "casino/icons/small_blind_button.png"
+    }
   },
   {
     "id": "casino/big_blind_button",
@@ -717,6 +772,7 @@
       0.016
     ],
     "sockets": {},
+    "icon": "casino/icons/big_blind_button.png",
     "tints": {},
     "label": "BIG BLIND",
     "placement": {
@@ -734,8 +790,7 @@
       ],
       "clearance_front": 0,
       "recolor": true
-    },
-    "icon": "casino/icons/big_blind_button.png"
+    }
   },
   {
     "id": "casino/blackjack_table",
@@ -828,14 +883,14 @@
         0.42
       ]
     },
+    "icon": "casino/icons/blackjack_table.png",
     "tints": {
       "rail": "#225C63",
       "upholstery": "#E86D58"
     },
     "game": "blackjack",
     "seats": 5,
-    "felt_insert": "insert_felt",
-    "icon": "casino/icons/blackjack_table.png"
+    "felt_insert": "insert_felt"
   },
   {
     "id": "casino/card_shoe",
@@ -847,6 +902,7 @@
       0.15
     ],
     "sockets": {},
+    "icon": "casino/icons/card_shoe.png",
     "tints": {},
     "placement": {
       "layer": "surface",
@@ -863,8 +919,7 @@
       ],
       "clearance_front": 0,
       "recolor": true
-    },
-    "icon": "casino/icons/card_shoe.png"
+    }
   },
   {
     "id": "casino/discard_tray",
@@ -876,6 +931,7 @@
       0.054
     ],
     "sockets": {},
+    "icon": "casino/icons/discard_tray.png",
     "tints": {},
     "placement": {
       "layer": "surface",
@@ -892,8 +948,7 @@
       ],
       "clearance_front": 0,
       "recolor": true
-    },
-    "icon": "casino/icons/discard_tray.png"
+    }
   },
   {
     "id": "casino/card",
@@ -905,6 +960,7 @@
       0.009
     ],
     "sockets": {},
+    "icon": "casino/icons/card.png",
     "tints": {},
     "face_atlas": "insert_card_face UV is 0..1 over the face (portrait, top = +Y). Map a 13 x 4 atlas with uv1_scale = (1/13, 1/4) and uv1_offset = ((rank-1)/13, suit/4); ranks A..K, suits spades, hearts, diamonds, clubs.",
     "private": "never send unrevealed faces to unauthorised clients; show card_back until revealed",
@@ -923,8 +979,7 @@
       ],
       "clearance_front": 0,
       "recolor": true
-    },
-    "icon": "casino/icons/card.png"
+    }
   },
   {
     "id": "casino/deck_stack",
@@ -936,6 +991,7 @@
       0.065
     ],
     "sockets": {},
+    "icon": "casino/icons/deck_stack.png",
     "tints": {},
     "placement": {
       "layer": "surface",
@@ -952,8 +1008,7 @@
       ],
       "clearance_front": 0,
       "recolor": true
-    },
-    "icon": "casino/icons/deck_stack.png"
+    }
   },
   {
     "id": "casino/chip",
@@ -965,6 +1020,7 @@
       0.014
     ],
     "sockets": {},
+    "icon": "casino/icons/chip.png",
     "tints": {
       "chip": "#D9473B"
     },
@@ -999,8 +1055,7 @@
       ],
       "clearance_front": 0,
       "recolor": true
-    },
-    "icon": "casino/icons/chip.png"
+    }
   },
   {
     "id": "casino/chip_stack",
@@ -1012,6 +1067,7 @@
       0.1
     ],
     "sockets": {},
+    "icon": "casino/icons/chip_stack.png",
     "tints": {
       "chip": "#D9473B"
     },
@@ -1040,8 +1096,7 @@
       ],
       "clearance_front": 0,
       "recolor": true
-    },
-    "icon": "casino/icons/chip_stack.png"
+    }
   },
   {
     "id": "casino/chip_rack",
@@ -1053,6 +1108,7 @@
       0.1
     ],
     "sockets": {},
+    "icon": "casino/icons/chip_rack.png",
     "tints": {},
     "placement": {
       "layer": "surface",
@@ -1069,8 +1125,7 @@
       ],
       "clearance_front": 0,
       "recolor": true
-    },
-    "icon": "casino/icons/chip_rack.png"
+    }
   },
   {
     "id": "casino/lounge_chair",
@@ -1088,6 +1143,7 @@
         0.32
       ]
     },
+    "icon": "casino/icons/lounge_chair.png",
     "tints": {
       "cushion": "#2F7F86",
       "upholstery": "#E86D58"
@@ -1113,8 +1169,7 @@
       ],
       "clearance_front": 1,
       "recolor": true
-    },
-    "icon": "casino/icons/lounge_chair.png"
+    }
   },
   {
     "id": "casino/side_table",
@@ -1132,6 +1187,7 @@
         0.49
       ]
     },
+    "icon": "casino/icons/side_table.png",
     "tints": {},
     "surfaces": {
       "surface_0": [
@@ -1154,8 +1210,7 @@
       ],
       "clearance_front": 0,
       "recolor": true
-    },
-    "icon": "casino/icons/side_table.png"
+    }
   },
   {
     "id": "casino/card_suit_plaque",
@@ -1167,6 +1222,7 @@
       0.528
     ],
     "sockets": {},
+    "icon": "casino/icons/card_suit_plaque.png",
     "tints": {},
     "placement": {
       "layer": "wall",
@@ -1177,8 +1233,7 @@
       ],
       "clearance_front": 0,
       "recolor": true
-    },
-    "icon": "casino/icons/card_suit_plaque.png"
+    }
   },
   {
     "id": "casino/casino_wall_lamp",
@@ -1190,6 +1245,7 @@
       0.36
     ],
     "sockets": {},
+    "icon": "casino/icons/casino_wall_lamp.png",
     "tints": {},
     "placement": {
       "layer": "wall",
@@ -1200,8 +1256,7 @@
       ],
       "clearance_front": 0,
       "recolor": true
-    },
-    "icon": "casino/icons/casino_wall_lamp.png"
+    }
   },
   {
     "id": "casino/standing_lamp",
@@ -1213,6 +1268,7 @@
       1.5
     ],
     "sockets": {},
+    "icon": "casino/icons/standing_lamp.png",
     "tints": {
       "shade": "#F6E4B8"
     },
@@ -1231,8 +1287,7 @@
       ],
       "clearance_front": 0,
       "recolor": true
-    },
-    "icon": "casino/icons/standing_lamp.png"
+    }
   },
   {
     "id": "casino/casino_planter",
@@ -1244,6 +1299,7 @@
       0.812
     ],
     "sockets": {},
+    "icon": "casino/icons/casino_planter.png",
     "tints": {
       "trim": "#2F7F86"
     },
@@ -1262,8 +1318,7 @@
       ],
       "clearance_front": 0,
       "recolor": true
-    },
-    "icon": "casino/icons/casino_planter.png"
+    }
   },
   {
     "id": "casino/coat_stand",
@@ -1275,6 +1330,7 @@
       1.63
     ],
     "sockets": {},
+    "icon": "casino/icons/coat_stand.png",
     "tints": {},
     "placement": {
       "layer": "floor",
@@ -1291,8 +1347,7 @@
       ],
       "clearance_front": 0,
       "recolor": true
-    },
-    "icon": "casino/icons/coat_stand.png"
+    }
   },
   {
     "id": "casino/card_mat",
@@ -1304,6 +1359,7 @@
       0.012
     ],
     "sockets": {},
+    "icon": "casino/icons/card_mat.png",
     "tints": {},
     "placement": {
       "layer": "rug",
@@ -1320,7 +1376,6 @@
       ],
       "clearance_front": 0,
       "recolor": true
-    },
-    "icon": "casino/icons/card_mat.png"
+    }
   }
 ]

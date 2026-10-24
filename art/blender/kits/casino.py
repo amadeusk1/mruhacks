@@ -769,6 +769,8 @@ def casino_exterior():
 
 
 IW, ID, IH = 10.0, 8.0, 2.8          # interior room (separate scene; roomier than the exterior)
+SLOT_ROW_X = (1.25, 2.15, 3.05, 3.95)  # back-wall slot row, right of the carpet runner
+SLOT_ROW_TINTS = ("coral", "teal", "plum", "coral")
 
 
 def casino_interior_shell():
@@ -789,7 +791,7 @@ def casino_interior_shell():
                 b.box(0.17, 0.78, 0.42, ax * 0.35, 0, 0.14, CUSH, bevel=0.06)
         b.cyl(0.23, 0.05, sx * 3.2, -3.5, SLAB + 0.44, "walnut", segs=14, bevel=0.012)
         b.cyl(0.04, 0.44, sx * 3.2, -3.5, SLAB, "walnut", segs=8)
-        for (px, py) in ((sx * (IW / 2 - 0.55), ID / 2 - 0.55), (sx * (IW / 2 - 0.55), -0.3)):
+        for (px, py) in ((sx * (IW / 2 - 0.55), 2.2), (sx * (IW / 2 - 0.55), -0.3)):   # side walls: back wall holds the slot row
             b.cyl(0.26, 0.38, px, py, SLAB, "stone", segs=8, bevel=0.03)
             b.cyl(0.27, 0.06, px, py, SLAB + 0.17, TRIM, segs=8, bevel=0.01)
             for k in range(6):
@@ -818,7 +820,9 @@ def casino_interior_shell():
     for s in (-1, 1):
         b.box(0.35, T + 0.1, 0.9, s * 0.95, -ID / 2 + T / 2, SLAB, "stone", bevel=0.03)
     o = b.finish(KIT, "building", {"footprint_m": [IW, ID], "floor_z": SLAB, "ceiling_child": "casino_interior_shell_ceiling",
-                                   "layout_sockets": "roulette, poker, blackjack, slots_0..2, lounge_*"})
+                                   "layout_sockets": "roulette, poker, blackjack, slots_0..3 (+ slot_stool_0..3), lounge_*",
+                                   "slot_row": {f"slots_{i}": {"asset": "casino/slot_machine", "tint": {"body": SLOT_VARIANTS[t]},
+                                                                "stool": f"slot_stool_{i}"} for i, t in enumerate(SLOT_ROW_TINTS)}})
     c = Builder("casino_interior_shell_ceiling", seed=982)
     for k in range(9):
         c.box(0.16, ID, 0.18, -IW / 2 + 0.6 + k * (IW - 1.2) / 8, 0, SLAB + IH - 0.18, "walnut", bevel=0.02)
@@ -832,10 +836,11 @@ def casino_interior_shell():
     attach(ceil, o)
     socks = {"spawn_inside": (0, -ID / 2 + 0.9, SLAB), "exit": (0, -ID / 2 + 0.3, SLAB),
              "roulette": (-2.6, 1.9, SLAB), "poker": (-2.3, -1.4, SLAB), "blackjack": (2.5, -0.5, SLAB),
-             "slots_0": (1.6, ID / 2 - 0.7, SLAB), "slots_1": (2.6, ID / 2 - 0.7, SLAB), "slots_2": (3.6, ID / 2 - 0.7, SLAB),
+             **{f"slots_{i}": (x, ID / 2 - 0.62, SLAB) for i, x in enumerate(SLOT_ROW_X)},
+             **{f"slot_stool_{i}": (x, ID / 2 - 1.32, SLAB) for i, x in enumerate(SLOT_ROW_X)},
              "lounge_0": (-4.2, -3.3, SLAB), "lounge_1": (4.2, -3.3, SLAB)}
     for nm, p in socks.items():
-        add_socket(o, nm, p, 180 if nm.startswith("slots") else 0)
+        add_socket(o, nm, p, 0)                       # slot machines face -Y (into the room) at yaw 0
     planar_uv(o)
     return o
 
