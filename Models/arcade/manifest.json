@@ -114,38 +114,38 @@
     "file": "arcade/arcade_cabinet_duo.glb",
     "category": "arcade_cabinet",
     "size_m": [
-      1.27,
-      1.18,
+      1.95,
+      1.22,
       1.5
     ],
     "sockets": {
       "socket_grip_1_L": [
-        -0.43,
+        -0.695,
         -0.297,
         1.025
       ],
       "socket_grip_1_R": [
-        -0.275,
+        -0.54,
         -0.268,
         0.94
       ],
       "socket_grip_2_L": [
-        0.19,
+        0.455,
         -0.297,
         1.025
       ],
       "socket_grip_2_R": [
-        0.345,
+        0.61,
         -0.268,
         0.94
       ],
       "socket_player_1": [
-        -0.32,
+        -0.575,
         -0.72,
         0.0
       ],
       "socket_player_2": [
-        0.32,
+        0.575,
         -0.72,
         0.0
       ],
@@ -158,7 +158,7 @@
     "parts": {
       "part_btn_1_a": {
         "pivot": [
-          -0.31,
+          -0.575,
           -0.242,
           0.923
         ],
@@ -172,7 +172,7 @@
       },
       "part_btn_1_b": {
         "pivot": [
-          -0.24,
+          -0.505,
           -0.28,
           0.911
         ],
@@ -186,7 +186,7 @@
       },
       "part_btn_2_a": {
         "pivot": [
-          0.31,
+          0.575,
           -0.242,
           0.923
         ],
@@ -200,7 +200,7 @@
       },
       "part_btn_2_b": {
         "pivot": [
-          0.38,
+          0.645,
           -0.28,
           0.911
         ],
@@ -214,7 +214,7 @@
       },
       "part_joystick_1": {
         "pivot": [
-          -0.43,
+          -0.695,
           -0.264,
           0.926
         ],
@@ -224,7 +224,7 @@
       },
       "part_joystick_2": {
         "pivot": [
-          0.19,
+          0.455,
           -0.264,
           0.926
         ],
@@ -315,18 +315,18 @@
     "file": "arcade/arcade_bench.glb",
     "category": "furniture",
     "size_m": [
-      1.4,
+      1.9,
       0.42,
       0.42
     ],
     "sockets": {
       "socket_seat_0": [
-        -0.33,
+        -0.575,
         0.0,
         0.42
       ],
       "socket_seat_1": [
-        0.33,
+        0.575,
         0.0,
         0.42
       ]
@@ -419,67 +419,107 @@
     "file": "arcade/arcade_shell.glb",
     "category": "building",
     "size_m": [
-      6.8,
-      6.05,
-      2.75
+      13.0,
+      10.65,
+      3.05
     ],
     "sockets": {
-      "socket_cabinet_0": [
-        -2.4,
-        1.84,
+      "socket_bench_0": [
+        -5.75,
+        -2.2,
         0.0
       ],
-      "socket_cabinet_1": [
-        -1.6,
-        1.84,
+      "socket_cabinet_duo": [
+        3.6,
+        4.17,
         0.0
       ],
-      "socket_cabinet_2": [
-        -0.8,
-        1.84,
+      "socket_cabinet_solo_0": [
+        -4.6,
+        4.17,
         0.0
       ],
-      "socket_cabinet_3": [
-        0.0,
-        1.84,
+      "socket_cabinet_solo_1": [
+        -3.2,
+        4.17,
         0.0
       ],
-      "socket_cabinet_4": [
-        0.8,
-        1.84,
+      "socket_cabinet_solo_2": [
+        -1.8,
+        4.17,
         0.0
       ],
-      "socket_cabinet_5": [
-        1.6,
-        1.84,
+      "socket_cabinet_solo_3": [
+        -0.4,
+        4.17,
         0.0
       ],
-      "socket_cabinet_6": [
-        2.4,
-        1.84,
+      "socket_cabinet_solo_4": [
+        1.0,
+        4.17,
         0.0
       ],
       "socket_door": [
         0.0,
-        -3.4,
+        -5.7,
         0.0
       ],
       "socket_door_inside": [
         0.0,
-        -1.7,
+        -3.25,
+        0.0
+      ],
+      "socket_rug": [
+        0.0,
+        -0.11,
+        0.0
+      ],
+      "socket_spectate_0": [
+        -4.6,
+        1.64,
+        0.0
+      ],
+      "socket_spectate_1": [
+        -3.2,
+        1.64,
+        0.0
+      ],
+      "socket_spectate_2": [
+        -1.8,
+        1.64,
+        0.0
+      ],
+      "socket_spectate_3": [
+        -0.4,
+        1.64,
+        0.0
+      ],
+      "socket_spectate_4": [
+        1.0,
+        1.64,
+        0.0
+      ],
+      "socket_spectate_5": [
+        3.025,
+        1.64,
+        0.0
+      ],
+      "socket_spectate_6": [
+        4.175,
+        1.64,
         0.0
       ],
       "socket_token_machine": [
-        2.5,
-        -0.6,
+        5.76,
+        -2.2,
         0.0
       ]
     },
     "parts": {
       "part_door_l": {
         "pivot": [
-          -0.76,
-          -2.6,
+          -1.01,
+          -4.9,
           0.07
         ],
         "motion": "hinge",
@@ -488,8 +528,8 @@
       },
       "part_door_r": {
         "pivot": [
-          0.76,
-          -2.6,
+          1.01,
+          -4.9,
           0.07
         ],
         "motion": "hinge",
@@ -511,23 +551,55 @@
       "wall": "#F3E2C5"
     },
     "module": "shell",
-    "wall_height": 2.5,
-    "roof": "arcade_roof"
+    "wall_height": 2.8,
+    "roof": "arcade_roof",
+    "interior_m": [
+      12.0,
+      9.0
+    ],
+    "door_clear_m": 2.02,
+    "zones": {
+      "standing": [
+        -6.0,
+        2.39,
+        6.0,
+        3.79
+      ],
+      "spectator": [
+        -6.0,
+        0.8900000000000001,
+        6.0,
+        2.39
+      ],
+      "aisle": [
+        -6.0,
+        -1.1100000000000003,
+        6.0,
+        0.8900000000000001
+      ],
+      "entry": [
+        -1.25,
+        -4.5,
+        1.25,
+        -2.0
+      ]
+    },
+    "cutaway_child": "arcade_shell_cutaway"
   },
   {
     "id": "arcade/arcade_roof",
     "file": "arcade/arcade_roof.glb",
     "category": "building",
     "size_m": [
-      7.0,
-      5.594,
-      1.966
+      13.28,
+      10.273,
+      2.738
     ],
     "sockets": {
       "socket_fx_smoke": [
-        1.9,
-        0.9,
-        1.98
+        3.78,
+        1.728,
+        2.58
       ]
     },
     "tints": {
@@ -536,104 +608,144 @@
     },
     "module": "roof",
     "sits_on": "arcade_shell",
-    "z": 2.62
+    "z": 2.92
   },
   {
     "id": "arcade/arcade_exterior",
     "file": "arcade/arcade_exterior.glb",
     "category": "building",
     "size_m": [
-      7.0,
-      6.349,
-      4.6
+      13.28,
+      10.988,
+      5.669
     ],
     "sockets": {
-      "socket_cabinet_0": [
-        -2.4,
-        1.84,
+      "socket_bench_0": [
+        -5.75,
+        -2.2,
         0.0
       ],
-      "socket_cabinet_1": [
-        -1.6,
-        1.84,
+      "socket_cabinet_duo": [
+        3.6,
+        4.17,
         0.0
       ],
-      "socket_cabinet_2": [
-        -0.8,
-        1.84,
+      "socket_cabinet_solo_0": [
+        -4.6,
+        4.17,
         0.0
       ],
-      "socket_cabinet_3": [
-        0.0,
-        1.84,
+      "socket_cabinet_solo_1": [
+        -3.2,
+        4.17,
         0.0
       ],
-      "socket_cabinet_4": [
-        0.8,
-        1.84,
+      "socket_cabinet_solo_2": [
+        -1.8,
+        4.17,
         0.0
       ],
-      "socket_cabinet_5": [
-        1.6,
-        1.84,
+      "socket_cabinet_solo_3": [
+        -0.4,
+        4.17,
         0.0
       ],
-      "socket_cabinet_6": [
-        2.4,
-        1.84,
+      "socket_cabinet_solo_4": [
+        1.0,
+        4.17,
         0.0
       ],
       "socket_door": [
         0.0,
-        -3.4,
+        -5.7,
         0.0
       ],
       "socket_door__park.001": [
         0.0,
-        -3.4,
+        -5.7,
         0.0
       ],
       "socket_door_inside": [
         0.0,
-        -1.7,
+        -3.25,
         0.0
       ],
       "socket_fx_smoke": [
-        1.9,
-        0.9,
-        4.6
+        3.78,
+        1.728,
+        5.5
       ],
       "socket_fx_sparkle": [
         0.0,
-        -3.03,
-        3.458
+        -5.37,
+        3.967
+      ],
+      "socket_rug": [
+        0.0,
+        -0.11,
+        0.0
       ],
       "socket_screen": [
-        0.9,
-        1.67,
+        1.0,
+        4.0,
         1.08
       ],
       "socket_screen__park.001": [
-        -1.0,
-        1.67,
+        -4.6,
+        4.0,
         1.08
       ],
       "socket_screen__park.002": [
-        0.0,
-        1.67,
+        -1.8,
+        4.0,
         1.08
       ],
+      "socket_spectate_0": [
+        -4.6,
+        1.64,
+        0.0
+      ],
+      "socket_spectate_1": [
+        -3.2,
+        1.64,
+        0.0
+      ],
+      "socket_spectate_2": [
+        -1.8,
+        1.64,
+        0.0
+      ],
+      "socket_spectate_3": [
+        -0.4,
+        1.64,
+        0.0
+      ],
+      "socket_spectate_4": [
+        1.0,
+        1.64,
+        0.0
+      ],
+      "socket_spectate_5": [
+        3.025,
+        1.64,
+        0.0
+      ],
+      "socket_spectate_6": [
+        4.175,
+        1.64,
+        0.0
+      ],
       "socket_token_machine": [
-        2.5,
-        -0.6,
+        5.76,
+        -2.2,
         0.0
       ]
     },
     "parts": {
       "part_door_l": {
         "pivot": [
-          -0.76,
-          -2.6,
+          -1.01,
+          -4.9,
           0.07
         ],
         "motion": "hinge",
@@ -642,8 +754,8 @@
       },
       "part_door_r": {
         "pivot": [
-          0.76,
-          -2.6,
+          1.01,
+          -4.9,
           0.07
         ],
         "motion": "hinge",
