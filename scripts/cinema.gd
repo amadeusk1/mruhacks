@@ -14,6 +14,18 @@ func _ready() -> void:
 	var lobby := find_child("cinema_lobby", true, false) as Node3D
 	if lobby:
 		SeatSpot.from_sockets(self, lobby, "stool")
+		var kiosk := Interactable.new()
+		kiosk.name = "CinemaLibraryKiosk"
+		kiosk.title = "movie library"
+		kiosk.verb = "Browse"
+		kiosk.activity = "cinema"
+		add_child(kiosk)
+		kiosk.global_position = lobby.to_global(Vector3(1.0, 0.0, 0.15))
+	for node in get_children():
+		if node is SeatSpot and node.kit == "cinema":
+			node.activity = "cinema"
+			node.verb = "Watch"
+
 
 
 ## Voice/presence room inside this one location (GAME_DESIGN_CONTEXT §8: the auditorium is

@@ -25,6 +25,7 @@ AssetRegistry="*res://scripts/assets/asset_registry.gd"
 Activities="*res://scripts/world/activities.gd"
 UIRouter="*res://ui/ui_router.gd"
 ActivityScreens="*res://ui/activities/activity_screens.gd"
+CinemaClient="*res://scripts/cinema_client.gd"
 
 [display]
 
