@@ -122,7 +122,14 @@ func _place_penguin(room: Node, spawn_name: String) -> void:
 func _apply_camera(room: Node, spawn_name: String) -> void:
 	if room.has_method("camera_for_spawn"):
 		var frame: Dictionary = room.call("camera_for_spawn", spawn_name)
-		_camera_rig.call("set_frame", frame["center"], float(frame["limit_x"]), float(frame["limit_z"]))
+		_camera_rig.call(
+			"set_frame",
+			frame["center"],
+			float(frame["limit_x"]),
+			float(frame["limit_z"]),
+			float(frame.get("height", -1.0)),
+			float(frame.get("distance", -1.0))
+		)
 	else:
 		_camera_rig.call("set_frame", Vector3.ZERO, 7.5, 5.0)
 

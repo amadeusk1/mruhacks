@@ -90,9 +90,18 @@ func _draw_island() -> void:
 
 
 func _draw_town_blocks() -> void:
-	var origin := _pixel("plaza") + Vector2(-46, -8)
-	for box in [Rect2(origin, Vector2(16, 12)), Rect2(origin + Vector2(20, -6), Vector2(12, 16)), Rect2(origin + Vector2(8, 16), Vector2(18, 10))]:
-		draw_rect(box, Color(0.65, 0.82, 0.92))
+	var origin := _pixel("plaza")
+	var clothes := Rect2(origin + Vector2(-40, -32), Vector2(26, 16))
+	var pets := Rect2(origin + Vector2(14, -32), Vector2(26, 16))
+	var furniture := Rect2(origin + Vector2(-40, 14), Vector2(26, 16))
+	draw_rect(clothes, Color(0.94, 0.95, 0.97))
+	draw_rect(pets, Color(0.94, 0.95, 0.97))
+	draw_rect(furniture, Color(0.94, 0.95, 0.97))
+	draw_rect(Rect2(clothes.position + Vector2(0, clothes.size.y - 4), Vector2(clothes.size.x, 4)), Color(0.9, 0.42, 0.4))
+	draw_rect(Rect2(pets.position + Vector2(0, pets.size.y - 4), Vector2(pets.size.x, 4)), Color(0.4, 0.74, 0.48))
+	draw_rect(Rect2(furniture.position, Vector2(furniture.size.x, 4)), Color(0.62, 0.42, 0.24))
+	draw_circle(origin + Vector2(0, -2), 6.5, Color(0.7, 0.86, 0.95))
+	draw_circle(origin + Vector2(0, -2), 2.4, Color(0.93, 0.97, 1))
 
 
 func _draw_hill() -> void:

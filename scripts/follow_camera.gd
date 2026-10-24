@@ -18,12 +18,16 @@ var _target: Node3D
 var _center := Vector3.ZERO
 
 
-func set_frame(center: Vector3, next_limit_x: float, next_limit_z: float) -> void:
+func set_frame(center: Vector3, next_limit_x: float, next_limit_z: float, next_height: float = -1.0, next_distance: float = -1.0) -> void:
 	_center = center
 	limit_x = next_limit_x
 	limit_z = next_limit_z
+	height = 8.0 if next_height < 0.0 else next_height
+	distance = 6.0 if next_distance < 0.0 else next_distance
+	camera.position = Vector3(0.0, height, distance)
 	if _target != null:
 		global_position = _clamped_focus()
+	camera.look_at(global_position + Vector3(0.0, look_height, 0.0), Vector3.UP)
 
 
 func _ready() -> void:

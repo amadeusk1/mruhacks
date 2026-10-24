@@ -1,0 +1,49 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/snow_pet.gd" id="1_pet"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_body"]
+radius = 0.5
+height = 1.0
+radial_segments = 16
+rings = 10
+
+[sub_resource type="StandardMaterial3D" id="Mat_coat"]
+albedo_color = Color(0.95, 0.55, 0.42, 1)
+roughness = 0.65
+
+[sub_resource type="StandardMaterial3D" id="Mat_eye"]
+albedo_color = Color(0.96, 0.96, 0.98, 1)
+roughness = 0.2
+
+[sub_resource type="StandardMaterial3D" id="Mat_pupil"]
+albedo_color = Color(0.08, 0.08, 0.1, 1)
+roughness = 0.15
+
+[node name="SnowPet" type="Node3D"]
+script = ExtResource("1_pet")
+
+[node name="Body" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.62, 0, 0, 0, 0.5, 0, 0, 0, 0.62, 0, 0, 0)
+mesh = SubResource("SphereMesh_body")
+surface_material_override/0 = SubResource("Mat_coat")
+
+[node name="EyeL" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, -0.12, 0.08, -0.26)
+mesh = SubResource("SphereMesh_body")
+surface_material_override/0 = SubResource("Mat_eye")
+
+[node name="PupilL" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.05, 0, 0, 0, 0.05, 0, 0, 0, 0.05, -0.12, 0.08, -0.31)
+mesh = SubResource("SphereMesh_body")
+surface_material_override/0 = SubResource("Mat_pupil")
+
+[node name="EyeR" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 0.12, 0.08, -0.26)
+mesh = SubResource("SphereMesh_body")
+surface_material_override/0 = SubResource("Mat_eye")
+
+[node name="PupilR" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.05, 0, 0, 0, 0.05, 0, 0, 0, 0.05, 0.12, 0.08, -0.31)
+mesh = SubResource("SphereMesh_body")
+surface_material_override/0 = SubResource("Mat_pupil")

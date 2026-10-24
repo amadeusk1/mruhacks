@@ -32,8 +32,15 @@ var _flipper_l: Node3D
 var _flipper_r: Node3D
 var _foot_l_y := 0.0
 var _foot_r_y := 0.0
+var _foot_l_z := 0.0
+var _foot_r_z := 0.0
 var _flipper_l_x := 0.0
 var _flipper_r_x := 0.0
+var _sitting := false
+var _seat_bench: Node
+var _seat_point := Vector3.ZERO
+var _stand_point := Vector3.ZERO
+var _pending_bench: Node
 
 const _GRAVITY := 28.0
 const _CLICK_MASK := 3
@@ -58,10 +65,37 @@ func _ready() -> void:
 func set_travel_locked(locked: bool) -> void:
 	_input_locked = locked
 	if locked:
+		_clear_seat(false)
 		halt()
 
 
+func is_sitting() -> bool:
+	return _sitting
+
+
+func current_bench() -> Node:
+	return _seat_bench
+
+
+func sit_down(bench: Node, seat: Vector3, yaw: float, stand: Vector3) -> void:
+	if _input_locked:
+		return
+	halt()
+	_sitting = true
+	_seat_bench = bench
+	_seat_point = seat
+	_stand_point = stand
+	global_position = seat
+	velocity = Vector3.ZERO
+	rotation.y = yaw
+
+
+func stand_up() -> void:
+	_clear_seat(true)
+
+
 func halt() -> void:
+	_pending_bench = null
 	_cancel_click()
 	velocity = Vector3.ZERO
 
@@ -83,12 +117,27 @@ func _unhandled_input(event: InputEvent) -> void:
 func _physics_process(delta: float) -> void:
 	var direction := Vector3.ZERO
 	var wish := Vector3.ZERO if _input_locked else _camera_wish()
+	if _sitting and wish != Vector3.ZERO:
+		stand_up()
+	if _sitting:
+		global_position = _seat_point
+		velocity = Vector3.ZERO
+		_plant_shadow()
+		_animate(delta, 0.0)
+		return
 	if wish != Vector3.ZERO:
 		if _click_active:
+			_pending_bench = null
 			_cancel_click()
 		direction = wish
 	elif _click_active:
 		direction = _follow_path()
+	if _sitting:
+		global_position = _seat_point
+		velocity = Vector3.ZERO
+		_plant_shadow()
+		_animate(delta, 0.0)
+		return
 
 	var planar := Vector3(velocity.x, 0.0, velocity.z)
 	planar = planar.move_toward(direction * walk_speed, acceleration * delta)
@@ -131,6 +180,19 @@ func _try_click() -> void:
 	if collider != null and collider.is_in_group("bus_stop") and collider.has_method("try_open"):
 		if bool(collider.call("try_open")):
 			return
+	if collider != null and collider.is_in_group("bench") and collider.has_method("try_sit"):
+		if _sitting and _seat_bench == collider:
+			return
+		if _sitting:
+			stand_up()
+		if bool(collider.call("try_sit")):
+			return
+		_pending_bench = collider
+		_begin_click(_closest_nav_point(collider.call("approach_point")))
+		return
+	if _sitting:
+		stand_up()
+	_pending_bench = null
 	var point := _closest_nav_point(raw)
 	var floor_body := hit.collider as CollisionObject3D
 	var hit_floor := floor_body != null and (floor_body.collision_layer & _FLOOR_LAYER) != 0
@@ -156,10 +218,15 @@ func _follow_path() -> Vector3:
 	var target := agent.target_position
 	var offset := Vector2(global_position.x - target.x, global_position.z - target.z)
 	if offset.length() <= stop_distance:
+		var bench := _pending_bench
+		_pending_bench = null
 		_cancel_click()
+		if bench != null and bench.has_method("try_sit"):
+			bench.call("try_sit", true)
 		return Vector3.ZERO
 	if agent.is_navigation_finished():
 		if not agent.is_target_reachable():
+			_pending_bench = null
 			_cancel_click()
 		return Vector3.ZERO
 	var next := agent.get_next_path_position()
@@ -206,11 +273,41 @@ func _turn_toward(direction: Vector3, delta: float) -> void:
 
 func _plant_shadow() -> void:
 	var planted := shadow.global_position
-	planted.y = 0.03
+	planted.y = _seat_point.y + 0.03 if _sitting else 0.03
 	shadow.global_position = planted
 
 
+func _clear_seat(relocate: bool) -> void:
+	if not _sitting:
+		return
+	_sitting = false
+	_seat_bench = null
+	_restore_feet()
+	if relocate:
+		global_position = Vector3(_stand_point.x, 0.2, _stand_point.z)
+		velocity = Vector3.ZERO
+
+
+func _restore_feet() -> void:
+	visual.rotation = Vector3.ZERO
+	visual.position.y = 0.0
+	if _foot_l:
+		_foot_l.position.y = _foot_l_y
+		_foot_l.position.z = _foot_l_z
+	if _foot_r:
+		_foot_r.position.y = _foot_r_y
+		_foot_r.position.z = _foot_r_z
+
+
 func _animate(delta: float, speed: float) -> void:
+	if _sitting:
+		_phase += delta * 1.4
+		visual.rotation = Vector3(deg_to_rad(12.0), 0.0, 0.0)
+		visual.position.y = -0.08 + sin(_phase) * 0.008
+		_plant_feet_forward()
+		_swing_flipper(_flipper_l, _flipper_l_x, 0.0)
+		_swing_flipper(_flipper_r, _flipper_r_x, 0.0)
+		return
 	var moving := speed > 0.25
 	if _clips:
 		var clip := "walk" if moving else "idle"
@@ -233,6 +330,15 @@ func _animate(delta: float, speed: float) -> void:
 		_lift_foot(_foot_r, _foot_r_y, 0.0)
 		_swing_flipper(_flipper_l, _flipper_l_x, 0.0)
 		_swing_flipper(_flipper_r, _flipper_r_x, 0.0)
+
+
+func _plant_feet_forward() -> void:
+	if _foot_l:
+		_foot_l.position.y = _foot_l_y + 0.04
+		_foot_l.position.z = _foot_l_z - 0.16
+	if _foot_r:
+		_foot_r.position.y = _foot_r_y + 0.04
+		_foot_r.position.z = _foot_r_z - 0.16
 
 
 func _lift_foot(foot: Node3D, rest_y: float, wave: float) -> void:
@@ -263,8 +369,10 @@ func _pose_placeholder() -> void:
 		_flipper_r_x = _flipper_r.rotation.x
 	if _foot_l:
 		_foot_l_y = _foot_l.position.y
+		_foot_l_z = _foot_l.position.z
 	if _foot_r:
 		_foot_r_y = _foot_r.position.y
+		_foot_r_z = _foot_r.position.z
 
 
 func _find_clips() -> AnimationPlayer:

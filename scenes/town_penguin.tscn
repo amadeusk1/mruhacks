@@ -1,0 +1,174 @@
+[gd_scene load_steps=15 format=3]
+
+[ext_resource type="Script" path="res://scripts/town_penguin.gd" id="1_penguin"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_body"]
+radius = 0.34
+height = 1.12
+
+[sub_resource type="SphereMesh" id="SphereMesh_unit"]
+radius = 0.5
+height = 1.0
+radial_segments = 16
+rings = 8
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_beak"]
+top_radius = 0.0
+bottom_radius = 0.11
+height = 0.24
+radial_segments = 12
+
+[sub_resource type="BoxMesh" id="BoxMesh_scarf"]
+size = Vector3(1, 1, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_shadow"]
+top_radius = 0.38
+bottom_radius = 0.38
+height = 0.015
+radial_segments = 20
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_greet"]
+radius = 0.95
+
+[sub_resource type="StandardMaterial3D" id="Mat_coat"]
+albedo_color = Color(0.16, 0.2, 0.28, 1)
+roughness = 0.85
+
+[sub_resource type="StandardMaterial3D" id="Mat_belly"]
+albedo_color = Color(0.96, 0.96, 0.98, 1)
+roughness = 0.7
+
+[sub_resource type="StandardMaterial3D" id="Mat_orange"]
+albedo_color = Color(0.95, 0.48, 0.12, 1)
+roughness = 0.55
+
+[sub_resource type="StandardMaterial3D" id="Mat_eye"]
+albedo_color = Color(0.96, 0.96, 0.98, 1)
+roughness = 0.2
+
+[sub_resource type="StandardMaterial3D" id="Mat_pupil"]
+albedo_color = Color(0.05, 0.05, 0.07, 1)
+roughness = 0.15
+
+[sub_resource type="StandardMaterial3D" id="Mat_scarf"]
+albedo_color = Color(0.93, 0.45, 0.38, 1)
+roughness = 0.75
+
+[sub_resource type="StandardMaterial3D" id="Mat_shadow"]
+transparency = 1
+shading_mode = 0
+albedo_color = Color(0.02, 0.04, 0.08, 0.45)
+disable_receive_shadows = true
+
+[node name="TownPenguin" type="Node3D"]
+script = ExtResource("1_penguin")
+
+[node name="Visual" type="Node3D" parent="."]
+
+[node name="Body" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.56, 0)
+cast_shadow = 0
+mesh = SubResource("CapsuleMesh_body")
+surface_material_override/0 = SubResource("Mat_coat")
+
+[node name="Belly" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(0.36, 0, 0, 0, 0.4, 0, 0, 0, 0.24, 0, 0.64, -0.36)
+cast_shadow = 0
+mesh = SubResource("SphereMesh_unit")
+surface_material_override/0 = SubResource("Mat_belly")
+
+[node name="Beak" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.78, -0.34)
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_beak")
+surface_material_override/0 = SubResource("Mat_orange")
+
+[node name="EyeL" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(0.14, 0, 0, 0, 0.14, 0, 0, 0, 0.14, -0.12, 0.84, -0.24)
+cast_shadow = 0
+mesh = SubResource("SphereMesh_unit")
+surface_material_override/0 = SubResource("Mat_eye")
+
+[node name="PupilL" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(0.07, 0, 0, 0, 0.07, 0, 0, 0, 0.07, -0.125, 0.85, -0.3)
+cast_shadow = 0
+mesh = SubResource("SphereMesh_unit")
+surface_material_override/0 = SubResource("Mat_pupil")
+
+[node name="EyeR" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(0.14, 0, 0, 0, 0.14, 0, 0, 0, 0.14, 0.12, 0.84, -0.24)
+cast_shadow = 0
+mesh = SubResource("SphereMesh_unit")
+surface_material_override/0 = SubResource("Mat_eye")
+
+[node name="PupilR" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(0.07, 0, 0, 0, 0.07, 0, 0, 0, 0.07, 0.125, 0.85, -0.3)
+cast_shadow = 0
+mesh = SubResource("SphereMesh_unit")
+surface_material_override/0 = SubResource("Mat_pupil")
+
+[node name="FootL" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(0.3, 0, 0, 0, 0.1, 0, 0, 0, 0.38, -0.13, 0.04, -0.02)
+cast_shadow = 0
+mesh = SubResource("SphereMesh_unit")
+surface_material_override/0 = SubResource("Mat_orange")
+
+[node name="FootR" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(0.3, 0, 0, 0, 0.1, 0, 0, 0, 0.38, 0.13, 0.04, -0.02)
+cast_shadow = 0
+mesh = SubResource("SphereMesh_unit")
+surface_material_override/0 = SubResource("Mat_orange")
+
+[node name="FlipperL" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(0.22, 0, 0, 0, 0.42, 0, 0, 0, 0.12, -0.36, 0.58, 0.02)
+cast_shadow = 0
+mesh = SubResource("CapsuleMesh_body")
+surface_material_override/0 = SubResource("Mat_coat")
+
+[node name="FlipperR" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(0.22, 0, 0, 0, 0.42, 0, 0, 0, 0.12, 0.36, 0.58, 0.02)
+cast_shadow = 0
+mesh = SubResource("CapsuleMesh_body")
+surface_material_override/0 = SubResource("Mat_coat")
+
+[node name="Scarf" type="MeshInstance3D" parent="Visual"]
+cast_shadow = 0
+mesh = SubResource("BoxMesh_scarf")
+surface_material_override/0 = SubResource("Mat_scarf")
+
+[node name="Shadow" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.03, 0)
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_shadow")
+surface_material_override/0 = SubResource("Mat_shadow")
+
+[node name="NameLabel" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.42, 0)
+billboard = 1
+text = "Name"
+font_size = 40
+outline_size = 8
+pixel_size = 0.005
+modulate = Color(0.98, 0.98, 1, 1)
+outline_modulate = Color(0.08, 0.12, 0.2, 1)
+horizontal_alignment = 1
+
+[node name="Speech" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.82, 0)
+visible = false
+billboard = 1
+text = "Hello"
+font_size = 28
+outline_size = 8
+pixel_size = 0.0045
+modulate = Color(1, 0.98, 0.92, 1)
+outline_modulate = Color(0.12, 0.16, 0.24, 1)
+horizontal_alignment = 1
+width = 320.0
+
+[node name="Greet" type="Area3D" parent="."]
+collision_layer = 0
+collision_mask = 4
+
+[node name="Shape" type="CollisionShape3D" parent="Greet"]
+shape = SubResource("SphereShape3D_greet")
