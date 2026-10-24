@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#09213b">
+<meta name="description" content="Waddle in. Hang out. Make yourself at home in Pengloo Party.">
+<title>Pengloo Party</title>
+<link rel="icon" type="image/png" sizes="32x32" href="branding/favicon-32.png">
+<link rel="apple-touch-icon" href="branding/apple-touch-icon.png">
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#09213b;font-family:ui-rounded,'Trebuchet MS',system-ui,sans-serif;color:#fff8e9}#canvas{display:block;outline:none}#loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 20%,#1f6279 0%,#103b56 45%,#09213b 85%);padding:24px;overflow:auto;z-index:10}.snow{position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(circle,#ffffff50 2px,transparent 3px),radial-gradient(circle,#b9edf533 3px,transparent 4px);background-size:131px 157px,227px 193px;background-position:23px 61px,100px 20px}.shore{position:absolute;bottom:-80px;left:-10%;width:120%;height:190px;border-radius:50% 50% 0 0;background:#d7edf0;box-shadow:0 -16px 0 #ffffff30;pointer-events:none}.panel{position:relative;text-align:center;width:min(760px,100%);padding:15px 0 50px}.logo{display:block;width:100%;height:auto;max-height:45vh;object-fit:contain;margin:0 auto 24px}.eyebrow{font-size:12px;letter-spacing:.23em;text-transform:uppercase;color:#b1dbe5;margin:0 0 16px}h1{font-size:clamp(20px,3vw,28px);margin:14px 0 20px;font-weight:800}.meter{width:min(360px,90%);margin:auto}progress{appearance:none;display:block;width:100%;height:14px;border:2px solid #ffffff30;border-radius:20px;overflow:hidden;background:#071d31}progress::-webkit-progress-bar{background:#071d31}progress::-webkit-progress-value{background:#78dbe9;border-radius:20px}progress::-moz-progress-bar{background:#78dbe9;border-radius:20px}#detail{font-size:14px;color:#c5e6ec;min-height:20px;margin:12px 0 30px}.tip{font-size:14px;color:#a6cbd6;line-height:1.6;margin:0}button{font:inherit;font-weight:800;color:#09213b;background:#ffb49b;border:0;padding:13px 28px;border-radius:18px;cursor:pointer}button:focus-visible{outline:3px solid white;outline-offset:4px}#error{max-width:500px;margin:15px auto;font-size:14px;line-height:1.5;color:#ffe1d5}noscript{position:fixed;inset:0;z-index:20;background:#09213b;padding:30vh 20px;text-align:center}@media(max-height:500px){.logo{max-height:32vh;margin-bottom:8px}.panel{padding:0}.shore{display:none}h1{margin:6px 0 12px}#detail{margin-bottom:10px}}
+</style>
+$GODOT_HEAD_INCLUDE
+</head>
+<body>
+<canvas id="canvas" aria-label="Pengloo Party game">Your browser needs canvas support to play.</canvas>
+<section id="loading" aria-label="Loading Pengloo Party">
+<div class="snow"></div><div class="shore"></div>
+<div class="panel">
+<p class="eyebrow">Your little island. Your kind of party.</p>
+<img class="logo" src="branding/pengloo-party-logo.png" alt="Pengloo Party">
+<h1 id="stage" role="status" aria-live="polite">Warming up the island…</h1>
+<div class="meter"><progress id="progress" aria-label="Game download"></progress><p id="detail">Getting ready to waddle.</p></div>
+<p class="tip">Meet friends. Decorate your home. Find your next adventure.</p>
+<p id="error" role="alert" hidden></p><button id="retry" hidden>Try again</button>
+</div></section>
+<noscript>Enable JavaScript to play Pengloo Party.</noscript>
+<script>
+const config = $GODOT_CONFIG;
+const stage = document.getElementById('stage');
+const detail = document.getElementById('detail');
+const progress = document.getElementById('progress');
+function fail(error) {
+ console.error(error);
+ stage.textContent = 'The island couldn’t load.';
+ detail.textContent = 'Check your connection, then try again.';
+ progress.hidden = true;
+ const message = document.getElementById('error');
+ message.textContent = error instanceof Error ? error.message : String(error);
+ message.hidden = false;
+ document.getElementById('retry').hidden = false;
+}
+document.getElementById('retry').onclick = () => location.reload();
+window.penglooReady = () => document.getElementById('loading')?.remove();
+function launch() {
+ try {
+  const missing = Engine.getMissingFeatures({threads:false});
+  if (missing.length) throw new Error('This browser needs: ' + missing.join(', ') + '. Try an up-to-date desktop browser.');
+  const engine = new Engine(config);
+  engine.startGame({onProgress(current,total) {
+   if(total > 0 && current < total) {
+    progress.max = total; progress.value = current;
+    stage.textContent = 'Packing your island…';
+    detail.textContent = Math.floor(current / total * 100) + '% downloaded';
+   } else {
+    progress.removeAttribute('value');
+    stage.textContent = 'Getting the island ready…';
+    detail.textContent = 'First visits can take a little longer.';
+   }
+  }}).then(() => {
+   stage.textContent = 'Almost ready to waddle…';
+   // The game removes the overlay after its actual title screen is ready.
+  }).catch(fail);
+ } catch(error) { fail(error); }
+}
+const script = document.createElement('script');
+script.src = '$GODOT_URL';script.onload = launch;
+script.onerror = () => fail(new Error('The game download could not start.'));
+document.body.appendChild(script);
+</script>
+</body></html>
