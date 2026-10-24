@@ -271,6 +271,24 @@ func _host_say(peer_id: int, message: String) -> void:
 			relay_chat.rpc_id(int(other_id), speaker, message)
 
 
+func note_fisher(phase: String) -> void:
+	if not is_online() or _closing:
+		return
+	if _mode == Mode.HOST:
+		_set_fisher(local_id(), phase)
+	else:
+		request_fisher.rpc_id(1, phase)
+
+
+func _set_fisher(id: int, phase: String) -> void:
+	if _mode != Mode.HOST or not _players.has(id):
+		return
+	if str(_players[id].get("fisher", "")) == phase:
+		return
+	_players[id]["fisher"] = phase
+	_broadcast()
+
+
 func release_bench() -> void:
 	if not is_online() or _closing:
 		return
@@ -302,6 +320,7 @@ func _set_place(id: int, location: String, spawn: String, hidden: bool, igloo: i
 	player["igloo"] = igloo
 	if hidden or changed:
 		player["bench"] = ""
+		player["fisher"] = ""
 	_broadcast()
 	_sync_sled_members()
 
@@ -415,6 +434,7 @@ func _snapshot() -> Array:
 			"hidden": bool(player["hidden"]),
 			"bench": str(player["bench"]),
 			"igloo": int(player.get("igloo", 0)),
+			"fisher": str(player.get("fisher", "")),
 		})
 	return list
 
@@ -429,6 +449,7 @@ func _blank(peer_id: int, player_name: String, color_index: int) -> Dictionary:
 		"hidden": true,
 		"bench": "",
 		"igloo": 0,
+		"fisher": "",
 	}
 
 
@@ -638,6 +659,13 @@ func request_sit(bench_key: String) -> void:
 	if _mode != Mode.HOST:
 		return
 	_host_claim(multiplayer.get_remote_sender_id(), bench_key)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func request_fisher(phase: String) -> void:
+	if _mode != Mode.HOST:
+		return
+	_set_fisher(multiplayer.get_remote_sender_id(), phase)
 
 
 @rpc("any_peer", "call_remote", "reliable")
