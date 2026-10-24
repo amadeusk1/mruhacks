@@ -59,6 +59,13 @@ var _overlay := ""  # emote/activity clip playing until the penguin moves
 var _seat_kit := ""  # "casino": seated clips come from that kit instead of the bench "sit"
 var _hopping := false
 var _left_ground := false
+var _stall := 0.0
+var _detour := Vector3.ZERO
+var _detour_left := 0.0
+var _detours := 0
+var _safe_spots: Array[Vector3] = []
+var _off_nav := 0.0
+var _last_pos := Vector3.ZERO
 
 const _GRAVITY := 28.0
 const _JUMP_SPEED := 7.6   # about a metre; the jump clip's tuck sits on top
@@ -197,6 +204,10 @@ func face_point(point: Vector3) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if _remote_peer != 0 or _blocks_play() or _reel_focus:
 		return
+	if event.is_action_pressed("unstuck"):
+		rescue()
+		get_viewport().set_input_as_handled()
+		return
 	if event.is_action_pressed("interact"):
 		if _try_interact():
 			get_viewport().set_input_as_handled()
@@ -229,6 +240,9 @@ func _physics_process(delta: float) -> void:
 		direction = wish
 	elif _click_active:
 		direction = _follow_path()
+		if _detour_left > 0.0 and direction != Vector3.ZERO:
+			_detour_left -= delta
+			direction = _detour
 	if _sitting:
 		global_position = _seat_point
 		velocity = Vector3.ZERO
@@ -260,6 +274,9 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 	if not rising:
 		_step_up(before, intended, delta)
+	if _click_active and direction != Vector3.ZERO:
+		_watch_stall(before, direction, speed, delta)
+	_watch_footing(delta)
 	_plant_shadow()
 	_animate(delta, facing.length())
 	_publish_pose()
@@ -341,6 +358,57 @@ func _step_up(before: Vector3, wish: Vector3, delta: float) -> void:
 	velocity = Vector3(wish.x, 0.0, wish.z)
 
 
+## Recovery. Walking on the navmesh leaves a trail of firm spots every SAFE_STEP m. The unstuck
+## key (G) jumps back to the newest one not under the penguin; so does sinking below the trail
+## or hanging in the air away from the navmesh for OFF_NAV_TIME s (the water, off a ledge).
+## Off-navmesh floor at trail height (a dock end the bake missed) is left alone.
+const _SAFE_STEP := 0.75
+const _SAFE_KEEP := 16
+const _OFF_NAV_TIME := 1.5
+
+
+func rescue() -> void:
+	if _sitting:
+		_clear_seat(false)
+	var to := _closest_nav_point(global_position)
+	for i in range(_safe_spots.size() - 1, -1, -1):
+		if _safe_spots[i].distance_to(global_position) > 1.5:
+			to = _safe_spots[i]
+			break
+	halt()
+	global_position = to + Vector3.UP * 0.05
+	_off_nav = 0.0
+	_last_pos = global_position
+
+
+func _watch_footing(delta: float) -> void:
+	if global_position.distance_to(_last_pos) > 5.0:  # travel or a marker shift: the trail is another room's
+		_safe_spots.clear()
+		_off_nav = 0.0
+	_last_pos = global_position
+	var map := agent.get_navigation_map()
+	if not map.is_valid() or NavigationServer3D.map_get_iteration_id(map) == 0:
+		return
+	var near := NavigationServer3D.map_get_closest_point(map, global_position)
+	var off := Vector2(near.x - global_position.x, near.z - global_position.z).length()
+	var rise := absf(near.y - global_position.y)
+	if off < 0.5 and rise < 0.6 and is_on_floor():
+		_off_nav = 0.0
+		if _safe_spots.is_empty() or _safe_spots[-1].distance_to(global_position) > _SAFE_STEP:
+			_safe_spots.append(global_position)
+			if _safe_spots.size() > _SAFE_KEEP:
+				_safe_spots.pop_front()
+		return
+	var lost := off > 1.0 or rise > 1.0
+	var sunk := not _safe_spots.is_empty() and global_position.y < _safe_spots[-1].y - 0.8
+	if lost and (sunk or not is_on_floor()):
+		_off_nav += delta
+	else:
+		_off_nav = 0.0
+	if _off_nav > _OFF_NAV_TIME and not _safe_spots.is_empty():
+		rescue()
+
+
 func _try_click(event: InputEvent = null) -> void:
 	if _camera_wish() != Vector3.ZERO:
 		return
@@ -397,7 +465,48 @@ func _try_click(event: InputEvent = null) -> void:
 	_begin_click(point)
 
 
+## Click-walk pressed against a prop the navmesh squeezes past (sign posts, cottage corners):
+## after STALL_TIME s of barely moving, sidestep along the contact for DETOUR_TIME s, the side
+## nearest the path first, then the other. Gives up after MAX_DETOURS rather than walk in place.
+const _STALL_TIME := 0.4
+const _DETOUR_TIME := 0.5
+const _MAX_DETOURS := 3
+
+
+func _watch_stall(before: Vector3, direction: Vector3, speed: float, delta: float) -> void:
+	var moved := Vector2(global_position.x - before.x, global_position.z - before.z).length()
+	if moved > speed * delta * 0.25:
+		_stall = maxf(0.0, _stall - delta)
+		return
+	_stall += delta
+	if _stall < _STALL_TIME or _detour_left > 0.0:
+		return
+	_stall = 0.0
+	_detours += 1
+	if _detours > _MAX_DETOURS:
+		_pending_bench = null
+		_cancel_click()
+		return
+	var push := Vector3.ZERO
+	for i in get_slide_collision_count():
+		var n := get_slide_collision(i).get_normal()
+		push += Vector3(n.x, 0.0, n.z)
+	if push.length_squared() < 0.0001:
+		push = -direction
+	push = push.normalized()
+	var along := push.cross(Vector3.UP).normalized()
+	if along.dot(direction) < 0.0:
+		along = -along
+	if _detours == 2:
+		along = -along
+	_detour = (along + push * 0.35).normalized()
+	_detour_left = _DETOUR_TIME
+
+
 func _begin_click(point: Vector3) -> void:
+	_detours = 0
+	_detour_left = 0.0
+	_stall = 0.0
 	_click_active = true
 	agent.target_position = point
 	marker.show_at(point)
@@ -921,6 +1030,7 @@ func _ensure_actions() -> void:
 	_add_keys("move_right", [KEY_D, KEY_RIGHT])
 	_add_keys("interact", [KEY_F])
 	_add_keys("jump", [KEY_SPACE])
+	_add_keys("unstuck", [KEY_G])
 	if not InputMap.has_action("click_walk"):
 		InputMap.add_action("click_walk")
 		var mouse := InputEventMouseButton.new()
