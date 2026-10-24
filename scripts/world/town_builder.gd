@@ -58,11 +58,18 @@ func _ready() -> void:
 	ramps += WalkSurface.stair_ramps(_walks.map(func(pair): return pair[0]), nav)
 	await get_tree().physics_frame
 	for pair in _walks:
+		WalkSurface.span_gaps(pair[1], nav, space)
+	await get_tree().physics_frame  # spans first, so a closed hole is not railed off
+	var guards := 0
+	for pair in _walks:
+		guards += WalkSurface.guard_edges(pair[0], pair[1], nav, space)
+	await get_tree().physics_frame
+	for pair in _walks:
 		var left: Array = WalkSurface.span_gaps(pair[1], nav, space)
 		open += left.size()
-	print("Town walkables: %d, ramps: %d, gap spans: %d" % [_walks.size(), ramps, nav.get_children().filter(func(n): return n.has_meta("gap_span")).size()])
+	print("Town walkables: %d, ramps: %d, gap spans: %d, edge guards: %d" % [_walks.size(), ramps, nav.get_children().filter(func(n): return n.has_meta("gap_span")).size(), guards])
 	if open > 0:
-		push_warning("Town: %d walkable edges face a gap wider than 1.2 m (layout fix needed)" % open)
+		push_warning("Town: %d walkable edges drop off with no guard (layout fix needed)" % open)
 	await get_tree().physics_frame  # gap spans registered before the shore is traced
 	_water_edges(nav, space)
 	if nav.has_method("rebake"):
