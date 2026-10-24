@@ -63,6 +63,7 @@ func _ready() -> void:
 		await _w.travel_to(r[1], r[2])
 		await get_tree().create_timer(2.0).timeout  # let the room build and bake at normal speed
 		_room = _w.get_node("LocationHost").get_child(0)
+		_p.call("set_typing_locked", false)  # the solo shortcut can leave the chat's typing lock on (no click to clear it)
 		_doors.clear()
 		for area in _room.find_children("*", "Area3D", true, false):  # walk-in exits would end the test
 			if area.get_script() and (String(area.get_script().resource_path).ends_with("doorway.gd") or "location" in area):
