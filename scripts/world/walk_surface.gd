@@ -134,9 +134,104 @@ static func span_gaps(body: StaticBody3D, parent: Node, space: PhysicsDirectSpac
 			if not hit or hit.position.y < edge.y - STEP:
 				hole = true
 			d += 0.2
-		if hole and not landed:
+		if hole and not landed and not _guarded(space, edge, dir):
 			open.append(edge)
 	return open
+
+
+## Penguin-sized probe, so a notch narrower than the capsule where two rails meet is not an exit.
+static func _guarded(space: PhysicsDirectSpaceState3D, edge: Vector3, dir: Vector3) -> bool:
+	var q := PhysicsShapeQueryParameters3D.new()
+	var ball := SphereShape3D.new()
+	ball.radius = 0.25
+	q.shape = ball
+	q.transform = Transform3D(Basis.IDENTITY, edge - dir * 0.3 + Vector3.UP * 0.4)
+	q.motion = dir * 0.9
+	q.collision_mask = 2
+	return space.cast_motion(q)[0] < 1.0
+
+
+## Invisible rails along every side of a rectangular walkable (dock, stair flight) that drops
+## more than a step into water or onto lower ground. Sides that meet a neighbouring module, the
+## ground or a ramp stay open. Marked nav_keep: the navmesh already stops at the deck edge, so
+## carving them would only narrow the deck. Returns the number of rails.
+const GUARD_SAMPLE := 0.25
+
+
+static func guard_edges(node: Node3D, body: StaticBody3D, parent: Node, space: PhysicsDirectSpaceState3D) -> int:
+	var faces: PackedVector3Array = (body.get_child(0) as CollisionShape3D).shape.get_faces()
+	var to_local := Transform3D(node.global_basis.orthonormalized(), node.global_position).affine_inverse()
+	var lo := Vector3.INF
+	var hi := -Vector3.INF
+	for v in faces:
+		var q := to_local * v
+		lo = lo.min(q)
+		hi = hi.max(q)
+	var to_world := to_local.affine_inverse()
+	var made := 0
+	# side: fixed axis, value, outward sign; walk along the other axis
+	for side in [["x", hi.x, 1.0], ["x", lo.x, -1.0], ["z", hi.z, 1.0], ["z", lo.z, -1.0]]:
+		var along_x: bool = side[0] == "z"
+		var a0: float = lo.x if along_x else lo.z
+		var a1: float = hi.x if along_x else hi.z
+		var steps := maxi(1, ceili((a1 - a0) / GUARD_SAMPLE))
+		var run := []
+		for i in steps + 1:
+			var t := lerpf(a0 + 0.05, a1 - 0.05, float(i) / steps)
+			var inset: float = side[1] - side[2] * 0.05
+			var local := Vector3(t, 0, inset) if along_x else Vector3(inset, 0, t)
+			var out_local := Vector3(0, 0, side[2]) if along_x else Vector3(side[2], 0, 0)
+			var at := to_world * local
+			var out := (to_world.basis * out_local).normalized()
+			var top := _down(space, at, to_world.origin.y + hi.y + 1.0, to_world.origin.y + lo.y - 0.2)
+			var drop := false
+			if top and top.collider == body:
+				drop = true
+				for d in [0.25, 0.5]:
+					var hit := _down(space, top.position + out * d, top.position.y + 1.0, top.position.y - 3.0)
+					if hit and absf(hit.position.y - top.position.y) <= STEP:
+						drop = false
+						break
+			if drop:
+				run.append([top.position, i])
+			if (not drop or i == steps) and not run.is_empty():
+				# a run that reaches the corner ends at the module's edge, never past it: an
+				# overhang there snags penguins walking onto the stairs or pier at an angle
+				var first: int = run[0][1]
+				var last: int = run[run.size() - 1][1]
+				var t0 := a0 if first == 0 else lerpf(a0 + 0.05, a1 - 0.05, float(first) / steps) - GUARD_SAMPLE * 0.5
+				var t1 := a1 if last == steps else lerpf(a0 + 0.05, a1 - 0.05, float(last) / steps) + GUARD_SAMPLE * 0.5
+				_guard(parent, run, t0, t1, side[1] + side[2] * 0.06, side[2], along_x, to_local)
+				made += 1
+				run = []
+	return made
+
+
+static func _guard(parent: Node, run: Array, t0: float, t1: float, edge: float, outward: float, along_x: bool, to_local: Transform3D) -> void:
+	var to_world := to_local.affine_inverse()
+	var y0 := INF
+	var y1 := -INF
+	for p in run:
+		var q := to_local * (p[0] as Vector3)
+		y0 = minf(y0, q.y)
+		y1 = maxf(y1, q.y)
+	var pts := PackedVector3Array()
+	for t in [t0, t1]:
+		for e in [edge, edge + outward * 0.08]:
+			for y in [y0 - 0.3, y1 + 0.9]:
+				pts.append(to_world * (Vector3(t, y, e) if along_x else Vector3(e, y, t)))
+	var body := StaticBody3D.new()
+	body.name = "EdgeGuard"
+	body.collision_layer = 2
+	body.collision_mask = 0
+	body.set_meta("nav_keep", true)
+	var hull := ConvexPolygonShape3D.new()
+	hull.points = pts
+	var col := CollisionShape3D.new()
+	col.shape = hull
+	body.add_child(col)
+	parent.add_child(body)
+	body.global_transform = Transform3D.IDENTITY
 
 
 static func _down(space: PhysicsDirectSpaceState3D, at: Vector3, from_y: float, to_y: float) -> Dictionary:
