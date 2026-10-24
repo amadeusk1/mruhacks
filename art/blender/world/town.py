@@ -49,8 +49,8 @@ HX, HY = (-35.0, -23.5, -12.0), (9.5, 0.0, -9.5)
 
 PATHS = [  # (polyline, width)
     ([C(575, 440), C(575, 290)], 3.0),                                  # N spoke -> cinema
-    ([Vector((-4.6, 7.0)), C(470, 425) + CAFE_SHIFT], 2.6),                                  # NW spoke -> cafe
-    ([C(655, 505), Vector((7.55, 8.12))], 2.6),                         # NE spoke -> arcade door
+    ([Vector((-4.6, 7.9)), C(470, 425) + CAFE_SHIFT], 2.6),                                  # NW spoke -> cafe
+    ([Vector((6.2, 6.3)), Vector((7.55, 8.12))], 2.6),     # starts at the plaza rim: the inner ring is garden                         # NE spoke -> arcade door
     ([Vector((-PLAZA_R + 0.4, 0)), Vector((HX[0], 0))], 2.8),           # W spoke = homes main street
     ([Vector((PLAZA_R - 0.4, 0)), C(1000, 595)], 2.8),                  # E spoke -> sketch club
     ([Vector((0, -PLAZA_R + 0.4)), C(600, 1030)], 2.8),                 # S spoke -> south pier
@@ -341,8 +341,8 @@ def walk_violation(asset, x, y, yaw, scale, tags, rects=None):
             if seg_dist(p, a, b) < 1.5 + clear and "plaza/bench" not in asset and "lantern" not in asset:
                 return "plaza lane"
     for p in pts:
-        if 5.3 < (p - PLAZA_C).length < 6.3 and "lantern" not in asset:
-            return "plaza ring lane"
+        if (p - PLAZA_C).length < 3.7 and "fountain" not in asset:
+            return "fountain walking ring"
     if "coast" not in tags and any(stream_d(p) < STREAM_W + 0.6 for p in pts):
         return "stream"
     for m in MARKERS:
@@ -547,6 +547,7 @@ def layout():
         while r < 70 and island_d(Vector((0, 1.3)) + dirv * r) < 0:
             r += 0.25
         coast.append(Vector((0, 1.3)) + dirv * (r - 0.9))
+    walks = [q for q in PLACE if "walkable" in q["tags"]]
     last = None
     for p in coast:
         if last is not None and (p - last).length < 1.95:
@@ -556,10 +557,15 @@ def layout():
                     island_d(Vector((p.x, p.y + 0.1))) - island_d(Vector((p.x, p.y - 0.1))))).normalized()
         yaw = math.degrees(math.atan2(g.x, -g.y))          # module front (-Y) faces the sea
         z = height(p - g * 0.8)
-        if on_beach(p) or stream_d(p) < 3.0 or abs(p.x - 1.7) < 2.0 and p.y < -25:
+        if stream_d(p) < 3.0 or abs(p.x - 1.7) < 2.0 and p.y < -25 or \
+                any((p - Vector(q["pos"][:2])).length < 2.6 for q in walks):     # mouth, south pier, docks
             last = p
             continue
-        if z > 0.6:
+        beach = on_beach(p)
+        if beach and RNG.random() < 0.45:                  # beaches keep some open waterline
+            last = p
+            continue
+        if z > 0.6 and not beach:
             put("town_connections/cliff_straight_2m", p.x, p.y, yaw, z=z - 2.05, tags=("rock", "blocker", "coast"))
             if len(PLACE) % 3 == 0:
                 put("town_connections/cliff_cap", p.x, p.y, yaw, z=z + 0.02, tags=("rock",))
@@ -617,7 +623,7 @@ def layout():
     for _ in range(80):  # rocks in the water
         a = RNG.uniform(0, 2 * math.pi)
         p = Vector((math.cos(a) * RNG.uniform(41, 54), 1.3 + math.sin(a) * RNG.uniform(38, 50)))
-        if island_d(p) < 1.5:
+        if island_d(p) < 1.5 or any((p - Vector(q["pos"][:2])).length < 3.0 for q in walks):
             continue
         put(["nature_dock/rock_cluster_snow", "nature_dock/rock_small_a_snow", "nature_dock/rock_small_b_snow"][RNG.randrange(3)],
             p.x, p.y, RNG.uniform(0, 360), z=WATER_Z - 0.3, tags=("rock", "coast"), scale=RNG.uniform(1.0, 2.4))
@@ -625,7 +631,7 @@ def layout():
     for _ in range(40):
         a = RNG.uniform(0, 2 * math.pi)
         q = Vector((math.cos(a) * RNG.uniform(42, 58), 1.3 + math.sin(a) * RNG.uniform(39, 52)))
-        if island_d(q) > 2.5:
+        if island_d(q) > 2.5 and all((q - Vector(w["pos"][:2])).length > 3.0 for w in walks):
             put(["fishing/ice_floe_a", "fishing/ice_floe_b", "fishing/ice_floe_c"][RNG.randrange(3)], q.x, q.y,
                 RNG.uniform(0, 360), z=WATER_Z - 0.06, tags=("decor",), scale=RNG.uniform(1.0, 2.2))
 
