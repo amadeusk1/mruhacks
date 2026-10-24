@@ -216,9 +216,6 @@ static func _place_home_exterior(home: Node3D, props: Node3D, nav: Node3D) -> vo
 	_tunnel(nav, house.global_position, door_local, outward)
 	_set_door(home.get_node("YardDoor") as Area3D, door_world + outward * 0.2, outward)
 	_aim_marker(home.get_node("OutsideSpawn") as Node3D, door_world + outward * 1.35, door_world)
-	var stop := nav.get_node_or_null("BusStop") as Node3D
-	if stop:
-		stop.position.x = 4.3
 	var arrival := home.get_node_or_null("BusArrival") as Node3D
 	if arrival:
 		arrival.position.x = 4.3

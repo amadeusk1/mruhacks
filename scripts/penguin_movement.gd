@@ -250,13 +250,13 @@ func command_walk_to(world_point: Vector3) -> void:
 	_begin_click(_closest_nav_point(world_point))
 
 
-## Uses the nearest bench, fishing spot, or bus stop whose prompt is showing.
+## Uses the nearest bench, fishing spot, or town action whose prompt is showing.
 func _try_interact() -> bool:
 	if _sitting:
 		return false
 	var best: Node = null
 	var best_dist := INF
-	for group in ["bench", "fish_spot", "bus_stop", "interactables"]:
+	for group in ["bench", "fish_spot", "interactables"]:
 		for node in get_tree().get_nodes_in_group(group):
 			if not node.has_method("can_interact") or not bool(node.call("can_interact")):
 				continue
@@ -307,9 +307,6 @@ func _try_click(event: InputEvent = null) -> void:
 		return
 	var raw: Vector3 = hit.position
 	var collider := hit.collider as Node
-	if collider != null and collider.is_in_group("bus_stop") and collider.has_method("try_open"):
-		if bool(collider.call("try_open")):
-			return
 	if collider != null and collider.is_in_group("fish_spot") and collider.has_method("try_fish"):
 		if _fishing and _seat_bench == collider:
 			return

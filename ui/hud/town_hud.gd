@@ -198,10 +198,9 @@ func _update_action(player: Node3D) -> void:
 	if UIRouter.is_open() or (w and w.has_method("is_bus_menu_open") and bool(w.call("is_bus_menu_open"))):
 		_action.visible = false
 		return
-	# the scene builder's Interactables (doors, activity entrances) and the teammate's bus stop
 	var best: Node3D = null
 	var best_d := INF
-	for n in get_tree().get_nodes_in_group("interactables") + get_tree().get_nodes_in_group("bus_stop"):
+	for n in get_tree().get_nodes_in_group("interactables"):
 		if not n.has_method("can_interact") or not bool(n.call("can_interact")):
 			continue
 		var d := _flat((n as Node3D).global_position - player.global_position)
@@ -212,11 +211,6 @@ func _update_action(player: Node3D) -> void:
 	_action.visible = best != null
 	if best == null:
 		return
-	if best.is_in_group("bus_stop"):
-		_action_kind = "bus"
-		_action.set_caption("Take the bus")
-		_action._icon_rect.texture = UIKit.icon("bus")
-		return
 	_action_kind = "interactable"
 	_action.set_caption(str(best.call("prompt_text")) if best.has_method("prompt_text") else "Enter")
 	var key := str(best.get("activity")) if str(best.get("activity")) != "" else str(best.get("location"))
@@ -226,9 +220,7 @@ func _update_action(player: Node3D) -> void:
 func _do_action() -> void:
 	if _action_target == null:
 		return
-	if _action_kind == "bus" and _action_target.has_method("try_open"):
-		_action_target.call("try_open")
-	elif _action_target.has_method("interact"):
+	if _action_target.has_method("interact"):
 		_action_target.call("interact", get_tree().get_first_node_in_group("local_player"))
 
 

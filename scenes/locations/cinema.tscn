@@ -1,7 +1,6 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/room_nav.gd" id="1_nav"]
-[ext_resource type="PackedScene" path="res://scenes/bus_stop.tscn" id="2_bus"]
 [ext_resource type="Script" path="res://scripts/doorway.gd" id="3_door"]
 [ext_resource type="Script" path="res://scripts/cinema.gd" id="4_cinema"]
 
@@ -84,9 +83,6 @@ surface_material_override/0 = SubResource("Mat_curb")
 
 [node name="Collision" type="CollisionShape3D" parent="NavigationRegion3D/WallEast"]
 shape = SubResource("BoxShape3D_unit")
-
-[node name="BusStop" parent="NavigationRegion3D" instance=ExtResource("2_bus")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 6.4, 0, 5.8)
 
 [node name="FrontDoor" type="Area3D" parent="."]
 collision_layer = 0

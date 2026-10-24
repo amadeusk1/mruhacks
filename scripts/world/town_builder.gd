@@ -226,22 +226,11 @@ func _build_markers(nav: Node) -> void:
 		var yaw := float(p.get("rot_y_deg", 0.0))
 		var at := _v(p["pos"]) + Basis(Vector3.UP, deg_to_rad(yaw)) * Vector3(s[0], s[2], -s[1])
 		markers.append({"name": door[0], "kind": "door", "target": door[1], "pos": [at.x, at.y, at.z], "rot_y_deg": yaw})
-	if not markers.any(func(m): return m.get("kind", "") == "bus"):
-		# world.gd needs NavigationRegion3D/BusStop; put one beside the arrival spot
-		for m in markers:
-			if m["name"] == "BusArrival":
-				var p: Array = m["pos"]
-				markers.append({"name": "BusStop", "kind": "bus", "pos": [p[0] + 3.0, 0.0, p[2] + 1.5], "rot_y_deg": 90})
-				break
 	for m in markers:
 		var kind := str(m.get("kind", ""))
-		var t := Transform3D(Basis(Vector3.UP, deg_to_rad(float(m.get("rot_y_deg", 0.0)))), _v(m["pos"]))
-		if kind == "bus":  # world.gd expects NavigationRegion3D/BusStop
-			var stop := load("res://scenes/bus_stop.tscn").instantiate() as Node3D
-			stop.name = "BusStop"
-			stop.transform = t
-			nav.add_child(stop)
+		if kind == "bus":
 			continue
+		var t := Transform3D(Basis(Vector3.UP, deg_to_rad(float(m.get("rot_y_deg", 0.0)))), _v(m["pos"]))
 		var marker := Marker3D.new()
 		marker.name = str(m["name"])
 		marker.transform = t

@@ -25,7 +25,6 @@
     {"id": "nature_dock/broad_tree_snow", "pos": [-6, 0, 8], "tags": ["tree"]}
   ],
   "markers": [
-    {"name": "BusArrival", "pos": [3, 0.2, 6], "rot_y_deg": 200, "kind": "spawn"},
-    {"name": "BusStop", "pos": [6.5, 0, 7.5], "rot_y_deg": 90, "kind": "bus"}
+    {"name": "BusArrival", "pos": [3, 0.2, 6], "rot_y_deg": 200, "kind": "spawn"}
   ]
 }
