@@ -19,6 +19,16 @@ const _PLACES := {
 		"scene": "res://scenes/locations/town.tscn",
 		"map": Vector2(0.46, 0.55),
 	},
+	"cafe": {
+		"title": "Café",
+		"scene": "res://scenes/locations/cafe.tscn",
+		"map": Vector2(0.4, 0.5),
+	},
+	"arcade": {
+		"title": "Arcade",
+		"scene": "res://scenes/locations/arcade.tscn",
+		"map": Vector2(0.52, 0.5),
+	},
 	"plaza": {
 		"title": "Shops",
 		"scene": "res://scenes/locations/plaza.tscn",

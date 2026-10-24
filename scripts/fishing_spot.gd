@@ -41,8 +41,9 @@ func _ready() -> void:
 	_prompt.global_position = approach_point() + Vector3(0.0, 1.25, 0.0)
 
 
+## Local +X points from the rail to where the penguin stands (the west pier has no rotation).
 func approach_point() -> Vector3:
-	return global_position + Vector3(1.2, -0.58, 0.0)
+	return global_position + global_basis * Vector3(1.2, -0.58, 0.0)
 
 
 func stand_point() -> Vector3:
@@ -81,7 +82,7 @@ func try_fish(force := false) -> bool:
 		return false
 	if not Net.claim_bench(bench_key()):
 		return false
-	if not bool(player.call("plant_fish", self, stand_point(), _YAW)):
+	if not bool(player.call("plant_fish", self, stand_point(), global_rotation.y + _YAW)):
 		Net.release_bench()
 		return false
 	return true

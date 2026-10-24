@@ -55,7 +55,7 @@ var _net_sitting := false
 var _has_net_pose := false
 var _name_label: Label3D
 var _tint_applied := -1
-var _emote := ""  # UI emote clip playing; walking or sitting cancels it (UI core)
+var _overlay := ""  # emote/activity clip playing until the penguin moves
 
 const _GRAVITY := 28.0
 const _CLICK_MASK := 3
@@ -80,21 +80,8 @@ func _ready() -> void:
 	_mount_pack(Color(0.24, 0.49, 0.84))
 	_pose_placeholder()
 	_clips = _find_clips()
+	PenguinAnims.attach(_clips)
 	marker.hide_marker()
-
-
-## Plays an anim_emotes clip in place (UI emote picker). Moving cancels it. Returns false if
-## the clip is unknown or the penguin is busy (sitting, fishing).
-func play_emote(clip: String) -> bool:
-	if _clips == null or _sitting or _fisher_phase != "":
-		return false
-	if not _clips.has_animation(clip):
-		AssetPack.add_emotes(_clips)
-	if not _clips.has_animation(clip):
-		return false
-	_emote = clip
-	_clips.play(clip)
-	return true
 
 
 func set_travel_locked(locked: bool) -> void:
@@ -268,7 +255,7 @@ func _try_interact() -> bool:
 		return false
 	var best: Node = null
 	var best_dist := INF
-	for group in ["bench", "fish_spot", "bus_stop"]:
+	for group in ["bench", "fish_spot", "bus_stop", "interactables"]:
 		for node in get_tree().get_nodes_in_group(group):
 			if not node.has_method("can_interact") or not bool(node.call("can_interact")):
 				continue
@@ -279,6 +266,8 @@ func _try_interact() -> bool:
 				best_dist = dist
 	if best == null:
 		return false
+	if best.has_method("interact"):  # town activity anchors and doors (scripts/world/interactable.gd)
+		return bool(best.call("interact", self))
 	if best.has_method("try_fish"):
 		return bool(best.call("try_fish", true))
 	if best.has_method("try_sit"):
@@ -499,6 +488,7 @@ func _setup_remote() -> void:
 	_mount_pack(Color(0.24, 0.49, 0.84))
 	_pose_placeholder()
 	_clips = _find_clips()
+	PenguinAnims.attach(_clips)
 
 
 func _step_remote(delta: float) -> void:
@@ -543,8 +533,40 @@ func _restore_feet() -> void:
 		_foot_r.position.z = _foot_r_z
 
 
+## Plays an emote ("wave", "dance", "emote_cheer"...) from anim_emotes. Moving cancels it.
+func play_emote(emote_name: String) -> bool:
+	return _play_overlay(emote_name, "emotes")
+
+
+## Plays any activity clip ("fishing/fish_cast", "snow_throw", "arcade_play"...). Moving cancels it.
+func play_activity(clip_name: String) -> bool:
+	return _play_overlay(clip_name, "social")
+
+
+func _play_overlay(clip_name: String, kit: String) -> bool:
+	if _clips == null:
+		return false
+	var clip := PenguinAnims.resolve(_clips, clip_name, kit)
+	if clip == "":
+		return false
+	_overlay = clip
+	_clips.speed_scale = 1.0
+	_clips.play(clip, 0.15)
+	return true
+
+
 func _animate(delta: float, speed: float) -> void:
+	if _overlay != "" and _clips and speed <= 0.25 and not _sitting and _clips.current_animation == _overlay:
+		return
+	_overlay = ""
 	if _fisher_phase != "":
+		var fish_clip := PenguinAnims.fishing_clip(_fisher_phase)
+		if _clips and fish_clip != "" and _clips.has_animation(fish_clip):
+			if _clips.current_animation != fish_clip:
+				_clips.speed_scale = 1.0
+				_clips.play(fish_clip, 0.15)
+			visual.rotation = Vector3.ZERO
+			return
 		if _clips and _clips.has_animation("idle") and _clips.current_animation != "idle":
 			_clips.play("idle")
 		var lean := 12.0
@@ -557,6 +579,7 @@ func _animate(delta: float, speed: float) -> void:
 		return
 	if _sitting:
 		if _clips and _clips.has_animation("sit"):
+			_clips.speed_scale = 1.0
 			if _clips.current_animation != "sit":
 				_clips.play("sit")
 			visual.rotation = Vector3.ZERO
@@ -570,14 +593,12 @@ func _animate(delta: float, speed: float) -> void:
 		_swing_flipper(_flipper_r, _flipper_r_x, 0.0)
 		return
 	var moving := speed > 0.25
-	if _clips and _emote != "":
-		if not moving and _clips.current_animation == _emote:
-			return
-		_emote = ""
 	if _clips:
-		var clip := "walk" if moving else "idle"
+		var loco := PenguinAnims.locomotion(speed)
+		var clip: String = loco[0] if _clips.has_animation(loco[0]) else ("walk" if moving else "idle")
+		_clips.speed_scale = loco[1]
 		if _clips.current_animation != clip:
-			_clips.play(clip)
+			_clips.play(clip, 0.15)
 		return
 	if moving:
 		_phase += speed * delta * 7.5

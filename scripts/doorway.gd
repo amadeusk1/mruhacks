@@ -4,6 +4,8 @@ extends Area3D
 ## The landing marker sits outside this volume so the trip cannot bounce.
 
 @export var spawn_name := "OutsideSpawn"
+## Set to travel to another location instead of a marker in this room (e.g. "town").
+@export var location := ""
 
 
 func _ready() -> void:
@@ -24,5 +26,8 @@ func _on_body_entered(body: Node3D) -> void:
 	if world.has_method("is_traveling") and bool(world.call("is_traveling")):
 		return
 	if world.has_method("is_bus_menu_open") and bool(world.call("is_bus_menu_open")):
+		return
+	if location != "" and world.has_method("travel_to"):
+		world.call("travel_to", location, spawn_name)
 		return
 	world.call("shift_to_marker", spawn_name)

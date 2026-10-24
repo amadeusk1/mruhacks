@@ -9,6 +9,7 @@ const LAYOUT := "res://Models/world/town_layout.json"
 const STUB := "res://scripts/world/town_layout_stub.json"
 const ENV_FORWARD := "res://scenes/env/town_env_forward.tres"
 const ENV_COMPAT := "res://scenes/env/town_env_compat.tres"
+const FOLIAGE := preload("res://scripts/world/foliage_batch.gdshader")
 const BATCH_MIN := 6  # identical untinted, part-less props batched into one MultiMesh
 const FLOOR_LAYER := 1
 const BLOCK_LAYER := 2
@@ -36,6 +37,10 @@ func _enter_tree() -> void:
 
 func _ready() -> void:
 	_apply_environment()
+	AmbientFx.dress(self)
+	var world := get_tree().get_first_node_in_group("world")
+	if world:
+		AmbientFx.snowfall(self, world.get_node("CameraRig"))
 
 
 func _exit_tree() -> void:
@@ -57,6 +62,18 @@ func _process(delta: float) -> void:
 ## Same contract as the teammate's rooms: centre, follow limits, camera height and distance.
 func camera_for_spawn(_spawn_name: String) -> Dictionary:
 	var cam: Dictionary = _layout.get("camera", {})
+	if cam.has("bounds_min"):  # layout v2: walkable bounds plus pitch/distance
+		var lo: Array = cam["bounds_min"]
+		var hi: Array = cam["bounds_max"]
+		var pitch := deg_to_rad(absf(float(cam.get("pitch_deg", -50))))
+		var dist := float(cam.get("distance", 18))
+		return {
+			"center": Vector3((lo[0] + hi[0]) * 0.5, 0, (lo[1] + hi[1]) * 0.5),
+			"limit_x": (hi[0] - lo[0]) * 0.5,
+			"limit_z": (hi[1] - lo[1]) * 0.5,
+			"height": dist * sin(pitch),
+			"distance": dist * cos(pitch),
+		}
 	return {
 		"center": _v(cam.get("center", [0, 0, 0])),
 		"limit_x": float(cam.get("limit_x", 30.0)),
@@ -87,7 +104,7 @@ func _build_terrain(nav: Node) -> void:
 	nav.add_child(terrain)
 	Tints.prepare(terrain)
 	for mi in terrain.find_children("*", "MeshInstance3D", true, false):
-		if String(mi.name).begins_with("terrain_"):
+		if not String(mi.name).begins_with("water"):  # v2 merges snow/rock/sand into "town_terrain"
 			_trimesh_body(mi, FLOOR_LAYER)
 
 
@@ -95,7 +112,7 @@ func _build_placements(nav: Node) -> void:
 	var groups := {}
 	for p in _layout["placements"]:
 		var id := str(p["id"])
-		var batchable: bool = (p.get("tints", {}) as Dictionary).is_empty() and AssetRegistry.parts(id).is_empty() \
+		var batchable: bool = (p.get("tints", {}) as Dictionary).is_empty() and _sway_only(id) \
 			and not (p.get("tags", []) as Array).has("walkable") and not (p.get("tags", []) as Array).has("blocker")
 		groups.get_or_add(id if batchable else "", []).append(p)
 	for id in groups:
@@ -134,17 +151,26 @@ func _place(nav: Node, p: Dictionary) -> void:
 	_start_ambient(node)
 
 
+## Assets whose only moving parts sway (tree crowns, shrub tops) batch fine: the sway moves
+## into the foliage shader. Doors, flags and the like need real nodes.
+func _sway_only(id: String) -> bool:
+	for part in AssetRegistry.parts(id).values():
+		if part.get("motion", "") != "sway":
+			return false
+	return true
+
+
 func _batch(nav: Node, id: String, items: Array) -> void:
 	var proto := _spawn(id)
 	if proto == null:
 		return
+	var parts := AssetRegistry.parts(id)
 	for mi in proto.find_children("*", "MeshInstance3D", true, false):
 		var local := _local_to(proto, mi)
+		var sway := float(parts.get(String(mi.get_parent().name), parts.get(String(mi.name), {})).get("amp_deg", 0.0))
 		var mesh := mi.mesh.duplicate() as Mesh
-		for s in mesh.get_surface_count():  # Tints.prepare put the shade-enabled copies in overrides
-			var ov: Material = mi.get_surface_override_material(s)
-			if ov:
-				mesh.surface_set_material(s, ov)
+		for s in mesh.get_surface_count():
+			mesh.surface_set_material(s, _batch_material(mi.get_active_material(s), sway))
 		var mm := MultiMesh.new()
 		mm.transform_format = MultiMesh.TRANSFORM_3D
 		mm.mesh = mesh
@@ -160,6 +186,21 @@ func _batch(nav: Node, id: String, items: Array) -> void:
 
 func _spawn(id: String) -> Node3D:  # teammate's loader: instancing plus Tints.prepare
 	return AssetPack.spawn(id.get_base_dir(), id.get_file())
+
+
+## Foliage shader version of a surface: same colour/shade, sway, and the occlusion hole.
+## Glowing surfaces (lanterns) keep their own material.
+func _batch_material(src: Material, sway: float) -> Material:
+	var base := src as BaseMaterial3D
+	if base == null or base.emission_enabled or base.transparency != BaseMaterial3D.TRANSPARENCY_DISABLED:
+		return src
+	var m := ShaderMaterial.new()
+	m.shader = FOLIAGE
+	m.set_shader_parameter("albedo", base.albedo_color)
+	m.set_shader_parameter("use_vertex_shade", base.vertex_color_use_as_albedo)
+	m.set_shader_parameter("roughness", base.roughness)
+	m.set_shader_parameter("sway_deg", sway)
+	return m
 
 
 func _local_to(root: Node3D, n: Node3D) -> Transform3D:
@@ -196,18 +237,63 @@ func _build_markers(nav: Node) -> void:
 			if k not in ["name", "pos", "rot_y_deg"]:
 				marker.set_meta(k, m[k])
 		add_child(marker)
-		if kind == "door" and m.has("target"):
-			var door := Area3D.new()
-			door.name = marker.name + "Area"
-			door.set_script(load("res://scripts/doorway.gd"))
-			door.set("spawn_name", str(m["target"]))
-			var shape := CollisionShape3D.new()
-			var box := BoxShape3D.new()
-			box.size = Vector3(1.4, 1.6, 0.8)
-			shape.shape = box
-			door.add_child(shape)
-			door.transform = t.translated_local(Vector3(0, 0.8, 0))
-			add_child(door)
+		if kind == "door":
+			_door(marker, str(m.get("target", "")))
+		elif kind == "activity":
+			_activity_anchor(marker, str(m.get("activity", "")))
+
+
+## Town door target -> [location, spawn in that location]. Interiors return to "<Door>Out".
+const DOORS := {
+	"cinema_lobby": ["cinema", "InsideLobby", "Cinema"],
+	"cafe_interior": ["cafe", "Inside", "Café"],
+	"arcade_interior": ["arcade", "Inside", "Arcade"],
+	"home": ["home", "InsideSpawn", "your igloo"],
+}
+const ACTIVITY_TITLES := {"sled": "Sled Hill", "snowballs": "Snowball Arena", "basketball": "Basketball Court", "sketch": "Sketch Club"}
+
+
+func _door(marker: Marker3D, target: String) -> void:
+	# spawn just outside the door, facing away from it, so arriving never re-triggers it
+	var out := Marker3D.new()
+	out.name = marker.name + "Out"
+	out.transform = Transform3D(marker.basis.rotated(Vector3.UP, PI), marker.position + marker.basis.z * 1.6)
+	add_child(out)
+	if not DOORS.has(target):
+		return
+	var d: Array = DOORS[target]
+	_anchor(marker, d[2], "Enter", "", d[0], d[1])
+
+
+func _activity_anchor(marker: Marker3D, activity: String) -> void:
+	match activity:
+		"fishing":  # the teammate's fishing spot; the rail sits 1.2 m in front of the stand marker
+			var spot := StaticBody3D.new()
+			spot.name = marker.name + "Rail"
+			spot.set_script(load("res://scripts/fishing_spot.gd"))
+			var facing := -marker.basis.z
+			spot.position = marker.position + facing * 1.2 + Vector3(0, 0.58, 0)
+			spot.rotation.y = marker.rotation.y - PI * 0.5
+			add_child(spot)
+		"sled":
+			_anchor(marker, "Sled Hill", "Ride", "", "sled_hill", "BusArrival")
+		"sled_finish":
+			pass
+		_:
+			_anchor(marker, ACTIVITY_TITLES.get(activity, activity.capitalize()), "Join", activity, "", "")
+
+
+func _anchor(at: Node3D, title: String, verb: String, activity: String, location: String, spawn: String) -> void:
+	var a := Interactable.new()
+	a.name = at.name + "Action"
+	a.title = title
+	a.verb = verb
+	a.activity = activity
+	a.location = location
+	a.spawn_name = spawn
+	a.transform = at.transform
+	a.set_meta("marker", at.name)
+	add_child(a)
 
 
 func _start_ambient(node: Node) -> void:

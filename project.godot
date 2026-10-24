@@ -22,6 +22,7 @@ config/features=PackedStringArray("4.7", "Forward Plus")
 
 Net="*res://scripts/net.gd"
 AssetRegistry="*res://scripts/assets/asset_registry.gd"
+Activities="*res://scripts/world/activities.gd"
 UIRouter="*res://ui/ui_router.gd"
 
 [display]
@@ -80,3 +81,14 @@ interact={
 3d_physics/layer_2="blockers"
 3d_physics/layer_3="penguin"
 3d_physics/layer_4="hazards"
+
+[shader_globals]
+
+occlusion_target={
+"type": "vec3",
+"value": Vector3(0, 0, 0)
+}
+occlusion_radius={
+"type": "float",
+"value": 0.0
+}

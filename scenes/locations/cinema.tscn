@@ -101,7 +101,8 @@ shape = SubResource("BoxShape3D_unit")
 collision_layer = 0
 collision_mask = 4
 script = ExtResource("3_door")
-spawn_name = "OutsideSpawn"
+spawn_name = "CinemaDoorOut"
+location = "town"
 
 [node name="Shape" type="CollisionShape3D" parent="LobbyStreetDoor"]
 shape = SubResource("BoxShape3D_unit")
