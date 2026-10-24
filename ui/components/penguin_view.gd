@@ -71,9 +71,9 @@ func _frame() -> void:
 	if _cam == null:
 		return
 	if framing == "portrait":
-		_cam.position = Vector3(0, 0.66, 2.05)
-		_cam.look_at(Vector3(0, 0.56, 0))
-		_cam.fov = 20.0
+		_cam.position = Vector3(0, 0.82, 2.6)
+		_cam.look_at(Vector3(0, 0.66, 0))
+		_cam.fov = 21.0
 	else:
 		_cam.position = Vector3(0, 1.05, 6.2)
 		_cam.look_at(Vector3(0, 0.72, 0))
