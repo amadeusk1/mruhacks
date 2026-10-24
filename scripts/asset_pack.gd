@@ -245,9 +245,6 @@ static func _place_home_interior(home: Node3D, props: Node3D, nav: Node3D) -> vo
 		spawn_world = spawn_socket.global_position
 	_aim_marker(home.get_node("InsideReturn") as Node3D, spawn_world, room.global_position)
 	_aim_marker(home.get_node("InsideSpawn") as Node3D, spawn_world, room.global_position)
-	_furnish(room, "room_kit", "bed", Vector3(0.15, _DOME_FLOOR_Y, -1.05), 0.0)
-	_furnish(room, "room_kit", "rug_round", Vector3(0.2, _DOME_FLOOR_Y + 0.02, 0.35), 0.0)
-	_furnish(room, "room_kit", "floor_lamp", Vector3(1.15, _DOME_FLOOR_Y, 0.35), 0.0)
 
 
 ## Cinema exterior faces Godot +Z. Lobby and auditorium are separate rooms.

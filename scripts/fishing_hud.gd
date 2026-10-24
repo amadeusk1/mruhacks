@@ -4,9 +4,9 @@ extends CanvasLayer
 ## Hold Space or the mouse button to raise the band. Move or Escape to leave.
 
 const FISH: Array[Dictionary] = [
-	{"name": "Sunny", "model": "fish_round", "color": Color(0.95, 0.55, 0.18), "speed": 0.55, "coins": 3, "lo": 18, "hi": 28},
-	{"name": "Drift", "model": "fish_slim", "color": Color(0.25, 0.72, 0.7), "speed": 0.95, "coins": 5, "lo": 24, "hi": 36},
-	{"name": "Bramble", "model": "fish_spiky", "color": Color(0.58, 0.36, 0.78), "speed": 1.3, "coins": 8, "lo": 30, "hi": 46},
+	{"name": "Sunny", "model": "fish_round", "color": Color(0.95, 0.55, 0.18), "speed": 0.32, "coins": 3, "lo": 18, "hi": 28},
+	{"name": "Drift", "model": "fish_slim", "color": Color(0.25, 0.72, 0.7), "speed": 0.46, "coins": 5, "lo": 24, "hi": 36},
+	{"name": "Bramble", "model": "fish_spiky", "color": Color(0.58, 0.36, 0.78), "speed": 0.58, "coins": 8, "lo": 30, "hi": 46},
 ]
 
 var _penguin: Node
@@ -20,8 +20,9 @@ var _fish_y := 0.5
 var _fish_v := 0.6
 var _turn_left := 0.8
 var _band_y := 0.32
-var _band_h := 0.24
-var _progress := 0.34
+var _band_h := 0.38
+var _progress := 0.42
+var _in_band := false
 var _held := false
 var _paid := false
 
@@ -44,6 +45,10 @@ var _pages := {}
 var _card_icon: TextureRect
 var _miss_box: PanelContainer
 var _bob_icon: TextureRect
+var _bite_clock: Label
+var _reel_name: Label
+var _reel_hint: Label
+var _meter_label: Label
 
 
 func open(penguin: Node) -> void:
@@ -77,14 +82,16 @@ func _ready() -> void:
 	ready.add_child(_leave_btn())
 	# BITE
 	var bite := _page(stack, "bite")
-	bite.add_child(A.spacer(0, 16))
-	bite.add_child(A.title("Bite!", 56, HORIZONTAL_ALIGNMENT_CENTER))
+	bite.add_child(A.title("Bite!", 52, HORIZONTAL_ALIGNMENT_CENTER))
 	bite.add_child(A.label("Hook now!", 26, A.NAVY, true, HORIZONTAL_ALIGNMENT_CENTER))
-	var splash := _bobber(170)
+	_bite_clock = A.label("", 20, A.SUB, true, HORIZONTAL_ALIGNMENT_CENTER)
+	bite.add_child(_bite_clock)
+	var splash := _bobber(120)
 	bite.add_child(splash)
 	var hook := A.button("Hook", "primary", "hook", 30, Vector2(0, 76))
 	hook.pressed.connect(func() -> void: if _phase == "bite": _begin_reel())
 	bite.add_child(hook)
+	bite.add_child(_leave_btn())
 	# WAIT (bobber floats; same layout as ready, no Cast)
 	var wait := _page(stack, "wait")
 	_status = A.title("Waiting...", 36, HORIZONTAL_ALIGNMENT_CENTER)
@@ -98,7 +105,10 @@ func _ready() -> void:
 	# REEL
 	var reel := _page(stack, "reel")
 	reel.add_child(A.title("Reel It In!", 36, HORIZONTAL_ALIGNMENT_CENTER))
-	reel.add_child(A.label("Hold to raise  ·  Release to lower", 18, A.SUB, false, HORIZONTAL_ALIGNMENT_CENTER))
+	_reel_name = A.label("", 22, A.NAVY, true, HORIZONTAL_ALIGNMENT_CENTER)
+	reel.add_child(_reel_name)
+	_reel_hint = A.label("Hold to raise  ·  Release to lower", 18, A.SUB, false, HORIZONTAL_ALIGNMENT_CENTER)
+	reel.add_child(_reel_hint)
 	var row := A.hbox(22)
 	row.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	reel.add_child(row)
@@ -106,7 +116,7 @@ func _ready() -> void:
 	arrow.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(arrow)
 	_track = PanelContainer.new()
-	_track.custom_minimum_size = Vector2(84, 300)
+	_track.custom_minimum_size = Vector2(96, 320)
 	_track.add_theme_stylebox_override("panel", A.box(Color("#E6E2DA"), 30, 2, Color("#D8D2C6")))
 	_track.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(_track)
@@ -127,7 +137,12 @@ func _ready() -> void:
 	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(right)
 	right.add_child(A.spacer(0, 70))
-	right.add_child(A.label("Catch", 21, A.NAVY, true))
+	var catch_row := A.hbox(10)
+	catch_row.add_child(A.label("Catch", 21, A.NAVY, true))
+	catch_row.add_child(A.expander())
+	_meter_label = A.label("0%", 21, A.TEAL_DARK, true)
+	catch_row.add_child(_meter_label)
+	right.add_child(catch_row)
 	_meter = PanelContainer.new()
 	_meter.custom_minimum_size = Vector2(0, 30)
 	_meter.add_theme_stylebox_override("panel", A.box(Color("#E6E2DA"), 15))
@@ -228,10 +243,18 @@ func _process(delta: float) -> void:
 				_begin_wait()
 		"wait":
 			_wait_left -= delta
+			if _bob_icon:
+				_bob_icon.pivot_offset = _bob_icon.size * 0.5
+				_bob_icon.scale = Vector2.ONE * (1.0 + sin(_age * 3.4) * 0.06)
+				_bob_icon.modulate = Color(1, 0.78, 0.55) if _wait_left < 0.6 else Color.WHITE
+			if _wait_left < 0.6 and _wait_left > 0.0:
+				_hint.text = "Get ready to hook!"
 			if _wait_left <= 0.0:
 				_begin_bite()
 		"bite":
 			_bite_left -= delta
+			if _bite_clock:
+				_bite_clock.text = "Space, click, or Hook  ·  %.1f" % maxf(_bite_left, 0.0)
 			if pressed:
 				_begin_reel()
 			elif _bite_left <= 0.0:
@@ -256,7 +279,7 @@ func _begin_cast() -> void:
 
 func _begin_wait() -> void:
 	_phase = "wait"
-	_wait_left = randf_range(1.1, 2.5)
+	_wait_left = randf_range(0.8, 1.7)
 	_status.text = "Waiting..."
 	_hint.text = "Hook when the bobber dips."
 	_lock_clicks(false)
@@ -265,7 +288,7 @@ func _begin_wait() -> void:
 
 func _begin_bite() -> void:
 	_phase = "bite"
-	_bite_left = 1.15
+	_bite_left = 2.6
 	_show_page("bite")
 	_lock_clicks(true)
 	_tell("bite")
@@ -274,13 +297,17 @@ func _begin_bite() -> void:
 func _begin_reel() -> void:
 	_phase = "reel"
 	_fish = FISH[_pick_fish()]
-	_fish_y = randf_range(0.25, 0.75)
-	_fish_v = 0.75 * float(_fish["speed"]) * (1.0 if randf() > 0.5 else -1.0)
+	_fish_y = randf_range(0.3, 0.7)
+	_fish_v = 0.5 * float(_fish["speed"]) * (1.0 if randf() > 0.5 else -1.0)
 	_turn_left = _next_turn()
-	_band_y = 0.38
-	_progress = 0.32
+	_band_y = clampf(_fish_y - _band_h * 0.5, 0.0, 1.0 - _band_h)
+	_progress = 0.42
+	_in_band = true
 	_paid = false
 	_mark.texture = A.asset_icon(FISH_ICON.get(str(_fish["model"]), "fishing/fish_round"))
+	_mark.modulate = Color.WHITE
+	if _reel_name:
+		_reel_name.text = str(_fish["name"])
 	_show_page("reel")
 	_lock_clicks(true)
 	_tell("reel")
@@ -291,7 +318,7 @@ func _step_reel(delta: float) -> void:
 	_turn_left -= delta
 	if _turn_left <= 0.0:
 		_turn_left = _next_turn()
-		_fish_v = 0.85 * speed * (1.0 if randf() > 0.5 else -1.0)
+		_fish_v = 0.5 * speed * (1.0 if randf() > 0.5 else -1.0)
 	_fish_y += _fish_v * delta
 	if _fish_y > 0.96:
 		_fish_y = 0.96
@@ -300,15 +327,15 @@ func _step_reel(delta: float) -> void:
 		_fish_y = 0.04
 		_fish_v = absf(_fish_v)
 	if _held:
-		_band_y += 1.15 * delta
+		_band_y += 1.65 * delta
 	else:
-		_band_y -= 0.95 * delta
+		_band_y -= 1.25 * delta
 	_band_y = clampf(_band_y, 0.0, 1.0 - _band_h)
-	var inside := _fish_y >= _band_y and _fish_y <= _band_y + _band_h
-	if inside:
-		_progress += 0.4 * delta
+	_in_band = _fish_y >= _band_y and _fish_y <= _band_y + _band_h
+	if _in_band:
+		_progress += 0.28 * delta
 	else:
-		_progress -= 0.3 * delta
+		_progress -= 0.1 * delta
 	_progress = clampf(_progress, 0.0, 1.0)
 	if _progress >= 1.0:
 		_caught()
@@ -325,7 +352,7 @@ func _caught() -> void:
 		var world := get_tree().get_first_node_in_group("world")
 		if world and world.has_method("grant_coins"):
 			world.call("grant_coins", coins)
-	_show_card(str(_fish["name"]), "%s  ·  %d cm" % [str(_fish["name"]), size])
+	_show_card(str(_fish["name"]), "%s  ·  %d cm\n+%d coins" % [str(_fish["name"]), size, coins])
 	_tell("catch:%s" % str(_fish["model"]))
 
 
@@ -361,16 +388,16 @@ func _leave() -> void:
 
 func _pick_fish() -> int:
 	var roll := randf()
-	if roll < 0.5:
+	if roll < 0.62:
 		return 0
-	if roll < 0.82:
+	if roll < 0.9:
 		return 1
 	return 2
 
 
 func _next_turn() -> float:
 	var speed := float(_fish.get("speed", 1.0))
-	return randf_range(0.35, 0.85) / maxf(speed, 0.4)
+	return randf_range(1.1, 1.8) / maxf(speed, 0.4)
 
 
 func _layout_bar() -> void:
@@ -382,10 +409,15 @@ func _layout_bar() -> void:
 	var w := _track.size.x
 	_band.position = Vector2(4.0, 4.0 + (1.0 - (_band_y + _band_h)) * height)
 	_band.size = Vector2(w - 8.0, _band_h * height)
-	_mark.position = Vector2(8.0, 4.0 + (1.0 - _fish_y) * height - 22.0)
-	_mark.size = Vector2(w - 16.0, 44.0)
+	_mark.position = Vector2(6.0, 4.0 + (1.0 - _fish_y) * height - 26.0)
+	_mark.size = Vector2(w - 12.0, 52.0)
+	_band.modulate = Color(0.55, 1.15, 0.85) if _in_band else Color(1, 1, 1, 0.92)
+	if _reel_hint:
+		_reel_hint.text = "In the band. Hold steady." if _in_band else "Hold to raise  ·  Release to lower"
+	if _meter_label:
+		_meter_label.text = "%d%%" % int(_progress * 100.0)
 	_fill.position = Vector2.ZERO
-	_fill.size = Vector2(maxf(30.0, _meter.size.x * _progress), _meter.size.y)
+	_fill.size = Vector2(maxf(18.0, _meter.size.x * _progress), _meter.size.y)
 
 
 func preview(state: String) -> void:

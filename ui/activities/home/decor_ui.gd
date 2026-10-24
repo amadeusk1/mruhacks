@@ -31,6 +31,7 @@ var _toast_text: Label
 var _swatches: PanelContainer
 var _visitors_on := true
 var _grid: MeshInstance3D
+var blocks_world := false
 
 
 func _ready() -> void:
@@ -45,10 +46,15 @@ func _ready() -> void:
 
 ## Attach to a real interior: shell id like "homes/snow_dome_interior".
 func start(room: Node3D, shell_id: String, camera: Camera3D, default_items: Array = []) -> void:
-	editor = DecorEditor.new()
-	room.add_child(editor)
-	editor.setup(room, shell_id, camera)
-	editor.load_layout(default_items)
+	editor = room.get_node_or_null("HouseLayout") as DecorEditor
+	if editor == null:
+		editor = DecorEditor.new()
+		editor.name = "HouseLayout"
+		room.add_child(editor)
+		editor.setup(room, shell_id, camera)
+		editor.load_layout(default_items)
+	else:
+		editor.camera = camera
 	editor.ghost_changed.connect(_on_ghost)
 	editor.selection_changed.connect(_on_selection)
 	editor.saved.connect(_on_saved)
@@ -303,6 +309,11 @@ func _refresh_rail() -> void:
 # ---------------------------------------------------------------- state --
 func _show(mode: String) -> void:
 	_mode = mode
+	blocks_world = mode != "home"
+	if is_inside_tree():
+		var router := get_node_or_null("/root/UIRouter")
+		if router and router.has_method("_refresh_lock"):
+			router.call("_refresh_lock")
 	_hud.visible = mode == "home"
 	_deco.visible = mode != "home"
 	_sel_bar.visible = mode == "selected"
@@ -387,7 +398,8 @@ func _done() -> void:
 		_toast_text.text = "Saving..."
 		editor.save_layout()
 	_show("home")
-	_toast.reparent(_hud)
+	if _toast.get_parent() != _hud:
+		_toast.reparent(_hud)
 
 
 func _close() -> void:
