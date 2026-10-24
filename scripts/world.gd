@@ -339,7 +339,7 @@ func _on_host_lost() -> void:
 
 
 func _end_session(message: String) -> void:
-	Music.stop()
+	Music.play_title()
 	_epoch += 1
 	_in_game = false
 	_traveling = false
