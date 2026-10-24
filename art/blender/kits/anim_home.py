@@ -5,8 +5,8 @@ pose, lower the held item (socket_hand_R) onto a table top ~0.6 m high and detac
 never waits for these gestures. armchair_*: a deeper, cozier sit for room_kit armchair/sofa seats (0.41 m).
 """
 import common
-import animlib_social as L
-from animlib_social import X, Y, Z, ss, bump, cyc, window, aim
+import animlib as L
+from animlib import X, Y, Z, ss, bump, cyc, window, aim
 
 KIT = "anim_home"
 S = common.load_kit("anim_social")

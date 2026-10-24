@@ -20,5 +20,6 @@ printf 'config_version=5\n\n[application]\nconfig/name="asset_check"\n' > "$P/pr
 cd "$P"
 "$G" --headless --path . --import > import.log 2>&1 || true
 for t in import_report shade_flags tint_helpers anim_kits part_clips; do
-  "$G" --headless --path . --script "$t.gd" 2>&1 | grep -E "REPORT|RESULT|SHADED|TINT_TEST|ROLES|ANIM |RETARGET|PART_CLIPS|LOAD_FAILED|SCRIPT ERROR" || true
+  # a script error before quit() leaves Godot running forever: cap each test at 10 minutes
+  ( "$G" --headless --path . --script "$t.gd" & gp=$!; ( sleep 600; kill $gp 2>/dev/null && echo "TIMEOUT $t" ) & wp=$!; wait $gp; kill $wp 2>/dev/null ) 2>&1 | grep -E "TIMEOUT|REPORT|RESULT|SHADED|TINT_TEST|ROLES|ANIM |RETARGET|PART_CLIPS|LOAD_FAILED|SCRIPT ERROR" || true
 done

@@ -50,3 +50,14 @@ var all := Sockets.all(cabinet)                       # {"player_1": Node3D, "pl
 - **Animation libraries:** the avatar's clips import into an `AnimationPlayer`. The planned animation kits (`anim_locomotion`, `anim_emotes`, `anim_social` and activity sets) are skeleton-plus-clips GLBs. Import each as an **AnimationLibrary** (Advanced Import Settings → save animations to file) and add it to the player's `AnimationPlayer`. Bone names match across all kits.
 - **Clothing:** clothing GLBs carry their own copy of the skeleton. To dress a bird, reparent the clothing `MeshInstance3D` under the bird's `Skeleton3D` and set its `skeleton` path to it. Bone names match, so the skin binds directly.
 - **Glow:** emissive materials (`glow*`, bulbs, screens) come in with emission enabled. For lanterns to bloom, turn on Glow in the `WorldEnvironment`.
+
+## Browser (Compatibility renderer)
+
+A browser build must use Godot's **Compatibility** renderer ([Dev Handoff - Self Hosting and Browser Release](../Dev%20Handoff%20-%20Self%20Hosting%20and%20Browser%20Release.md)). The same plaza scene (café, arcade, fountain, lantern, tree, two penguins) was rendered under Forward Plus and Compatibility on 2026-10-24:
+
+- **Glow** washes the whole frame out to near white under Compatibility. Use a separate web `Environment` with `glow_enabled = false`, or a much lower glow intensity tested in the browser.
+- **Lighting:** Compatibility renders brighter and more saturated, so teal doors read as bright cyan. Matching values from that test: sun `light_energy` 1.3 → **0.8**, ambient energy 0.6 → **0.3**, Filmic tonemap kept. Keep one environment per renderer, picked at startup with `RenderingServer.get_current_rendering_method()`.
+- **Baked shade:** the roof's tile-to-tile shade variation reads stronger under Compatibility; the vertex-colour sRGB flag makes no difference. Acceptable as is. If it's too strong in the browser, scale the shade down in a web-only material variant instead of changing the models.
+- **Unchanged:** models, tints, sockets and parts.
+
+Test scene: `~/Library/Caches/club_penguin_compat` (`shot.gd`; args `noglow`, `weblight`). The comparison renders are in `art/_wip/`.

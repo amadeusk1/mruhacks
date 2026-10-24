@@ -4,8 +4,8 @@ Seated on a stool at the table (plaza stool seat 0.44 m; table top 0.6 m). socke
 think/draw/wait/reveal all start and end on TABLE. Gestures stay generic: nothing hints at what is drawn.
 """
 import common
-import animlib_social as L
-from animlib_social import X, Y, Z, ss, bump, cyc, window, aim
+import animlib as L
+from animlib import X, Y, Z, ss, bump, cyc, window, aim
 
 KIT = "anim_drawing"
 S = common.load_kit("anim_social")  # shared seated pose (sit_spec) and its hop on/off timing

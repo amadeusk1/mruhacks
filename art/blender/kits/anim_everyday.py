@@ -7,8 +7,8 @@ part_drawer (handle 0.45 m high, 0.28 m ahead of socket_use, slides 0.25 m).
 Existing clips are kept: anim_home place_item (one flipper, from hold_item_idle) and anim_social sit_* still apply.
 """
 import common
-import animlib_social as L
-from animlib_social import X, Y, Z, ss, bump, cyc, window, aim
+import animlib as L
+from animlib import X, Y, Z, ss, bump, cyc, window, aim
 
 KIT = "anim_everyday"
 S = common.load_kit("anim_social")
@@ -123,7 +123,7 @@ def drawer_open(t):
 
 def upper_only(name):
     """Strip the lower-body channels so carry_hold layers over walk (keys only on body, head and flippers)."""
-    act = bpy.data.actions[L._L.ACTION[name]]
+    act = bpy.data.actions[L.ACTION[name]]
     for layer in act.layers:
         for strip in layer.strips:
             for bag in strip.channelbags:
