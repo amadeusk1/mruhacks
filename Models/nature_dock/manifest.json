@@ -1,0 +1,541 @@
+[
+  {
+    "id": "nature_dock/broad_tree",
+    "file": "nature_dock/broad_tree.glb",
+    "category": "nature",
+    "size_m": [
+      2.456,
+      2.188,
+      3.442
+    ],
+    "sockets": {},
+    "tints": {},
+    "collision_radius": 0.3
+  },
+  {
+    "id": "nature_dock/broad_tree_bed",
+    "file": "nature_dock/broad_tree_bed.glb",
+    "category": "nature",
+    "size_m": [
+      2.46,
+      2.242,
+      3.442
+    ],
+    "sockets": {
+      "socket_sit_rim_0": [
+        0.0,
+        -1.05,
+        0.24
+      ]
+    },
+    "tints": {
+      "petal": "#FFFDF6",
+      "petal_b": "#E8524A"
+    },
+    "collision_radius": 1.05,
+    "color_variants": {
+      "petal": [
+        "petal_white",
+        "petal_red",
+        "petal_yellow",
+        "pink",
+        "lavender"
+      ],
+      "petal_b": [
+        "petal_white",
+        "petal_red",
+        "petal_yellow",
+        "pink",
+        "lavender"
+      ]
+    }
+  },
+  {
+    "id": "nature_dock/broad_tree_snow",
+    "file": "nature_dock/broad_tree_snow.glb",
+    "category": "nature",
+    "size_m": [
+      2.447,
+      2.258,
+      3.443
+    ],
+    "sockets": {},
+    "tints": {},
+    "collision_radius": 0.3
+  },
+  {
+    "id": "nature_dock/small_tree",
+    "file": "nature_dock/small_tree.glb",
+    "category": "nature",
+    "size_m": [
+      1.599,
+      1.262,
+      2.568
+    ],
+    "sockets": {},
+    "tints": {},
+    "collision_radius": 0.2
+  },
+  {
+    "id": "nature_dock/small_tree_bed",
+    "file": "nature_dock/small_tree_bed.glb",
+    "category": "nature",
+    "size_m": [
+      1.627,
+      1.56,
+      2.57
+    ],
+    "sockets": {},
+    "tints": {
+      "petal": "#FFFDF6",
+      "petal_b": "#E8524A"
+    },
+    "collision_radius": 0.78,
+    "color_variants": {
+      "petal": [
+        "petal_white",
+        "petal_red",
+        "petal_yellow",
+        "pink",
+        "lavender"
+      ],
+      "petal_b": [
+        "petal_white",
+        "petal_red",
+        "petal_yellow",
+        "pink",
+        "lavender"
+      ]
+    }
+  },
+  {
+    "id": "nature_dock/small_tree_snow",
+    "file": "nature_dock/small_tree_snow.glb",
+    "category": "nature",
+    "size_m": [
+      1.616,
+      1.256,
+      2.567
+    ],
+    "sockets": {},
+    "tints": {},
+    "collision_radius": 0.2
+  },
+  {
+    "id": "nature_dock/shrub_round",
+    "file": "nature_dock/shrub_round.glb",
+    "category": "nature",
+    "size_m": [
+      1.067,
+      0.786,
+      0.761
+    ],
+    "sockets": {},
+    "tints": {}
+  },
+  {
+    "id": "nature_dock/shrub_small",
+    "file": "nature_dock/shrub_small.glb",
+    "category": "nature",
+    "size_m": [
+      0.648,
+      0.423,
+      0.397
+    ],
+    "sockets": {},
+    "tints": {}
+  },
+  {
+    "id": "nature_dock/shrub_flowering",
+    "file": "nature_dock/shrub_flowering.glb",
+    "category": "nature",
+    "size_m": [
+      0.914,
+      0.502,
+      0.501
+    ],
+    "sockets": {},
+    "tints": {
+      "petal": "#FFFDF6",
+      "petal_b": "#E8524A"
+    },
+    "color_variants": {
+      "petal": [
+        "petal_white",
+        "petal_red",
+        "petal_yellow",
+        "pink",
+        "lavender"
+      ],
+      "petal_b": [
+        "petal_white",
+        "petal_red",
+        "petal_yellow",
+        "pink",
+        "lavender"
+      ]
+    }
+  },
+  {
+    "id": "nature_dock/flower_single",
+    "file": "nature_dock/flower_single.glb",
+    "category": "nature",
+    "size_m": [
+      0.27,
+      0.208,
+      0.36
+    ],
+    "sockets": {},
+    "tints": {
+      "petal": "#FFFDF6"
+    },
+    "color_variants": {
+      "petal": [
+        "petal_white",
+        "petal_red",
+        "petal_yellow",
+        "pink",
+        "lavender"
+      ]
+    }
+  },
+  {
+    "id": "nature_dock/leaf_tuft",
+    "file": "nature_dock/leaf_tuft.glb",
+    "category": "nature",
+    "size_m": [
+      0.39,
+      0.359,
+      0.22
+    ],
+    "sockets": {},
+    "tints": {}
+  },
+  {
+    "id": "nature_dock/leaf_tuft_small",
+    "file": "nature_dock/leaf_tuft_small.glb",
+    "category": "nature",
+    "size_m": [
+      0.26,
+      0.248,
+      0.145
+    ],
+    "sockets": {},
+    "tints": {}
+  },
+  {
+    "id": "nature_dock/flower_clump",
+    "file": "nature_dock/flower_clump.glb",
+    "category": "nature",
+    "size_m": [
+      0.369,
+      0.371,
+      0.292
+    ],
+    "sockets": {},
+    "tints": {
+      "petal": "#FFFDF6",
+      "petal_b": "#E8524A"
+    },
+    "color_variants": {
+      "petal": [
+        "petal_white",
+        "petal_red",
+        "petal_yellow",
+        "pink",
+        "lavender"
+      ],
+      "petal_b": [
+        "petal_white",
+        "petal_red",
+        "petal_yellow",
+        "pink",
+        "lavender"
+      ]
+    }
+  },
+  {
+    "id": "nature_dock/rock_cluster",
+    "file": "nature_dock/rock_cluster.glb",
+    "category": "nature",
+    "size_m": [
+      1.907,
+      1.488,
+      1.304
+    ],
+    "sockets": {},
+    "tints": {},
+    "collision": "convex"
+  },
+  {
+    "id": "nature_dock/rock_small_a",
+    "file": "nature_dock/rock_small_a.glb",
+    "category": "nature",
+    "size_m": [
+      0.79,
+      0.576,
+      0.492
+    ],
+    "sockets": {},
+    "tints": {},
+    "collision": "convex"
+  },
+  {
+    "id": "nature_dock/rock_small_b",
+    "file": "nature_dock/rock_small_b.glb",
+    "category": "nature",
+    "size_m": [
+      0.688,
+      0.69,
+      0.442
+    ],
+    "sockets": {},
+    "tints": {},
+    "collision": "convex"
+  },
+  {
+    "id": "nature_dock/rock_cluster_snow",
+    "file": "nature_dock/rock_cluster_snow.glb",
+    "category": "nature",
+    "size_m": [
+      1.918,
+      1.488,
+      1.304
+    ],
+    "sockets": {},
+    "tints": {},
+    "collision": "convex"
+  },
+  {
+    "id": "nature_dock/rock_small_a_snow",
+    "file": "nature_dock/rock_small_a_snow.glb",
+    "category": "nature",
+    "size_m": [
+      0.805,
+      0.576,
+      0.492
+    ],
+    "sockets": {},
+    "tints": {},
+    "collision": "convex"
+  },
+  {
+    "id": "nature_dock/rock_small_b_snow",
+    "file": "nature_dock/rock_small_b_snow.glb",
+    "category": "nature",
+    "size_m": [
+      0.689,
+      0.674,
+      0.442
+    ],
+    "sockets": {},
+    "tints": {},
+    "collision": "convex"
+  },
+  {
+    "id": "nature_dock/dock_straight",
+    "file": "nature_dock/dock_straight.glb",
+    "category": "modular",
+    "size_m": [
+      2.008,
+      2.007,
+      1.65
+    ],
+    "sockets": {
+      "socket_stand_0": [
+        -0.45,
+        0.45,
+        0.0
+      ],
+      "socket_stand_1": [
+        0.45,
+        0.45,
+        0.0
+      ],
+      "socket_stand_2": [
+        -0.45,
+        -0.3,
+        0.0
+      ],
+      "socket_stand_3": [
+        0.45,
+        -0.3,
+        0.0
+      ]
+    },
+    "tints": {},
+    "module": "dock",
+    "grid": 2.0,
+    "deck_z": 0.0,
+    "water_z": -0.5,
+    "connects": [
+      "+Y",
+      "-Y"
+    ]
+  },
+  {
+    "id": "nature_dock/dock_corner",
+    "file": "nature_dock/dock_corner.glb",
+    "category": "modular",
+    "size_m": [
+      2.017,
+      2.02,
+      1.65
+    ],
+    "sockets": {
+      "socket_stand_0": [
+        -0.4,
+        0.4,
+        0.0
+      ],
+      "socket_stand_1": [
+        0.4,
+        0.4,
+        0.0
+      ],
+      "socket_stand_2": [
+        -0.4,
+        -0.4,
+        0.0
+      ],
+      "socket_stand_3": [
+        0.4,
+        -0.4,
+        0.0
+      ]
+    },
+    "tints": {},
+    "module": "dock",
+    "grid": 2.0,
+    "connects": [
+      "+Y",
+      "+X"
+    ],
+    "water_z": -0.5
+  },
+  {
+    "id": "nature_dock/dock_stairs",
+    "file": "nature_dock/dock_stairs.glb",
+    "category": "modular",
+    "size_m": [
+      1.28,
+      1.11,
+      1.69
+    ],
+    "sockets": {
+      "socket_bottom": [
+        0.0,
+        -0.96,
+        -0.36
+      ],
+      "socket_top": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "tints": {},
+    "module": "dock_stairs",
+    "width": 1.2,
+    "drop": 0.42
+  },
+  {
+    "id": "nature_dock/rope_posts",
+    "file": "nature_dock/rope_posts.glb",
+    "category": "modular",
+    "size_m": [
+      2.07,
+      0.257,
+      0.99
+    ],
+    "sockets": {},
+    "tints": {},
+    "module": "rope_rail",
+    "span": 1.8
+  },
+  {
+    "id": "nature_dock/rope_posts_bunting",
+    "file": "nature_dock/rope_posts_bunting.glb",
+    "category": "modular",
+    "size_m": [
+      2.07,
+      0.257,
+      0.99
+    ],
+    "sockets": {},
+    "tints": {
+      "flag_a": "#E86D58",
+      "flag_c": "#FAF1DD",
+      "flag_b": "#3FB3B5"
+    },
+    "module": "rope_rail",
+    "span": 1.8,
+    "color_variants": {
+      "flag_a": [
+        "coral",
+        "red"
+      ],
+      "flag_b": [
+        "teal_light",
+        "sky"
+      ],
+      "flag_c": [
+        "cream",
+        "white"
+      ],
+      "flag_d": [
+        "mustard",
+        "yellow"
+      ]
+    }
+  },
+  {
+    "id": "nature_dock/water_tile_2x2",
+    "file": "nature_dock/water_tile_2x2.glb",
+    "category": "modular",
+    "size_m": [
+      2.0,
+      2.0,
+      0.028
+    ],
+    "sockets": {},
+    "tints": {},
+    "module": "water",
+    "grid": 2.0,
+    "surface_z": -0.5
+  },
+  {
+    "id": "nature_dock/water_edge_2m",
+    "file": "nature_dock/water_edge_2m.glb",
+    "category": "modular",
+    "size_m": [
+      2.003,
+      1.75,
+      0.954
+    ],
+    "sockets": {},
+    "tints": {},
+    "module": "water_edge",
+    "length": 2.0,
+    "corner": false,
+    "water_z": -0.5,
+    "water_side": "-Y"
+  },
+  {
+    "id": "nature_dock/water_edge_corner",
+    "file": "nature_dock/water_edge_corner.glb",
+    "category": "modular",
+    "size_m": [
+      3.25,
+      3.503,
+      0.958
+    ],
+    "sockets": {},
+    "tints": {},
+    "module": "water_edge",
+    "length": 2.0,
+    "corner": true,
+    "water_z": -0.5,
+    "water_side": "-Y,+X"
+  }
+]

@@ -1,0 +1,202 @@
+[
+  {
+    "id": "cinema/cinema_shell",
+    "file": "cinema/cinema_shell.glb",
+    "category": "building",
+    "size_m": [
+      6.92,
+      5.72,
+      3.609
+    ],
+    "sockets": {
+      "socket_door": [
+        0.0,
+        -3.3,
+        0.4
+      ]
+    },
+    "tints": {
+      "trim": "#E86D58",
+      "wall": "#F3E2C5"
+    },
+    "module": "shell",
+    "footprint_m": [
+      6.8,
+      5.6
+    ]
+  },
+  {
+    "id": "cinema/cinema_facade",
+    "file": "cinema/cinema_facade.glb",
+    "category": "building",
+    "size_m": [
+      6.08,
+      0.59,
+      5.32
+    ],
+    "sockets": {},
+    "tints": {
+      "trim": "#E86D58",
+      "wall": "#F3E2C5"
+    },
+    "module": "facade",
+    "attach": "shell front face, y=-D/2"
+  },
+  {
+    "id": "cinema/cinema_roof_cap",
+    "file": "cinema/cinema_roof_cap.glb",
+    "category": "building",
+    "size_m": [
+      6.8,
+      5.6,
+      0.68
+    ],
+    "sockets": {},
+    "tints": {
+      "trim": "#E86D58"
+    },
+    "module": "roof",
+    "attach_z": 3.2800000000000002
+  },
+  {
+    "id": "cinema/cinema_marquee",
+    "file": "cinema/cinema_marquee.glb",
+    "category": "sign",
+    "size_m": [
+      2.9,
+      0.282,
+      1.125
+    ],
+    "sockets": {},
+    "tints": {
+      "marquee_frame": "#E86D58"
+    },
+    "note": "sign face material insert_marquee takes the CINEMA graphic"
+  },
+  {
+    "id": "cinema/cinema_double_doors",
+    "file": "cinema/cinema_double_doors.glb",
+    "category": "door",
+    "size_m": [
+      2.06,
+      0.172,
+      2.37
+    ],
+    "sockets": {
+      "socket_door": [
+        0.0,
+        -0.6,
+        0.0
+      ]
+    },
+    "tints": {
+      "door": "#207D85"
+    }
+  },
+  {
+    "id": "cinema/poster_frame_a",
+    "file": "cinema/poster_frame_a.glb",
+    "category": "wall_decor",
+    "size_m": [
+      0.86,
+      0.14,
+      1.28
+    ],
+    "sockets": {},
+    "tints": {},
+    "note": "face uses insert_poster; game supplies poster art"
+  },
+  {
+    "id": "cinema/poster_frame_b",
+    "file": "cinema/poster_frame_b.glb",
+    "category": "wall_decor",
+    "size_m": [
+      0.86,
+      0.14,
+      1.28
+    ],
+    "sockets": {},
+    "tints": {},
+    "note": "face uses insert_poster_b; game supplies poster art"
+  },
+  {
+    "id": "cinema/cinema_entrance_stair",
+    "file": "cinema/cinema_entrance_stair.glb",
+    "category": "building",
+    "size_m": [
+      4.84,
+      2.17,
+      1.075
+    ],
+    "sockets": {},
+    "tints": {
+      "carpet": "#C8362F",
+      "rope": "#C8362F"
+    },
+    "module": "stair",
+    "attach": "back edge against facade, top at FLOOR=0.4"
+  },
+  {
+    "id": "cinema/cinema_topiary",
+    "file": "cinema/cinema_topiary.glb",
+    "category": "plant",
+    "size_m": [
+      0.51,
+      0.51,
+      1.273
+    ],
+    "sockets": {},
+    "tints": {}
+  },
+  {
+    "id": "cinema/cinema_exterior",
+    "file": "cinema/cinema_exterior.glb",
+    "category": "building",
+    "size_m": [
+      6.92,
+      8.25,
+      5.325
+    ],
+    "sockets": {
+      "socket_door": [
+        0.0,
+        -3.5,
+        0.4
+      ],
+      "socket_queue_0": [
+        0.0,
+        -5.49,
+        0.0
+      ],
+      "socket_queue_1": [
+        0.0,
+        -6.24,
+        0.0
+      ],
+      "socket_queue_2": [
+        0.0,
+        -6.99,
+        0.0
+      ],
+      "socket_queue_3": [
+        0.0,
+        -7.74,
+        0.0
+      ]
+    },
+    "tints": {
+      "trim": "#E86D58",
+      "marquee_frame": "#E86D58",
+      "door": "#207D85",
+      "carpet": "#C8362F",
+      "rope": "#C8362F",
+      "wall": "#F3E2C5"
+    },
+    "prefab": true,
+    "footprint_m": [
+      6.8,
+      7.199999999999999
+    ],
+    "note": "assembled from the cinema_* modules; sockets rotz 180 face the doors"
+  }
+]

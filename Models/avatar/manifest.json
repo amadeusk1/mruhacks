@@ -1,0 +1,587 @@
+[
+  {
+    "id": "avatar/avatar_base",
+    "file": "avatar/avatar_base.glb",
+    "category": "character",
+    "size_m": [
+      0.977,
+      0.651,
+      0.9
+    ],
+    "sockets": {
+      "socket_back": [
+        0.0,
+        -0.16,
+        -0.302
+      ],
+      "socket_face": [
+        0.0,
+        -0.2,
+        0.239
+      ],
+      "socket_hand_R": [
+        0.0,
+        -0.02,
+        -0.0
+      ],
+      "socket_head": [
+        0.0,
+        -0.18,
+        0.0
+      ],
+      "socket_neck": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "socket_seat": [
+        0.0,
+        -0.08,
+        0.0
+      ]
+    },
+    "tints": {
+      "body": "#3E7DD6"
+    },
+    "slot": "base",
+    "color_variants": {
+      "blue": "#3E7DD6",
+      "green": "#5DAA3C",
+      "yellow": "#F2C230",
+      "pink": "#F2A0B5",
+      "red": "#D9473B",
+      "orange": "#F08A2E",
+      "purple": "#7B4FC4",
+      "teal": "#2FA3A3",
+      "black": "#2E3440",
+      "white": "#E9EEF2"
+    },
+    "bones": [
+      "root",
+      "body",
+      "head",
+      "flipper.L",
+      "flipper.R",
+      "foot.L",
+      "foot.R"
+    ],
+    "morphs": [
+      "eyes_closed",
+      "eyes_happy",
+      "eyes_wide",
+      "beak_open",
+      "blush"
+    ],
+    "animations": "clips live in the anim_* kits (anim_locomotion, anim_emotes, anim_social)",
+    "sockets_world": {
+      "head": [
+        0,
+        0,
+        0.72
+      ],
+      "face": [
+        0.0,
+        -0.23936666548252106,
+        0.699999988079071
+      ],
+      "neck": [
+        0,
+        0,
+        0.56
+      ],
+      "back": [
+        4.294428256693986e-17,
+        0.30157333612442017,
+        0.4000000059604645
+      ],
+      "hand_R": [
+        -0.46950799226760864,
+        0.03500000014901161,
+        0.2357441484928131
+      ],
+      "seat": [
+        0,
+        0,
+        0.04
+      ]
+    },
+    "height_m": 0.9
+  },
+  {
+    "id": "avatar/red_beanie",
+    "file": "avatar/red_beanie.glb",
+    "category": "hat",
+    "size_m": [
+      0.631,
+      0.57,
+      0.411
+    ],
+    "sockets": {},
+    "tints": {
+      "cloth_primary": "#D9473B"
+    },
+    "slot": "head",
+    "socket": "socket_head",
+    "color_variants": {
+      "red": "#D9473B",
+      "teal": "#2FA3A3",
+      "mustard": "#E3A92B"
+    }
+  },
+  {
+    "id": "avatar/frog_hood",
+    "file": "avatar/frog_hood.glb",
+    "category": "hat",
+    "size_m": [
+      0.844,
+      0.747,
+      0.613
+    ],
+    "sockets": {},
+    "tints": {
+      "cloth_primary": "#5DAA3C",
+      "cloth_secondary": "#F3E6C4"
+    },
+    "slot": "head",
+    "socket": "socket_head",
+    "excludes": [
+      "head"
+    ],
+    "covers": "head",
+    "color_variants": {
+      "green": "#5DAA3C",
+      "pink": "#F2A0B5",
+      "yellow": "#F2C230"
+    }
+  },
+  {
+    "id": "avatar/explorer_hat",
+    "file": "avatar/explorer_hat.glb",
+    "category": "hat",
+    "size_m": [
+      0.961,
+      0.884,
+      0.237
+    ],
+    "sockets": {},
+    "tints": {
+      "cloth_primary": "#D4A46A",
+      "cloth_secondary": "#7A4E2C"
+    },
+    "slot": "head",
+    "socket": "socket_head",
+    "color_variants": {
+      "tan": "#D4A46A",
+      "olive": "#6E8A3A",
+      "brown": "#9C6A3C"
+    }
+  },
+  {
+    "id": "avatar/wizard_hat",
+    "file": "avatar/wizard_hat.glb",
+    "category": "hat",
+    "size_m": [
+      0.893,
+      0.821,
+      0.48
+    ],
+    "sockets": {},
+    "tints": {
+      "cloth_primary": "#7B4FC4"
+    },
+    "slot": "head",
+    "socket": "socket_head",
+    "color_variants": {
+      "purple": "#7B4FC4",
+      "navy": "#2E3F6E",
+      "teal": "#2FA3A3"
+    }
+  },
+  {
+    "id": "avatar/bucket_hat",
+    "file": "avatar/bucket_hat.glb",
+    "category": "hat",
+    "size_m": [
+      0.82,
+      0.735,
+      0.258
+    ],
+    "sockets": {},
+    "tints": {
+      "cloth_primary": "#3D7BD9",
+      "cloth_secondary": "#2F64B8"
+    },
+    "slot": "head",
+    "socket": "socket_head",
+    "color_variants": {
+      "blue": "#3D7BD9",
+      "coral": "#E86D58",
+      "sage": "#8DAA5B"
+    }
+  },
+  {
+    "id": "avatar/headphones",
+    "file": "avatar/headphones.glb",
+    "category": "hat",
+    "size_m": [
+      0.806,
+      0.191,
+      0.464
+    ],
+    "sockets": {},
+    "tints": {
+      "cloth_primary": "#D9473B"
+    },
+    "slot": "head",
+    "socket": "socket_head",
+    "color_variants": {
+      "red": "#D9473B",
+      "teal": "#2FA3A3",
+      "white": "#E9EEF2"
+    }
+  },
+  {
+    "id": "avatar/hoodie",
+    "file": "avatar/hoodie.glb",
+    "category": "wardrobe",
+    "size_m": [
+      0.991,
+      0.756,
+      0.554
+    ],
+    "sockets": {},
+    "tints": {
+      "cloth_primary": "#E8655A",
+      "cloth_secondary": "#F7F1E6"
+    },
+    "slot": "torso",
+    "color_variants": {
+      "coral": "#E8655A",
+      "blue": "#3F7FD0",
+      "olive": "#6E8A3A"
+    },
+    "rig": "avatar_rig (rebind by bone name)"
+  },
+  {
+    "id": "avatar/varsity_jacket",
+    "file": "avatar/varsity_jacket.glb",
+    "category": "wardrobe",
+    "size_m": [
+      1.003,
+      0.673,
+      0.468
+    ],
+    "sockets": {},
+    "tints": {
+      "cloth_secondary": "#F3E6C4",
+      "cloth_primary": "#2E3F6E"
+    },
+    "slot": "torso",
+    "color_variants": {
+      "navy": "#2E3F6E",
+      "coral": "#E8655A",
+      "mustard": "#EDB33F"
+    },
+    "rig": "avatar_rig (rebind by bone name)"
+  },
+  {
+    "id": "avatar/raincoat",
+    "file": "avatar/raincoat.glb",
+    "category": "wardrobe",
+    "size_m": [
+      1.021,
+      0.75,
+      0.47
+    ],
+    "sockets": {},
+    "tints": {
+      "cloth_primary": "#EDB33F",
+      "cloth_secondary": "#2FA3A3"
+    },
+    "slot": "torso",
+    "color_variants": {
+      "mustard": "#EDB33F",
+      "teal": "#3BB8B5",
+      "olive": "#6E8A3A"
+    },
+    "rig": "avatar_rig (rebind by bone name)"
+  },
+  {
+    "id": "avatar/overalls",
+    "file": "avatar/overalls.glb",
+    "category": "wardrobe",
+    "size_m": [
+      0.803,
+      0.738,
+      0.503
+    ],
+    "sockets": {},
+    "tints": {
+      "cloth_primary": "#3BB8B5",
+      "cloth_secondary": "#F3E6C4"
+    },
+    "slot": "torso",
+    "color_variants": {
+      "teal": "#3BB8B5",
+      "coral": "#E8655A",
+      "lavender": "#A77BD0"
+    },
+    "rig": "avatar_rig (rebind by bone name)"
+  },
+  {
+    "id": "avatar/striped_tee",
+    "file": "avatar/striped_tee.glb",
+    "category": "wardrobe",
+    "size_m": [
+      0.867,
+      0.676,
+      0.402
+    ],
+    "sockets": {},
+    "tints": {
+      "cloth_primary": "#E8655A",
+      "cloth_secondary": "#F7EEDD"
+    },
+    "slot": "torso",
+    "color_variants": {
+      "coral": "#E8655A",
+      "cream": "#F7EEDD",
+      "sky": "#3FA4D4"
+    },
+    "rig": "avatar_rig (rebind by bone name)"
+  },
+  {
+    "id": "avatar/puffer_vest",
+    "file": "avatar/puffer_vest.glb",
+    "category": "wardrobe",
+    "size_m": [
+      0.843,
+      0.748,
+      0.469
+    ],
+    "sockets": {},
+    "tints": {
+      "cloth_primary": "#6E8A3A",
+      "cloth_secondary": "#4F6629"
+    },
+    "slot": "torso",
+    "color_variants": {
+      "olive": "#6E8A3A",
+      "mustard": "#EDB33F",
+      "blue": "#3F7FD0"
+    },
+    "rig": "avatar_rig (rebind by bone name)"
+  },
+  {
+    "id": "avatar/cafe_apron",
+    "file": "avatar/cafe_apron.glb",
+    "category": "wardrobe",
+    "size_m": [
+      0.819,
+      0.783,
+      0.44
+    ],
+    "sockets": {},
+    "tints": {
+      "cloth_primary": "#F7E7CC",
+      "cloth_secondary": "#3BB8B5"
+    },
+    "slot": "torso",
+    "color_variants": {
+      "cream": "#F7E7CC",
+      "teal": "#3BB8B5",
+      "coral": "#E8655A"
+    },
+    "rig": "avatar_rig (rebind by bone name)"
+  },
+  {
+    "id": "avatar/wizard_robe",
+    "file": "avatar/wizard_robe.glb",
+    "category": "wardrobe",
+    "size_m": [
+      1.057,
+      0.806,
+      0.457
+    ],
+    "sockets": {},
+    "tints": {
+      "cloth_primary": "#9C6FD0",
+      "cloth_secondary": "#7B54B8"
+    },
+    "slot": "torso",
+    "color_variants": {
+      "purple": "#9C6FD0",
+      "navy": "#2E3F6E",
+      "mustard": "#EDB33F"
+    },
+    "rig": "avatar_rig (rebind by bone name)"
+  },
+  {
+    "id": "avatar/backpack",
+    "file": "avatar/backpack.glb",
+    "category": "accessory",
+    "size_m": [
+      0.792,
+      0.712,
+      0.434
+    ],
+    "sockets": {},
+    "tints": {
+      "cloth_primary": "#8C8A4E",
+      "cloth_secondary": "#6B5232"
+    },
+    "slot": "back",
+    "socket": "socket_back",
+    "excludes": [
+      "back"
+    ]
+  },
+  {
+    "id": "avatar/rolltop_backpack",
+    "file": "avatar/rolltop_backpack.glb",
+    "category": "accessory",
+    "size_m": [
+      0.794,
+      0.697,
+      0.452
+    ],
+    "sockets": {},
+    "tints": {
+      "cloth_primary": "#E86D58",
+      "cloth_secondary": "#7A4E2C"
+    },
+    "slot": "back",
+    "socket": "socket_back",
+    "excludes": [
+      "back"
+    ]
+  },
+  {
+    "id": "avatar/crossbody_bag",
+    "file": "avatar/crossbody_bag.glb",
+    "category": "accessory",
+    "size_m": [
+      0.873,
+      0.689,
+      0.4
+    ],
+    "sockets": {},
+    "tints": {
+      "cloth_secondary": "#6B4628",
+      "cloth_primary": "#9C6A3C"
+    },
+    "slot": "back",
+    "socket": "socket_back",
+    "excludes": [
+      "back"
+    ],
+    "note": "strap wraps the body; worn in the back slot"
+  },
+  {
+    "id": "avatar/glasses",
+    "file": "avatar/glasses.glb",
+    "category": "accessory",
+    "size_m": [
+      0.611,
+      0.338,
+      0.122
+    ],
+    "sockets": {},
+    "tints": {
+      "cloth_primary": "#2B2B30"
+    },
+    "slot": "face",
+    "socket": "socket_face"
+  },
+  {
+    "id": "avatar/scarf",
+    "file": "avatar/scarf.glb",
+    "category": "accessory",
+    "size_m": [
+      0.773,
+      0.699,
+      0.37
+    ],
+    "sockets": {},
+    "tints": {
+      "cloth_primary": "#D9473B",
+      "cloth_secondary": "#B23A33"
+    },
+    "slot": "neck",
+    "socket": "socket_neck"
+  },
+  {
+    "id": "avatar/mug",
+    "file": "avatar/mug.glb",
+    "category": "accessory",
+    "size_m": [
+      0.187,
+      0.135,
+      0.132
+    ],
+    "sockets": {},
+    "tints": {
+      "cloth_primary": "#F7F4EE"
+    },
+    "slot": "hand",
+    "socket": "socket_hand_R"
+  },
+  {
+    "id": "avatar/fishing_rod",
+    "file": "avatar/fishing_rod.glb",
+    "category": "accessory",
+    "size_m": [
+      0.088,
+      0.91,
+      0.65
+    ],
+    "sockets": {
+      "socket_line_tip": [
+        0.0,
+        -0.814,
+        0.563
+      ]
+    },
+    "tints": {
+      "cloth_primary": "#8A5A34"
+    },
+    "slot": "hand",
+    "socket": "socket_hand_R",
+    "activity_item": true,
+    "replaces": [
+      "hand"
+    ]
+  },
+  {
+    "id": "avatar/watering_can",
+    "file": "avatar/watering_can.glb",
+    "category": "accessory",
+    "size_m": [
+      0.208,
+      0.248,
+      0.237
+    ],
+    "sockets": {},
+    "tints": {
+      "cloth_primary": "#3BB8B5"
+    },
+    "slot": "hand",
+    "socket": "socket_hand_R"
+  },
+  {
+    "id": "avatar/wand",
+    "file": "avatar/wand.glb",
+    "category": "accessory",
+    "size_m": [
+      0.247,
+      0.349,
+      0.366
+    ],
+    "sockets": {},
+    "tints": {
+      "cloth_primary": "#7A4E2C"
+    },
+    "slot": "hand",
+    "socket": "socket_hand_R"
+  }
+]

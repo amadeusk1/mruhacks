@@ -1,0 +1,1346 @@
+[
+  {
+    "id": "home_themes/wood_stove",
+    "file": "home_themes/wood_stove.glb",
+    "category": "furniture",
+    "size_m": [
+      0.86,
+      0.66,
+      2.06
+    ],
+    "sockets": {
+      "socket_light": [
+        0.0,
+        -0.25,
+        0.36
+      ],
+      "socket_use": [
+        0.0,
+        -0.75,
+        0.0
+      ]
+    },
+    "tints": {
+      "hearth": "#A9A49C",
+      "stove": "#3A3D44"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        2,
+        2
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 1,
+      "recolor": true
+    },
+    "light": "warm"
+  },
+  {
+    "id": "home_themes/side_table",
+    "file": "home_themes/side_table.glb",
+    "category": "furniture",
+    "size_m": [
+      0.5,
+      0.462,
+      0.59
+    ],
+    "sockets": {
+      "socket_surface_0": [
+        0.0,
+        0.0,
+        0.59
+      ]
+    },
+    "tints": {
+      "finish": "#BC874E",
+      "trim": "#7A4E2C"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "surfaces": {
+      "surface_0": [
+        0.44,
+        0.36
+      ]
+    }
+  },
+  {
+    "id": "home_themes/log_basket",
+    "file": "home_themes/log_basket.glb",
+    "category": "decor",
+    "size_m": [
+      0.713,
+      0.534,
+      0.462
+    ],
+    "sockets": {},
+    "tints": {
+      "basket": "#D4A46A"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        2,
+        2
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "home_themes/window_seat_bench",
+    "file": "home_themes/window_seat_bench.glb",
+    "category": "furniture",
+    "size_m": [
+      1.34,
+      0.572,
+      0.736
+    ],
+    "sockets": {
+      "socket_seat_0": [
+        -0.3,
+        -0.05,
+        0.5
+      ],
+      "socket_seat_1": [
+        0.3,
+        -0.05,
+        0.5
+      ]
+    },
+    "tints": {
+      "trim": "#7A4E2C",
+      "finish": "#BC874E",
+      "pillow": "#FAF1DD",
+      "cushion": "#8DAA5B"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        3,
+        2
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "home_themes/large_monstera",
+    "file": "home_themes/large_monstera.glb",
+    "category": "plant",
+    "size_m": [
+      0.932,
+      0.899,
+      1.502
+    ],
+    "sockets": {},
+    "tints": {
+      "pot": "#FAF1DD"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        2,
+        2
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "also_layer": "surface_large"
+  },
+  {
+    "id": "home_themes/hanging_planter_cluster",
+    "file": "home_themes/hanging_planter_cluster.glb",
+    "category": "plant",
+    "size_m": [
+      0.9,
+      0.291,
+      1.193
+    ],
+    "sockets": {},
+    "tints": {
+      "finish": "#BC874E",
+      "pot": "#C8663E"
+    },
+    "placement": {
+      "layer": "ceiling",
+      "cell_m": 0.5,
+      "footprint": null,
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "home_themes/plant_stand_tiered",
+    "file": "home_themes/plant_stand_tiered.glb",
+    "category": "furniture",
+    "size_m": [
+      0.758,
+      0.4,
+      0.984
+    ],
+    "sockets": {
+      "socket_surface_0": [
+        0.0,
+        -0.17,
+        0.285
+      ],
+      "socket_surface_1": [
+        0.0,
+        -0.1,
+        0.585
+      ],
+      "socket_surface_2": [
+        0.0,
+        -0.03,
+        0.885
+      ]
+    },
+    "tints": {
+      "finish": "#BC874E"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        2,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "surfaces": {
+      "surface_0": [
+        0.7,
+        0.2
+      ],
+      "surface_1": [
+        0.7,
+        0.18
+      ],
+      "surface_2": [
+        0.7,
+        0.16
+      ]
+    }
+  },
+  {
+    "id": "home_themes/woven_round_rug",
+    "file": "home_themes/woven_round_rug.glb",
+    "category": "rug",
+    "size_m": [
+      1.598,
+      1.598,
+      0.029
+    ],
+    "sockets": {},
+    "tints": {
+      "rug": "#D4A46A"
+    },
+    "placement": {
+      "layer": "rug",
+      "cell_m": 0.5,
+      "footprint": [
+        4,
+        4
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "home_themes/tv_console",
+    "file": "home_themes/tv_console.glb",
+    "category": "furniture",
+    "size_m": [
+      1.54,
+      0.492,
+      0.46
+    ],
+    "sockets": {
+      "socket_surface_0": [
+        0.0,
+        0.04,
+        0.46
+      ],
+      "socket_surface_shelf": [
+        0.0,
+        0.0,
+        0.26
+      ]
+    },
+    "tints": {
+      "finish": "#BC874E",
+      "doors": "#153447"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        4,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "surfaces": {
+      "surface_0": [
+        1.5,
+        0.4
+      ],
+      "surface_shelf": [
+        0.48,
+        0.3
+      ]
+    }
+  },
+  {
+    "id": "home_themes/tv",
+    "file": "home_themes/tv.glb",
+    "category": "electronics",
+    "size_m": [
+      1.0,
+      0.2,
+      0.7
+    ],
+    "sockets": {
+      "socket_screen": [
+        0.0,
+        -0.02,
+        0.4
+      ]
+    },
+    "tints": {
+      "frame": "#1E1E22"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        2,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "home_themes/game_console",
+    "file": "home_themes/game_console.glb",
+    "category": "electronics",
+    "size_m": [
+      0.499,
+      0.231,
+      0.072
+    ],
+    "sockets": {},
+    "tints": {
+      "body": "#F7F4EE",
+      "controller": "#3A3D44"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "home_themes/beanbag",
+    "file": "home_themes/beanbag.glb",
+    "category": "seating",
+    "size_m": [
+      0.764,
+      0.762,
+      0.641
+    ],
+    "sockets": {
+      "socket_seat_0": [
+        0.0,
+        -0.05,
+        0.4
+      ]
+    },
+    "tints": {
+      "fabric": "#A784D9"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        2,
+        2
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "home_themes/pouf_round",
+    "file": "home_themes/pouf_round.glb",
+    "category": "seating",
+    "size_m": [
+      0.485,
+      0.485,
+      0.322
+    ],
+    "sockets": {
+      "socket_seat_0": [
+        0.0,
+        0.0,
+        0.31
+      ]
+    },
+    "tints": {
+      "fabric": "#153447",
+      "piping": "#3FB3B5"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "home_themes/pouf_square",
+    "file": "home_themes/pouf_square.glb",
+    "category": "seating",
+    "size_m": [
+      0.46,
+      0.46,
+      0.353
+    ],
+    "sockets": {
+      "socket_seat_0": [
+        0.0,
+        0.0,
+        0.34
+      ]
+    },
+    "tints": {
+      "fabric": "#207D85"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "home_themes/neon_wall_sign",
+    "file": "home_themes/neon_wall_sign.glb",
+    "category": "decor",
+    "size_m": [
+      0.9,
+      0.092,
+      0.6
+    ],
+    "sockets": {},
+    "tints": {
+      "neon": "#B070FF",
+      "neon_b": "#4FE3EA"
+    },
+    "placement": {
+      "layer": "wall",
+      "cell_m": 0.5,
+      "footprint": null,
+      "rotations": [
+        0
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "light": "neon"
+  },
+  {
+    "id": "home_themes/gaming_chair",
+    "file": "home_themes/gaming_chair.glb",
+    "category": "seating",
+    "size_m": [
+      0.66,
+      0.648,
+      1.131
+    ],
+    "sockets": {
+      "socket_seat_0": [
+        0.0,
+        -0.03,
+        0.46
+      ]
+    },
+    "tints": {
+      "upholstery": "#3A3D44",
+      "trim": "#E86D58"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        2,
+        2
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "home_themes/easel_with_canvas",
+    "file": "home_themes/easel_with_canvas.glb",
+    "category": "furniture",
+    "size_m": [
+      0.62,
+      0.71,
+      1.521
+    ],
+    "sockets": {
+      "socket_use": [
+        0.0,
+        -0.65,
+        0.0
+      ]
+    },
+    "tints": {
+      "finish": "#BC874E",
+      "canvas_edge": "#F7F4EE"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        2,
+        2
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 1,
+      "recolor": true
+    }
+  },
+  {
+    "id": "home_themes/drafting_table",
+    "file": "home_themes/drafting_table.glb",
+    "category": "furniture",
+    "size_m": [
+      1.04,
+      0.674,
+      0.896
+    ],
+    "sockets": {
+      "socket_use": [
+        0.0,
+        -0.6,
+        0.0
+      ]
+    },
+    "tints": {
+      "finish": "#BC874E",
+      "top": "#8DAA5B"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        3,
+        2
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 1,
+      "recolor": true
+    }
+  },
+  {
+    "id": "home_themes/canvas_stack",
+    "file": "home_themes/canvas_stack.glb",
+    "category": "decor",
+    "size_m": [
+      0.618,
+      0.372,
+      0.693
+    ],
+    "sockets": {},
+    "tints": {
+      "frame": "#C99559"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        2,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "home_themes/paint_supplies",
+    "file": "home_themes/paint_supplies.glb",
+    "category": "decor",
+    "size_m": [
+      0.313,
+      0.225,
+      0.262
+    ],
+    "sockets": {},
+    "tints": {
+      "jar": "#CFEFF4"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "home_themes/tall_dresser",
+    "file": "home_themes/tall_dresser.glb",
+    "category": "furniture",
+    "size_m": [
+      0.74,
+      0.492,
+      1.23
+    ],
+    "sockets": {
+      "socket_surface_0": [
+        0.0,
+        0.0,
+        1.23
+      ]
+    },
+    "tints": {
+      "trim": "#7A4E2C",
+      "finish": "#207D85",
+      "drawers": "#3FB3B5"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        2,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "surfaces": {
+      "surface_0": [
+        0.7,
+        0.4
+      ]
+    }
+  },
+  {
+    "id": "home_themes/storage_crate",
+    "file": "home_themes/storage_crate.glb",
+    "category": "furniture",
+    "size_m": [
+      0.53,
+      0.41,
+      0.34
+    ],
+    "sockets": {
+      "socket_surface_0": [
+        0.0,
+        0.0,
+        0.34
+      ]
+    },
+    "tints": {
+      "finish": "#207D85",
+      "corners": "#7A4E2C"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        2,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "surfaces": {
+      "surface_0": [
+        0.52,
+        0.4
+      ]
+    },
+    "stackable": true
+  },
+  {
+    "id": "home_themes/striped_rug",
+    "file": "home_themes/striped_rug.glb",
+    "category": "rug",
+    "size_m": [
+      1.73,
+      1.1,
+      0.016
+    ],
+    "sockets": {},
+    "tints": {
+      "stripe_a": "#FAF1DD",
+      "stripe_b": "#69B5E8"
+    },
+    "placement": {
+      "layer": "rug",
+      "cell_m": 0.5,
+      "footprint": [
+        4,
+        3
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "home_themes/ship_wheel_wall",
+    "file": "home_themes/ship_wheel_wall.glb",
+    "category": "decor",
+    "size_m": [
+      1.12,
+      0.16,
+      1.12
+    ],
+    "sockets": {},
+    "tints": {
+      "wood": "#BC874E"
+    },
+    "placement": {
+      "layer": "wall",
+      "cell_m": 0.5,
+      "footprint": null,
+      "rotations": [
+        0
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "home_themes/model_sailboat",
+    "file": "home_themes/model_sailboat.glb",
+    "category": "decor",
+    "size_m": [
+      0.373,
+      0.085,
+      0.45
+    ],
+    "sockets": {},
+    "tints": {
+      "hull": "#153447",
+      "sail": "#FAF1DD"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "home_themes/curved_bookshelf",
+    "file": "home_themes/curved_bookshelf.glb",
+    "category": "furniture",
+    "size_m": [
+      2.219,
+      0.569,
+      1.815
+    ],
+    "sockets": {
+      "socket_surface_0_0": [
+        0.835,
+        2.527,
+        0.12
+      ],
+      "socket_surface_0_1": [
+        0.835,
+        2.527,
+        0.54
+      ],
+      "socket_surface_0_2": [
+        0.835,
+        2.527,
+        0.96
+      ],
+      "socket_surface_0_3": [
+        0.835,
+        2.527,
+        1.38
+      ],
+      "socket_surface_1_0": [
+        0.283,
+        2.654,
+        0.12
+      ],
+      "socket_surface_1_1": [
+        0.283,
+        2.654,
+        0.54
+      ],
+      "socket_surface_1_2": [
+        0.283,
+        2.654,
+        0.96
+      ],
+      "socket_surface_1_3": [
+        0.283,
+        2.654,
+        1.38
+      ],
+      "socket_surface_2_0": [
+        -0.283,
+        2.654,
+        0.12
+      ],
+      "socket_surface_2_1": [
+        -0.283,
+        2.654,
+        0.54
+      ],
+      "socket_surface_2_2": [
+        -0.283,
+        2.654,
+        0.96
+      ],
+      "socket_surface_2_3": [
+        -0.283,
+        2.654,
+        1.38
+      ],
+      "socket_surface_3_0": [
+        -0.835,
+        2.527,
+        0.12
+      ],
+      "socket_surface_3_1": [
+        -0.835,
+        2.527,
+        0.54
+      ],
+      "socket_surface_3_2": [
+        -0.835,
+        2.527,
+        0.96
+      ],
+      "socket_surface_3_3": [
+        -0.835,
+        2.527,
+        1.38
+      ]
+    },
+    "tints": {
+      "finish": "#BC874E",
+      "trim": "#7A4E2C"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        5,
+        2
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "surfaces": {
+      "surface_0_0": [
+        0.49,
+        0.30000000000000004
+      ],
+      "surface_0_1": [
+        0.49,
+        0.30000000000000004
+      ],
+      "surface_0_2": [
+        0.49,
+        0.30000000000000004
+      ],
+      "surface_0_3": [
+        0.49,
+        0.30000000000000004
+      ],
+      "surface_1_0": [
+        0.49,
+        0.30000000000000004
+      ],
+      "surface_1_1": [
+        0.49,
+        0.30000000000000004
+      ],
+      "surface_1_2": [
+        0.49,
+        0.30000000000000004
+      ],
+      "surface_1_3": [
+        0.49,
+        0.30000000000000004
+      ],
+      "surface_2_0": [
+        0.49,
+        0.30000000000000004
+      ],
+      "surface_2_1": [
+        0.49,
+        0.30000000000000004
+      ],
+      "surface_2_2": [
+        0.49,
+        0.30000000000000004
+      ],
+      "surface_2_3": [
+        0.49,
+        0.30000000000000004
+      ],
+      "surface_3_0": [
+        0.49,
+        0.30000000000000004
+      ],
+      "surface_3_1": [
+        0.49,
+        0.30000000000000004
+      ],
+      "surface_3_2": [
+        0.49,
+        0.30000000000000004
+      ],
+      "surface_3_3": [
+        0.49,
+        0.30000000000000004
+      ]
+    },
+    "fits_wall_radius_m": 2.5,
+    "arc_deg": 52.0,
+    "note": "back is curved, convex toward -Y; snap its back to a round wall of this radius"
+  },
+  {
+    "id": "home_themes/anchor_wall_decor",
+    "file": "home_themes/anchor_wall_decor.glb",
+    "category": "decor",
+    "size_m": [
+      0.64,
+      0.071,
+      0.841
+    ],
+    "sockets": {},
+    "tints": {
+      "metal": "#153447"
+    },
+    "placement": {
+      "layer": "wall",
+      "cell_m": 0.5,
+      "footprint": null,
+      "rotations": [
+        0
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "home_themes/porthole_mirror",
+    "file": "home_themes/porthole_mirror.glb",
+    "category": "decor",
+    "size_m": [
+      0.537,
+      0.085,
+      0.537
+    ],
+    "sockets": {},
+    "tints": {
+      "frame": "#E2A93B"
+    },
+    "placement": {
+      "layer": "wall",
+      "cell_m": 0.5,
+      "footprint": null,
+      "rotations": [
+        0
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "home_themes/canopy_bed",
+    "file": "home_themes/canopy_bed.glb",
+    "category": "furniture",
+    "size_m": [
+      1.46,
+      2.07,
+      1.915
+    ],
+    "sockets": {
+      "socket_seat_0": [
+        0.0,
+        -0.8,
+        0.46
+      ],
+      "socket_sleep": [
+        0.0,
+        0.1,
+        0.55
+      ]
+    },
+    "tints": {
+      "frame": "#7A4E2C",
+      "headboard": "#A784D9",
+      "pillow": "#A784D9",
+      "bedding": "#A784D9",
+      "drape": "#A784D9"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        3,
+        5
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 1,
+      "recolor": true
+    }
+  },
+  {
+    "id": "home_themes/telescope_on_tripod",
+    "file": "home_themes/telescope_on_tripod.glb",
+    "category": "furniture",
+    "size_m": [
+      0.675,
+      0.873,
+      1.481
+    ],
+    "sockets": {
+      "socket_use": [
+        0.0,
+        -0.55,
+        0.0
+      ]
+    },
+    "tints": {
+      "tripod": "#7A4E2C",
+      "tube": "#153447"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        2,
+        2
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 1,
+      "recolor": true
+    }
+  },
+  {
+    "id": "home_themes/star_string_lights",
+    "file": "home_themes/star_string_lights.glb",
+    "category": "light",
+    "size_m": [
+      1.526,
+      0.065,
+      0.391
+    ],
+    "sockets": {},
+    "tints": {
+      "bulb": "#FFC23F"
+    },
+    "placement": {
+      "layer": "wall",
+      "cell_m": 0.5,
+      "footprint": null,
+      "rotations": [
+        0
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "light": "warm"
+  },
+  {
+    "id": "home_themes/crystal_ball_lamp",
+    "file": "home_themes/crystal_ball_lamp.glb",
+    "category": "light",
+    "size_m": [
+      0.2,
+      0.2,
+      0.27
+    ],
+    "sockets": {},
+    "tints": {
+      "base": "#E2A93B",
+      "orb": "#B98AF5"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "light": "violet"
+  },
+  {
+    "id": "home_themes/floor_cushion",
+    "file": "home_themes/floor_cushion.glb",
+    "category": "seating",
+    "size_m": [
+      0.643,
+      0.66,
+      0.165
+    ],
+    "sockets": {
+      "socket_seat_0": [
+        0.0,
+        0.0,
+        0.15
+      ]
+    },
+    "tints": {
+      "fabric": "#A784D9",
+      "piping": "#7B4FC4"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        2,
+        2
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "home_themes/moon_lamp",
+    "file": "home_themes/moon_lamp.glb",
+    "category": "light",
+    "size_m": [
+      0.293,
+      0.155,
+      0.47
+    ],
+    "sockets": {},
+    "tints": {
+      "moon": "#FFD36B"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "light": "warm"
+  }
+]

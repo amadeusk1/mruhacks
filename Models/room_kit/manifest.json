@@ -1,0 +1,1521 @@
+[
+  {
+    "id": "room_kit/armchair",
+    "file": "room_kit/armchair.glb",
+    "category": "furniture",
+    "size_m": [
+      0.876,
+      0.813,
+      0.776
+    ],
+    "sockets": {
+      "socket_seat_0": [
+        0.0,
+        -0.1,
+        0.41
+      ]
+    },
+    "tints": {
+      "finish": "#BC874E",
+      "upholstery": "#E86D58",
+      "cushion": "#FAF1DD",
+      "cushion_accent": "#E86D58"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        2,
+        2
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 1,
+      "recolor": true
+    },
+    "color_variants": {
+      "upholstery": [
+        "#E86D58",
+        "#6E8A3A",
+        "#153447",
+        "#E3A92B"
+      ],
+      "cushion": [
+        "#FAF1DD",
+        "#F7F4EE"
+      ]
+    }
+  },
+  {
+    "id": "room_kit/sofa_2seat",
+    "file": "room_kit/sofa_2seat.glb",
+    "category": "furniture",
+    "size_m": [
+      1.457,
+      0.804,
+      0.775
+    ],
+    "sockets": {
+      "socket_seat_0": [
+        -0.265,
+        -0.1,
+        0.41
+      ],
+      "socket_seat_1": [
+        0.265,
+        -0.1,
+        0.41
+      ]
+    },
+    "tints": {
+      "finish": "#BC874E",
+      "upholstery": "#34408F",
+      "cushion": "#FAF1DD",
+      "cushion_b2": "#207D85",
+      "cushion_accent": "#FAF1DD"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        3,
+        2
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 1,
+      "recolor": true
+    },
+    "color_variants": {
+      "upholstery": [
+        "#34408F",
+        "#E3A92B",
+        "#E86D58",
+        "#6E8A3A"
+      ],
+      "cushion": [
+        "#FAF1DD",
+        "#F7F4EE"
+      ]
+    }
+  },
+  {
+    "id": "room_kit/low_table_round",
+    "file": "room_kit/low_table_round.glb",
+    "category": "furniture",
+    "size_m": [
+      0.871,
+      0.871,
+      0.38
+    ],
+    "sockets": {
+      "socket_surface_0": [
+        0.0,
+        0.0,
+        0.37
+      ]
+    },
+    "tints": {
+      "finish": "#BC874E"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        2,
+        2
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "color_variants": {
+      "finish": [
+        "#BC874E",
+        "#7A4E2C"
+      ]
+    },
+    "surfaces": {
+      "surface_0": [
+        0.6,
+        0.6
+      ]
+    }
+  },
+  {
+    "id": "room_kit/cube_shelf",
+    "file": "room_kit/cube_shelf.glb",
+    "category": "furniture",
+    "size_m": [
+      0.914,
+      0.415,
+      0.923
+    ],
+    "sockets": {
+      "socket_surface_0": [
+        -0.211,
+        -0.01,
+        0.055
+      ],
+      "socket_surface_1": [
+        0.211,
+        -0.01,
+        0.055
+      ],
+      "socket_surface_2": [
+        -0.211,
+        -0.01,
+        0.488
+      ],
+      "socket_surface_3": [
+        0.211,
+        -0.01,
+        0.488
+      ],
+      "socket_surface_4": [
+        0.0,
+        0.0,
+        0.92
+      ]
+    },
+    "tints": {
+      "finish": "#207D85"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        2,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "color_variants": {
+      "finish": [
+        "#207D85",
+        "#BC874E",
+        "#3D7BD9",
+        "#7A4E2C"
+      ]
+    },
+    "surfaces": {
+      "surface_0": [
+        0.35,
+        0.35
+      ],
+      "surface_1": [
+        0.35,
+        0.35
+      ],
+      "surface_2": [
+        0.35,
+        0.35
+      ],
+      "surface_3": [
+        0.35,
+        0.35
+      ],
+      "surface_4": [
+        0.86,
+        0.36000000000000004
+      ]
+    }
+  },
+  {
+    "id": "room_kit/bed",
+    "file": "room_kit/bed.glb",
+    "category": "furniture",
+    "size_m": [
+      0.99,
+      1.48,
+      0.9
+    ],
+    "sockets": {
+      "socket_seat_0": [
+        0.0,
+        -0.35,
+        0.4
+      ],
+      "socket_sleep": [
+        0.0,
+        0.1,
+        0.44
+      ]
+    },
+    "tints": {
+      "finish": "#BC874E",
+      "bedding": "#E86D58",
+      "bedding_fold": "#FAF1DD",
+      "pillow": "#E86D58",
+      "cushion_accent": "#FAF1DD"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        2,
+        3
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 1,
+      "recolor": true
+    },
+    "color_variants": {
+      "bedding": [
+        "#E86D58",
+        "#3D7BD9",
+        "#6E8A3A",
+        "#7B4FC4"
+      ],
+      "pillow": [
+        "#E86D58",
+        "#FAF1DD"
+      ]
+    }
+  },
+  {
+    "id": "room_kit/writing_desk",
+    "file": "room_kit/writing_desk.glb",
+    "category": "furniture",
+    "size_m": [
+      1.2,
+      0.577,
+      0.627
+    ],
+    "sockets": {
+      "socket_surface_0": [
+        0.0,
+        0.0,
+        0.62
+      ],
+      "socket_use": [
+        -0.2,
+        -0.53,
+        0.0
+      ]
+    },
+    "tints": {
+      "finish": "#BC874E"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        3,
+        2
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 1,
+      "recolor": true
+    },
+    "color_variants": {
+      "finish": [
+        "#BC874E",
+        "#7A4E2C",
+        "#FAF1DD"
+      ]
+    },
+    "surfaces": {
+      "surface_0": [
+        1.0999999999999999,
+        0.48000000000000004
+      ]
+    }
+  },
+  {
+    "id": "room_kit/desk_stool",
+    "file": "room_kit/desk_stool.glb",
+    "category": "furniture",
+    "size_m": [
+      0.295,
+      0.295,
+      0.458
+    ],
+    "sockets": {
+      "socket_seat_0": [
+        0.0,
+        0.0,
+        0.45
+      ]
+    },
+    "tints": {
+      "finish": "#BC874E",
+      "cushion": "#FAF1DD"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "color_variants": {
+      "cushion": [
+        "#FAF1DD",
+        "#8DAA5B",
+        "#E86D58"
+      ]
+    }
+  },
+  {
+    "id": "room_kit/floor_lamp",
+    "file": "room_kit/floor_lamp.glb",
+    "category": "furniture",
+    "size_m": [
+      0.5,
+      0.5,
+      1.38
+    ],
+    "sockets": {
+      "socket_light": [
+        0.0,
+        0.0,
+        1.2
+      ],
+      "socket_use": [
+        0.1,
+        -0.35,
+        0.0
+      ]
+    },
+    "tints": {
+      "finish": "#BC874E",
+      "shade": "#E3A92B"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "color_variants": {
+      "shade": [
+        "#E3A92B",
+        "#69B5E8",
+        "#E86D58"
+      ],
+      "finish": [
+        "#BC874E",
+        "#7A4E2C",
+        "#3A3D44"
+      ]
+    }
+  },
+  {
+    "id": "room_kit/flower_box",
+    "file": "room_kit/flower_box.glb",
+    "category": "furniture",
+    "size_m": [
+      0.85,
+      0.431,
+      0.382
+    ],
+    "sockets": {},
+    "tints": {
+      "petal": "#FFFDF6",
+      "petal_alt": "#E8524A"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        2,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "color_variants": {
+      "petal": [
+        "#FFFDF6",
+        "#F6C33B"
+      ],
+      "petal_alt": [
+        "#E8524A",
+        "#F2A0B5"
+      ]
+    }
+  },
+  {
+    "id": "room_kit/arcade_cabinet_home",
+    "file": "room_kit/arcade_cabinet_home.glb",
+    "category": "furniture",
+    "size_m": [
+      0.499,
+      0.546,
+      1.17
+    ],
+    "sockets": {
+      "socket_player_1": [
+        0.0,
+        -0.62,
+        0.0
+      ],
+      "socket_screen": [
+        0.0,
+        -0.133,
+        0.842
+      ]
+    },
+    "tints": {
+      "body": "#7B4FC4",
+      "decal": "#F2C230"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        2
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 1,
+      "recolor": true
+    },
+    "color_variants": {
+      "body": [
+        "#7B4FC4",
+        "#E3A92B",
+        "#3FB3B5",
+        "#D9473B"
+      ],
+      "decal": [
+        "#F2C230",
+        "#F7F4EE"
+      ]
+    }
+  },
+  {
+    "id": "room_kit/aquarium",
+    "file": "room_kit/aquarium.glb",
+    "category": "furniture",
+    "size_m": [
+      1.0,
+      0.46,
+      1.025
+    ],
+    "sockets": {
+      "socket_use": [
+        0.0,
+        -0.53,
+        0.0
+      ]
+    },
+    "tints": {
+      "finish": "#BC874E",
+      "frame": "#207D85"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        2,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 1,
+      "recolor": true
+    },
+    "color_variants": {
+      "frame": [
+        "#207D85",
+        "#7A4E2C",
+        "#3A3D44"
+      ],
+      "finish": [
+        "#BC874E",
+        "#7A4E2C"
+      ]
+    }
+  },
+  {
+    "id": "room_kit/plant_large",
+    "file": "room_kit/plant_large.glb",
+    "category": "decor",
+    "size_m": [
+      0.732,
+      0.678,
+      0.816
+    ],
+    "sockets": {},
+    "tints": {
+      "pot": "#FAF1DD"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        2,
+        2
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "also_surface": false
+  },
+  {
+    "id": "room_kit/plant_small",
+    "file": "room_kit/plant_small.glb",
+    "category": "decor",
+    "size_m": [
+      0.204,
+      0.207,
+      0.257
+    ],
+    "sockets": {},
+    "tints": {
+      "pot": "#FAF1DD"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "also_surface": true
+  },
+  {
+    "id": "room_kit/plant_topiary",
+    "file": "room_kit/plant_topiary.glb",
+    "category": "decor",
+    "size_m": [
+      0.36,
+      0.374,
+      0.647
+    ],
+    "sockets": {},
+    "tints": {
+      "pot": "#FAF1DD"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "also_surface": false
+  },
+  {
+    "id": "room_kit/plant_broadleaf",
+    "file": "room_kit/plant_broadleaf.glb",
+    "category": "decor",
+    "size_m": [
+      0.465,
+      0.455,
+      0.489
+    ],
+    "sockets": {},
+    "tints": {
+      "pot": "#C8663E"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "also_surface": false
+  },
+  {
+    "id": "room_kit/plant_snake",
+    "file": "room_kit/plant_snake.glb",
+    "category": "decor",
+    "size_m": [
+      0.281,
+      0.411,
+      0.617
+    ],
+    "sockets": {},
+    "tints": {
+      "pot": "#C8663E"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "also_surface": false
+  },
+  {
+    "id": "room_kit/plant_cactus",
+    "file": "room_kit/plant_cactus.glb",
+    "category": "decor",
+    "size_m": [
+      0.304,
+      0.249,
+      0.524
+    ],
+    "sockets": {},
+    "tints": {
+      "pot": "#FAF1DD"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "also_surface": true
+  },
+  {
+    "id": "room_kit/plant_flowerpot",
+    "file": "room_kit/plant_flowerpot.glb",
+    "category": "decor",
+    "size_m": [
+      0.343,
+      0.405,
+      0.325
+    ],
+    "sockets": {},
+    "tints": {
+      "pot": "#C8663E",
+      "petal": "#FFFDF6"
+    },
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "also_surface": true
+  },
+  {
+    "id": "room_kit/plant_hanging",
+    "file": "room_kit/plant_hanging.glb",
+    "category": "decor",
+    "size_m": [
+      0.364,
+      0.412,
+      0.782
+    ],
+    "sockets": {},
+    "tints": {
+      "pot": "#C8663E"
+    },
+    "placement": {
+      "layer": "ceiling",
+      "cell_m": 0.5,
+      "footprint": null,
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "room_kit/rug_round",
+    "file": "room_kit/rug_round.glb",
+    "category": "decor",
+    "size_m": [
+      1.481,
+      1.48,
+      0.023
+    ],
+    "sockets": {},
+    "tints": {
+      "rug_base": "#FAF1DD",
+      "rug": "#6E8A3A"
+    },
+    "placement": {
+      "layer": "rug",
+      "cell_m": 0.5,
+      "footprint": [
+        3,
+        3
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "color_variants": {
+      "rug": [
+        "#6E8A3A",
+        "#E86D58",
+        "#207D85"
+      ],
+      "rug_base": [
+        "#FAF1DD"
+      ]
+    }
+  },
+  {
+    "id": "room_kit/rug_patchwork",
+    "file": "room_kit/rug_patchwork.glb",
+    "category": "decor",
+    "size_m": [
+      1.48,
+      0.96,
+      0.018
+    ],
+    "sockets": {},
+    "tints": {
+      "rug_2": "#FAF1DD",
+      "rug_0": "#207D85",
+      "rug_1": "#7B4FC4"
+    },
+    "placement": {
+      "layer": "rug",
+      "cell_m": 0.5,
+      "footprint": [
+        3,
+        2
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "color_variants": {
+      "rug_0": [
+        "#207D85",
+        "#E86D58"
+      ],
+      "rug_1": [
+        "#7B4FC4",
+        "#153447"
+      ],
+      "rug_2": [
+        "#FAF1DD"
+      ]
+    }
+  },
+  {
+    "id": "room_kit/rug_round_plain",
+    "file": "room_kit/rug_round_plain.glb",
+    "category": "decor",
+    "size_m": [
+      1.46,
+      1.46,
+      0.022
+    ],
+    "sockets": {},
+    "tints": {
+      "rug_edge": "#E6CFAA",
+      "rug": "#F7F4EE"
+    },
+    "placement": {
+      "layer": "rug",
+      "cell_m": 0.5,
+      "footprint": [
+        3,
+        3
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "color_variants": {
+      "rug": [
+        "#F7F4EE",
+        "#8DAA5B",
+        "#F2A0B5"
+      ]
+    }
+  },
+  {
+    "id": "room_kit/wall_poster",
+    "file": "room_kit/wall_poster.glb",
+    "category": "decor",
+    "size_m": [
+      0.58,
+      0.05,
+      0.83
+    ],
+    "sockets": {},
+    "tints": {
+      "frame": "#BC874E"
+    },
+    "placement": {
+      "layer": "wall",
+      "cell_m": 0.5,
+      "footprint": null,
+      "rotations": [
+        0
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "color_variants": {
+      "frame": [
+        "#BC874E",
+        "#7A4E2C",
+        "#7B4FC4",
+        "#207D85"
+      ]
+    },
+    "inserts": [
+      "insert_poster"
+    ]
+  },
+  {
+    "id": "room_kit/poster_frame_thin",
+    "file": "room_kit/poster_frame_thin.glb",
+    "category": "decor",
+    "size_m": [
+      0.58,
+      0.05,
+      0.7
+    ],
+    "sockets": {},
+    "tints": {
+      "frame": "#BC874E"
+    },
+    "placement": {
+      "layer": "wall",
+      "cell_m": 0.5,
+      "footprint": null,
+      "rotations": [
+        0
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "color_variants": {
+      "frame": [
+        "#BC874E",
+        "#7A4E2C",
+        "#7B4FC4",
+        "#207D85"
+      ]
+    },
+    "inserts": [
+      "insert_poster"
+    ]
+  },
+  {
+    "id": "room_kit/poster_frame_matted",
+    "file": "room_kit/poster_frame_matted.glb",
+    "category": "decor",
+    "size_m": [
+      0.6,
+      0.05,
+      0.72
+    ],
+    "sockets": {},
+    "tints": {
+      "frame": "#C99559"
+    },
+    "placement": {
+      "layer": "wall",
+      "cell_m": 0.5,
+      "footprint": null,
+      "rotations": [
+        0
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "color_variants": {
+      "frame": [
+        "#BC874E",
+        "#7A4E2C",
+        "#7B4FC4",
+        "#207D85"
+      ]
+    },
+    "inserts": [
+      "insert_poster"
+    ]
+  },
+  {
+    "id": "room_kit/poster_frame_bold",
+    "file": "room_kit/poster_frame_bold.glb",
+    "category": "decor",
+    "size_m": [
+      0.66,
+      0.05,
+      0.78
+    ],
+    "sockets": {},
+    "tints": {
+      "frame": "#7A4E2C"
+    },
+    "placement": {
+      "layer": "wall",
+      "cell_m": 0.5,
+      "footprint": null,
+      "rotations": [
+        0
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "color_variants": {
+      "frame": [
+        "#BC874E",
+        "#7A4E2C",
+        "#7B4FC4",
+        "#207D85"
+      ]
+    },
+    "inserts": [
+      "insert_poster"
+    ]
+  },
+  {
+    "id": "room_kit/wall_shelf",
+    "file": "room_kit/wall_shelf.glb",
+    "category": "furniture",
+    "size_m": [
+      0.9,
+      0.244,
+      0.25
+    ],
+    "sockets": {
+      "socket_surface_0": [
+        0.0,
+        -0.12,
+        0.025
+      ]
+    },
+    "tints": {
+      "finish": "#BC874E"
+    },
+    "placement": {
+      "layer": "wall",
+      "cell_m": 0.5,
+      "footprint": null,
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "color_variants": {
+      "finish": [
+        "#BC874E",
+        "#7A4E2C",
+        "#FAF1DD"
+      ]
+    },
+    "surfaces": {
+      "surface_0": [
+        0.86,
+        0.21
+      ]
+    }
+  },
+  {
+    "id": "room_kit/star_mobile",
+    "file": "room_kit/star_mobile.glb",
+    "category": "decor",
+    "size_m": [
+      0.655,
+      0.644,
+      0.856
+    ],
+    "sockets": {},
+    "tints": {
+      "finish": "#BC874E",
+      "charm": "#F2C230",
+      "crystal": "#A784D9"
+    },
+    "placement": {
+      "layer": "ceiling",
+      "cell_m": 0.5,
+      "footprint": null,
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    },
+    "color_variants": {
+      "charm": [
+        "#F2C230",
+        "#F7F4EE"
+      ],
+      "crystal": [
+        "#A784D9",
+        "#69B5E8"
+      ]
+    }
+  },
+  {
+    "id": "room_kit/book_single",
+    "file": "room_kit/book_single.glb",
+    "category": "decor",
+    "size_m": [
+      0.174,
+      0.12,
+      0.03
+    ],
+    "sockets": {},
+    "tints": {
+      "cover": "#D9473B"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "room_kit/book_stack",
+    "file": "room_kit/book_stack.glb",
+    "category": "decor",
+    "size_m": [
+      0.176,
+      0.133,
+      0.094
+    ],
+    "sockets": {},
+    "tints": {
+      "cover_0": "#3D7BD9",
+      "cover_1": "#207D85",
+      "cover_2": "#E3A92B"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "room_kit/mug",
+    "file": "room_kit/mug.glb",
+    "category": "decor",
+    "size_m": [
+      0.115,
+      0.075,
+      0.085
+    ],
+    "sockets": {},
+    "tints": {
+      "glaze": "#F7F4EE"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "room_kit/cushion",
+    "file": "room_kit/cushion.glb",
+    "category": "decor",
+    "size_m": [
+      0.3,
+      0.152,
+      0.26
+    ],
+    "sockets": {},
+    "tints": {
+      "cushion": "#FAF1DD",
+      "cushion_accent": "#E86D58"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "room_kit/framed_photo",
+    "file": "room_kit/framed_photo.glb",
+    "category": "decor",
+    "size_m": [
+      0.18,
+      0.094,
+      0.216
+    ],
+    "sockets": {},
+    "tints": {
+      "frame": "#BC874E"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "room_kit/tabletop_plant",
+    "file": "room_kit/tabletop_plant.glb",
+    "category": "decor",
+    "size_m": [
+      0.145,
+      0.16,
+      0.216
+    ],
+    "sockets": {},
+    "tints": {
+      "pot": "#FAF1DD"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "room_kit/candle",
+    "file": "room_kit/candle.glb",
+    "category": "decor",
+    "size_m": [
+      0.097,
+      0.097,
+      0.154
+    ],
+    "sockets": {},
+    "tints": {
+      "wax": "#FAF1DD"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "room_kit/small_lantern",
+    "file": "room_kit/small_lantern.glb",
+    "category": "decor",
+    "size_m": [
+      0.135,
+      0.151,
+      0.301
+    ],
+    "sockets": {},
+    "tints": {},
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "room_kit/trophy",
+    "file": "room_kit/trophy.glb",
+    "category": "decor",
+    "size_m": [
+      0.194,
+      0.12,
+      0.182
+    ],
+    "sockets": {},
+    "tints": {
+      "metal": "#E2A93B"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "room_kit/plush_penguin",
+    "file": "room_kit/plush_penguin.glb",
+    "category": "decor",
+    "size_m": [
+      0.184,
+      0.165,
+      0.18
+    ],
+    "sockets": {},
+    "tints": {
+      "body": "#3D7BD9"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  },
+  {
+    "id": "room_kit/pencil_cup",
+    "file": "room_kit/pencil_cup.glb",
+    "category": "decor",
+    "size_m": [
+      0.085,
+      0.085,
+      0.207
+    ],
+    "sockets": {},
+    "tints": {
+      "glaze": "#FAF1DD"
+    },
+    "placement": {
+      "layer": "surface",
+      "cell_m": 0.5,
+      "footprint": [
+        1,
+        1
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 0,
+      "recolor": true
+    }
+  }
+]

@@ -1,0 +1,338 @@
+[
+  {
+    "id": "cinema_lobby/concession_counter",
+    "file": "cinema_lobby/concession_counter.glb",
+    "category": "furniture",
+    "size_m": [
+      2.82,
+      1.58,
+      2.62
+    ],
+    "sockets": {
+      "socket_staff": [
+        0.0,
+        0.52,
+        0.0
+      ],
+      "socket_use": [
+        0.0,
+        -0.8,
+        0.0
+      ]
+    },
+    "tints": {
+      "awning": "#D9473B",
+      "awning_alt": "#FAF1DD"
+    },
+    "note": "header sign face insert_sign takes the CINEMA logo"
+  },
+  {
+    "id": "cinema_lobby/popcorn_machine",
+    "file": "cinema_lobby/popcorn_machine.glb",
+    "category": "prop",
+    "size_m": [
+      0.56,
+      0.509,
+      0.94
+    ],
+    "sockets": {},
+    "tints": {},
+    "note": "counter-top appliance"
+  },
+  {
+    "id": "cinema_lobby/movie_kiosk",
+    "file": "cinema_lobby/movie_kiosk.glb",
+    "category": "interactive",
+    "size_m": [
+      1.09,
+      0.611,
+      1.01
+    ],
+    "sockets": {
+      "socket_use": [
+        0.0,
+        -0.8,
+        0.0
+      ]
+    },
+    "tints": {},
+    "activity": "cinema_browse",
+    "note": "insert_kiosk shows the library UI"
+  },
+  {
+    "id": "cinema_lobby/lobby_poster_frame",
+    "file": "cinema_lobby/lobby_poster_frame.glb",
+    "category": "wall_decor",
+    "size_m": [
+      0.78,
+      0.32,
+      1.32
+    ],
+    "sockets": {},
+    "tints": {}
+  },
+  {
+    "id": "cinema_lobby/lobby_sofa",
+    "file": "cinema_lobby/lobby_sofa.glb",
+    "category": "seat",
+    "size_m": [
+      1.626,
+      0.69,
+      0.74
+    ],
+    "sockets": {
+      "socket_seat_0": [
+        -0.33,
+        -0.05,
+        0.39
+      ],
+      "socket_seat_1": [
+        0.33,
+        -0.05,
+        0.39
+      ]
+    },
+    "tints": {
+      "upholstery": "#E0483D"
+    }
+  },
+  {
+    "id": "cinema_lobby/lobby_armchair",
+    "file": "cinema_lobby/lobby_armchair.glb",
+    "category": "seat",
+    "size_m": [
+      0.966,
+      0.69,
+      0.74
+    ],
+    "sockets": {
+      "socket_seat_0": [
+        0.0,
+        -0.05,
+        0.39
+      ]
+    },
+    "tints": {
+      "upholstery": "#E0483D"
+    }
+  },
+  {
+    "id": "cinema_lobby/lobby_round_table",
+    "file": "cinema_lobby/lobby_round_table.glb",
+    "category": "furniture",
+    "size_m": [
+      0.892,
+      0.892,
+      0.804
+    ],
+    "sockets": {},
+    "tints": {}
+  },
+  {
+    "id": "cinema_lobby/lobby_bin",
+    "file": "cinema_lobby/lobby_bin.glb",
+    "category": "prop",
+    "size_m": [
+      0.46,
+      0.46,
+      0.69
+    ],
+    "sockets": {},
+    "tints": {}
+  },
+  {
+    "id": "cinema_lobby/screen_doors",
+    "file": "cinema_lobby/screen_doors.glb",
+    "category": "door",
+    "size_m": [
+      1.9,
+      0.34,
+      2.39
+    ],
+    "sockets": {
+      "socket_door": [
+        0.0,
+        -0.7,
+        0.0
+      ]
+    },
+    "tints": {
+      "door": "#207D85"
+    },
+    "note": "arch sign face insert_sign reads SCREEN 1"
+  },
+  {
+    "id": "cinema_lobby/carpet_tile",
+    "file": "cinema_lobby/carpet_tile.glb",
+    "category": "floor",
+    "size_m": [
+      2.0,
+      2.0,
+      0.026
+    ],
+    "sockets": {},
+    "tints": {
+      "carpet": "#C8362F"
+    },
+    "tile_m": 2.0
+  },
+  {
+    "id": "cinema_lobby/stanchion",
+    "file": "cinema_lobby/stanchion.glb",
+    "category": "prop",
+    "size_m": [
+      0.247,
+      0.254,
+      0.675
+    ],
+    "sockets": {
+      "socket_rope": [
+        0.0,
+        0.0,
+        0.52
+      ]
+    },
+    "tints": {}
+  },
+  {
+    "id": "cinema_lobby/stanchion_rope",
+    "file": "cinema_lobby/stanchion_rope.glb",
+    "category": "prop",
+    "size_m": [
+      1.262,
+      0.07,
+      0.177
+    ],
+    "sockets": {},
+    "tints": {
+      "rope": "#C8362F"
+    },
+    "span_m": 1.2,
+    "note": "hook ends at x=+-0.6, z=0.52 (stanchion socket_rope height)"
+  },
+  {
+    "id": "cinema_lobby/wall_banner",
+    "file": "cinema_lobby/wall_banner.glb",
+    "category": "wall_decor",
+    "size_m": [
+      0.929,
+      0.113,
+      1.15
+    ],
+    "sockets": {},
+    "tints": {
+      "banner": "#D9473B"
+    }
+  },
+  {
+    "id": "cinema_lobby/lobby_plant",
+    "file": "cinema_lobby/lobby_plant.glb",
+    "category": "plant",
+    "size_m": [
+      0.502,
+      0.52,
+      0.842
+    ],
+    "sockets": {},
+    "tints": {}
+  },
+  {
+    "id": "cinema_lobby/lobby_shell",
+    "file": "cinema_lobby/lobby_shell.glb",
+    "category": "building",
+    "size_m": [
+      8.76,
+      6.81,
+      3.06
+    ],
+    "sockets": {
+      "socket_entrance": [
+        0.0,
+        -3.6,
+        0.0
+      ],
+      "socket_screen_door": [
+        3.4,
+        1.6,
+        0.06
+      ]
+    },
+    "tints": {
+      "wall": "#F3E2C5"
+    },
+    "interior_m": [
+      8.0,
+      6.0
+    ],
+    "floor_z": 0.06
+  },
+  {
+    "id": "cinema_lobby/cinema_lobby",
+    "file": "cinema_lobby/cinema_lobby.glb",
+    "category": "room",
+    "size_m": [
+      8.76,
+      6.81,
+      3.06
+    ],
+    "sockets": {
+      "socket_counter": [
+        -2.35,
+        0.92,
+        0.06
+      ],
+      "socket_entrance": [
+        0.0,
+        -3.6,
+        0.0
+      ],
+      "socket_kiosk": [
+        1.0,
+        0.95,
+        0.06
+      ],
+      "socket_screen_door": [
+        3.4,
+        1.6,
+        0.06
+      ],
+      "socket_seat_0": [
+        -2.75,
+        -1.75,
+        0.45
+      ],
+      "socket_seat_1": [
+        -1.05,
+        -1.75,
+        0.45
+      ],
+      "socket_seat_2": [
+        -3.4,
+        -0.18,
+        0.45
+      ],
+      "socket_seat_3": [
+        -3.4,
+        0.48,
+        0.45
+      ]
+    },
+    "tints": {
+      "awning": "#D9473B",
+      "awning_alt": "#FAF1DD",
+      "banner": "#D9473B",
+      "door": "#207D85",
+      "carpet": "#C8362F",
+      "rope": "#C8362F",
+      "upholstery": "#E0483D",
+      "wall": "#F3E2C5"
+    },
+    "prefab": true,
+    "interior_m": [
+      8.0,
+      6.0
+    ],
+    "floor_z": 0.06,
+    "note": "screen door on the right wall leads to cinema_auditorium"
+  }
+]

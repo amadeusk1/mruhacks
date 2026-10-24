@@ -43,3 +43,10 @@ Desktop.ini
 
 # Local smoke-test screenshots
 shot_*.png
+
+# Art authoring caches and intermediate renders
+__pycache__/
+*.pyc
+*.blend1
+*.blend2
+art/_wip/

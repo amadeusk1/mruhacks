@@ -1,0 +1,409 @@
+[
+  {
+    "id": "fishing/bobber",
+    "file": "fishing/bobber.glb",
+    "category": "fishing",
+    "size_m": [
+      0.143,
+      0.15,
+      0.24
+    ],
+    "sockets": {
+      "socket_line": [
+        0.0,
+        0.0,
+        0.145
+      ]
+    },
+    "tints": {
+      "bobber_a": "#D9473B",
+      "bobber_b": "#F7F4EE"
+    },
+    "origin": "waterline",
+    "color_variants": {
+      "bobber_a": [
+        "red",
+        "orange",
+        "teal"
+      ],
+      "bobber_b": [
+        "white"
+      ]
+    }
+  },
+  {
+    "id": "fishing/bucket",
+    "file": "fishing/bucket.glb",
+    "category": "fishing",
+    "size_m": [
+      0.452,
+      0.42,
+      0.554
+    ],
+    "sockets": {},
+    "tints": {
+      "bucket": "#8D9096"
+    },
+    "color_variants": {
+      "bucket": [
+        "steel",
+        "teal",
+        "red",
+        "mustard"
+      ]
+    }
+  },
+  {
+    "id": "fishing/bucket_fish",
+    "file": "fishing/bucket_fish.glb",
+    "category": "fishing",
+    "size_m": [
+      0.452,
+      0.42,
+      0.554
+    ],
+    "sockets": {},
+    "tints": {
+      "bucket": "#8D9096",
+      "fish0_body": "#F08A2E",
+      "fish0_fin": "#D9473B",
+      "fish0_stripe": "#E3A92B",
+      "fish1_body": "#3FB3B5",
+      "fish1_fin": "#207D85"
+    },
+    "color_variants": {
+      "bucket": [
+        "steel",
+        "teal",
+        "red",
+        "mustard"
+      ]
+    }
+  },
+  {
+    "id": "fishing/fish_round",
+    "file": "fishing/fish_round.glb",
+    "category": "fishing",
+    "size_m": [
+      0.453,
+      0.17,
+      0.312
+    ],
+    "sockets": {
+      "socket_mouth": [
+        0.18,
+        0.0,
+        0.09
+      ]
+    },
+    "tints": {
+      "body": "#F08A2E",
+      "fin": "#D9473B",
+      "stripe": "#E3A92B"
+    },
+    "head": "+X",
+    "length_m": 0.45,
+    "catch_card_size_cm": 28,
+    "color_variants": {
+      "body": [
+        "orange",
+        "teal_light",
+        "lavender",
+        "yellow",
+        "pink",
+        "sky",
+        "red"
+      ],
+      "fin": [
+        "red",
+        "teal",
+        "purple",
+        "mustard"
+      ]
+    }
+  },
+  {
+    "id": "fishing/fish_slim",
+    "file": "fishing/fish_slim.glb",
+    "category": "fishing",
+    "size_m": [
+      0.543,
+      0.17,
+      0.224
+    ],
+    "sockets": {
+      "socket_mouth": [
+        0.216,
+        0.0,
+        0.09
+      ]
+    },
+    "tints": {
+      "body": "#3FB3B5",
+      "fin": "#207D85"
+    },
+    "head": "+X",
+    "length_m": 0.54,
+    "catch_card_size_cm": 34,
+    "color_variants": {
+      "body": [
+        "orange",
+        "teal_light",
+        "lavender",
+        "yellow",
+        "pink",
+        "sky",
+        "red"
+      ],
+      "fin": [
+        "red",
+        "teal",
+        "purple",
+        "mustard"
+      ]
+    }
+  },
+  {
+    "id": "fishing/fish_spiky",
+    "file": "fishing/fish_spiky.glb",
+    "category": "fishing",
+    "size_m": [
+      0.475,
+      0.17,
+      0.331
+    ],
+    "sockets": {
+      "socket_mouth": [
+        0.189,
+        0.0,
+        0.09
+      ]
+    },
+    "tints": {
+      "body": "#A784D9",
+      "fin": "#7B4FC4"
+    },
+    "head": "+X",
+    "length_m": 0.47,
+    "catch_card_size_cm": 40,
+    "color_variants": {
+      "body": [
+        "orange",
+        "teal_light",
+        "lavender",
+        "yellow",
+        "pink",
+        "sky",
+        "red"
+      ],
+      "fin": [
+        "red",
+        "teal",
+        "purple",
+        "mustard"
+      ]
+    }
+  },
+  {
+    "id": "fishing/ripple",
+    "file": "fishing/ripple.glb",
+    "category": "fishing",
+    "size_m": [
+      0.76,
+      0.76,
+      0.028
+    ],
+    "sockets": {},
+    "tints": {},
+    "origin": "waterline",
+    "note": "scale/fade in game"
+  },
+  {
+    "id": "fishing/life_ring",
+    "file": "fishing/life_ring.glb",
+    "category": "fishing",
+    "size_m": [
+      0.71,
+      0.192,
+      0.71
+    ],
+    "sockets": {},
+    "tints": {
+      "stripe_a": "#D9473B",
+      "stripe_b": "#F7F4EE"
+    },
+    "mount": "post or wall; centre at z=0.355",
+    "color_variants": {
+      "stripe_a": [
+        "red",
+        "coral",
+        "orange"
+      ],
+      "stripe_b": [
+        "white"
+      ]
+    }
+  },
+  {
+    "id": "fishing/ice_floe_a",
+    "file": "fishing/ice_floe_a.glb",
+    "category": "nature",
+    "size_m": [
+      1.352,
+      0.976,
+      0.225
+    ],
+    "sockets": {},
+    "tints": {},
+    "floats_at": -0.5,
+    "walkable": false
+  },
+  {
+    "id": "fishing/ice_floe_b",
+    "file": "fishing/ice_floe_b.glb",
+    "category": "nature",
+    "size_m": [
+      0.832,
+      0.605,
+      0.225
+    ],
+    "sockets": {},
+    "tints": {},
+    "floats_at": -0.5,
+    "walkable": false
+  },
+  {
+    "id": "fishing/ice_floe_c",
+    "file": "fishing/ice_floe_c.glb",
+    "category": "nature",
+    "size_m": [
+      1.721,
+      1.311,
+      0.225
+    ],
+    "sockets": {},
+    "tints": {},
+    "floats_at": -0.5,
+    "walkable": false
+  },
+  {
+    "id": "fishing/tackle_crate",
+    "file": "fishing/tackle_crate.glb",
+    "category": "prop",
+    "size_m": [
+      0.58,
+      0.427,
+      0.405
+    ],
+    "sockets": {},
+    "tints": {},
+    "seat_height": 0.345
+  },
+  {
+    "id": "fishing/rowboat",
+    "file": "fishing/rowboat.glb",
+    "category": "vehicle",
+    "size_m": [
+      2.5,
+      1.059,
+      0.58
+    ],
+    "sockets": {
+      "socket_mooring": [
+        1.2,
+        0.0,
+        -0.1
+      ],
+      "socket_seat_0": [
+        -0.55,
+        0.0,
+        -0.3
+      ],
+      "socket_seat_1": [
+        0.3,
+        0.0,
+        -0.26
+      ]
+    },
+    "tints": {
+      "trim": "#F7F4EE",
+      "hull": "#D9473B"
+    },
+    "floats_at": -0.5,
+    "decor": true,
+    "color_variants": {
+      "hull": [
+        "red",
+        "teal",
+        "navy",
+        "mustard"
+      ],
+      "trim": [
+        "white",
+        "cream"
+      ]
+    }
+  },
+  {
+    "id": "fishing/fishing_dock_spot",
+    "file": "fishing/fishing_dock_spot.glb",
+    "category": "modular",
+    "size_m": [
+      2.008,
+      2.007,
+      1.65
+    ],
+    "sockets": {
+      "socket_fish_0": [
+        -0.88,
+        -0.5,
+        0.0
+      ],
+      "socket_fish_1": [
+        0.88,
+        -0.5,
+        0.0
+      ],
+      "socket_fish_2": [
+        -0.88,
+        0.45,
+        0.0
+      ],
+      "socket_fish_3": [
+        0.88,
+        0.45,
+        0.0
+      ],
+      "socket_stand_0": [
+        -0.45,
+        0.45,
+        0.0
+      ],
+      "socket_stand_1": [
+        0.45,
+        0.45,
+        0.0
+      ],
+      "socket_stand_2": [
+        -0.45,
+        -0.3,
+        0.0
+      ],
+      "socket_stand_3": [
+        0.45,
+        -0.3,
+        0.0
+      ]
+    },
+    "tints": {},
+    "module": "dock",
+    "grid": 2.0,
+    "deck_z": 0.0,
+    "water_z": -0.5,
+    "connects": [
+      "+Y",
+      "-Y"
+    ],
+    "fishing_spots": 4
+  }
+]

@@ -1,0 +1,236 @@
+[
+  {
+    "id": "cottage/cottage_exterior",
+    "file": "cottage/cottage_exterior.glb",
+    "category": "building",
+    "size_m": [
+      4.41,
+      4.225,
+      4.158
+    ],
+    "sockets": {
+      "socket_door": [
+        -0.55,
+        -2.5,
+        0.0
+      ],
+      "socket_mailbox": [
+        -1.65,
+        -2.4,
+        0.0
+      ],
+      "socket_spawn_inside": [
+        -0.55,
+        -0.78,
+        0.24
+      ]
+    },
+    "tints": {
+      "wall": "#F3E2C5",
+      "trim": "#BC874E",
+      "door": "#207D85",
+      "roof": "#F07E66"
+    },
+    "footprint_m": [
+      3.4,
+      3.0
+    ],
+    "floor_z": 0.24,
+    "roof_child": "cottage_exterior_roof"
+  },
+  {
+    "id": "cottage/cottage_roof",
+    "file": "cottage/cottage_roof.glb",
+    "category": "roof",
+    "size_m": [
+      4.291,
+      3.744,
+      2.172
+    ],
+    "sockets": {},
+    "tints": {
+      "wall": "#F3E2C5",
+      "roof": "#F07E66"
+    },
+    "footprint_m": [
+      3.4,
+      3.0
+    ],
+    "eave_z": 2.19,
+    "note": "fits cottage walls; origin at ground like the house"
+  },
+  {
+    "id": "cottage/cottage_interior_shell",
+    "file": "cottage/cottage_interior_shell.glb",
+    "category": "room",
+    "size_m": [
+      3.62,
+      3.397,
+      2.37
+    ],
+    "sockets": {
+      "socket_bed": [
+        -0.85,
+        0.4,
+        0.24
+      ],
+      "socket_desk": [
+        0.95,
+        -0.15,
+        0.24
+      ],
+      "socket_door": [
+        -0.55,
+        -0.83,
+        0.24
+      ],
+      "socket_grid_origin": [
+        -1.48,
+        -1.28,
+        0.24
+      ],
+      "socket_rug": [
+        0.05,
+        -0.1,
+        0.24
+      ],
+      "socket_spawn_inside": [
+        -0.55,
+        -0.58,
+        0.24
+      ],
+      "socket_wall_shelf": [
+        0.1,
+        1.28,
+        1.49
+      ]
+    },
+    "tints": {
+      "wall": "#F3E2C5",
+      "trim": "#BC874E",
+      "roof": "#E86D58",
+      "door": "#207D85"
+    },
+    "footprint_m": [
+      3.4,
+      3.0
+    ],
+    "floor_z": 0.24,
+    "grid_cell_m": 0.5,
+    "cutaway_child": "cottage_interior_shell_cutaway"
+  },
+  {
+    "id": "cottage/bed_single",
+    "file": "cottage/bed_single.glb",
+    "category": "furniture",
+    "size_m": [
+      1.0,
+      1.71,
+      0.8
+    ],
+    "sockets": {
+      "socket_lie": [
+        0.0,
+        0.1,
+        0.42
+      ]
+    },
+    "tints": {
+      "bedding": "#8DAA5B",
+      "pillow": "#F7F4EE"
+    },
+    "footprint_m": [
+      0.9,
+      1.55
+    ]
+  },
+  {
+    "id": "cottage/desk",
+    "file": "cottage/desk.glb",
+    "category": "furniture",
+    "size_m": [
+      1.0,
+      0.52,
+      0.852
+    ],
+    "sockets": {
+      "socket_use": [
+        0.0,
+        -0.55,
+        0.0
+      ]
+    },
+    "tints": {}
+  },
+  {
+    "id": "cottage/chair",
+    "file": "cottage/chair.glb",
+    "category": "furniture",
+    "size_m": [
+      0.42,
+      0.42,
+      0.928
+    ],
+    "sockets": {
+      "socket_seat": [
+        0.0,
+        0.0,
+        0.46
+      ]
+    },
+    "tints": {},
+    "note": "backrest at +Y; sitter faces -Y"
+  },
+  {
+    "id": "cottage/wall_shelf_small",
+    "file": "cottage/wall_shelf_small.glb",
+    "category": "wall_prop",
+    "size_m": [
+      0.7,
+      0.2,
+      0.38
+    ],
+    "sockets": {},
+    "tints": {},
+    "note": "origin at the bracket bottoms on the wall face"
+  },
+  {
+    "id": "cottage/round_rug",
+    "file": "cottage/round_rug.glb",
+    "category": "furniture",
+    "size_m": [
+      1.356,
+      1.356,
+      0.031
+    ],
+    "sockets": {},
+    "tints": {
+      "rug": "#F07E66"
+    },
+    "walkable": true
+  },
+  {
+    "id": "cottage/shrub_round",
+    "file": "cottage/shrub_round.glb",
+    "category": "nature",
+    "size_m": [
+      0.861,
+      0.689,
+      0.622
+    ],
+    "sockets": {},
+    "tints": {}
+  },
+  {
+    "id": "cottage/shrub_flowering",
+    "file": "cottage/shrub_flowering.glb",
+    "category": "nature",
+    "size_m": [
+      0.725,
+      0.597,
+      0.505
+    ],
+    "sockets": {},
+    "tints": {}
+  }
+]

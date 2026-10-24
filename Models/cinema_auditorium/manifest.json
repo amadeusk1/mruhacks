@@ -1,0 +1,287 @@
+[
+  {
+    "id": "cinema_auditorium/seat_single",
+    "file": "cinema_auditorium/seat_single.glb",
+    "category": "seat",
+    "size_m": [
+      0.86,
+      0.751,
+      0.957
+    ],
+    "sockets": {
+      "socket_seat": [
+        0.0,
+        -0.02,
+        0.38
+      ]
+    },
+    "tints": {
+      "upholstery": "#E0483D"
+    }
+  },
+  {
+    "id": "cinema_auditorium/seat_row_4",
+    "file": "cinema_auditorium/seat_row_4.glb",
+    "category": "seat",
+    "size_m": [
+      3.02,
+      0.751,
+      0.957
+    ],
+    "sockets": {
+      "socket_seat_0": [
+        -1.08,
+        -0.02,
+        0.38
+      ],
+      "socket_seat_1": [
+        -0.36,
+        -0.02,
+        0.38
+      ],
+      "socket_seat_2": [
+        0.36,
+        -0.02,
+        0.38
+      ],
+      "socket_seat_3": [
+        1.08,
+        -0.02,
+        0.38
+      ]
+    },
+    "tints": {
+      "upholstery": "#E0483D"
+    },
+    "seat_pitch_m": 0.72
+  },
+  {
+    "id": "cinema_auditorium/riser",
+    "file": "cinema_auditorium/riser.glb",
+    "category": "floor",
+    "size_m": [
+      3.2,
+      1.2,
+      0.22
+    ],
+    "sockets": {},
+    "tints": {},
+    "module": "tier",
+    "note": "step face toward -Y"
+  },
+  {
+    "id": "cinema_auditorium/screen",
+    "file": "cinema_auditorium/screen.glb",
+    "category": "interactive",
+    "size_m": [
+      4.92,
+      1.14,
+      3.3
+    ],
+    "sockets": {
+      "socket_screen": [
+        0.0,
+        -0.1,
+        2.075
+      ]
+    },
+    "tints": {},
+    "activity": "cinema_screen",
+    "note": "insert_cinema_screen shows the synced video"
+  },
+  {
+    "id": "cinema_auditorium/curtain",
+    "file": "cinema_auditorium/curtain.glb",
+    "category": "wall_decor",
+    "size_m": [
+      1.04,
+      0.4,
+      3.375
+    ],
+    "sockets": {},
+    "tints": {
+      "curtain": "#C8362F"
+    }
+  },
+  {
+    "id": "cinema_auditorium/wall_panel",
+    "file": "cinema_auditorium/wall_panel.glb",
+    "category": "wall_decor",
+    "size_m": [
+      0.74,
+      0.14,
+      1.17
+    ],
+    "sockets": {},
+    "tints": {
+      "wall": "#1F5A66"
+    }
+  },
+  {
+    "id": "cinema_auditorium/speaker",
+    "file": "cinema_auditorium/speaker.glb",
+    "category": "wall_decor",
+    "size_m": [
+      0.42,
+      0.405,
+      0.8
+    ],
+    "sockets": {},
+    "tints": {}
+  },
+  {
+    "id": "cinema_auditorium/aisle_light",
+    "file": "cinema_auditorium/aisle_light.glb",
+    "category": "light",
+    "size_m": [
+      0.24,
+      0.085,
+      0.12
+    ],
+    "sockets": {},
+    "tints": {}
+  },
+  {
+    "id": "cinema_auditorium/exit_door",
+    "file": "cinema_auditorium/exit_door.glb",
+    "category": "door",
+    "size_m": [
+      1.1,
+      0.14,
+      1.86
+    ],
+    "sockets": {
+      "socket_door": [
+        0.0,
+        -0.6,
+        0.0
+      ]
+    },
+    "tints": {
+      "door": "#207D85"
+    }
+  },
+  {
+    "id": "cinema_auditorium/auditorium_shell",
+    "file": "cinema_auditorium/auditorium_shell.glb",
+    "category": "building",
+    "size_m": [
+      5.96,
+      8.16,
+      3.74
+    ],
+    "sockets": {},
+    "tints": {
+      "carpet": "#C8362F",
+      "wall": "#1F5A66"
+    },
+    "interior_m": [
+      5.2,
+      7.4
+    ],
+    "floor_z": 0.05,
+    "tier_rise_m": 0.22
+  },
+  {
+    "id": "cinema_auditorium/cinema_auditorium",
+    "file": "cinema_auditorium/cinema_auditorium.glb",
+    "category": "room",
+    "size_m": [
+      5.96,
+      8.16,
+      3.74
+    ],
+    "sockets": {
+      "socket_exit": [
+        -1.9,
+        -3.05,
+        0.93
+      ],
+      "socket_screen": [
+        0.0,
+        3.5,
+        2.025
+      ],
+      "socket_screen__park.001": [
+        0.0,
+        3.5,
+        2.025
+      ],
+      "socket_seat_0": [
+        0.42,
+        0.47,
+        0.65
+      ],
+      "socket_seat_1": [
+        -0.3,
+        0.47,
+        0.65
+      ],
+      "socket_seat_10": [
+        -1.02,
+        -1.93,
+        1.09
+      ],
+      "socket_seat_11": [
+        -1.74,
+        -1.93,
+        1.09
+      ],
+      "socket_seat_2": [
+        -1.02,
+        0.47,
+        0.65
+      ],
+      "socket_seat_3": [
+        -1.74,
+        0.47,
+        0.65
+      ],
+      "socket_seat_4": [
+        0.42,
+        -0.73,
+        0.87
+      ],
+      "socket_seat_5": [
+        -0.3,
+        -0.73,
+        0.87
+      ],
+      "socket_seat_6": [
+        -1.02,
+        -0.73,
+        0.87
+      ],
+      "socket_seat_7": [
+        -1.74,
+        -0.73,
+        0.87
+      ],
+      "socket_seat_8": [
+        0.42,
+        -1.93,
+        1.09
+      ],
+      "socket_seat_9": [
+        -0.3,
+        -1.93,
+        1.09
+      ]
+    },
+    "tints": {
+      "carpet": "#C8362F",
+      "wall": "#1F5A66",
+      "curtain": "#C8362F",
+      "upholstery": "#E0483D",
+      "banner": "#D9473B",
+      "door": "#207D85"
+    },
+    "prefab": true,
+    "interior_m": [
+      5.2,
+      7.4
+    ],
+    "seats": 12,
+    "note": "seat_0..11 face the screen (+Y); exit door on the left wall at the rear landing"
+  }
+]

@@ -1,0 +1,275 @@
+"""Cinema auditorium kit (concept 14, Movie Night Scene). Front faces -Y for loose parts.
+In the assembled auditorium the screen is at +Y and seats face it (socket rotz 180).
+Socket rotz convention: 0 means the occupant faces -Y."""
+from common import *
+from kits.cinema import UPHOLSTERY, CURTAIN, WALL, CARPET, DOOR, potted_plant
+from kits.cinema_lobby import wall_banner
+
+KIT = "cinema_auditorium"
+PREVIEW_WIDTH = 13.0
+AW, AD, AH = 5.2, 7.4, 3.6          # interior width (X), depth (Y), wall height
+FZ = 0.05                           # front floor surface
+STEP = 0.22                         # tier rise
+TIER_D = 1.2                        # tier depth (one seat row each)
+SEAT_PITCH = 0.72
+SEAT_Z = 0.38                       # seat cushion top above its floor
+
+
+# ---------------------------------------------------------------------- seats
+def seat_body(b, x=0, y=0, z=0):
+    """Cushion, tilted back and pedestal of one cinema seat (no arms). Front -Y."""
+    with b.at((x, y, z)):
+        b.box(0.46, 0.44, 0.17, 0, 0.02, 0, "charcoal", bevel=0.03)
+        b.box(0.58, 0.58, 0.17, 0, -0.02, 0.2, UPHOLSTERY, bevel=0.06)
+        with b.at((0, 0.25, 0.3), rot=(-9, 0, 0)):
+            b.box(0.6, 0.2, 0.66, 0, 0, 0, UPHOLSTERY, bevel=0.07)
+
+
+def seat_arm(b, x=0, y=0, z=0):
+    with b.at((x, y, z)):
+        b.box(0.11, 0.56, 0.36, 0, 0.01, 0.1, "wood", bevel=0.025)
+        b.box(0.14, 0.62, 0.06, 0, 0.0, 0.46, "wood_b", bevel=0.02)
+        b.box(0.12, 0.3, 0.1, 0, 0.12, 0.0, "charcoal", bevel=0.02)
+
+
+def seat_row(b, n=4, x=0, y=0, z=0, rotz=0, sock=True, name="seat_{i}"):
+    """n seats sharing n+1 arms on a common plinth. Seats spaced SEAT_PITCH along X."""
+    w = SEAT_PITCH * n
+    with b.at((x, y, z), rotz=rotz):
+        b.box(w + 0.1, 0.3, 0.08, 0, 0.1, 0, "charcoal", bevel=0.02)
+        for i in range(n):
+            sx = -w / 2 + SEAT_PITCH * (i + 0.5)
+            seat_body(b, sx, 0, 0.0)
+            if sock:
+                b.socket(name.format(i=i), (sx, -0.02, SEAT_Z), (rotz + 0) % 360)
+        for i in range(n + 1):
+            seat_arm(b, -w / 2 + SEAT_PITCH * i, 0, 0)
+
+
+# ------------------------------------------------------------ floor and walls
+def aisle_light(b, x=0, y=0, z=0, rotz=0):
+    """Low step light; back against a face at y, glowing face toward -Y, bottom at z."""
+    with b.at((x, y, z), rotz=rotz):
+        b.box(0.24, 0.07, 0.12, 0, -0.035, 0, "charcoal", bevel=0.012)
+        b.box(0.16, 0.02, 0.07, 0, -0.075, 0.025, "aisle_light", bevel=0)
+
+
+def tier(b, w, d, h, x=0, y=0, lights=(), tiles=True):
+    """Solid dark floor block, top at h, step face toward -Y with optional step lights."""
+    b.box(w, d, h - 0.02, x, y, 0, "floor_dark", bevel=0.01)
+    if tiles:
+        ts = 0.6
+        nx, ny = max(1, round(w / ts)), max(1, round(d / ts))
+        for ix in range(nx):
+            for iy in range(ny):
+                b.box(w / nx - 0.015, d / ny - 0.015, 0.02, x - w / 2 + w / nx * (ix + 0.5), y - d / 2 + d / ny * (iy + 0.5),
+                      h - 0.02, pick(("floor_dark", "floor_dark_b"), ix + iy), bevel=0.004)
+    b.box(w, 0.05, 0.04, x, y - d / 2 + 0.02, h - 0.03, "charcoal", bevel=0.01)
+    for lx in lights:
+        aisle_light(b, lx, y - d / 2, max(0.02, h - 0.17))
+
+
+def carpet_strip(b, w, d, x, y, z, border=True):
+    b.box(w, d, 0.02, x, y, z, CARPET, bevel=0.004)
+    if border:
+        for sx in (-1, 1):
+            b.box(0.04, d, 0.022, x + sx * (w / 2 - 0.08), y, z, "mustard", bevel=0)
+        for k in range(max(1, int(d / 0.45))):
+            yy = y - d / 2 + 0.45 * (k + 0.5)
+            b.box(0.12, 0.12, 0.022, x, yy, z, "red_dark", bevel=0, rot=(0, 0, 45))
+
+
+def screen_unit(b, x=0, y=0, z=0, w=4.3, h=2.15, base=0.85, stage_w=None):
+    """Framed projection screen on a dark stage block, with a low centre speaker. Faces -Y."""
+    with b.at((x, y, z)):
+        sw = stage_w or w + 0.6
+        b.box(sw, 0.7, base, 0, -0.15, 0, "floor_dark", bevel=0.02)
+        b.box(sw + 0.02, 0.05, 0.06, 0, -0.5, base - 0.06, "charcoal", bevel=0.01)
+        b.box(w + 0.3, 0.16, h + 0.3, 0, 0.0, base, "charcoal", bevel=0.03)
+        b.box(w + 0.18, 0.04, h + 0.18, 0, -0.08, base + 0.06, "black", bevel=0.01)
+        b.box(w, 0.04, h, 0, -0.1, base + 0.15, "insert_cinema_screen", bevel=0)
+        # low centre speaker in front of the stage
+        b.box(0.62, 0.34, 0.3, 0, -0.75, 0, "charcoal", bevel=0.03)
+        b.box(0.5, 0.02, 0.18, 0, -0.93, 0.06, "black", bevel=0.005)
+        b.socket("screen", (0, -0.1, base + 0.15 + h / 2), 0)
+
+
+def _segment(b, p0, p1, r, mat, segs=6):
+    p0, p1 = Vector(p0), Vector(p1)
+    d = p1 - p0
+    e = d.to_track_quat("Z", "Y").to_euler()
+    b.cyl(r, d.length, p0.x, p0.y, p0.z, mat, segs=segs, rot=tuple(math.degrees(v) for v in e))
+
+
+def curtain(b, x=0, y=0, z=0, w=0.8, h=3.3, tie=1.35):
+    """Pleated stage curtain gathered by a brass tie-back; back at y, faces -Y."""
+    with b.at((x, y, z)):
+        n = 5
+        for i in range(n):
+            u = (i + 0.5) / n - 0.5
+            yy = -0.1 - 0.05 * (i % 2)
+            r = 0.085 + 0.015 * (i % 2)
+            bot = (u * w * 1.05, yy, 0.0)
+            mid = (u * w * 0.32, yy - 0.03, tie)
+            top = (u * w, yy, h - 0.2)
+            _segment(b, bot, mid, r, CURTAIN, segs=6)
+            _segment(b, mid, top, r, CURTAIN, segs=6)
+            b.sphere(r, *mid, mat=CURTAIN, u=6, v=4)
+        b.cyl(w * 0.25, 0.1, 0, -0.13, tie - 0.05, "brass", segs=8, r2=w * 0.25)
+        b.box(w + 0.2, 0.26, 0.24, 0, -0.1, h - 0.24, CURTAIN, bevel=0.04)
+        b.box(w + 0.24, 0.3, 0.06, 0, -0.1, h, "wood_dark", bevel=0.02)
+
+
+def wall_panel(b, x=0, y=0, z=0, w=0.62, h=1.05):
+    """Acoustic panel: tan fabric pad on a teal backing board. Back at y, bottom at z."""
+    b.box(w + 0.12, 0.05, h + 0.12, x, y - 0.025, z, WALL, bevel=0.015)
+    b.box(w, 0.08, h, x, y - 0.08, z + 0.06, "tan", bevel=0.035)
+    b.box(w - 0.16, 0.02, h - 0.16, x, y - 0.13, z + 0.14, "cream", bevel=0.01)
+
+
+def speaker(b, x=0, y=0, z=0, w=0.42, h=0.8):
+    """Cabinet speaker with two drivers; back at y, bottom at z."""
+    b.box(w, 0.36, h, x, y - 0.18, z, "charcoal", bevel=0.03)
+    for i, (rz, r) in enumerate(((0.62, 0.12), (0.25, 0.15))):
+        b.cyl(r + 0.025, 0.03, x, y - 0.36, z + h * rz + (0.06 if i else 0), "iron_light", segs=12, rot=(90, 0, 0), center=True)
+        b.cyl(r, 0.04, x, y - 0.37, z + h * rz + (0.06 if i else 0), "black", segs=12, rot=(90, 0, 0), center=True)
+        b.cyl(r * 0.3, 0.05, x, y - 0.38, z + h * rz + (0.06 if i else 0), "iron", segs=8, rot=(90, 0, 0), center=True)
+
+
+def exit_door(b, x=0, y=0, z=0, w=0.86, h=1.72):
+    """Teal door in a wood frame with a lit window, lever handle and kick plate. Back at y."""
+    with b.at((x, y, z)):
+        b.box(w + 0.24, 0.12, 0.14, 0, -0.05, h, "wood", bevel=0.02)
+        for sx in (-1, 1):
+            b.box(0.12, 0.12, h, sx * (w / 2 + 0.06), -0.05, 0, "wood", bevel=0.02)
+        b.box(w, 0.07, h, 0, -0.03, 0, DOOR, bevel=0.02)
+        b.box(0.34, 0.03, 0.3, 0, -0.07, h * 0.62, "wood", bevel=0.01)
+        b.box(0.26, 0.03, 0.22, 0, -0.08, h * 0.62 + 0.04, "glow_window", bevel=0)
+        b.box(w - 0.16, 0.03, 0.15, 0, -0.07, 0.05, "brass", bevel=0.008)
+        b.box(0.05, 0.05, 0.08, w / 2 - 0.14, -0.08, h * 0.46, "brass", bevel=0.008)
+        b.box(0.16, 0.04, 0.035, w / 2 - 0.2, -0.11, h * 0.48, "brass", bevel=0.008)
+
+
+def auditorium_shell(b):
+    """Cutaway room: tall teal screen wall and left wall, low taupe right and rear walls,
+    dark floor with three seat tiers and a rear landing, carpeted aisle on the right."""
+    t = 0.32
+    xa0, xa1 = 1.0, 2.0               # aisle carpet span (x)
+    # front floor in front of the tiers
+    front_d = AD / 2 - TIER_D
+    tier(b, AW, front_d, FZ, 0, TIER_D + front_d / 2)
+    # three seat tiers then the rear landing; step faces look toward the screen (+Y)
+    for r in range(4):
+        y1 = TIER_D - r * TIER_D
+        y0 = y1 - TIER_D if r < 3 else -AD / 2
+        top = FZ + STEP * (r + 1)
+        with b.at((0, (y0 + y1) / 2, 0), rotz=180):
+            tier(b, AW, y1 - y0, top, 0, 0, lights=(-2.3, 2.35))
+        # aisle carpet: tread plus a drape down the step face
+        carpet_strip(b, xa1 - xa0, y1 - y0, (xa0 + xa1) / 2, (y0 + y1) / 2, top)
+        b.box(xa1 - xa0, 0.02, STEP, (xa0 + xa1) / 2, y1 + 0.01, top - STEP, CARPET, bevel=0)
+        for lx in (xa0 - 0.06, xa1 + 0.06):
+            b.box(0.1, 0.1, 0.02, lx, y1 - 0.12, top, "aisle_light", bevel=0.005)
+    carpet_strip(b, xa1 - xa0, front_d - 0.9, (xa0 + xa1) / 2, TIER_D + (front_d - 0.9) / 2, FZ)
+    # tall screen wall (+Y) and left wall (-X): taupe core with a teal inner face
+    b.box(AW + 2 * t, t, AH, 0, AD / 2 + t / 2, 0, "taupe", bevel=0.03)
+    b.box(AW, 0.05, AH - 0.1, 0, AD / 2 - 0.025, 0, WALL, bevel=0)
+    b.box(t, AD, AH, -AW / 2 - t / 2, 0, 0, "taupe", bevel=0.03)
+    b.box(0.05, AD, AH - 0.1, -AW / 2 + 0.025, 0, 0, WALL, bevel=0)
+    for sx, sy, w_, d_ in ((0, AD / 2 + t / 2, AW + 2 * t + 0.06, t + 0.08), (-AW / 2 - t / 2, 0, t + 0.08, AD)):
+        b.box(w_, d_, 0.14, sx, sy, AH, "taupe_dark", bevel=0.03)
+    # wood pilasters on the left wall and at the screen-wall corners
+    for py in (-2.25, -0.45, 1.4, 3.0):
+        b.box(0.14, 0.24, AH - 0.3, -AW / 2 + 0.07, py, 0, "wood_dark", bevel=0.02)
+    for px in (-AW / 2 + 0.12, AW / 2 - 0.12):
+        b.box(0.24, 0.14, AH - 0.3, px, AD / 2 - 0.07, 0, "wood_dark", bevel=0.02)
+    # low cutaway walls on the right (+X) and rear (-Y)
+    lh = FZ + STEP * 4 + 0.3
+    b.box(t, AD + t, lh, AW / 2 + t / 2, -t / 2, 0, "taupe", bevel=0.03)
+    b.box(AW + t, t, lh, t / 2 - t, -AD / 2 - t / 2, 0, "taupe", bevel=0.03)
+    for sx, sy, w_, d_ in ((AW / 2 + t / 2, -t / 2, t + 0.08, AD + t), (-t / 2, -AD / 2 - t / 2, AW + t, t + 0.08)):
+        b.box(w_, d_, 0.1, sx, sy, lh, "taupe_dark", bevel=0.03)
+    for px, py in ((AW / 2 + t / 2, -AD / 2 - t / 2), (AW / 2 + t / 2, AD / 2 + t / 2), (-AW / 2 - t / 2, -AD / 2 - t / 2)):
+        hh = AH if py > 0 else lh + 0.25
+        b.box(t + 0.12, t + 0.12, hh, px, py, 0, "taupe_dark", bevel=0.04)
+
+
+# ---------------------------------------------------------------------- build
+def build():
+    b = Builder("seat_single")
+    seat_row(b, n=1, name="seat")
+    b.finish(KIT, "seat")
+
+    b = Builder("seat_row_4")
+    seat_row(b, n=4)
+    b.finish(KIT, "seat", {"seat_pitch_m": SEAT_PITCH})
+
+    b = Builder("riser")
+    tier(b, 3.2, TIER_D, STEP, lights=(-1.0, 0.0, 1.0))
+    b.finish(KIT, "floor", {"module": "tier", "size_m": [3.2, TIER_D, STEP], "note": "step face toward -Y"})
+
+    b = Builder("screen")
+    screen_unit(b)
+    b.finish(KIT, "interactive", {"activity": "cinema_screen", "note": "insert_cinema_screen shows the synced video"})
+
+    b = Builder("curtain")
+    curtain(b)
+    b.finish(KIT, "wall_decor")
+
+    b = Builder("wall_panel")
+    wall_panel(b)
+    b.finish(KIT, "wall_decor")
+
+    b = Builder("speaker")
+    speaker(b)
+    b.finish(KIT, "wall_decor")
+
+    b = Builder("aisle_light")
+    aisle_light(b)
+    b.finish(KIT, "light")
+
+    b = Builder("exit_door")
+    exit_door(b)
+    b.socket("door", (0, -0.6, 0), 180)
+    b.finish(KIT, "door")
+
+    b = Builder("auditorium_shell")
+    auditorium_shell(b)
+    b.finish(KIT, "building", {"interior_m": [AW, AD], "floor_z": FZ, "tier_rise_m": STEP})
+
+    # ---- assembled auditorium ------------------------------------------------
+    b = Builder("cinema_auditorium")
+    auditorium_shell(b)
+    wy = AD / 2                                     # screen wall inner face
+    # stage narrower than the frame so the curtain hems hang clear of it
+    screen_unit(b, 0, wy - 0.1, FZ, w=3.4, h=1.95, stage_w=3.0)
+    for sx in (-1, 1):
+        curtain(b, sx * 1.9, wy - 0.22, FZ, w=0.44)   # hangs on a rail in front of the screen frame
+        speaker(b, sx * 2.42, wy, 2.05, w=0.32, h=0.7)
+    # rows of four seats on tiers 0..2, facing the screen
+    cx = -0.66
+    n = 0
+    for r in range(3):
+        top = FZ + STEP * (r + 1)
+        sy = TIER_D - r * TIER_D - TIER_D + 0.45
+        seat_row(b, 4, cx, sy, top, rotz=180, sock=False)
+        for i in range(4):
+            lx = SEAT_PITCH * (i + 0.5) - SEAT_PITCH * 2
+            b.socket(f"seat_{n}", (cx - lx, sy + 0.02, top + SEAT_Z), 180)
+            n += 1
+    # left wall dressing: acoustic panels between pilasters, lanterns, banner, exit door
+    # local frame on the left wall's inner face: local x = world y, local -Y points into the room
+    with b.at((-AW / 2 + 0.05, 0, 0), rotz=90):
+        for py in (0.47, 2.2):
+            wall_panel(b, py, 0, 1.25)
+        for py in (-0.45, 1.4):
+            wall_lantern(b, py, -0.14, 2.5, s=1.15)
+        wall_banner(b, -1.35, 0, 1.45)
+        exit_door(b, -3.05, 0, FZ + STEP * 4)
+    potted_plant(b, AW / 2 - 0.3, -3.3, FZ + STEP * 4, s=1.0)
+    potted_plant(b, AW / 2 - 0.35, AD / 2 - 0.8, FZ, s=1.2)
+    potted_plant(b, -AW / 2 + 0.35, AD / 2 - 0.8, FZ, s=1.2)
+    b.socket("exit", (-AW / 2 + 0.7, -3.05, FZ + STEP * 4), -90)
+    b.socket("screen", (0, wy - 0.2, FZ + 0.85 + 0.15 + 1.95 / 2), 0)
+    b.finish(KIT, "room", {"prefab": True, "interior_m": [AW, AD], "seats": n,
+                           "note": "seat_0..11 face the screen (+Y); exit door on the left wall at the rear landing"})

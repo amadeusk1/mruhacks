@@ -1,0 +1,346 @@
+[
+  {
+    "id": "activities/basketball_court_half",
+    "file": "activities/basketball_court_half.glb",
+    "category": "activity",
+    "size_m": [
+      8.7,
+      7.7,
+      0.089
+    ],
+    "sockets": {
+      "socket_hoop": [
+        0.0,
+        3.75,
+        0.061
+      ],
+      "socket_scoreboard": [
+        4.9,
+        2.5,
+        0.0
+      ],
+      "socket_shoot_0": [
+        -2.078,
+        1.8,
+        0.061
+      ],
+      "socket_shoot_1": [
+        -1.014,
+        0.825,
+        0.061
+      ],
+      "socket_shoot_2": [
+        1.014,
+        0.825,
+        0.061
+      ],
+      "socket_shoot_3": [
+        2.078,
+        1.8,
+        0.061
+      ],
+      "socket_spectator_0": [
+        -1.8,
+        -4.4,
+        0.0
+      ],
+      "socket_spectator_1": [
+        -0.6,
+        -4.4,
+        0.0
+      ],
+      "socket_spectator_2": [
+        0.6,
+        -4.4,
+        0.0
+      ],
+      "socket_spectator_3": [
+        1.8,
+        -4.4,
+        0.0
+      ]
+    },
+    "tints": {
+      "court": "#207D85",
+      "court_key": "#E86D58",
+      "court_spot": "#E3A92B"
+    },
+    "activity": "basketball",
+    "court_m": [
+      8.0,
+      7.0
+    ],
+    "rim_xy": [
+      0.0,
+      3.0
+    ],
+    "rim_z": 1.72,
+    "note": "place basketball_hoop at socket_hoop; keep snowbanks outside the paving apron"
+  },
+  {
+    "id": "activities/basketball_hoop",
+    "file": "activities/basketball_hoop.glb",
+    "category": "activity",
+    "size_m": [
+      1.2,
+      1.253,
+      2.4
+    ],
+    "sockets": {
+      "socket_rim": [
+        0.0,
+        -0.65,
+        1.72
+      ]
+    },
+    "tints": {
+      "pole": "#3A3D44",
+      "board_mark": "#E86D58",
+      "rim": "#F08A2E"
+    },
+    "activity": "basketball",
+    "rim_radius_m": 0.21
+  },
+  {
+    "id": "activities/basketball",
+    "file": "activities/basketball.glb",
+    "category": "projectile",
+    "size_m": [
+      0.253,
+      0.253,
+      0.253
+    ],
+    "sockets": {},
+    "tints": {
+      "ball": "#F08A2E"
+    },
+    "radius_m": 0.12
+  },
+  {
+    "id": "activities/scoreboard",
+    "file": "activities/scoreboard.glb",
+    "category": "activity",
+    "size_m": [
+      1.86,
+      0.3,
+      2.12
+    ],
+    "sockets": {
+      "socket_screen": [
+        0.0,
+        -0.1,
+        1.43
+      ]
+    },
+    "tints": {
+      "frame": "#153447",
+      "trim": "#E86D58"
+    },
+    "activity": "basketball"
+  },
+  {
+    "id": "activities/ball_rack",
+    "file": "activities/ball_rack.glb",
+    "category": "activity",
+    "size_m": [
+      1.06,
+      0.42,
+      0.869
+    ],
+    "sockets": {},
+    "tints": {
+      "ball": "#F08A2E"
+    },
+    "activity": "basketball"
+  },
+  {
+    "id": "activities/sketch_pavilion",
+    "file": "activities/sketch_pavilion.glb",
+    "category": "building",
+    "size_m": [
+      5.933,
+      5.284,
+      3.982
+    ],
+    "sockets": {
+      "socket_easel": [
+        2.0,
+        1.5,
+        0.22
+      ],
+      "socket_entry": [
+        0.0,
+        -2.95,
+        0.0
+      ],
+      "socket_table": [
+        0.0,
+        0.1,
+        0.22
+      ]
+    },
+    "tints": {
+      "roof": "#E86D58",
+      "pin_a": "#E86D58",
+      "pin_b": "#207D85",
+      "pin_c": "#E3A92B",
+      "sign_frame": "#7A4E2C"
+    },
+    "activity": "drawing_telephone",
+    "floor_z_m": 0.22,
+    "room": "sketch_club",
+    "voice_room": "own audio room (quiet rounds)"
+  },
+  {
+    "id": "activities/sketch_table",
+    "file": "activities/sketch_table.glb",
+    "category": "activity",
+    "size_m": [
+      4.469,
+      2.069,
+      0.819
+    ],
+    "sockets": {
+      "socket_pad_0": [
+        -0.95,
+        -0.3,
+        0.606
+      ],
+      "socket_pad_1": [
+        -0.0,
+        -0.3,
+        0.606
+      ],
+      "socket_pad_2": [
+        0.95,
+        -0.3,
+        0.606
+      ],
+      "socket_pad_3": [
+        0.95,
+        0.3,
+        0.606
+      ],
+      "socket_pad_4": [
+        0.0,
+        0.3,
+        0.606
+      ],
+      "socket_pad_5": [
+        -0.95,
+        0.3,
+        0.606
+      ],
+      "socket_pad_6": [
+        1.3,
+        0.0,
+        0.606
+      ],
+      "socket_pad_7": [
+        -1.3,
+        0.0,
+        0.606
+      ],
+      "socket_seat_0": [
+        -0.95,
+        -0.85,
+        0.42
+      ],
+      "socket_seat_1": [
+        0.0,
+        -0.85,
+        0.42
+      ],
+      "socket_seat_2": [
+        0.95,
+        -0.85,
+        0.42
+      ],
+      "socket_seat_3": [
+        0.95,
+        0.85,
+        0.42
+      ],
+      "socket_seat_4": [
+        0.0,
+        0.85,
+        0.42
+      ],
+      "socket_seat_5": [
+        -0.95,
+        0.85,
+        0.42
+      ],
+      "socket_seat_6": [
+        2.05,
+        0.0,
+        0.42
+      ],
+      "socket_seat_7": [
+        -2.05,
+        0.0,
+        0.42
+      ]
+    },
+    "tints": {
+      "seat_a": "#E86D58",
+      "seat_b": "#3FB3B5",
+      "seat_c": "#E3A92B",
+      "seat_d": "#8DAA5B",
+      "cup": "#207D85"
+    },
+    "activity": "drawing_telephone",
+    "seats": 8,
+    "table_h_m": 0.6
+  },
+  {
+    "id": "activities/drawing_pad",
+    "file": "activities/drawing_pad.glb",
+    "category": "prop",
+    "size_m": [
+      0.412,
+      0.328,
+      0.048
+    ],
+    "sockets": {},
+    "tints": {},
+    "activity": "drawing_telephone"
+  },
+  {
+    "id": "activities/pencil_cup",
+    "file": "activities/pencil_cup.glb",
+    "category": "prop",
+    "size_m": [
+      0.112,
+      0.116,
+      0.217
+    ],
+    "sockets": {},
+    "tints": {
+      "cup": "#207D85"
+    },
+    "activity": "drawing_telephone"
+  },
+  {
+    "id": "activities/easel_board",
+    "file": "activities/easel_board.glb",
+    "category": "activity",
+    "size_m": [
+      1.095,
+      0.511,
+      1.59
+    ],
+    "sockets": {
+      "socket_screen": [
+        0.0,
+        -0.16,
+        1.05
+      ]
+    },
+    "tints": {
+      "frame": "#153447"
+    },
+    "activity": "drawing_telephone",
+    "use": "reveal display"
+  }
+]

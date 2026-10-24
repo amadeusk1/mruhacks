@@ -1,0 +1,401 @@
+[
+  {
+    "id": "arcade/arcade_cabinet",
+    "file": "arcade/arcade_cabinet.glb",
+    "category": "arcade_cabinet",
+    "size_m": [
+      0.64,
+      0.7,
+      1.5
+    ],
+    "sockets": {
+      "socket_player_1": [
+        0.0,
+        -0.7,
+        0.0
+      ],
+      "socket_screen": [
+        0.0,
+        -0.17,
+        1.08
+      ]
+    },
+    "tints": {
+      "body": "#7B4FC4"
+    },
+    "slots": 1,
+    "color_variants": {
+      "body": [
+        "#7B4FC4",
+        "#3FB3B5",
+        "#D9473B",
+        "#E3A92B",
+        "#3D7BD9"
+      ]
+    }
+  },
+  {
+    "id": "arcade/arcade_cabinet_duo",
+    "file": "arcade/arcade_cabinet_duo.glb",
+    "category": "arcade_cabinet",
+    "size_m": [
+      1.27,
+      1.18,
+      1.5
+    ],
+    "sockets": {
+      "socket_player_1": [
+        -0.32,
+        -0.72,
+        0.0
+      ],
+      "socket_player_2": [
+        0.32,
+        -0.72,
+        0.0
+      ],
+      "socket_screen": [
+        0.0,
+        -0.17,
+        1.08
+      ]
+    },
+    "tints": {
+      "body": "#153447",
+      "station_1": "#E86D58",
+      "station_2": "#3FB3B5"
+    },
+    "slots": 2,
+    "color_variants": {
+      "body": [
+        "#153447",
+        "#7B4FC4"
+      ],
+      "station_1": [
+        "#E86D58"
+      ],
+      "station_2": [
+        "#3FB3B5"
+      ]
+    }
+  },
+  {
+    "id": "arcade/token_machine",
+    "file": "arcade/token_machine.glb",
+    "category": "arcade_prop",
+    "size_m": [
+      0.6,
+      0.535,
+      1.36
+    ],
+    "sockets": {
+      "socket_use": [
+        0.0,
+        -0.6,
+        0.0
+      ]
+    },
+    "tints": {
+      "body": "#7B4FC4"
+    },
+    "color_variants": {
+      "body": [
+        "#7B4FC4",
+        "#D9473B"
+      ]
+    }
+  },
+  {
+    "id": "arcade/arcade_stool",
+    "file": "arcade/arcade_stool.glb",
+    "category": "furniture",
+    "size_m": [
+      0.38,
+      0.391,
+      0.431
+    ],
+    "sockets": {
+      "socket_seat_0": [
+        0.0,
+        0.0,
+        0.42
+      ]
+    },
+    "tints": {}
+  },
+  {
+    "id": "arcade/arcade_bench",
+    "file": "arcade/arcade_bench.glb",
+    "category": "furniture",
+    "size_m": [
+      1.4,
+      0.42,
+      0.42
+    ],
+    "sockets": {
+      "socket_seat_0": [
+        -0.33,
+        0.0,
+        0.42
+      ],
+      "socket_seat_1": [
+        0.33,
+        0.0,
+        0.42
+      ]
+    },
+    "tints": {}
+  },
+  {
+    "id": "arcade/arcade_marquee",
+    "file": "arcade/arcade_marquee.glb",
+    "category": "sign",
+    "size_m": [
+      1.8,
+      0.209,
+      1.02
+    ],
+    "sockets": {},
+    "tints": {},
+    "mount": "wall",
+    "insert": "ARCADE"
+  },
+  {
+    "id": "arcade/arcade_poster",
+    "file": "arcade/arcade_poster.glb",
+    "category": "decor",
+    "size_m": [
+      0.6,
+      0.065,
+      0.7
+    ],
+    "sockets": {},
+    "tints": {
+      "frame": "#7A4E2C"
+    },
+    "mount": "wall"
+  },
+  {
+    "id": "arcade/arcade_poster_wide",
+    "file": "arcade/arcade_poster_wide.glb",
+    "category": "decor",
+    "size_m": [
+      0.9,
+      0.065,
+      0.65
+    ],
+    "sockets": {},
+    "tints": {
+      "frame": "#7A4E2C"
+    },
+    "mount": "wall"
+  },
+  {
+    "id": "arcade/arcade_rug",
+    "file": "arcade/arcade_rug.glb",
+    "category": "decor",
+    "size_m": [
+      2.4,
+      1.8,
+      0.02
+    ],
+    "sockets": {},
+    "tints": {
+      "rug_0": "#3FB3B5",
+      "rug_3": "#207D85",
+      "rug_1": "#A784D9",
+      "rug_4": "#7B4FC4",
+      "rug_2": "#FAF1DD"
+    },
+    "mount": "floor"
+  },
+  {
+    "id": "arcade/arcade_chalkboard",
+    "file": "arcade/arcade_chalkboard.glb",
+    "category": "prop",
+    "size_m": [
+      0.574,
+      0.275,
+      0.777
+    ],
+    "sockets": {},
+    "tints": {}
+  },
+  {
+    "id": "arcade/arcade_shell",
+    "file": "arcade/arcade_shell.glb",
+    "category": "building",
+    "size_m": [
+      6.8,
+      6.05,
+      2.75
+    ],
+    "sockets": {
+      "socket_cabinet_0": [
+        -2.4,
+        1.84,
+        0.0
+      ],
+      "socket_cabinet_1": [
+        -1.6,
+        1.84,
+        0.0
+      ],
+      "socket_cabinet_2": [
+        -0.8,
+        1.84,
+        0.0
+      ],
+      "socket_cabinet_3": [
+        0.0,
+        1.84,
+        0.0
+      ],
+      "socket_cabinet_4": [
+        0.8,
+        1.84,
+        0.0
+      ],
+      "socket_cabinet_5": [
+        1.6,
+        1.84,
+        0.0
+      ],
+      "socket_cabinet_6": [
+        2.4,
+        1.84,
+        0.0
+      ],
+      "socket_door": [
+        0.0,
+        -3.4,
+        0.0
+      ],
+      "socket_door_inside": [
+        0.0,
+        -1.7,
+        0.0
+      ],
+      "socket_token_machine": [
+        2.5,
+        -0.6,
+        0.0
+      ]
+    },
+    "tints": {
+      "wall": "#F3E2C5"
+    },
+    "module": "shell",
+    "wall_height": 2.5,
+    "roof": "arcade_roof"
+  },
+  {
+    "id": "arcade/arcade_roof",
+    "file": "arcade/arcade_roof.glb",
+    "category": "building",
+    "size_m": [
+      7.0,
+      5.594,
+      1.966
+    ],
+    "sockets": {},
+    "tints": {
+      "roof": "#F07E66",
+      "wall": "#F3E2C5"
+    },
+    "module": "roof",
+    "sits_on": "arcade_shell",
+    "z": 2.62
+  },
+  {
+    "id": "arcade/arcade_exterior",
+    "file": "arcade/arcade_exterior.glb",
+    "category": "building",
+    "size_m": [
+      7.0,
+      6.349,
+      4.6
+    ],
+    "sockets": {
+      "socket_cabinet_0": [
+        -2.4,
+        1.84,
+        0.0
+      ],
+      "socket_cabinet_1": [
+        -1.6,
+        1.84,
+        0.0
+      ],
+      "socket_cabinet_2": [
+        -0.8,
+        1.84,
+        0.0
+      ],
+      "socket_cabinet_3": [
+        0.0,
+        1.84,
+        0.0
+      ],
+      "socket_cabinet_4": [
+        0.8,
+        1.84,
+        0.0
+      ],
+      "socket_cabinet_5": [
+        1.6,
+        1.84,
+        0.0
+      ],
+      "socket_cabinet_6": [
+        2.4,
+        1.84,
+        0.0
+      ],
+      "socket_door": [
+        0.0,
+        -3.4,
+        0.0
+      ],
+      "socket_door__park.001": [
+        0.0,
+        -3.4,
+        0.0
+      ],
+      "socket_door_inside": [
+        0.0,
+        -1.7,
+        0.0
+      ],
+      "socket_screen": [
+        0.9,
+        1.67,
+        1.08
+      ],
+      "socket_screen__park.001": [
+        -1.0,
+        1.67,
+        1.08
+      ],
+      "socket_screen__park.002": [
+        0.0,
+        1.67,
+        1.08
+      ],
+      "socket_token_machine": [
+        2.5,
+        -0.6,
+        0.0
+      ]
+    },
+    "tints": {
+      "cabinet_purple": "#7B4FC4",
+      "cabinet_teal_light": "#3FB3B5",
+      "cabinet_red": "#D9473B",
+      "wall": "#F3E2C5",
+      "roof": "#F07E66"
+    },
+    "module": "prefab",
+    "interior": "arcade_shell"
+  }
+]

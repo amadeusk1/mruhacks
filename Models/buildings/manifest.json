@@ -1,0 +1,341 @@
+[
+  {
+    "id": "buildings/wall_1m",
+    "file": "buildings/wall_1m.glb",
+    "category": "wall",
+    "size_m": [
+      1.0,
+      0.29,
+      2.1
+    ],
+    "sockets": {},
+    "tints": {
+      "wall": "#F3E2C5"
+    },
+    "grid_m": [
+      1,
+      0.22
+    ],
+    "height_m": 2.1
+  },
+  {
+    "id": "buildings/wall_2m",
+    "file": "buildings/wall_2m.glb",
+    "category": "wall",
+    "size_m": [
+      2.0,
+      0.29,
+      2.1
+    ],
+    "sockets": {},
+    "tints": {
+      "wall": "#F3E2C5"
+    },
+    "grid_m": [
+      2,
+      0.22
+    ],
+    "height_m": 2.1
+  },
+  {
+    "id": "buildings/wall_corner",
+    "file": "buildings/wall_corner.glb",
+    "category": "wall",
+    "size_m": [
+      0.645,
+      0.645,
+      2.1
+    ],
+    "sockets": {},
+    "tints": {
+      "wall": "#F3E2C5"
+    },
+    "note": "outer corner at origin; walls run +X and +Y"
+  },
+  {
+    "id": "buildings/wall_door",
+    "file": "buildings/wall_door.glb",
+    "category": "wall",
+    "size_m": [
+      2.0,
+      0.35,
+      2.1
+    ],
+    "sockets": {
+      "socket_door": [
+        0.0,
+        -0.66,
+        0.0
+      ]
+    },
+    "tints": {
+      "wall": "#F3E2C5",
+      "trim": "#BC874E",
+      "door": "#207D85"
+    },
+    "grid_m": [
+      2,
+      0.22
+    ]
+  },
+  {
+    "id": "buildings/wall_window",
+    "file": "buildings/wall_window.glb",
+    "category": "wall",
+    "size_m": [
+      1.0,
+      0.395,
+      2.1
+    ],
+    "sockets": {},
+    "tints": {
+      "wall": "#F3E2C5",
+      "trim": "#BC874E"
+    },
+    "grid_m": [
+      1,
+      0.22
+    ]
+  },
+  {
+    "id": "buildings/wall_window_box",
+    "file": "buildings/wall_window_box.glb",
+    "category": "wall",
+    "size_m": [
+      1.0,
+      0.583,
+      2.1
+    ],
+    "sockets": {},
+    "tints": {
+      "wall": "#F3E2C5",
+      "trim": "#BC874E"
+    },
+    "grid_m": [
+      1,
+      0.22
+    ]
+  },
+  {
+    "id": "buildings/stone_base",
+    "file": "buildings/stone_base.glb",
+    "category": "trim",
+    "size_m": [
+      1.985,
+      0.29,
+      0.277
+    ],
+    "sockets": {},
+    "tints": {},
+    "grid_m": [
+      2,
+      0.29
+    ]
+  },
+  {
+    "id": "buildings/floor_wood_2x2",
+    "file": "buildings/floor_wood_2x2.glb",
+    "category": "floor",
+    "size_m": [
+      2.0,
+      2.0,
+      0.09
+    ],
+    "sockets": {},
+    "tints": {},
+    "grid_m": [
+      2,
+      2
+    ],
+    "top_z": 0.09
+  },
+  {
+    "id": "buildings/floor_tile_2x2",
+    "file": "buildings/floor_tile_2x2.glb",
+    "category": "floor",
+    "size_m": [
+      2.0,
+      2.0,
+      0.09
+    ],
+    "sockets": {},
+    "tints": {},
+    "grid_m": [
+      2,
+      2
+    ],
+    "top_z": 0.09
+  },
+  {
+    "id": "buildings/roof_gable_3x3",
+    "file": "buildings/roof_gable_3x3.glb",
+    "category": "roof",
+    "size_m": [
+      3.68,
+      3.584,
+      1.653
+    ],
+    "sockets": {},
+    "tints": {
+      "wall": "#F3E2C5",
+      "roof": "#F07E66"
+    },
+    "footprint_m": [
+      3.0,
+      3.0
+    ],
+    "rise_m": 1.15
+  },
+  {
+    "id": "buildings/roof_gable_4x3",
+    "file": "buildings/roof_gable_4x3.glb",
+    "category": "roof",
+    "size_m": [
+      4.675,
+      3.584,
+      1.83
+    ],
+    "sockets": {},
+    "tints": {
+      "wall": "#F3E2C5",
+      "roof": "#F07E66"
+    },
+    "footprint_m": [
+      4.0,
+      3.0
+    ],
+    "rise_m": 1.35
+  },
+  {
+    "id": "buildings/awning_module",
+    "file": "buildings/awning_module.glb",
+    "category": "trim",
+    "size_m": [
+      2.08,
+      0.736,
+      0.623
+    ],
+    "sockets": {
+      "socket_wall_mount": [
+        0.0,
+        0.0,
+        0.6
+      ]
+    },
+    "tints": {
+      "awning_a": "#E86D58",
+      "awning_b": "#FAF1DD"
+    },
+    "note": "origin at the wall face below the awning; socket_wall_mount is the top attach edge (0.6 m up)"
+  },
+  {
+    "id": "buildings/chimney",
+    "file": "buildings/chimney.glb",
+    "category": "trim",
+    "size_m": [
+      0.6,
+      0.6,
+      1.55
+    ],
+    "sockets": {},
+    "tints": {},
+    "note": "sink the bottom into the roof; top at 1.52 m"
+  },
+  {
+    "id": "buildings/door_insert",
+    "file": "buildings/door_insert.glb",
+    "category": "insert",
+    "size_m": [
+      1.14,
+      0.35,
+      1.76
+    ],
+    "sockets": {
+      "socket_door": [
+        0.0,
+        -0.66,
+        0.0
+      ]
+    },
+    "tints": {
+      "trim": "#BC874E",
+      "door": "#207D85"
+    },
+    "opening_m": [
+      1.02,
+      1.68
+    ],
+    "wall_t": 0.22
+  },
+  {
+    "id": "buildings/window_insert",
+    "file": "buildings/window_insert.glb",
+    "category": "insert",
+    "size_m": [
+      0.94,
+      0.375,
+      0.98
+    ],
+    "sockets": {},
+    "tints": {
+      "trim": "#BC874E"
+    },
+    "opening_m": [
+      0.76,
+      0.86
+    ],
+    "wall_t": 0.22,
+    "note": "z=0 is glass bottom"
+  },
+  {
+    "id": "buildings/entry_step",
+    "file": "buildings/entry_step.glb",
+    "category": "trim",
+    "size_m": [
+      1.318,
+      0.612,
+      0.285
+    ],
+    "sockets": {},
+    "tints": {},
+    "note": "back edge at y=0 meets the wall face"
+  },
+  {
+    "id": "buildings/room_shell_3x3",
+    "file": "buildings/room_shell_3x3.glb",
+    "category": "room",
+    "size_m": [
+      3.435,
+      3.92,
+      2.484
+    ],
+    "sockets": {
+      "socket_door": [
+        -0.75,
+        1.1,
+        0.18
+      ],
+      "socket_grid_origin": [
+        -1.5,
+        -1.5,
+        0.18
+      ],
+      "socket_spawn": [
+        0.0,
+        0.0,
+        0.18
+      ]
+    },
+    "tints": {
+      "wall": "#F3E2C5",
+      "trim": "#BC874E",
+      "door": "#207D85"
+    },
+    "interior_m": [
+      3.0,
+      3.0
+    ],
+    "floor_z": 0.18,
+    "grid_cell_m": 0.5
+  }
+]

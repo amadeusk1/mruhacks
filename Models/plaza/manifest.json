@@ -1,0 +1,528 @@
+[
+  {
+    "id": "plaza/round_table",
+    "file": "plaza/round_table.glb",
+    "category": "furniture",
+    "size_m": [
+      0.875,
+      0.914,
+      0.6
+    ],
+    "sockets": {
+      "socket_seat_0": [
+        0.53,
+        0.53,
+        0.44
+      ],
+      "socket_seat_1": [
+        -0.53,
+        0.53,
+        0.44
+      ],
+      "socket_seat_2": [
+        -0.53,
+        -0.53,
+        0.44
+      ],
+      "socket_seat_3": [
+        0.53,
+        -0.53,
+        0.44
+      ],
+      "socket_table_top": [
+        0.0,
+        0.0,
+        0.6
+      ]
+    },
+    "tints": {},
+    "seats": 4,
+    "top_height": 0.6
+  },
+  {
+    "id": "plaza/stool",
+    "file": "plaza/stool.glb",
+    "category": "furniture",
+    "size_m": [
+      0.38,
+      0.389,
+      0.444
+    ],
+    "sockets": {
+      "socket_seat": [
+        0.0,
+        0.0,
+        0.44
+      ]
+    },
+    "tints": {},
+    "seats": 1,
+    "seat_height": 0.44
+  },
+  {
+    "id": "plaza/bench",
+    "file": "plaza/bench.glb",
+    "category": "furniture",
+    "size_m": [
+      1.5,
+      0.434,
+      0.86
+    ],
+    "sockets": {
+      "socket_seat_0": [
+        -0.33,
+        -0.02,
+        0.42
+      ],
+      "socket_seat_1": [
+        0.33,
+        -0.02,
+        0.42
+      ]
+    },
+    "tints": {},
+    "seats": 2,
+    "seat_height": 0.42
+  },
+  {
+    "id": "plaza/aframe_chalkboard",
+    "file": "plaza/aframe_chalkboard.glb",
+    "category": "sign",
+    "size_m": [
+      0.642,
+      0.691,
+      0.915
+    ],
+    "sockets": {},
+    "tints": {},
+    "insert": "insert_chalk"
+  },
+  {
+    "id": "plaza/lantern_post",
+    "file": "plaza/lantern_post.glb",
+    "category": "light",
+    "size_m": [
+      0.34,
+      0.34,
+      1.901
+    ],
+    "sockets": {
+      "socket_light": [
+        0.0,
+        0.0,
+        1.55
+      ]
+    },
+    "tints": {},
+    "light_color": "#FFC76B",
+    "light_height": 1.55
+  },
+  {
+    "id": "plaza/wall_lantern",
+    "file": "plaza/wall_lantern.glb",
+    "category": "light",
+    "size_m": [
+      0.203,
+      0.434,
+      0.54
+    ],
+    "sockets": {
+      "socket_light": [
+        0.0,
+        -0.32,
+        0.17
+      ]
+    },
+    "tints": {},
+    "mount": "wall",
+    "mount_height": 1.25,
+    "light_color": "#FFC76B"
+  },
+  {
+    "id": "plaza/flower_pot",
+    "file": "plaza/flower_pot.glb",
+    "category": "decor",
+    "size_m": [
+      0.439,
+      0.439,
+      0.539
+    ],
+    "sockets": {},
+    "tints": {
+      "pot": "#C8663E",
+      "petal": "#FFFDF6"
+    },
+    "color_variants": {
+      "petal": [
+        "petal_white",
+        "petal_red",
+        "petal_yellow",
+        "pink",
+        "lavender"
+      ],
+      "pot": [
+        "terracotta",
+        "cream",
+        "teal",
+        "charcoal"
+      ]
+    }
+  },
+  {
+    "id": "plaza/rect_planter",
+    "file": "plaza/rect_planter.glb",
+    "category": "decor",
+    "size_m": [
+      1.3,
+      0.55,
+      0.526
+    ],
+    "sockets": {},
+    "tints": {
+      "petal": "#FFFDF6"
+    },
+    "color_variants": {
+      "petal": [
+        "petal_white",
+        "petal_red",
+        "petal_yellow",
+        "pink",
+        "lavender"
+      ]
+    }
+  },
+  {
+    "id": "plaza/bunting_posts",
+    "file": "plaza/bunting_posts.glb",
+    "category": "decor",
+    "size_m": [
+      1.77,
+      0.17,
+      0.89
+    ],
+    "sockets": {},
+    "tints": {
+      "flag_a": "#E86D58",
+      "flag_b": "#3FB3B5",
+      "flag_c": "#FAF1DD",
+      "flag_d": "#E3A92B"
+    },
+    "span": 1.6,
+    "color_variants": {
+      "flag_a": [
+        "coral",
+        "red"
+      ],
+      "flag_b": [
+        "teal_light",
+        "sky"
+      ],
+      "flag_c": [
+        "cream",
+        "white"
+      ],
+      "flag_d": [
+        "mustard",
+        "yellow"
+      ]
+    }
+  },
+  {
+    "id": "plaza/low_wood_fence_1m",
+    "file": "plaza/low_wood_fence_1m.glb",
+    "category": "modular",
+    "size_m": [
+      1.0,
+      0.14,
+      0.66
+    ],
+    "sockets": {
+      "socket_snap_a": [
+        -0.5,
+        0.0,
+        0.0
+      ],
+      "socket_snap_b": [
+        0.5,
+        0.0,
+        0.0
+      ]
+    },
+    "tints": {},
+    "module": "fence",
+    "length": 1.0
+  },
+  {
+    "id": "plaza/low_wood_fence_2m",
+    "file": "plaza/low_wood_fence_2m.glb",
+    "category": "modular",
+    "size_m": [
+      2.0,
+      0.14,
+      0.66
+    ],
+    "sockets": {
+      "socket_snap_a": [
+        -1.0,
+        0.0,
+        0.0
+      ],
+      "socket_snap_b": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    "tints": {},
+    "module": "fence",
+    "length": 2.0
+  },
+  {
+    "id": "plaza/low_wood_fence_post",
+    "file": "plaza/low_wood_fence_post.glb",
+    "category": "modular",
+    "size_m": [
+      0.16,
+      0.16,
+      0.7
+    ],
+    "sockets": {},
+    "tints": {},
+    "module": "fence",
+    "use": "corner_or_end"
+  },
+  {
+    "id": "plaza/small_fountain",
+    "file": "plaza/small_fountain.glb",
+    "category": "landmark",
+    "size_m": [
+      2.149,
+      2.149,
+      1.06
+    ],
+    "sockets": {
+      "socket_sit_rim_0": [
+        0.0,
+        -0.93,
+        0.38
+      ],
+      "socket_sit_rim_1": [
+        0.805,
+        -0.465,
+        0.38
+      ]
+    },
+    "tints": {},
+    "water_surface_z": 0.32
+  },
+  {
+    "id": "plaza/street_bin",
+    "file": "plaza/street_bin.glb",
+    "category": "prop",
+    "size_m": [
+      0.5,
+      0.5,
+      0.785
+    ],
+    "sockets": {},
+    "tints": {}
+  },
+  {
+    "id": "plaza/string_lights",
+    "file": "plaza/string_lights.glb",
+    "category": "light",
+    "size_m": [
+      4.014,
+      0.118,
+      0.521
+    ],
+    "sockets": {
+      "socket_anchor_a": [
+        -2.0,
+        0.0,
+        2.4
+      ],
+      "socket_anchor_b": [
+        2.0,
+        0.0,
+        2.4
+      ]
+    },
+    "tints": {
+      "bulb": "#FFE2A0"
+    },
+    "span": 4.0,
+    "anchor_height": 2.4,
+    "note": "hang between lantern posts or building eaves",
+    "color_variants": {
+      "bulb": [
+        "bulb",
+        "glow",
+        "glow_teal"
+      ]
+    }
+  },
+  {
+    "id": "plaza/paving_1x1",
+    "file": "plaza/paving_1x1.glb",
+    "category": "modular",
+    "size_m": [
+      1.0,
+      1.0,
+      0.072
+    ],
+    "sockets": {},
+    "tints": {},
+    "module": "paving",
+    "grid": 1.0,
+    "top_z": 0.07
+  },
+  {
+    "id": "plaza/paving_2x2",
+    "file": "plaza/paving_2x2.glb",
+    "category": "modular",
+    "size_m": [
+      2.0,
+      2.0,
+      0.076
+    ],
+    "sockets": {},
+    "tints": {},
+    "module": "paving",
+    "grid": 2.0,
+    "top_z": 0.07
+  },
+  {
+    "id": "plaza/plaza_edge_1m",
+    "file": "plaza/plaza_edge_1m.glb",
+    "category": "modular",
+    "size_m": [
+      0.995,
+      0.56,
+      0.956
+    ],
+    "sockets": {
+      "socket_snap_a": [
+        -0.5,
+        0.0,
+        0.0
+      ],
+      "socket_snap_b": [
+        0.5,
+        0.0,
+        0.0
+      ]
+    },
+    "tints": {},
+    "module": "plaza_edge",
+    "length": 1.0,
+    "corner": false,
+    "water_z": -0.5,
+    "water_side": "-Y"
+  },
+  {
+    "id": "plaza/plaza_edge_2m",
+    "file": "plaza/plaza_edge_2m.glb",
+    "category": "modular",
+    "size_m": [
+      1.995,
+      0.56,
+      0.958
+    ],
+    "sockets": {
+      "socket_snap_a": [
+        -1.0,
+        0.0,
+        0.0
+      ],
+      "socket_snap_b": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    "tints": {},
+    "module": "plaza_edge",
+    "length": 2.0,
+    "corner": false,
+    "water_z": -0.5,
+    "water_side": "-Y"
+  },
+  {
+    "id": "plaza/plaza_edge_corner",
+    "file": "plaza/plaza_edge_corner.glb",
+    "category": "modular",
+    "size_m": [
+      1.053,
+      1.313,
+      0.96
+    ],
+    "sockets": {
+      "socket_snap_a": [
+        -0.5,
+        0.0,
+        0.0
+      ],
+      "socket_snap_b": [
+        0.25,
+        1.0,
+        0.0
+      ]
+    },
+    "tints": {},
+    "module": "plaza_edge",
+    "length": 1.0,
+    "corner": true,
+    "water_z": -0.5,
+    "water_side": "-Y"
+  },
+  {
+    "id": "plaza/cafe_umbrella_table",
+    "file": "plaza/cafe_umbrella_table.glb",
+    "category": "furniture",
+    "size_m": [
+      2.31,
+      2.31,
+      2.6
+    ],
+    "sockets": {
+      "socket_seat_0": [
+        0.566,
+        0.566,
+        0.44
+      ],
+      "socket_seat_1": [
+        -0.566,
+        0.566,
+        0.44
+      ],
+      "socket_seat_2": [
+        -0.566,
+        -0.566,
+        0.44
+      ],
+      "socket_seat_3": [
+        0.566,
+        -0.566,
+        0.44
+      ]
+    },
+    "tints": {
+      "canopy_a": "#E86D58",
+      "canopy_b": "#FAF1DD"
+    },
+    "seats": 4,
+    "color_variants": {
+      "canopy_a": [
+        "coral",
+        "teal",
+        "mustard",
+        "navy"
+      ],
+      "canopy_b": [
+        "cream",
+        "white"
+      ]
+    }
+  }
+]

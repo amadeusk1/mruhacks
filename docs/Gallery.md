@@ -2,6 +2,8 @@
 
 Design reference: [Game Design Context](GAME_DESIGN_CONTEXT.md)
 
+3D asset pack: [Art Pipeline](Art%20Pipeline.md) (how it's built) · [Renders](../Renders) (all model renders)
+
 ## Reference gallery
 
 ## 01 Avatar Turnaround
@@ -93,3 +95,20 @@ Design reference: [Game Design Context](GAME_DESIGN_CONTEXT.md)
 Reference for later world layout.
 
 ![World Map Concept](concepts/World%20Map%20Concept.png)
+
+## Player housing and decoration
+
+- [Player Housing - Grid Decoration](Player%20Housing%20-%20Grid%20Decoration.md)
+- [Player Housing - Shape and Interior Concepts](Player%20Housing%20-%20Shape%20and%20Interior%20Concepts.md)
+- [Player Housing - Decoration Prop Catalog](Player%20Housing%20-%20Decoration%20Prop%20Catalog.md)
+
+## Player animation and emotes
+
+- [Player Animation - Cute Movement](Player%20Animation%20-%20Cute%20Movement.md)
+- [Player Animation - Emotes](Player%20Animation%20-%20Emotes.md)
+- [Animation Production Checklist](Animation%20Production%20Checklist.md)
+
+## Expanded activity and world kits
+
+- [Animation Kits - Index](Animation%20Kits%20-%20Index.md)
+- [Prop Kits - Master Plan](Prop%20Kits%20-%20Master%20Plan.md)

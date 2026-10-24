@@ -1,0 +1,166 @@
+[
+  {
+    "id": "world_misc/footbridge",
+    "file": "world_misc/footbridge.glb",
+    "category": "path",
+    "size_m": [
+      4.7,
+      1.985,
+      1.46
+    ],
+    "sockets": {
+      "socket_end_e": [
+        2.4,
+        0.0,
+        0.3
+      ],
+      "socket_end_w": [
+        -2.4,
+        0.0,
+        0.3
+      ]
+    },
+    "tints": {
+      "bridge_paint": "#A9743F"
+    },
+    "span_m": 3.6,
+    "deck_width_m": 1.4,
+    "walk_axis": "X"
+  },
+  {
+    "id": "world_misc/homes_arch",
+    "file": "world_misc/homes_arch.glb",
+    "category": "landmark",
+    "size_m": [
+      4.28,
+      0.565,
+      2.959
+    ],
+    "sockets": {
+      "socket_path": [
+        0.0,
+        -0.8,
+        0.0
+      ]
+    },
+    "tints": {
+      "sign_frame": "#7A4E2C"
+    },
+    "sign_text": "HOMES"
+  },
+  {
+    "id": "world_misc/mailbox",
+    "file": "world_misc/mailbox.glb",
+    "category": "prop",
+    "size_m": [
+      0.335,
+      0.499,
+      1.315
+    ],
+    "sockets": {},
+    "tints": {
+      "mailbox": "#D9473B",
+      "mailbox_flag": "#F2C230"
+    },
+    "interact": "mail"
+  },
+  {
+    "id": "world_misc/signpost",
+    "file": "world_misc/signpost.glb",
+    "category": "landmark",
+    "size_m": [
+      1.515,
+      0.663,
+      2.21
+    ],
+    "sockets": {
+      "socket_arrow_0": [
+        0.0,
+        0.0,
+        1.75
+      ],
+      "socket_arrow_1": [
+        0.0,
+        0.0,
+        1.45
+      ],
+      "socket_arrow_2": [
+        0.0,
+        0.0,
+        1.15
+      ]
+    },
+    "tints": {
+      "sign_frame": "#7A4E2C"
+    },
+    "note": "each arrow has insert_sign faces on both sides"
+  },
+  {
+    "id": "world_misc/notice_board",
+    "file": "world_misc/notice_board.glb",
+    "category": "landmark",
+    "size_m": [
+      1.62,
+      0.632,
+      1.954
+    ],
+    "sockets": {},
+    "tints": {
+      "sign_frame": "#7A4E2C",
+      "pin_a": "#E86D58",
+      "pin_b": "#207D85",
+      "pin_c": "#E3A92B",
+      "roof": "#E86D58"
+    },
+    "interact": "read notices"
+  },
+  {
+    "id": "world_misc/waterfall_step",
+    "file": "world_misc/waterfall_step.glb",
+    "category": "nature",
+    "size_m": [
+      2.298,
+      1.836,
+      1.103
+    ],
+    "sockets": {
+      "socket_inflow": [
+        0.0,
+        0.85,
+        0.8
+      ],
+      "socket_outflow": [
+        0.0,
+        -0.9,
+        0.06
+      ]
+    },
+    "tints": {},
+    "flow": "-Y",
+    "drop_m": 0.8
+  },
+  {
+    "id": "world_misc/barrel",
+    "file": "world_misc/barrel.glb",
+    "category": "prop",
+    "size_m": [
+      0.518,
+      0.518,
+      0.531
+    ],
+    "sockets": {},
+    "tints": {}
+  },
+  {
+    "id": "world_misc/crate",
+    "file": "world_misc/crate.glb",
+    "category": "prop",
+    "size_m": [
+      0.548,
+      0.564,
+      0.529
+    ],
+    "sockets": {},
+    "tints": {}
+  }
+]

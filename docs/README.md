@@ -1,9 +1,13 @@
 # Game design and art references
 
-- [Full game design context](GAME_DESIGN_CONTEXT.md): original supplied brief, preserved unchanged. Read it in full before modeling or making design decisions.
-- [Concept gallery](Gallery.md): all 22 currently saved reference images, including the world map for later layout work.
-- [Current production direction](PRODUCTION_DIRECTION.md): subsequent decisions that clarify the brief.
+- [Game design context](GAME_DESIGN_CONTEXT.md): original brief, unchanged.
+- [Gallery](Gallery.md): saved concepts and animation sheets.
+- [Prop-kit audit](Prop%20Kits%20-%20Master%20Plan.md): existing exports versus proposed missing pieces.
+- [Animation kits](Animation%20Kits%20-%20Index.md): activity and ambient-world plans.
+- [Models](Models.md) and [renders](Renders.md): current asset pack.
+- [Art pipeline](Art%20Pipeline.md): source and integration notes.
+- [Snapshot manifest](ASSET_SNAPSHOT.json): file hashes and counts.
 
-Concept images establish visual direction; text, controls, and UI shown inside them are reference content rather than implementation instructions. Distinguish confirmed direction from proposed defaults in the brief.
+Godot game files remain at the repository root. Current exports are in `Models/`, Blender source and Godot helpers in `art/`, and preview renders in `Renders/`. Source paths remain relative to that layout. Personal Obsidian settings, Python caches and intermediate `_wip` preview renders are excluded. Original numbered concept sheet 10 was not available in the saved vault.
 
-The numbered **10 / Accessories & Outfits** sheet was supplied in chat but its original temporary file is no longer available in the saved vault. It is not included here; the other numbered sheets 01–18 are present.
+New concept sheets are references, not implemented assets or clips. Penguins remain the player identity; generic bird language/motifs in retained generated art do not supersede the original turnaround. Existing models are committed as current work and still require art review and gameplay integration.
