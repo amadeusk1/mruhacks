@@ -177,7 +177,7 @@ func shift_to_marker(marker_name: String) -> void:
 
 func _place_penguin(room: Node, spawn_name: String) -> void:
 	var arrival := room.get_node(spawn_name) as Node3D
-	var stop := room.get_node("NavigationRegion3D/BusStop") as Node3D
+	var stop := room.get_node_or_null("NavigationRegion3D/BusStop") as Node3D  # interiors have no stop
 	var extra := 0.0
 	if spawn_name == "BusArrival" and Net.is_online():
 		extra = float(posmod(Net.local_id(), 4)) * 0.65
@@ -186,7 +186,7 @@ func _place_penguin(room: Node, spawn_name: String) -> void:
 	_penguin.process_mode = Node.PROCESS_MODE_INHERIT
 	_penguin.visible = true
 	_hud.set_play_visible(true)
-	if spawn_name == "BusArrival":
+	if spawn_name == "BusArrival" and stop != null:
 		_penguin.face_point(stop.global_position)
 	else:
 		_penguin.rotation.y = arrival.rotation.y

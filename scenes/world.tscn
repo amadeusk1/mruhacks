@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://scripts/world.gd" id="1_world"]
 [ext_resource type="Script" path="res://scripts/follow_camera.gd" id="2_camera"]
@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" path="res://scenes/bus_menu.tscn" id="4_menu"]
 [ext_resource type="PackedScene" path="res://scenes/play_hud.tscn" id="5_hud"]
 [ext_resource type="Script" path="res://scripts/lobby.gd" id="6_lobby"]
+[ext_resource type="Script" path="res://scripts/world/occlusion_fader.gd" id="7_occl"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
 sky_top_color = Color(0.42, 0.66, 0.92, 1)
@@ -53,6 +54,9 @@ target_path = NodePath("../Penguin")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8, 6)
 fov = 35.0
 current = true
+
+[node name="OcclusionFader" type="Node" parent="CameraRig"]
+script = ExtResource("7_occl")
 
 [node name="BusMenu" parent="." instance=ExtResource("4_menu")]
 
