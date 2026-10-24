@@ -21,15 +21,12 @@ config/features=PackedStringArray("4.7", "Forward Plus")
 [autoload]
 
 Net="*res://scripts/net.gd"
+Music="*res://scripts/music.gd"
 
 [display]
 
 window/size/viewport_width=1280
 window/size/viewport_height=720
-
-[filesystem]
-
-import/blender/enabled=true
 
 [gui]
 

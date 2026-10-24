@@ -25,4 +25,6 @@ func _on_body_entered(body: Node3D) -> void:
 		return
 	if world.has_method("is_bus_menu_open") and bool(world.call("is_bus_menu_open")):
 		return
+	if world.has_method("is_shop_open") and bool(world.call("is_shop_open")):
+		return
 	world.call("shift_to_marker", spawn_name)

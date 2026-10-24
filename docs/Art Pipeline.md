@@ -70,7 +70,7 @@ The town, activity and character pack has 238 assets; per-kit counts are in [Mod
 
 | Group | Kits |
 | --- | --- |
-| Characters | avatar (base bird, 6 hats, 8 outfits, 9 accessories) |
+| Characters | avatar (base bird, 6 hats, 8 outfits, 9 accessories), pets (mockup chicks and leashed fish; see [Pet Kit](Pet%20Kit.md)) |
 | Town | plaza, nature_dock, buildings (modular walls and roofs), cafe, cottage, world_misc |
 | Cinema | cinema (exterior modules), cinema_lobby, cinema_auditorium |
 | Arcade | arcade (solo and duo cabinets, building) |

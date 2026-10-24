@@ -11,7 +11,59 @@ const _PETS := Vector3(120.0, 0.0, 100.0)
 
 func _ready() -> void:
 	AssetPack.dress_town(self)
+	_dress_pet_shop()
 	FishingDock.build(self)
+
+
+func _dress_pet_shop() -> void:
+	var decor := get_node_or_null("Decor")
+	if decor:
+		for nap_name in ["NapRed", "NapMint", "NapGold", "Zzz"]:
+			var nap := decor.get_node_or_null(nap_name)
+			if nap:
+				nap.visible = false
+				nap.queue_free()
+	if get_node_or_null("PetStalls") != null:
+		return
+	var root := Node3D.new()
+	root.name = "PetStalls"
+	add_child(root)
+	_pen_post(root, 119.5)
+	_pen_post(root, 120.18)
+	_stall(root, "pebble", Vector3(119.15, 0.0, 98.15))
+	_stall(root, "slick", Vector3(119.85, 0.0, 98.22))
+	_stall(root, "ember", Vector3(120.5, 0.0, 98.15))
+	_shop_counter(root, Vector3(120.76, 0.0, 100.74))
+
+
+func _stall(root: Node3D, id: String, at: Vector3) -> void:
+	var stall := StaticBody3D.new()
+	stall.set_script(preload("res://scripts/pet_stall.gd"))
+	root.add_child(stall)
+	stall.position = at
+	stall.call("bind", id)
+
+
+func _shop_counter(root: Node3D, at: Vector3) -> void:
+	var counter := Node3D.new()
+	counter.name = "PetCounter"
+	counter.set_script(preload("res://scripts/shop_counter.gd"))
+	root.add_child(counter)
+	counter.position = at
+	counter.call("bind", "pets", "Look at pets")
+
+
+func _pen_post(root: Node3D, x: float) -> void:
+	var mesh := BoxMesh.new()
+	mesh.size = Vector3(0.06, 0.42, 1.28)
+	var post := MeshInstance3D.new()
+	post.mesh = mesh
+	post.position = Vector3(x, 0.22, 98.2)
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color(0.52, 0.36, 0.24)
+	mat.roughness = 0.82
+	post.set_surface_override_material(0, mat)
+	root.add_child(post)
 
 
 func camera_for_spawn(spawn_name: String) -> Dictionary:

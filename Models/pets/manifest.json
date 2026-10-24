@@ -1,0 +1,258 @@
+[
+  {
+    "id": "pets/pet_pebble",
+    "file": "pets/pet_pebble.glb",
+    "category": "pet",
+    "size_m": [
+      0.477,
+      0.32,
+      0.441
+    ],
+    "sockets": {
+      "socket_collar": [
+        0.0,
+        -0.02,
+        0.28
+      ]
+    },
+    "tints": {
+      "body": "#3D7BD9"
+    },
+    "family": "penguin",
+    "follow": "ground",
+    "color_variants": {
+      "body": [
+        "blue",
+        "green",
+        "yellow",
+        "pink",
+        "red",
+        "orange",
+        "purple",
+        "teal",
+        "charcoal",
+        "white"
+      ]
+    },
+    "height_m": 0.441,
+    "width_m": 0.363
+  },
+  {
+    "id": "pets/pet_puff",
+    "file": "pets/pet_puff.glb",
+    "category": "pet",
+    "size_m": [
+      0.564,
+      0.348,
+      0.418
+    ],
+    "sockets": {
+      "socket_collar": [
+        0.0,
+        -0.021,
+        0.255
+      ]
+    },
+    "tints": {
+      "body": "#F2C230"
+    },
+    "family": "penguin",
+    "follow": "ground",
+    "color_variants": {
+      "body": [
+        "blue",
+        "green",
+        "yellow",
+        "pink",
+        "red",
+        "orange",
+        "purple",
+        "teal",
+        "charcoal",
+        "white"
+      ]
+    },
+    "height_m": 0.401,
+    "width_m": 0.429
+  },
+  {
+    "id": "pets/pet_tuxedo",
+    "file": "pets/pet_tuxedo.glb",
+    "category": "pet",
+    "size_m": [
+      0.43,
+      0.27,
+      0.48
+    ],
+    "sockets": {
+      "socket_collar": [
+        0.0,
+        -0.016,
+        0.305
+      ]
+    },
+    "tints": {
+      "body": "#3A3D44"
+    },
+    "family": "penguin",
+    "follow": "ground",
+    "color_variants": {
+      "body": [
+        "blue",
+        "green",
+        "yellow",
+        "pink",
+        "red",
+        "orange",
+        "purple",
+        "teal",
+        "charcoal",
+        "white"
+      ]
+    },
+    "height_m": 0.48,
+    "width_m": 0.326
+  },
+  {
+    "id": "pets/pet_minnow",
+    "file": "pets/pet_minnow.glb",
+    "category": "pet",
+    "size_m": [
+      0.149,
+      0.317,
+      0.219
+    ],
+    "sockets": {
+      "socket_collar": [
+        0.0,
+        0.014,
+        0.458
+      ],
+      "socket_hover": [
+        0.0,
+        0.0,
+        0.36
+      ]
+    },
+    "tints": {
+      "body": "#F08A2E",
+      "fin": "#D9473B",
+      "stripe": "#E3A92B"
+    },
+    "family": "fish",
+    "follow": "hover",
+    "color_variants": {
+      "body": [
+        "orange",
+        "teal_light",
+        "lavender",
+        "yellow",
+        "pink",
+        "sky",
+        "red"
+      ],
+      "fin": [
+        "coral",
+        "teal",
+        "purple",
+        "mustard"
+      ]
+    },
+    "hover_m": 0.36,
+    "shape": "round"
+  },
+  {
+    "id": "pets/pet_ribbon",
+    "file": "pets/pet_ribbon.glb",
+    "category": "pet",
+    "size_m": [
+      0.153,
+      0.391,
+      0.208
+    ],
+    "sockets": {
+      "socket_collar": [
+        0.0,
+        0.014,
+        0.441
+      ],
+      "socket_hover": [
+        0.0,
+        0.0,
+        0.34
+      ]
+    },
+    "tints": {
+      "body": "#3FB3B5",
+      "fin": "#207D85"
+    },
+    "family": "fish",
+    "follow": "hover",
+    "color_variants": {
+      "body": [
+        "orange",
+        "teal_light",
+        "lavender",
+        "yellow",
+        "pink",
+        "sky",
+        "red"
+      ],
+      "fin": [
+        "coral",
+        "teal",
+        "purple",
+        "mustard"
+      ]
+    },
+    "hover_m": 0.34,
+    "shape": "slim"
+  },
+  {
+    "id": "pets/pet_puffer",
+    "file": "pets/pet_puffer.glb",
+    "category": "pet",
+    "size_m": [
+      0.117,
+      0.261,
+      0.182
+    ],
+    "sockets": {
+      "socket_collar": [
+        0.0,
+        0.011,
+        0.477
+      ],
+      "socket_hover": [
+        0.0,
+        0.0,
+        0.4
+      ]
+    },
+    "tints": {
+      "body": "#A784D9",
+      "fin": "#7B4FC4"
+    },
+    "family": "fish",
+    "follow": "hover",
+    "color_variants": {
+      "body": [
+        "orange",
+        "teal_light",
+        "lavender",
+        "yellow",
+        "pink",
+        "sky",
+        "red"
+      ],
+      "fin": [
+        "coral",
+        "teal",
+        "purple",
+        "mustard"
+      ]
+    },
+    "hover_m": 0.4,
+    "shape": "spiky"
+  }
+]

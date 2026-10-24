@@ -104,4 +104,8 @@ func _set_typing(active: bool) -> void:
 
 func _menu_open() -> bool:
 	var world := get_tree().get_first_node_in_group("world")
-	return world != null and world.has_method("is_bus_menu_open") and bool(world.call("is_bus_menu_open"))
+	if world == null:
+		return false
+	if world.has_method("is_bus_menu_open") and bool(world.call("is_bus_menu_open")):
+		return true
+	return world.has_method("is_shop_open") and bool(world.call("is_shop_open"))

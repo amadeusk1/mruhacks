@@ -4,10 +4,11 @@ extends CanvasLayer
 ## Hold Space or the mouse button to raise the band. Move or Escape to leave.
 
 const FISH: Array[Dictionary] = [
-	{"name": "Sunny", "model": "fish_round", "color": Color(0.95, 0.55, 0.18), "speed": 0.55, "coins": 3, "lo": 18, "hi": 28},
-	{"name": "Drift", "model": "fish_slim", "color": Color(0.25, 0.72, 0.7), "speed": 0.95, "coins": 5, "lo": 24, "hi": 36},
-	{"name": "Bramble", "model": "fish_spiky", "color": Color(0.58, 0.36, 0.78), "speed": 1.3, "coins": 8, "lo": 30, "hi": 46},
+	{"name": "Sunny", "model": "fish_round", "color": Color(0.95, 0.55, 0.18), "speed": 0.22, "coins": 3, "lo": 18, "hi": 28},
+	{"name": "Drift", "model": "fish_slim", "color": Color(0.25, 0.72, 0.7), "speed": 0.34, "coins": 5, "lo": 24, "hi": 36},
+	{"name": "Bramble", "model": "fish_spiky", "color": Color(0.58, 0.36, 0.78), "speed": 0.48, "coins": 8, "lo": 30, "hi": 46},
 ]
+const BAND_H := 0.42
 
 var _penguin: Node
 var _phase := ""
@@ -19,10 +20,13 @@ var _card_left := 0.0
 var _fish_y := 0.5
 var _fish_v := 0.6
 var _turn_left := 0.8
-var _band_y := 0.32
-var _band_h := 0.24
-var _progress := 0.34
+var _band_y := 0.29
+var _band_h := BAND_H
+var _progress := 0.4
 var _held := false
+var _hook_ready := false
+var _grace := 0.0
+var _fish_aim := 0.0
 var _paid := false
 
 var _status: Label
@@ -147,15 +151,20 @@ func _process(delta: float) -> void:
 	_age += delta
 	match _phase:
 		"cast":
+			if pressed:
+				_hook_ready = true
 			if _age >= 0.5:
 				_begin_wait()
 		"wait":
+			if pressed:
+				_hook_ready = true
 			_wait_left -= delta
 			if _wait_left <= 0.0:
 				_begin_bite()
 		"bite":
 			_bite_left -= delta
-			if pressed:
+			if pressed or _hook_ready:
+				_hook_ready = false
 				_begin_reel()
 			elif _bite_left <= 0.0:
 				_show_card("Too slow", "It swam off. Casting again.")
@@ -172,6 +181,7 @@ func _process(delta: float) -> void:
 func _begin_cast() -> void:
 	_phase = "cast"
 	_age = 0.0
+	_hook_ready = false
 	_card.visible = false
 	_track.visible = true
 	_meter.visible = true
@@ -183,16 +193,20 @@ func _begin_cast() -> void:
 
 func _begin_wait() -> void:
 	_phase = "wait"
-	_wait_left = randf_range(1.1, 2.5)
+	_wait_left = randf_range(0.9, 1.8)
 	_status.text = "Waiting"
-	_hint.text = "Tap when the bobber dips."
+	_hint.text = "Tap when the bobber dips. An early tap still counts."
 	_lock_clicks(false)
 	_tell("wait")
 
 
 func _begin_bite() -> void:
+	if _hook_ready:
+		_hook_ready = false
+		_begin_reel()
+		return
 	_phase = "bite"
-	_bite_left = 1.15
+	_bite_left = 2.2
 	_status.text = "Hook!"
 	_hint.text = "Tap Space or the mouse."
 	_lock_clicks(true)
@@ -202,11 +216,13 @@ func _begin_bite() -> void:
 func _begin_reel() -> void:
 	_phase = "reel"
 	_fish = FISH[_pick_fish()]
-	_fish_y = randf_range(0.25, 0.75)
-	_fish_v = 0.75 * float(_fish["speed"]) * (1.0 if randf() > 0.5 else -1.0)
+	_fish_y = randf_range(0.32, 0.68)
+	_fish_aim = float(_fish["speed"]) * (1.0 if randf() > 0.5 else -1.0)
+	_fish_v = _fish_aim
 	_turn_left = _next_turn()
-	_band_y = 0.38
-	_progress = 0.32
+	_band_y = clampf(_fish_y - _band_h * 0.5, 0.0, 1.0 - _band_h)
+	_progress = 0.4
+	_grace = 0.85
 	_paid = false
 	_mark.color = _fish["color"]
 	_status.text = "Reel it in"
@@ -220,24 +236,28 @@ func _step_reel(delta: float) -> void:
 	_turn_left -= delta
 	if _turn_left <= 0.0:
 		_turn_left = _next_turn()
-		_fish_v = 0.85 * speed * (1.0 if randf() > 0.5 else -1.0)
+		_fish_aim = speed * (1.0 if randf() > 0.5 else -1.0)
+	_fish_v = move_toward(_fish_v, _fish_aim, speed * 2.2 * delta)
 	_fish_y += _fish_v * delta
-	if _fish_y > 0.96:
-		_fish_y = 0.96
-		_fish_v = -absf(_fish_v)
-	elif _fish_y < 0.04:
-		_fish_y = 0.04
-		_fish_v = absf(_fish_v)
+	if _fish_y > 0.92:
+		_fish_y = 0.92
+		_fish_aim = -absf(speed)
+		_fish_v = _fish_aim
+	elif _fish_y < 0.08:
+		_fish_y = 0.08
+		_fish_aim = absf(speed)
+		_fish_v = _fish_aim
 	if _held:
-		_band_y += 1.15 * delta
+		_band_y += 1.25 * delta
 	else:
-		_band_y -= 0.95 * delta
+		_band_y -= 1.05 * delta
 	_band_y = clampf(_band_y, 0.0, 1.0 - _band_h)
-	var inside := _fish_y >= _band_y and _fish_y <= _band_y + _band_h
+	var inside := _fish_y + 0.04 >= _band_y and _fish_y - 0.04 <= _band_y + _band_h
+	_grace = maxf(_grace - delta, 0.0)
 	if inside:
-		_progress += 0.4 * delta
-	else:
-		_progress -= 0.3 * delta
+		_progress += 0.5 * delta
+	elif _grace <= 0.0:
+		_progress -= 0.12 * delta
 	_progress = clampf(_progress, 0.0, 1.0)
 	if _progress >= 1.0:
 		_caught()
@@ -296,8 +316,7 @@ func _pick_fish() -> int:
 
 
 func _next_turn() -> float:
-	var speed := float(_fish.get("speed", 1.0))
-	return randf_range(0.35, 0.85) / maxf(speed, 0.4)
+	return randf_range(1.15, 2.1)
 
 
 func _layout_bar() -> void:

@@ -29,6 +29,9 @@ var _rows: VBoxContainer
 var _invite: PanelContainer
 var _invite_text: Label
 var _invite_from := 0
+var _owned_pets: Dictionary = {}
+var _active_pet := ""
+var _shop: Node
 
 
 func _ready() -> void:
@@ -39,6 +42,8 @@ func _ready() -> void:
 	_penguin.visible = false
 	_penguin.process_mode = Node.PROCESS_MODE_DISABLED
 	_hud.set_play_visible(false)
+	_spawn_pet_follower()
+	_spawn_shop_panel()
 	_build_presence()
 	_lobby.host_requested.connect(_on_host_pressed)
 	_lobby.join_requested.connect(_on_join_pressed)
@@ -78,7 +83,31 @@ func open_bus_menu() -> void:
 
 func close_bus_menu() -> void:
 	_menu.dismiss()
-	if not _traveling and _in_game:
+	if not _traveling and _in_game and not is_shop_open():
+		_penguin.set_travel_locked(false)
+
+
+func is_shop_open() -> bool:
+	return _shop != null and _shop.has_method("is_open") and bool(_shop.call("is_open"))
+
+
+func open_shop(shop_id: String) -> bool:
+	if _traveling or not _in_game or _shop == null:
+		return false
+	if _menu.visible:
+		_menu.dismiss()
+	if not bool(_shop.call("open", shop_id)):
+		return false
+	_hud.close_chat()
+	_penguin.set_travel_locked(true)
+	return true
+
+
+func close_shop() -> void:
+	if not is_shop_open():
+		return
+	_shop.call("close")
+	if not _traveling and _in_game and not _menu.visible:
 		_penguin.set_travel_locked(false)
 
 
@@ -103,6 +132,7 @@ func travel_to(location_id: String, spawn_name: String = "BusArrival", igloo_id:
 	var epoch := _epoch
 	_traveling = true
 	_menu.dismiss()
+	close_shop()
 	_penguin.set_travel_locked(true)
 	_penguin.halt()
 	_despawn_all()
@@ -153,6 +183,7 @@ func shift_to_marker(marker_name: String) -> void:
 		return
 	var epoch := _epoch
 	_traveling = true
+	close_shop()
 	_penguin.set_travel_locked(true)
 	_penguin.halt()
 	_penguin.global_position = Vector3(marker.global_position.x, 0.2, marker.global_position.z)
@@ -289,8 +320,10 @@ func _on_connect_failed(message: String) -> void:
 func _on_session_started() -> void:
 	if _in_game:
 		return
+	_clear_pets()
 	_in_game = true
 	_lobby.hide_lobby()
+	Music.start()
 	var profile := Net.local_profile()
 	_penguin.apply_identity(str(profile["name"]), int(profile["color"]))
 	DisplayServer.window_set_title("%s — %s" % [Net.role_label(), str(profile["name"])])
@@ -306,9 +339,11 @@ func _end_session(message: String) -> void:
 	_epoch += 1
 	_in_game = false
 	_traveling = false
+	Music.stop()
 	Net.shutdown()
 	_leave_activity()
 	_menu.dismiss()
+	close_shop()
 	_clear_room()
 	_current_id = ""
 	_igloo_id = 0
@@ -321,11 +356,65 @@ func _end_session(message: String) -> void:
 	_world_camera.current = true
 	_clear_presence()
 	_hud.set_play_visible(false)
+	_clear_pets()
 	_lobby.show_lobby(message)
 
 
 func grant_coins(amount: int) -> void:
 	_hud.add_coins(amount)
+
+
+func coin_balance() -> int:
+	return _hud.coins
+
+
+func owns_pet(id: String) -> bool:
+	return _owned_pets.has(id)
+
+
+func active_pet_id() -> String:
+	return _active_pet
+
+
+func buy_pet(id: String) -> bool:
+	var info := PetCatalog.find(id)
+	if info.is_empty() or _owned_pets.has(id):
+		return false
+	var price := int(info["price"])
+	if _hud.coins < price:
+		return false
+	_hud.add_coins(-price)
+	_owned_pets[id] = true
+	_active_pet = id
+	return true
+
+
+func call_pet(id: String) -> bool:
+	if not _owned_pets.has(id) or _active_pet == id:
+		return false
+	_active_pet = id
+	return true
+
+
+func _clear_pets() -> void:
+	_owned_pets.clear()
+	_active_pet = ""
+	_hud.set_coins(0)
+
+
+func _spawn_shop_panel() -> void:
+	var shop := CanvasLayer.new()
+	shop.name = "ShopPanel"
+	shop.set_script(preload("res://scripts/shop_panel.gd"))
+	add_child(shop)
+	_shop = shop
+
+
+func _spawn_pet_follower() -> void:
+	var follower := Node3D.new()
+	follower.name = "PetFollower"
+	follower.set_script(preload("res://scripts/pet_follower.gd"))
+	add_child(follower)
 
 
 func send_chat(message: String) -> void:

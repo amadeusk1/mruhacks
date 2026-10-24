@@ -190,6 +190,10 @@ func _unhandled_input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("click_walk"):
+		# A tap is the hook. Walking off would cancel the catch.
+		if _fishing:
+			get_viewport().set_input_as_handled()
+			return
 		_try_click(event)
 
 
@@ -247,13 +251,13 @@ func command_walk_to(world_point: Vector3) -> void:
 	_begin_click(_closest_nav_point(world_point))
 
 
-## Uses the nearest bench, fishing spot, or bus stop whose prompt is showing.
+## Uses the nearest bench, fishing spot, bus stop, or shop counter whose prompt is showing.
 func _try_interact() -> bool:
 	if _sitting:
 		return false
 	var best: Node = null
 	var best_dist := INF
-	for group in ["bench", "fish_spot", "bus_stop"]:
+	for group in ["bench", "fish_spot", "bus_stop", "shop_counter"]:
 		for node in get_tree().get_nodes_in_group(group):
 			if not node.has_method("can_interact") or not bool(node.call("can_interact")):
 				continue

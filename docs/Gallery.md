@@ -115,6 +115,10 @@ Reference for later world layout.
 
 All animation sheets: [Animation Mockups - Gallery](Animation%20Mockups%20-%20Gallery.md).
 
+## Pets
+
+- [Pet Kit](Pet%20Kit.md): smaller penguin chicks and fish on a leash, mocked up in Blender next to the 0.9 m player
+
 ## Additional prop and motion sets
 
 - [Prop Kit - Cafe Serving and Food](Prop%20Kit%20-%20Cafe%20Serving%20and%20Food.md)

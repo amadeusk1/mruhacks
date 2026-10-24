@@ -27,6 +27,16 @@ Last build: 2026-10-24 01:39. See [Art Pipeline](Art%20Pipeline.md) for how asse
 
 ![avatar_wardrobe](../Renders/Details/avatar_wardrobe.png)
 
+### Pets (6 assets)
+
+![pets](../Renders/Kits/pets.png)
+
+![pets_chicks](../Renders/Details/pets_chicks.png)
+
+![pets_fish](../Renders/Details/pets_fish.png)
+
+![pets_with_player](../Renders/Details/pets_with_player.png)
+
 ## Town
 
 ### Plaza (21 assets)
