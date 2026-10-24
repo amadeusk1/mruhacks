@@ -253,7 +253,7 @@ func _try_interact() -> bool:
 		return false
 	var best: Node = null
 	var best_dist := INF
-	for group in ["bench", "fish_spot", "bus_stop"]:
+	for group in ["bench", "fish_spot", "bus_stop", "interactables"]:
 		for node in get_tree().get_nodes_in_group(group):
 			if not node.has_method("can_interact") or not bool(node.call("can_interact")):
 				continue
@@ -264,6 +264,8 @@ func _try_interact() -> bool:
 				best_dist = dist
 	if best == null:
 		return false
+	if best.has_method("interact"):  # town activity anchors and doors (scripts/world/interactable.gd)
+		return bool(best.call("interact", self))
 	if best.has_method("try_fish"):
 		return bool(best.call("try_fish", true))
 	if best.has_method("try_sit"):

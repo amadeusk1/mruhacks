@@ -57,6 +57,18 @@ func _process(delta: float) -> void:
 ## Same contract as the teammate's rooms: centre, follow limits, camera height and distance.
 func camera_for_spawn(_spawn_name: String) -> Dictionary:
 	var cam: Dictionary = _layout.get("camera", {})
+	if cam.has("bounds_min"):  # layout v2: walkable bounds plus pitch/distance
+		var lo: Array = cam["bounds_min"]
+		var hi: Array = cam["bounds_max"]
+		var pitch := deg_to_rad(absf(float(cam.get("pitch_deg", -50))))
+		var dist := float(cam.get("distance", 18))
+		return {
+			"center": Vector3((lo[0] + hi[0]) * 0.5, 0, (lo[1] + hi[1]) * 0.5),
+			"limit_x": (hi[0] - lo[0]) * 0.5,
+			"limit_z": (hi[1] - lo[1]) * 0.5,
+			"height": dist * sin(pitch),
+			"distance": dist * cos(pitch),
+		}
 	return {
 		"center": _v(cam.get("center", [0, 0, 0])),
 		"limit_x": float(cam.get("limit_x", 30.0)),
@@ -196,18 +208,63 @@ func _build_markers(nav: Node) -> void:
 			if k not in ["name", "pos", "rot_y_deg"]:
 				marker.set_meta(k, m[k])
 		add_child(marker)
-		if kind == "door" and m.has("target"):
-			var door := Area3D.new()
-			door.name = marker.name + "Area"
-			door.set_script(load("res://scripts/doorway.gd"))
-			door.set("spawn_name", str(m["target"]))
-			var shape := CollisionShape3D.new()
-			var box := BoxShape3D.new()
-			box.size = Vector3(1.4, 1.6, 0.8)
-			shape.shape = box
-			door.add_child(shape)
-			door.transform = t.translated_local(Vector3(0, 0.8, 0))
-			add_child(door)
+		if kind == "door":
+			_door(marker, str(m.get("target", "")))
+		elif kind == "activity":
+			_activity_anchor(marker, str(m.get("activity", "")))
+
+
+## Town door target -> [location, spawn in that location]. Interiors return to "<Door>Out".
+const DOORS := {
+	"cinema_lobby": ["cinema", "InsideLobby", "Cinema"],
+	"cafe_interior": ["cafe", "Inside", "Café"],
+	"arcade_interior": ["arcade", "Inside", "Arcade"],
+	"home": ["home", "InsideSpawn", "your igloo"],
+}
+const ACTIVITY_TITLES := {"sled": "Sled Hill", "snowballs": "Snowball Arena", "basketball": "Basketball Court", "sketch": "Sketch Club"}
+
+
+func _door(marker: Marker3D, target: String) -> void:
+	# spawn just outside the door, facing away from it, so arriving never re-triggers it
+	var out := Marker3D.new()
+	out.name = marker.name + "Out"
+	out.transform = Transform3D(marker.basis.rotated(Vector3.UP, PI), marker.position + marker.basis.z * 1.6)
+	add_child(out)
+	if not DOORS.has(target):
+		return
+	var d: Array = DOORS[target]
+	_anchor(marker, d[2], "Enter", "", d[0], d[1])
+
+
+func _activity_anchor(marker: Marker3D, activity: String) -> void:
+	match activity:
+		"fishing":  # the teammate's fishing spot; the rail sits 1.2 m in front of the stand marker
+			var spot := StaticBody3D.new()
+			spot.name = marker.name + "Rail"
+			spot.set_script(load("res://scripts/fishing_spot.gd"))
+			var facing := -marker.basis.z
+			spot.position = marker.position + facing * 1.2 + Vector3(0, 0.58, 0)
+			spot.rotation.y = marker.rotation.y - PI * 0.5
+			add_child(spot)
+		"sled":
+			_anchor(marker, "Sled Hill", "Ride", "", "sled_hill", "BusArrival")
+		"sled_finish":
+			pass
+		_:
+			_anchor(marker, ACTIVITY_TITLES.get(activity, activity.capitalize()), "Join", activity, "", "")
+
+
+func _anchor(at: Node3D, title: String, verb: String, activity: String, location: String, spawn: String) -> void:
+	var a := Interactable.new()
+	a.name = at.name + "Action"
+	a.title = title
+	a.verb = verb
+	a.activity = activity
+	a.location = location
+	a.spawn_name = spawn
+	a.transform = at.transform
+	a.set_meta("marker", at.name)
+	add_child(a)
 
 
 func _start_ambient(node: Node) -> void:
