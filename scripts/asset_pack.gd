@@ -65,6 +65,20 @@ static func mount_bird(visual: Node3D, body: Color, cloth: String = "", item: St
 	return player
 
 
+## Copies the anim_emotes clips (same skeleton, retargets by bone name) into a bird's player.
+static func add_emotes(player: AnimationPlayer) -> void:
+	var src := spawn("anim_emotes", "avatar_base")
+	if src == null:
+		return
+	var from := _player(src)
+	var lib := player.get_animation_library(&"")
+	if from and lib:
+		for anim_name in from.get_animation_list():
+			if not lib.has_animation(anim_name):
+				lib.add_animation(anim_name, from.get_animation(anim_name))
+	src.free()
+
+
 static func recolor_body(visual: Node3D, body: Color) -> bool:
 	var bird := visual.get_node_or_null("PackAvatar")
 	if bird == null:

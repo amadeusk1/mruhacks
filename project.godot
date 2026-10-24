@@ -22,6 +22,7 @@ config/features=PackedStringArray("4.7", "Forward Plus")
 
 Net="*res://scripts/net.gd"
 AssetRegistry="*res://scripts/assets/asset_registry.gd"
+UIRouter="*res://ui/ui_router.gd"
 
 [display]
 
@@ -34,7 +35,7 @@ import/blender/enabled=true
 
 [gui]
 
-theme/custom="res://fonts/game_theme.tres"
+theme/custom="res://ui/theme/pengloo_theme.tres"
 
 [input]
 
