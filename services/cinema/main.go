@@ -65,6 +65,14 @@ type Server struct {
 	controller, upstreamSession  string
 	seenCommands                 map[string]bool
 	attempts                     map[string][]time.Time
+	tickets                      map[string]handoff
+}
+
+// handoff lets the game client (which signed in with the invite code) open the embedded video
+// surface without the webview ever seeing the code: single use, 60 s, view-only session.
+type handoff struct {
+	Name    string
+	Expires time.Time
 }
 
 func randomID() string {
@@ -75,7 +83,7 @@ func randomID() string {
 	return hex.EncodeToString(b)
 }
 func newServer(p Provider, origin, host, viewer string) *Server {
-	return &Server{provider: p, origin: origin, hostCode: host, viewerCode: viewer, secure: strings.HasPrefix(origin, "https:"), sessions: map[string]*session{}, resources: map[string]mediaURL{}, reverse: map[string]string{}, seenCommands: map[string]bool{}, attempts: map[string][]time.Time{}}
+	return &Server{provider: p, origin: origin, hostCode: host, viewerCode: viewer, secure: strings.HasPrefix(origin, "https:"), sessions: map[string]*session{}, resources: map[string]mediaURL{}, reverse: map[string]string{}, seenCommands: map[string]bool{}, attempts: map[string][]time.Time{}, tickets: map[string]handoff{}}
 }
 func jsonOut(w http.ResponseWriter, v any) {
 	w.Header().Set("Content-Type", "application/json")
@@ -153,6 +161,8 @@ func (s *Server) handler() http.Handler {
 	})
 	mux.HandleFunc("POST /cinema/api/login", s.login)
 	mux.HandleFunc("POST /cinema/api/logout", s.protect(s.logout))
+	mux.HandleFunc("POST /cinema/api/handoff", s.protect(s.issueHandoff))
+	mux.HandleFunc("POST /cinema/api/ticket", s.redeemHandoff)
 	mux.HandleFunc("GET /cinema/api/me", s.protect(func(w http.ResponseWriter, r *http.Request, u session) {
 		s.touch(u.ID)
 		st := s.snapshot()
@@ -239,6 +249,39 @@ func (s *Server) login(w http.ResponseWriter, r *http.Request) {
 		s.state.Controller = u.ID
 		s.state.Revision++
 	}
+	s.mu.Unlock()
+	http.SetCookie(w, &http.Cookie{Name: "pengloo_cinema", Value: u.ID, Path: "/cinema/", HttpOnly: true, Secure: s.secure, SameSite: http.SameSiteStrictMode, MaxAge: 43200})
+	jsonOut(w, map[string]bool{"ok": true})
+}
+func (s *Server) issueHandoff(w http.ResponseWriter, r *http.Request, u session) {
+	t := randomID()
+	s.mu.Lock()
+	now := time.Now()
+	for k, h := range s.tickets {
+		if now.After(h.Expires) {
+			delete(s.tickets, k)
+		}
+	}
+	s.tickets[t] = handoff{u.Name, now.Add(60 * time.Second)}
+	s.mu.Unlock()
+	jsonOut(w, map[string]string{"ticket": t})
+}
+func (s *Server) redeemHandoff(w http.ResponseWriter, r *http.Request) {
+	var in struct{ Ticket string }
+	if bodyJSON(w, r, &in) != nil || in.Ticket == "" {
+		fail(w, 400, "Invalid ticket")
+		return
+	}
+	s.mu.Lock()
+	h, ok := s.tickets[in.Ticket]
+	delete(s.tickets, in.Ticket) // single use, even when expired
+	if !ok || time.Now().After(h.Expires) {
+		s.mu.Unlock()
+		fail(w, 403, "Ticket expired")
+		return
+	}
+	u := &session{randomID(), h.Name, false, time.Now().Add(12 * time.Hour), time.Now()}
+	s.sessions[u.ID] = u
 	s.mu.Unlock()
 	http.SetCookie(w, &http.Cookie{Name: "pengloo_cinema", Value: u.ID, Path: "/cinema/", HttpOnly: true, Secure: s.secure, SameSite: http.SameSiteStrictMode, MaxAge: 43200})
 	jsonOut(w, map[string]bool{"ok": true})

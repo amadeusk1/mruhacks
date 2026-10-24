@@ -172,3 +172,31 @@ func TestIdleRoomReleasesStream(t *testing.T) {
 		t.Fatal("idle stream retained")
 	}
 }
+
+func TestHandoffTicketIsSingleUseAndViewOnly(t *testing.T) {
+	s := newServer(&fakeProvider{}, "http://localhost", "host", "viewer")
+	host := login(t, s, "host")
+	if w := request(s, "POST", "/cinema/api/handoff", `{}`, ""); w.Code != 401 {
+		t.Fatal("handoff without session", w.Code)
+	}
+	w := request(s, "POST", "/cinema/api/handoff", `{}`, host)
+	var out struct{ Ticket string }
+	json.NewDecoder(w.Body).Decode(&out)
+	if w.Code != 200 || out.Ticket == "" {
+		t.Fatal(w.Code)
+	}
+	r := request(s, "POST", "/cinema/api/ticket", `{"ticket":"`+out.Ticket+`"}`, "")
+	if r.Code != 200 {
+		t.Fatal(r.Code, r.Body)
+	}
+	surface := r.Result().Cookies()[0].String()
+	if again := request(s, "POST", "/cinema/api/ticket", `{"ticket":"`+out.Ticket+`"}`, ""); again.Code != 403 {
+		t.Fatal("ticket reused", again.Code)
+	}
+	if c := request(s, "POST", "/cinema/api/claim", `{}`, surface); c.Code != 403 {
+		t.Fatal("video surface could claim the remote", c.Code)
+	}
+	if m := request(s, "GET", "/cinema/api/state", "", surface); m.Code != 200 {
+		t.Fatal("surface cannot read state", m.Code)
+	}
+}
