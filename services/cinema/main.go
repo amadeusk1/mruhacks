@@ -188,6 +188,9 @@ func (s *Server) handler() http.Handler {
 	mux.HandleFunc("GET /cinema/api/state", s.protect(func(w http.ResponseWriter, r *http.Request, u session) { s.touch(u.ID); jsonOut(w, s.snapshot()) }))
 	mux.HandleFunc("POST /cinema/api/claim", s.protect(s.claim))
 	mux.HandleFunc("GET /cinema/api/segment", s.protect(s.segment))
+	if dir := os.Getenv("CINEMA_WEB_DIR"); dir != "" { // optional: serve a web game build same-origin (cookies + Origin just work)
+		mux.Handle("GET /cinema/play/", http.StripPrefix("/cinema/play/", http.FileServer(http.Dir(dir))))
+	}
 	mux.HandleFunc("GET /cinema/internal/source/{token}", s.internalSource)
 	mux.HandleFunc("POST /cinema/api/control", s.protect(s.control))
 	mux.HandleFunc("GET /cinema/events", s.protect(s.events))
@@ -195,7 +198,11 @@ func (s *Server) handler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("Referrer-Policy", "no-referrer")
-		w.Header().Set("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self'; media-src 'self' blob:; connect-src 'self'; worker-src blob:; frame-ancestors 'self'")
+		csp := "default-src 'self'; script-src 'self'; style-src 'self'; media-src 'self' blob:; connect-src 'self'; worker-src blob:; frame-ancestors 'self'"
+		if strings.HasPrefix(r.URL.Path, "/cinema/play/") { // Godot's web shell: inline boot script + WebAssembly
+			csp = "default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self'; worker-src 'self' blob:; frame-ancestors 'self'"
+		}
+		w.Header().Set("Content-Security-Policy", csp)
 		if r.Method != "GET" && r.Method != "HEAD" && r.Header.Get("Origin") != s.origin {
 			fail(w, 403, "Origin rejected")
 			return
