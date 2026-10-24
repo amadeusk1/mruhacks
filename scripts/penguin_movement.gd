@@ -475,7 +475,7 @@ func apply_identity(player_name: String, color_index: int) -> void:
 	if _tint_applied == color_index:
 		return
 	_tint_applied = color_index
-	var coat := Net.coat_color(color_index)
+	var coat := Net.coat_color(color_index) if _remote_peer != 0 else Outfit.coat(Outfit.load_look())
 	if AssetPack.recolor_body(visual, coat):
 		return
 	_tint(visual.get_node("Body") as MeshInstance3D, coat)
@@ -685,7 +685,12 @@ func _tackle_node() -> Node:
 
 
 func _mount_pack(body: Color) -> void:
-	AssetPack.mount_bird(visual, body, "hoodie", "red_beanie", "head")
+	if _remote_peer != 0:
+		AssetPack.mount_bird(visual, body, "hoodie", "red_beanie", "head")
+		return
+	# Local look comes from the wardrobe (ui/activities/outfit.gd).
+	AssetPack.mount_bird(visual, body)
+	Outfit.dress(visual.get_node_or_null("PackAvatar") as Node3D, Outfit.load_look())
 
 
 func _pose_placeholder() -> void:
