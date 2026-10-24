@@ -43,7 +43,8 @@ static func blocker(nav: Node, node: Node3D, id: String, scale: float, space: Ph
 	body.collision_mask = 0
 	body.set_meta("blocker_of", id)
 	body.set_meta("blocker_node", node)  # tools/walk_test drives into the visible model
-	body.transform = Transform3D(node.basis.orthonormalized(), node.position)
+	var xf := WalkSurface._world(nav).affine_inverse() * WalkSurface._world(node)  # node may sit under another parent
+	body.transform = Transform3D(xf.basis.orthonormalized(), xf.origin)
 	for piece in _cache[key]:
 		var col := CollisionShape3D.new()
 		if piece[0] == "hull":
@@ -66,9 +67,10 @@ static func blocker(nav: Node, node: Node3D, id: String, scale: float, space: Ph
 
 ## Cross-section of everything between the lowest ground round the placement and FOOT_H above the
 ## highest (a cliff or a sunk rock is widest at its foot, not at the top of the slope).
-static func _footprint(node: Node3D, id: String, scale: float, lo: float, ground: float) -> Array:
+static func _footprint(node: Node3D, id: String, scale: float, lo: float, ground: float, trunk_only := true) -> Array:
 	var parts := AssetRegistry.parts(id)
 	var foot := POST_H if POSTS_ONLY.any(func(k): return id.contains(k)) else FOOT_H
+	var trunk := trunk_only and id.contains("tree") and not id.contains("treehouse")  # low branches and snow skirts never block
 	var cells := {}
 	for mi in node.find_children("*", "MeshInstance3D", true, false):
 		if mi.mesh == null or parts.has(String(mi.name)) or parts.has(String(mi.get_parent().name)):
@@ -87,14 +89,22 @@ static func _footprint(node: Node3D, id: String, scale: float, lo: float, ground
 				var c := xf * v[idx[t + 2] if idx != null else t + 2]
 				if minf(a.y, minf(b.y, c.y)) > ground + foot or maxf(a.y, maxf(b.y, c.y)) < lo - 0.05:
 					continue
+				var top := maxf(a.y, maxf(b.y, c.y))
+				if top < lo + 0.1 or (top < ground + 0.5 and absf((b - a).cross(c - a).normalized().y) > 0.7):
+					continue  # floors (tile bevels, grout), rugs, steps and plinth tops are walked on, not into
 				var n := maxi(1, ceili(maxf(a.distance_to(b), maxf(b.distance_to(c), c.distance_to(a))) / (FOOT_CELL * 0.5)))
 				for i in n + 1:
 					for j in n + 1 - i:
 						var q := a + (b - a) * (float(i) / n) + (c - a) * (float(j) / n)
-						if q.y < ground + foot and q.y > lo - 0.05:  # the cross-section a penguin meets
+						if q.y < ground + foot and q.y > lo - 0.05 and (not trunk or Vector2(q.x, q.z).length() < 0.45):  # the cross-section a penguin meets
 							cells[Vector2i(floori(q.x / FOOT_CELL), floori(q.z / FOOT_CELL))] = true
+	if cells.is_empty() and trunk:  # the trunk is off the pivot: fall back to the whole cross-section
+		return _footprint(node, id, scale, lo, ground, false)
+	if id.ends_with("_exterior"):
+		_fill_holes(cells)  # a building's wall ring becomes its whole floor plan, so it gets one smooth hull
 	var out := []
 	var rock := id.contains("rock")
+	var room := str(AssetRegistry.entry(id).get("category", "")) == "room"  # walls and furniture, never one hull
 	while not cells.is_empty():
 		var seed: Vector2i = cells.keys()[0]
 		var patch := [seed]
@@ -121,7 +131,7 @@ static func _footprint(node: Node3D, id: String, scale: float, lo: float, ground
 			for i in hull.size():
 				hull[i] = mid + (hull[i] - mid) * 0.75
 			out.append(["hull", hull])
-		elif patch.size() * FOOT_CELL * FOOT_CELL >= 0.6 * area or patch.size() < 4:
+		elif not room and (patch.size() * FOOT_CELL * FOOT_CELL >= 0.6 * area or patch.size() < 4):
 			out.append(["hull", hull])
 		else:  # concave patch: one box per run of cells along each row
 			var rows := {}
@@ -137,6 +147,34 @@ static func _footprint(node: Node3D, id: String, scale: float, lo: float, ground
 						if i < xs.size() - 1:
 							start = xs[i + 1]
 	return out
+
+
+## Marks every empty cell that cannot be reached from outside the cells' bounding box.
+static func _fill_holes(cells: Dictionary) -> void:
+	if cells.is_empty():
+		return
+	var lo := Vector2i(1 << 30, 1 << 30)
+	var hi := -lo
+	for c in cells:
+		lo = Vector2i(mini(lo.x, c.x), mini(lo.y, c.y))
+		hi = Vector2i(maxi(hi.x, c.x), maxi(hi.y, c.y))
+	lo -= Vector2i.ONE
+	hi += Vector2i.ONE
+	var outside := {lo: true}
+	var todo := [lo]
+	while not todo.is_empty():
+		var c: Vector2i = todo.pop_back()
+		for d in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
+			var nb: Vector2i = c + d
+			if nb.x < lo.x or nb.y < lo.y or nb.x > hi.x or nb.y > hi.y or outside.has(nb) or cells.has(nb):
+				continue
+			outside[nb] = true
+			todo.append(nb)
+	for x in range(lo.x, hi.x + 1):
+		for y in range(lo.y, hi.y + 1):
+			var c := Vector2i(x, y)
+			if not outside.has(c):
+				cells[c] = true
 
 
 static func _area(poly: PackedVector2Array) -> float:

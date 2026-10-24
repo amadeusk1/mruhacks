@@ -48,30 +48,37 @@ func _ready() -> void:
 	var nav := get_node("NavigationRegion3D")
 	var open := 0
 	var space := get_world_3d().direct_space_state
-	_ground_heightfield(nav, space)
+	var ground := _ground_heightfield(nav, space)
 	await get_tree().physics_frame
 	var ramps := 0
 	for b in _blockers:
+		_settle(b[0], space)
 		Footprint.blocker(nav, b[0], b[1], b[2], space)
 	for pair in _walks:
 		ramps += WalkSurface.add_ramps(pair[0], nav, space)
 	ramps += WalkSurface.stair_ramps(_walks.map(func(pair): return pair[0]), nav)
 	await get_tree().physics_frame
 	for pair in _walks:
-		WalkSurface.span_gaps(pair[1], nav, space)
+		if pair[1]:  # stair flights have no walk body (one ramp per flight)
+			WalkSurface.span_gaps(pair[1], nav, space)
 	await get_tree().physics_frame  # spans first, so a closed hole is not railed off
 	var guards := 0
 	for pair in _walks:
-		guards += WalkSurface.guard_edges(pair[0], pair[1], nav, space)
+		if pair[1]:
+			guards += WalkSurface.guard_edges(pair[0], pair[1], nav, space)
 	await get_tree().physics_frame
 	for pair in _walks:
-		var left: Array = WalkSurface.span_gaps(pair[1], nav, space)
-		open += left.size()
+		if pair[1]:
+			open += WalkSurface.span_gaps(pair[1], nav, space).size()
 	print("Town walkables: %d, ramps: %d, gap spans: %d, edge guards: %d" % [_walks.size(), ramps, nav.get_children().filter(func(n): return n.has_meta("gap_span")).size(), guards])
 	if open > 0:
 		push_warning("Town: %d walkable edges drop off with no guard (layout fix needed)" % open)
 	await get_tree().physics_frame  # gap spans registered before the shore is traced
 	_water_edges(nav, space)
+	_ledges(nav, space, ground)
+	for spot in get_tree().get_nodes_in_group("fish_spot"):  # the rail is a prop to cast from, not a wall across the pier
+		if is_ancestor_of(spot):
+			(spot as CollisionObject3D).collision_layer = 0
 	if nav.has_method("rebake"):
 		nav.call("rebake")
 	AmbientFx.dress(self)
@@ -189,7 +196,10 @@ func _place(nav: Node, p: Dictionary) -> void:
 	if tags.has("walkable") and id == "world_misc/footbridge":
 		_bridge_crossing(node)  # map builder's deck + end ramps; the visual rails are not a wall
 		node.set_meta("walkable", true)
-	elif tags.has("walkable"):  # decks, stairs, courts: standable where drawn, solid below
+	elif tags.has("walkable") and id.contains("stairs"):  # one ramp per flight (WalkSurface.stair_ramps); step risers stalled the capsule
+		node.set_meta("walkable", true)
+		_walks.append([node, null])
+	elif tags.has("walkable"):  # decks, courts: standable where drawn, solid below
 		var walk := WalkSurface.build(node, nav, node.position.y - 1.2, node.name + "_walk")
 		node.set_meta("walkable", true)
 		if id.contains("dock"):  # flat decks: one solid box across the footprint (plank gaps left holes)
@@ -205,13 +215,22 @@ func _place(nav: Node, p: Dictionary) -> void:
 		(func(): SeatSpot.from_sockets(nav, node, "sketch", node.global_position, "sketch")).call_deferred()  # needs globals
 
 
+## A solid prop left hovering (its ground was flattened or regraded after it was placed) drops
+## onto the floor below it; hovering, it looked wrong and its footprint came out empty.
+func _settle(node: Node3D, space: PhysicsDirectSpaceState3D) -> void:
+	var at := node.global_position
+	var hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(at + Vector3.UP * 0.3, at + Vector3.DOWN * 3.0, FLOOR_LAYER))
+	if hit and at.y - hit.position.y > 0.8:  # stacked crates (0.5 m) stay put
+		node.global_position.y = hit.position.y
+
+
 ## The walkable ground is one heightfield sampled from the visual terrain and paths every
 ## GROUND_CELL m: no curb risers, snow-lip slivers or seams between meshes for the capsule to
 ## catch on (8 cm curbs become gentle ramps). Decks, stairs and bridges stay separate bodies.
 const GROUND_CELL := 0.3
 
 
-func _ground_heightfield(nav: Node, space: PhysicsDirectSpaceState3D) -> void:
+func _ground_heightfield(nav: Node, space: PhysicsDirectSpaceState3D) -> PackedFloat32Array:
 	var n := int(WATER_HALF * 2.0 / GROUND_CELL) + 1
 	var low := float(_layout.get("water_level", 0.0)) - 3.0
 	var h := PackedFloat32Array()
@@ -245,11 +264,55 @@ func _ground_heightfield(nav: Node, space: PhysicsDirectSpaceState3D) -> void:
 	for b in nav.find_children("*", "StaticBody3D", true, false):
 		if b.collision_layer == SAMPLE_LAYER:
 			b.queue_free()
+	return h
 
 
-## Invisible walls over the sea and the stream: every WATER_CELL square whose top floor lies under
-## the water line (or has no floor) becomes part of a tall prism on the blocker layer, merged into
-## rectangles. Decks, bridges and gap spans above the water keep their cells dry.
+## Cliff tops: wherever the ground drops more than LEDGE m between neighbouring samples (about
+## 70 degrees), a row of posts on the high side keeps the penguin from walking off the sled hill
+## or a cliff. Not where a deck, ramp or bridge covers the edge.
+const LEDGE := 0.9
+
+
+func _ledges(nav: Node, space: PhysicsDirectSpaceState3D, h: PackedFloat32Array) -> void:
+	var n := int(WATER_HALF * 2.0 / GROUND_CELL) + 1
+	var water := float(_layout.get("water_level", -INF))
+	var rail := StaticBody3D.new()
+	rail.name = "LedgeRail"
+	rail.collision_layer = BLOCK_LAYER
+	rail.collision_mask = 0
+	rail.set_meta("blocker_of", "ledge")
+	rail.set_meta("nav_keep", true)  # the navmesh already stops at the drop
+	var post := CylinderShape3D.new()
+	post.radius = GROUND_CELL * 0.7
+	post.height = 2.4
+	var done := {}
+	for j in n:
+		for i in n:
+			var y := h[j * n + i]
+			if y < water:
+				continue
+			for d in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
+				var q: Vector2i = Vector2i(i, j) + d
+				if q.x < 0 or q.y < 0 or q.x >= n or q.y >= n or y - h[q.y * n + q.x] < LEDGE or done.has(Vector2i(i, j)):
+					continue
+				var at := Vector3(-WATER_HALF + i * GROUND_CELL, y, -WATER_HALF + j * GROUND_CELL)
+				var hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(at + Vector3.UP * 2.0, at + Vector3.DOWN * 0.5, FLOOR_LAYER))
+				if hit and String(hit.collider.name) != "Ground":
+					continue  # a deck or ramp spans this edge
+				done[Vector2i(i, j)] = true
+				var col := CollisionShape3D.new()
+				col.shape = post
+				col.position = at + Vector3.UP * 1.0
+				rail.add_child(col)
+	nav.add_child(rail)
+	print("Town ledges: %d posts" % rail.get_child_count())
+
+
+## The sea and the stream: a WATER_CELL grid whose corners are sampled for floor. A cell is wet
+## when its floor at every corner is under the water line (or missing), so no wall covers a deck
+## or the shore. Physics: a row of overlapping upright cylinders on the wet cells that touch dry
+## ones (a smooth bumpy rail the capsule glides along; box steps on a diagonal coast caught it).
+## Navigation: the wet area merged into rectangles and carved with obstacles.
 const WATER_CELL := 0.5
 const WATER_HALF := 50.0
 
@@ -259,15 +322,38 @@ func _water_edges(nav: Node, space: PhysicsDirectSpaceState3D) -> void:
 	if water == -INF:
 		return
 	var n := int(WATER_HALF * 2.0 / WATER_CELL)
+	var low := {}  # grid corner -> no floor above the water line
+	for i in n + 1:
+		for j in n + 1:
+			var x := -WATER_HALF + i * WATER_CELL
+			var z := -WATER_HALF + j * WATER_CELL
+			var hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(Vector3(x, 30, z), Vector3(x, water - 8.0, z), FLOOR_LAYER))
+			if hit.is_empty() or hit.position.y < water - 0.05:
+				low[Vector2i(i, j)] = true
 	var wet := {}
 	for i in n:
 		for j in n:
-			var x := -WATER_HALF + (i + 0.5) * WATER_CELL
-			var z := -WATER_HALF + (j + 0.5) * WATER_CELL
-			var hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(Vector3(x, 30, z), Vector3(x, water - 8.0, z), FLOOR_LAYER))
-			if hit.is_empty() or hit.position.y < water - 0.05:
+			if low.has(Vector2i(i, j)) and low.has(Vector2i(i + 1, j)) and low.has(Vector2i(i, j + 1)) and low.has(Vector2i(i + 1, j + 1)):
 				wet[Vector2i(i, j)] = true
-	var walls := 0
+	var rail := StaticBody3D.new()
+	rail.name = "WaterEdge"
+	rail.collision_layer = BLOCK_LAYER
+	rail.collision_mask = 0
+	rail.set_meta("blocker_of", "water_edge")
+	rail.set_meta("nav_keep", true)  # carved below as rectangles
+	var post := CylinderShape3D.new()
+	post.radius = WATER_CELL * 0.75
+	post.height = 6.0
+	for c in wet:
+		var cell: Vector2i = c
+		if wet.has(cell + Vector2i(1, 0)) and wet.has(cell + Vector2i(-1, 0)) and wet.has(cell + Vector2i(0, 1)) and wet.has(cell + Vector2i(0, -1)):
+			continue
+		var col := CollisionShape3D.new()
+		col.shape = post
+		col.position = Vector3(-WATER_HALF + (cell.x + 0.5) * WATER_CELL, water, -WATER_HALF + (cell.y + 0.5) * WATER_CELL)
+		rail.add_child(col)
+	nav.add_child(rail)
+	var rects := 0
 	while not wet.is_empty():  # greedy rectangles: grow along i, then along j while the whole row is wet
 		var c: Vector2i = wet.keys()[0]
 		var i1 := c.x
@@ -281,23 +367,17 @@ func _water_edges(nav: Node, space: PhysicsDirectSpaceState3D) -> void:
 				wet.erase(Vector2i(i, j))
 		var lo := Vector2(-WATER_HALF + c.x * WATER_CELL, -WATER_HALF + c.y * WATER_CELL)
 		var hi := Vector2(-WATER_HALF + (i1 + 1) * WATER_CELL, -WATER_HALF + (j1 + 1) * WATER_CELL)
-		var pts := PackedVector3Array()
-		for q in [lo, Vector2(hi.x, lo.y), hi, Vector2(lo.x, hi.y)]:
-			pts.append(Vector3(q.x, water - 8.0, q.y))
-			pts.append(Vector3(q.x, water + Footprint.BLOCK_TOP + 0.5, q.y))
-		var body := StaticBody3D.new()
-		body.name = "WaterEdge"
-		body.collision_layer = BLOCK_LAYER
-		body.collision_mask = 0
-		body.set_meta("blocker_of", "water_edge")
-		var hull := ConvexPolygonShape3D.new()
-		hull.points = pts
-		var col := CollisionShape3D.new()
-		col.shape = hull
-		body.add_child(col)
-		nav.add_child(body)
-		walls += 1
-	print("Town water edges: %d walls" % walls)
+		var carve := NavigationObstacle3D.new()
+		carve.name = "WaterCarve"  # not "NavCarve": room_nav frees those on every rebake
+		carve.avoidance_enabled = false
+		carve.affect_navigation_mesh = true
+		nav.add_child(carve)
+		carve.position = Vector3((lo.x + hi.x) * 0.5, water - 8.0, (lo.y + hi.y) * 0.5)
+		carve.height = 8.0 + Footprint.BLOCK_TOP + 0.5
+		var h := (hi - lo) * 0.5
+		carve.vertices = PackedVector3Array([Vector3(-h.x, 0, -h.y), Vector3(h.x, 0, -h.y), Vector3(h.x, 0, h.y), Vector3(-h.x, 0, h.y)])
+		rects += 1
+	print("Town water edges: %d rail posts, %d carved rectangles" % [rail.get_child_count(), rects])
 
 
 ## Assets whose only moving parts sway (tree crowns, shrub tops) batch fine: the sway moves
@@ -448,6 +528,8 @@ func _anchor(at: Node3D, title: String, verb: String, activity: String, location
 	a.spawn_name = spawn
 	a.transform = at.transform
 	a.set_meta("marker", at.name)
+	if location != "":
+		a.reach = 3.0  # door markers sit at the door, up the entrance steps that block
 	add_child(a)
 
 
