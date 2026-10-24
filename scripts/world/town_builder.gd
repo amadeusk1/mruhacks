@@ -99,7 +99,7 @@ func _build_terrain(nav: Node) -> void:
 	nav.add_child(terrain)
 	Tints.prepare(terrain)
 	for mi in terrain.find_children("*", "MeshInstance3D", true, false):
-		if String(mi.name).begins_with("terrain_"):
+		if not String(mi.name).begins_with("water"):  # v2 merges snow/rock/sand into "town_terrain"
 			_trimesh_body(mi, FLOOR_LAYER)
 
 
