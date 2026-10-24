@@ -9,6 +9,10 @@ static func register(screen_name: String, opener: Callable) -> void:
 	_registry[screen_name] = opener
 
 
+static func unregister(screen_name: String) -> void:
+	_registry.erase(screen_name)
+
+
 static func open(screen_name: String) -> bool:
 	if _registry.has(screen_name):
 		_registry[screen_name].call()

@@ -27,6 +27,13 @@ func _ready() -> void:
 		acts.requested.connect(func(activity: String, _anchor: Node, _player: Node) -> void: open(activity))
 
 
+## Drop the openers registered above: a static var still holding lambdas bound to this autoload at
+## engine shutdown aborts Godot ("recursive_mutex lock failed") on every quit.
+func _exit_tree() -> void:
+	UIScreens.unregister("wardrobe")
+	UIScreens.unregister("inventory")
+
+
 func handles(activity: String) -> bool:
 	return SCREENS.has(activity)
 
