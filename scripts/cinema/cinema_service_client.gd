@@ -74,6 +74,19 @@ func login(player_name: String, code: String, done: Callable) -> void:
 		_after_sign_in(done))
 
 
+## Picks up an existing session (web: the browser's cookie survives reloads). done(ok: bool)
+func restore(done: Callable) -> void:
+	if not web and cookie == "":
+		done.call(false)
+		return
+	call_api(HTTPClient.METHOD_GET, "/api/me", null, func(c: int, d: Variant, _b: PackedByteArray) -> void:
+		if c == 200 and d is Dictionary:
+			me = d
+			signed_in = true
+		if done.is_valid():
+			done.call(signed_in))
+
+
 ## A single-use view ticket from a signed-in client (web build / close-up): view-only session.
 func redeem_ticket(ticket: String, done: Callable) -> void:
 	call_api(HTTPClient.METHOD_POST, "/api/ticket", {"ticket": ticket}, func(c: int, d: Variant, _b: PackedByteArray) -> void:

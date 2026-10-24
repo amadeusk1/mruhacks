@@ -25,6 +25,7 @@ var _query := ""
 var _root: Control
 var _seek: HSlider
 var _time: Label
+var _last_media := ""
 
 
 func _ready() -> void:
@@ -47,8 +48,10 @@ func use_source(s: CinemaSource) -> void:
 		if _sel == "" and not its.is_empty(): _sel = str(its[0]["id"])
 		_build())
 	source.snapshot_changed.connect(func(snap: Dictionary) -> void:
-		if str(snap.get("media_id", "")) != "" and mode != "watch":
+		var media := str(snap.get("media_id", ""))
+		if media != "" and media != _last_media:  # a (new) film started: watch it
 			mode = "watch"
+		_last_media = media
 		_build())
 	source.connect_source()
 	_build()
@@ -157,37 +160,49 @@ func _build_library() -> void:
 			po.clip_contents = true
 			A.pin(b, po, Vector4(0, 0, 1, 1), Vector4(5, 5, -5, -5))
 			row.add_child(b)
-	var play := A.button("Play for Group", "primary", "play", 30, Vector2(480, 76))
+	var guest: bool = source is GatewaySource and source.status == "connected" and not source.can_host()
+	var play := A.button("Suggest to host" if guest else "Play for Group", "primary", "send" if guest else "play", 30, Vector2(480, 76))
 	play.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	play.disabled = not is_controller() or _sel == "" or source.items.is_empty()
-	play.tooltip_text = "" if is_controller() else "Only the host picks the film"
-	play.pressed.connect(func() -> void: intent.emit("play_for_group", _sel); source.request_load(_sel))
+	play.disabled = _sel == "" or source.items.is_empty() or (not guest and not is_controller() and not (source is GatewaySource and source.can_host()))
+	play.tooltip_text = "Sends your pick to the movie-night chat" if guest else ("" if not play.disabled else "Only the host picks the film")
+	play.pressed.connect(func() -> void:
+		if guest:
+			_suggest(_item(_sel))
+		else:
+			intent.emit("play_for_group", _sel)
+			source.request_load(_sel))
 	v.add_child(play)
+	if source is GatewaySource and not str(source.snapshot.get("media_id", "")).is_empty():
+		var back := A.button("Back to the movie", "ghost", "film", 18, Vector2(0, 40))
+		back.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		back.pressed.connect(func() -> void: mode = "watch"; _build())
+		v.add_child(back)
 	var x := A.close_disc(56)
 	x.pressed.connect(close)
 	A.pin(_root, x, Vector4(0.5, 0.5, 0.5, 0.5), Vector4(540, -320, 596, -264))
 
 
-## Invite code for the cinema service; sent once to the gateway, never stored.
+## Viewers suggest a film to the host through the chat everyone in the cinema sees.
+func _suggest(t: Dictionary) -> void:
+	var msg := "suggests watching %s" % str(t.get("title", "a movie"))
+	if Net.is_online():
+		Net.say(msg)
+	UIWidgets.toast(self, "Suggested %s to the host" % str(t.get("title", "")), "send")
+
+
+## Signed out: say what to do and give the button right here (never a dead end).
 func _sign_in_row() -> Control:
 	var v := A.vbox(12)
-	v.add_child(A.label("Enter your movie-night invite code" if source.detail == "" else source.detail, 20, A.NAVY))
-	var f := UIKit.field("Invite code", "", false)
-	var code: LineEdit = f["field"]
-	code.secret = true
-	code.custom_minimum_size = Vector2(360, 46)
-	var go := A.button("Sign in", "primary", "users", 22, Vector2(0, 52))
-	var submit := func() -> void:
-		var c := code.text.strip_edges()
-		code.text = ""
-		if c != "":
-			(source as GatewaySource).sign_in(c)
-	go.pressed.connect(submit)
-	code.text_submitted.connect(func(_t: String) -> void: submit.call())
-	v.add_child(f["root"])
+	v.alignment = BoxContainer.ALIGNMENT_CENTER
+	v.add_child(A.label("Join movie night" if source.detail == "" else source.detail, 26, A.NAVY, true, HORIZONTAL_ALIGNMENT_CENTER))
+	var help := A.label("Enter the host code to pick movies, or the viewer code to watch.", 19, A.SUB, false, HORIZONTAL_ALIGNMENT_CENTER)
+	v.add_child(help)
+	var go := A.button("Sign in", "primary", "users", 24, Vector2(320, 60))
+	go.name = "SignIn"
+	go.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	go.pressed.connect(CinemaService.open_sign_in)
 	v.add_child(go)
 	return v
-
 
 func _item(id: String) -> Dictionary:
 	for t in source.items:
@@ -221,7 +236,10 @@ func _build_watch() -> void:
 			if c is VBoxContainer:
 				c.queue_free()
 		screen.add_child(po)
-	var host := A.chip("Host controls playback" if not is_controller() else "You control playback", Color(0.06, 0.1, 0.2, 0.75), A.WHITE, "users", 19, Vector2(20, 12))
+	var who := "You control playback" if is_controller() else "Host controls playback"
+	if int(snap.get("viewers", 0)) > 0:
+		who += "  ·  %d watching" % int(snap["viewers"])
+	var host := A.chip(who, Color(0.06, 0.1, 0.2, 0.75), A.WHITE, "users", 19, Vector2(20, 12))
 	A.pin(_root, host, Vector4(0, 0, 0, 0), Vector4(24, 20, 0, 0))
 	var demo := A.chip("Demo film", Color(0.95, 0.66, 0.18, 0.9), A.NAVY, "", 16, Vector2(14, 6))
 	if str(snap.get("phase", "")) in ["preparing", "buffering"]:
@@ -279,6 +297,10 @@ func _build_watch() -> void:
 				source.request_tracks(a, sub))
 			ctl.add_child(ob)
 	ctl.add_child(A.expander())
+	if is_controller() and source is GatewaySource:
+		var change := A.button("Change movie", "secondary", "film", 22, Vector2(220, 60))
+		change.pressed.connect(func() -> void: mode = "library"; _build())
+		ctl.add_child(change)
 	var leave := A.button("Leave seat", "danger", "seat", 22, Vector2(220, 60))
 	leave.pressed.connect(close)
 	ctl.add_child(leave)
