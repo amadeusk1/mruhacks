@@ -80,6 +80,7 @@ const _FLOOR_LAYER := 1
 func _ready() -> void:
 	_remote_peer = int(get_meta("remote_peer", 0))
 	if _remote_peer != 0:
+		add_to_group("remote_penguins")  # Voice: proximity gain + speaking icon
 		_setup_remote()
 		return
 	add_to_group("player")

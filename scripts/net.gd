@@ -69,6 +69,10 @@ var _court_send := 0.0
 var _court_sig := ""
 var _court_box := AABB()
 var _court_on := false
+var _voice_pos: Dictionary = {}     # host: peer -> last pose position (voice proximity)
+var _voice_budget: Dictionary = {}  # host: peer -> bytes allowed this second
+const VOICE_RANGE := 20.0
+const VOICE_BYTES_PER_SEC := 24000
 
 
 func _ready() -> void:
@@ -440,6 +444,7 @@ func _bench_owner(key: String) -> int:
 func _relay_pose(from_id: int, pose: Dictionary) -> void:
 	if not _players.has(from_id):
 		return
+	_voice_pos[from_id] = Vector3(float(pose["x"]), float(pose["y"]), float(pose["z"]))
 	var sender: Dictionary = _players[from_id]
 	if bool(sender["hidden"]) or str(sender["location"]) == "" or str(sender["location"]) == "sled_hill":
 		return
@@ -478,6 +483,63 @@ func _relay_pose(from_id: int, pose: Dictionary) -> void:
 				float(pose["speed"]),
 				bool(pose["sitting"])
 			)
+
+
+# ---- proximity voice (scripts/voice/voice.gd) ------------------------------------------
+func send_voice(data: PackedByteArray) -> void:
+	if not is_online() or data.size() > 2048:
+		return
+	if _mode == Mode.HOST:
+		_relay_voice(local_id(), data)
+	elif multiplayer.multiplayer_peer != null:
+		submit_voice.rpc_id(1, data)
+
+
+@rpc("any_peer", "call_remote", "unreliable_ordered", 2)
+func submit_voice(data: PackedByteArray) -> void:
+	if _mode == Mode.HOST:
+		_relay_voice(multiplayer.get_remote_sender_id(), data)
+
+
+@rpc("authority", "call_remote", "unreliable_ordered", 2)
+func relay_voice(from_id: int, data: PackedByteArray) -> void:
+	Voice.receive(from_id, data)
+
+
+## Host-authoritative: same room, within VOICE_RANGE, not hidden, rate-capped, quiet rounds dropped.
+func _relay_voice(from_id: int, data: PackedByteArray) -> void:
+	if not _players.has(from_id) or data.size() > 2048:
+		return
+	var sec := Time.get_ticks_msec() / 1000
+	var b: Dictionary = _voice_budget.get(from_id, {"sec": -1, "left": 0})
+	if int(b["sec"]) != sec:
+		b = {"sec": sec, "left": VOICE_BYTES_PER_SEC}
+	if int(b["left"]) < data.size():
+		return
+	b["left"] = int(b["left"]) - data.size()
+	_voice_budget[from_id] = b
+	var sender: Dictionary = _players[from_id]
+	if bool(sender["hidden"]) or str(sender["location"]) == "":
+		return
+	var quiet: Array = SketchClub.game.members() if SketchClub.game.is_quiet() else []
+	if quiet.has(from_id):
+		return
+	for other_id in _players:
+		var oid := int(other_id)
+		if oid == from_id or quiet.has(oid):
+			continue
+		var other: Dictionary = _players[other_id]
+		if bool(other["hidden"]) or not _same_room(sender, other):
+			continue
+		if str(sender["location"]) != "sled_hill":  # sled poses don't pass through _relay_pose: room-only there
+			if not (_voice_pos.has(from_id) and _voice_pos.has(oid)):
+				continue  # position not known yet: stay silent rather than leak across the map
+			if (_voice_pos[from_id] as Vector3).distance_to(_voice_pos[oid]) > VOICE_RANGE:
+				continue
+		if oid == local_id():
+			Voice.receive(from_id, data)
+		elif multiplayer.get_peers().has(oid):
+			relay_voice.rpc_id(oid, from_id, data)
 
 
 func _broadcast() -> void:
@@ -615,6 +677,8 @@ func _on_peer_connected(id: int) -> void:
 
 func _on_peer_disconnected(id: int) -> void:
 	print("Net peer left: %s" % id)
+	_voice_pos.erase(id)
+	_voice_budget.erase(id)
 	if _closing or _mode != Mode.HOST:
 		return
 	if _players.has(id):

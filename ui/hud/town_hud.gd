@@ -109,6 +109,7 @@ func _ready() -> void:
 	_action.pressed.connect(_do_action)
 	add_child(_action)
 	UIRouter.stack_changed.connect(_refresh_mic)
+	Voice.mic_problem.connect(func(msg: String) -> void: UIWidgets.toast(self, msg, "mic_off"))
 	_layout.call_deferred()
 
 
