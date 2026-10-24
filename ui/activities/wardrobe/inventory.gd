@@ -30,6 +30,7 @@ var _items: Array = []   # [{"id", "slot"}]
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	theme = UIKit.THEME
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_look = Outfit.load_look()
 	_collect()

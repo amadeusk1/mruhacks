@@ -22,6 +22,7 @@ var _catalog := {}               # slot -> [asset names]
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	theme = UIKit.THEME
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_saved = Outfit.load_look()
 	_look = _saved.duplicate()

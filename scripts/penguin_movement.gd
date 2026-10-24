@@ -55,6 +55,7 @@ var _net_sitting := false
 var _has_net_pose := false
 var _name_label: Label3D
 var _tint_applied := -1
+var _emote := ""  # UI emote clip playing; walking or sitting cancels it (UI core)
 
 const _GRAVITY := 28.0
 const _CLICK_MASK := 3
@@ -80,6 +81,20 @@ func _ready() -> void:
 	_pose_placeholder()
 	_clips = _find_clips()
 	marker.hide_marker()
+
+
+## Plays an anim_emotes clip in place (UI emote picker). Moving cancels it. Returns false if
+## the clip is unknown or the penguin is busy (sitting, fishing).
+func play_emote(clip: String) -> bool:
+	if _clips == null or _sitting or _fisher_phase != "":
+		return false
+	if not _clips.has_animation(clip):
+		AssetPack.add_emotes(_clips)
+	if not _clips.has_animation(clip):
+		return false
+	_emote = clip
+	_clips.play(clip)
+	return true
 
 
 func set_travel_locked(locked: bool) -> void:
@@ -555,6 +570,10 @@ func _animate(delta: float, speed: float) -> void:
 		_swing_flipper(_flipper_r, _flipper_r_x, 0.0)
 		return
 	var moving := speed > 0.25
+	if _clips and _emote != "":
+		if not moving and _clips.current_animation == _emote:
+			return
+		_emote = ""
 	if _clips:
 		var clip := "walk" if moving else "idle"
 		if _clips.current_animation != clip:
