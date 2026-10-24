@@ -3,7 +3,9 @@ extends UIModal
 ## Escape menu. Online worlds keep running, so it says "Menu", not "Game Paused".
 
 func _init() -> void:
-	setup("Menu", "", 360, true, false)
+	setup("Menu", "", 520, true, false)
+	title_label.theme_type_variation = "Title"
+	body.add_theme_constant_override("separation", 18)
 	card.custom_minimum_size.y = 0
 	var resume := UIKit.button("Resume", "primary", "play")
 	resume.pressed.connect(close)

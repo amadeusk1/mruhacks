@@ -5,8 +5,9 @@ extends UIModal
 
 
 func _init() -> void:
-	setup("ACCESSIBILITY", "Make Pengloo Party comfortable for you.", 560, false, false)
+	setup("ACCESSIBILITY", "Make Pengloo Party comfortable for you.", 760, false, false)
 	title_label.theme_type_variation = "Title"
+	brand.visible = true
 	body.add_child(page(false))
 	var done := UIKit.button("Done", "primary")
 	done.pressed.connect(close)
@@ -27,7 +28,7 @@ static func page(compact: bool) -> Control:
 	var group := ButtonGroup.new()
 	var labels: Array = ["A", "A", "A"] if compact else ["Small", "Medium", "Large"]
 	for i in 3:
-		var b := UIKit.button(labels[i], "tab", "", Vector2(44 if compact else 96, 40))
+		var b := UIKit.button(labels[i], "tab", "", Vector2(54 if compact else 130, 56))
 		b.button_group = group
 		if compact:
 			b.add_theme_font_size_override("font_size", [14, 18, 22][i])

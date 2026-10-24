@@ -6,6 +6,24 @@ const THEME := preload("res://ui/theme/pengloo_theme.tres")
 const T := preload("res://ui/theme/ui_tokens.gd")
 
 
+## Anchor a control to a point of its parent (0..1 each axis) with a pixel offset of its centre.
+static func pin(c: Control, anchor: Vector2, centre_offset: Vector2, size: Vector2) -> Control:
+	c.anchor_left = anchor.x
+	c.anchor_right = anchor.x
+	c.anchor_top = anchor.y
+	c.anchor_bottom = anchor.y
+	c.offset_left = centre_offset.x - size.x * 0.5
+	c.offset_right = centre_offset.x + size.x * 0.5
+	c.offset_top = centre_offset.y - size.y * 0.5
+	c.offset_bottom = centre_offset.y + size.y * 0.5
+	return c
+
+
+static func full(c: Control) -> Control:
+	c.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	return c
+
+
 static func icon(name: String) -> Texture2D:
 	return load("res://ui/icons/%s.svg" % name) as Texture2D
 
@@ -26,14 +44,14 @@ static func wrap_label(text: String, variation := "Body", width := 300.0, align 
 
 
 ## kind: "primary" | "secondary" | "quiet" | "outline" | "danger" | "tab" | "hero"
-static func button(text: String, kind := "secondary", icon_name := "", min_size := Vector2(0, 52)) -> Button:
-	var b := Button.new()
-	b.text = text
+static func button(text: String, kind := "secondary", icon_name := "", min_size := Vector2(0, 76), icon_after := false) -> Button:
+	var b: Button = IconTextButton.new(text, icon(icon_name), icon_after) if icon_name != "" and text != "" else Button.new()
+	if not (b is IconTextButton):
+		b.text = text
 	b.theme_type_variation = {"primary": "PrimaryButton", "secondary": "", "quiet": "QuietButton", "outline": "OutlineButton",
 		"danger": "DangerButton", "tab": "TabButton", "hero": "HeroButton"}.get(kind, "")
-	if icon_name != "":
+	if icon_name != "" and text == "":
 		b.icon = icon(icon_name)
-		b.expand_icon = false
 	b.custom_minimum_size = min_size
 	b.focus_mode = Control.FOCUS_ALL
 	if kind == "tab":
@@ -41,7 +59,7 @@ static func button(text: String, kind := "secondary", icon_name := "", min_size 
 	return b
 
 
-static func icon_button(icon_name: String, tooltip := "", size := 46.0) -> Button:
+static func icon_button(icon_name: String, tooltip := "", size := 58.0) -> Button:
 	var b := Button.new()
 	b.theme_type_variation = "IconButton"
 	b.icon = icon(icon_name)
@@ -61,7 +79,7 @@ static func dock_button(text: String, icon_name: String) -> Button:
 	b.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	b.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
 	b.expand_icon = false
-	b.custom_minimum_size = Vector2(106, 66)
+	b.custom_minimum_size = Vector2(150, 104)
 	return b
 
 
@@ -72,7 +90,7 @@ static func tab_bar(items: Array, on_pick: Callable) -> HBoxContainer:
 	var group := ButtonGroup.new()
 	for i in items.size():
 		var it = items[i]
-		var b := button(str(it[0]), "tab", str(it[1]) if it.size() > 1 else "", Vector2(0, 46))
+		var b := button(str(it[0]), "tab", str(it[1]) if it.size() > 1 else "", Vector2(0, 64))
 		b.button_group = group
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		b.pressed.connect(on_pick.bind(i))
@@ -120,7 +138,7 @@ static func field(placeholder: String, value := "", edit_icon := true) -> Dictio
 	var f := LineEdit.new()
 	f.placeholder_text = placeholder
 	f.text = value
-	f.custom_minimum_size = Vector2(0, 52)
+	f.custom_minimum_size = Vector2(0, 64)
 	if edit_icon:
 		f.right_icon = icon("pencil")
 		f.add_theme_color_override("clear_button_color", T.NAVY)
@@ -143,7 +161,7 @@ static func slider_row(icon_name: String, text: String, value: float, on_change:
 	var row := hbox(14)
 	row.add_child(_glyph(icon_name, 22, T.NAVY))
 	var name := label(text, "Body")
-	name.custom_minimum_size.x = 88
+	name.custom_minimum_size.x = 110
 	row.add_child(name)
 	var s := HSlider.new()
 	s.min_value = 0
@@ -152,10 +170,10 @@ static func slider_row(icon_name: String, text: String, value: float, on_change:
 	s.value = value
 	s.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	s.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	s.custom_minimum_size = Vector2(170, 26)
+	s.custom_minimum_size = Vector2(200, 30)
 	row.add_child(s)
 	var pct := label("%d%%" % int(value), "Muted", HORIZONTAL_ALIGNMENT_RIGHT)
-	pct.custom_minimum_size.x = 48
+	pct.custom_minimum_size.x = 64
 	row.add_child(pct)
 	s.value_changed.connect(func(v: float) -> void:
 		pct.text = "%d%%" % int(v)
@@ -204,7 +222,7 @@ static func glyph(icon_name: String, px := 24.0, color := T.NAVY) -> TextureRect
 ## Round colour swatch (body colour picker). Selected = navy-teal ring like the mockup.
 static func swatch(color: Color, on_pick: Callable) -> Button:
 	var b := Button.new()
-	b.custom_minimum_size = Vector2(52, 52)
+	b.custom_minimum_size = Vector2(60, 60)
 	b.toggle_mode = true
 	b.focus_mode = Control.FOCUS_ALL
 	for s in ["normal", "hover", "pressed", "focus", "hover_pressed"]:
@@ -215,12 +233,12 @@ static func swatch(color: Color, on_pick: Callable) -> Button:
 		if s in ["pressed", "hover_pressed"]:
 			box.set_border_width_all(4)
 			box.border_color = Color.WHITE
-			box.expand_margin_left = 4
-			box.expand_margin_right = 4
-			box.expand_margin_top = 4
-			box.expand_margin_bottom = 4
-			box.shadow_color = T.TEAL_PRESSED
-			box.shadow_size = 4
+			box.expand_margin_left = 5
+			box.expand_margin_right = 5
+			box.expand_margin_top = 5
+			box.expand_margin_bottom = 5
+			box.shadow_color = Color("#127F84")
+			box.shadow_size = 5
 		if s == "focus":
 			box.draw_center = false
 			box.set_border_width_all(3)
@@ -255,7 +273,7 @@ static func status(text: String, color: Color) -> HBoxContainer:
 	b.bg_color = color
 	b.set_corner_radius_all(99)
 	dot.add_theme_stylebox_override("panel", b)
-	dot.custom_minimum_size = Vector2(11, 11)
+	dot.custom_minimum_size = Vector2(14, 14)
 	dot.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(dot)
 	row.add_child(label(text, "Muted"))

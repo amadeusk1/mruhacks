@@ -29,13 +29,14 @@ func _init(size_px := Vector2i(420, 420), body := Color("#2B4C8C"), framed_head 
 	e.background_mode = Environment.BG_CLEAR_COLOR
 	e.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	e.ambient_light_color = Color("#FFF4E6")
-	e.ambient_light_energy = 0.75
+	e.ambient_light_energy = 0.3
 	e.tonemap_mode = Environment.TONE_MAPPER_FILMIC
+	e.tonemap_exposure = 0.92
 	env.environment = e
 	viewport.add_child(env)
 	var key := DirectionalLight3D.new()
 	key.rotation_degrees = Vector3(-35, 35, 0)
-	key.light_energy = 1.25
+	key.light_energy = 0.85
 	key.light_color = Color("#FFF1DC")
 	viewport.add_child(key)
 	var rim := DirectionalLight3D.new()
@@ -45,14 +46,12 @@ func _init(size_px := Vector2i(420, 420), body := Color("#2B4C8C"), framed_head 
 	_pivot = Node3D.new()
 	viewport.add_child(_pivot)
 	_camera = Camera3D.new()
-	_camera.fov = 28 if not headshot else 22
+	_camera.fov = 28 if not headshot else 30
 	viewport.add_child(_camera)
 	if headshot:
-		_camera.position = Vector3(0, 0.62, 1.55)
-		_camera.look_at(Vector3(0, 0.6, 0))
+		_camera.transform = Transform3D.IDENTITY.looking_at(Vector3(0, -0.06, -1.9), Vector3.UP).translated(Vector3(0, 0.56, 1.9))
 	else:
-		_camera.position = Vector3(0, 0.62, 2.55)
-		_camera.look_at(Vector3(0, 0.44, 0))
+		_camera.transform = Transform3D.IDENTITY.looking_at(Vector3(0, -0.18, -2.55), Vector3.UP).translated(Vector3(0, 0.62, 2.55))
 	bird = AssetPack.spawn("anim_locomotion", "avatar_base")
 	if bird != null:
 		_pivot.add_child(bird)

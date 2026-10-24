@@ -14,6 +14,7 @@ var subtitle_label: Label
 var close_button: Button
 var back_button: Button
 var dim: ColorRect
+var brand: HBoxContainer   # "🐧 PENGLOO PARTY" eyebrow some boards show above the title
 var on_back: Callable
 ## Shown in the router stack; false keeps world movement running (e.g. non-blocking panels).
 var blocks_world := true
@@ -36,7 +37,7 @@ func setup(title: String, subtitle := "", width := 520.0, closable := true, back
 	var col := UIKit.vbox(14)
 	card.add_child(col)
 	var head := Control.new()
-	head.custom_minimum_size.y = 46 if (closable or back or title != "") else 0
+	head.custom_minimum_size.y = 60 if (closable or back or title != "") else 0
 	col.add_child(head)
 	title_label = UIKit.label(title, "TitleSmall", HORIZONTAL_ALIGNMENT_CENTER)
 	title_label.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -49,11 +50,21 @@ func setup(title: String, subtitle := "", width := 520.0, closable := true, back
 			else: close())
 		head.add_child(back_button)
 	if closable:
-		close_button = UIKit.icon_button("close", "Close", 40)
+		close_button = UIKit.icon_button("close", "Close", 54)
 		close_button.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-		close_button.position = Vector2(-34, 2)
+		close_button.position = Vector2(-48, 2)
 		close_button.pressed.connect(close)
 		head.add_child(close_button)
+	brand = UIKit.hbox(8)
+	brand.alignment = BoxContainer.ALIGNMENT_CENTER
+	var face := PenguinFace.new()
+	face.body = T.NAVY_TITLE
+	face.custom_minimum_size = Vector2(30, 30)
+	brand.add_child(face)
+	brand.add_child(UIKit.label("PENGLOO PARTY", "Eyebrow"))
+	brand.visible = false
+	col.add_child(brand)
+	col.move_child(brand, 0)
 	subtitle_label = UIKit.label(subtitle, "Subtitle", HORIZONTAL_ALIGNMENT_CENTER)
 	subtitle_label.visible = subtitle != ""
 	col.add_child(subtitle_label)

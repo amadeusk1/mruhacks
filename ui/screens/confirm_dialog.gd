@@ -7,8 +7,10 @@ signal confirmed
 
 static func ask(title: String, message: String, stay_text := "Stay", go_text := "Leave", go_icon := "leave") -> ConfirmDialog:
 	var d := ConfirmDialog.new()
-	d.setup(title, message, 420, true, false)
+	d.setup(title, message, 680, true, false)
 	d.title_label.theme_type_variation = "TitleSmall"
+	d.title_label.add_theme_font_size_override("font_size", 44)
+	d.body.get_parent().get_child(1).custom_minimum_size.y = 74
 	var stay := UIKit.button(stay_text, "primary")
 	stay.pressed.connect(d.close)
 	d.body.add_child(stay)

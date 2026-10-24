@@ -4,13 +4,14 @@ extends UIModal
 ## preference and lists real input devices, but never claims voice is live.
 
 func _init() -> void:
-	setup("MICROPHONE", "Voice chat helps you waddle together.", 480, true, false)
+	setup("MICROPHONE", "Voice chat helps you waddle together.", 700, true, false)
 	title_label.theme_type_variation = "Title"
+	brand.visible = true
 	var badge := TextureRect.new()
 	badge.texture = UIKit.icon("mic_off_badge")
 	badge.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	badge.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	badge.custom_minimum_size = Vector2(0, 84)
+	badge.custom_minimum_size = Vector2(0, 110)
 	body.add_child(badge)
 	var on := bool(UIRouter.settings["mic"])
 	body.add_child(UIKit.label("Microphone access is %s." % ("on" if on else "off"), "Heading", HORIZONTAL_ALIGNMENT_CENTER))
@@ -29,7 +30,7 @@ func _init() -> void:
 	body.add_child(HSeparator.new())
 	body.add_child(UIKit.label("Input device", "Strong"))
 	var dev := OptionButton.new()
-	dev.custom_minimum_size.y = 48
+	dev.custom_minimum_size.y = 62
 	for d in AudioServer.get_input_device_list():
 		dev.add_item("Default device" if d == "Default" else d)
 	body.add_child(dev)

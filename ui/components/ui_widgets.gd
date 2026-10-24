@@ -55,7 +55,7 @@ static func toast(host: Node, text: String, icon_name := "check", seconds := 2.6
 
 
 ## Square card with a thumbnail and caption (emotes, wardrobe, inventory).
-static func item_card(texture: Texture2D, caption: String, on_pick: Callable, size := Vector2(92, 104)) -> Button:
+static func item_card(texture: Texture2D, caption: String, on_pick: Callable, size := Vector2(140, 160)) -> Button:
 	var b := Button.new()
 	b.custom_minimum_size = size
 	b.theme_type_variation = "OutlineButton"
@@ -72,7 +72,7 @@ static func item_card(texture: Texture2D, caption: String, on_pick: Callable, si
 	pic.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(pic)
 	var cap := UIKit.label(caption, "Body", HORIZONTAL_ALIGNMENT_CENTER)
-	cap.add_theme_font_size_override("font_size", 15)
+	cap.add_theme_font_size_override("font_size", 21)
 	cap.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(cap)
 	b.add_child(col)
@@ -81,7 +81,7 @@ static func item_card(texture: Texture2D, caption: String, on_pick: Callable, si
 
 
 ## Panel docked to one side of the screen (Friends list).
-static func side_panel(title: String, icon_name: String, width := 440.0) -> Dictionary:
+static func side_panel(title: String, icon_name: String, width := 700.0) -> Dictionary:
 	var root := UIModal.new()
 	root.setup("", "", width, false, false)
 	root.dim.color = Color(0, 0, 0, 0)
@@ -93,10 +93,12 @@ static func side_panel(title: String, icon_name: String, width := 440.0) -> Dict
 	center.offset_bottom = -22
 	center.offset_right = 22 + width
 	var head := UIKit.hbox(10)
-	head.add_child(UIKit.glyph(icon_name, 28, T.NAVY_TITLE))
-	head.add_child(UIKit.label(title, "Heading"))
+	head.add_child(UIKit.glyph(icon_name, 38, T.NAVY_TITLE))
+	var ht := UIKit.label(title, "Heading")
+	ht.add_theme_font_size_override("font_size", 38)
+	head.add_child(ht)
 	head.add_child(UIKit.spacer())
-	var x := UIKit.icon_button("close", "Close", 40)
+	var x := UIKit.icon_button("close", "Close", 54)
 	x.pressed.connect(root.close)
 	head.add_child(x)
 	root.body.add_child(head)
@@ -116,8 +118,9 @@ static func score_row(name: String, score: int, team_color: Color, portrait: Tex
 	p.add_theme_stylebox_override("panel", b)
 	var row := UIKit.hbox(14)
 	p.add_child(row)
-	row.add_child(Portrait.make(portrait, team_color.lightened(0.5), 66))
+	row.add_child(Portrait.make(portrait, team_color.lightened(0.5), 96))
 	var n := UIKit.label(name, "Heading")
+	n.add_theme_font_size_override("font_size", 40)
 	n.add_theme_color_override("font_color", Color.WHITE)
 	n.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(n)
@@ -125,11 +128,11 @@ static func score_row(name: String, score: int, team_color: Color, portrait: Tex
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = team_color.lightened(0.82)
 	sb.set_corner_radius_all(14)
-	sb.content_margin_left = 34
-	sb.content_margin_right = 34
+	sb.content_margin_left = 56
+	sb.content_margin_right = 56
 	sbox.add_theme_stylebox_override("panel", sb)
 	var s := UIKit.label(str(score), "Title", HORIZONTAL_ALIGNMENT_CENTER)
-	s.add_theme_font_size_override("font_size", 46)
+	s.add_theme_font_size_override("font_size", 66)
 	sbox.add_child(s)
 	row.add_child(sbox)
 	return p

@@ -11,8 +11,9 @@ const DEFAULTS := {"move_forward": KEY_W, "move_left": KEY_A, "move_back": KEY_S
 
 
 func _init() -> void:
-	setup("CONTROLS", "Customize your controls.", 520, false, false)
+	setup("CONTROLS", "Customize your controls.", 700, false, false)
 	title_label.theme_type_variation = "Title"
+	brand.visible = true
 	body.add_child(page())
 	var bottom := UIKit.hbox(12)
 	var restore := UIKit.button("Restore defaults", "secondary")
@@ -98,19 +99,19 @@ static func page() -> Control:
 	var grid := GridContainer.new()
 	grid.columns = 3
 	grid.add_theme_constant_override("h_separation", 16)
-	grid.add_theme_constant_override("v_separation", 12)
+	grid.add_theme_constant_override("v_separation", 14)
 	for row in ROWS:
 		var name := UIKit.label(row[0], "Strong")
 		name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		grid.add_child(name)
 		var keys := Button.new()
 		keys.theme_type_variation = "OutlineButton"
-		keys.custom_minimum_size = Vector2(150, 42)
+		keys.custom_minimum_size = Vector2(230, 58)
 		keys.focus_mode = Control.FOCUS_NONE
 		var actions: Array = row[1]
 		keys.text = "  ".join(actions.map(func(a): return ControlsScreen.key_text(a)))
 		grid.add_child(keys)
-		var edit := UIKit.icon_button("pencil", "Change %s" % row[0], 42)
+		var edit := UIKit.icon_button("pencil", "Change %s" % row[0], 58)
 		edit.pressed.connect(func() -> void: _capture(keys, actions))
 		grid.add_child(edit)
 	return grid

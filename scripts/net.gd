@@ -33,6 +33,9 @@ var _players: Dictionary = {}
 var _roster: Array = []
 var _local_name := "Penguin"
 var _local_color := 0
+## Coat chosen on the Your Penguin screen (UI core). Used for solo and hosting; a joining client
+## still gets the host's pick. shortcut: send it in hello() when the protocol next changes.
+var preferred_color := -1
 var _color_next := 0
 var _session_open := false
 var _closing := false
@@ -132,7 +135,7 @@ func play_solo(player_name: String) -> void:
 		return
 	_mode = Mode.SOLO
 	_local_name = _clean_name(player_name)
-	_local_color = 0
+	_local_color = maxi(preferred_color, 0)
 	_session_open = true
 	print("Net solo as %s" % _local_name)
 	session_started.emit()
@@ -148,7 +151,7 @@ func host_game(player_name: String) -> String:
 	_mode = Mode.HOST
 	multiplayer.multiplayer_peer = peer
 	_local_name = _clean_name(player_name)
-	_local_color = _take_color()
+	_local_color = _take_color() if preferred_color < 0 else preferred_color
 	_place_hidden = true
 	_players[local_id()] = _blank(local_id(), _local_name, _local_color)
 	_session_open = true
