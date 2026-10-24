@@ -20,7 +20,6 @@ config/features=PackedStringArray("4.7", "Forward Plus")
 
 [autoload]
 
-Travel="*res://scripts/travel.gd"
 Net="*res://scripts/net.gd"
 
 [display]
