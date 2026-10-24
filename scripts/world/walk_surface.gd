@@ -319,9 +319,9 @@ static func stair_ramps(nodes: Array, parent: Node) -> int:
 		var along := (b - a).normalized()
 		var low := clampf(0.25 / maxf(along.y, 0.05), 0.45, 1.5)
 		ramp(parent, a - along * low, b + along * 0.15, 1.4, "FlightRamp")
-		# cheeks run the whole flight (a gap part-way up drew paths in over the side, onto the
-		# cheek's end); the foot and the top stay open
-		_cheeks(parent, a + along * 0.3, b, 1.4)
+		# cheeks run from where the ramp side is a step high (below that it is just a slope you
+		# can walk onto) to the top; the foot and the top stay open
+		_cheeks(parent, a + along * clampf(0.3 / maxf(along.y, 0.05), 0.3, 1.0), b, 1.4)
 		made += 1
 	return made
 
