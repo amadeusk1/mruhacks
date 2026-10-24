@@ -180,12 +180,12 @@ mesh = SubResource("SphereMesh_dome")
 surface_material_override/0 = SubResource("Mat_snow")
 
 [node name="Lintel" type="MeshInstance3D" parent="NavigationRegion3D"]
-transform = Transform3D(2.5, 0, 0, 0, 0.32, 0, 0, 0, 1.35, -1.7, 1.5, 0.22)
+transform = Transform3D(2.55, 0, 0, 0, 0.22, 0, 0, 0, 0.28, -1.7, 1.52, 0.15)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = SubResource("Mat_ice")
 
 [node name="Mouth" type="MeshInstance3D" parent="NavigationRegion3D"]
-transform = Transform3D(1.4, 0, 0, 0, 1.15, 0, 0, 0, 0.18, -1.7, 0.7, -0.2)
+transform = Transform3D(1.35, 0, 0, 0, 1.2, 0, 0, 0, 0.22, -1.7, 0.72, 0.08)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = SubResource("Mat_mouth")
 
@@ -226,7 +226,7 @@ mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = SubResource("Mat_path")
 
 [node name="BusStop" parent="NavigationRegion3D" instance=ExtResource("2_bus")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 2.15, 0, -1.15)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 2.0, 0, 0.2)
 
 [node name="InFloor" type="StaticBody3D" parent="NavigationRegion3D"]
 transform = Transform3D(7.6, 0, 0, 0, 0.4, 0, 0, 0, 7.6, 80, -0.2, 0)
@@ -376,7 +376,7 @@ spawn_name = "OutsideSpawn"
 shape = SubResource("BoxShape3D_unit")
 
 [node name="InsideSpawn" type="Marker3D" parent="."]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 80, 0.2, 0)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 80, 0.2, 1.0)
 
 [node name="InsideReturn" type="Marker3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80, 0.2, 1.7)
@@ -385,14 +385,4 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80, 0.2, 1.7)
 transform = Transform3D(0.455, 0, -0.89, 0, 1, 0, 0.89, 0, 0.455, -0.2, 0.2, 2.25)
 
 [node name="BusArrival" type="Marker3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.15, 0.2, 1.05)
-
-[node name="HomeLabel" type="Label3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.7, 2.2, 0.85)
-billboard = 1
-text = "Home"
-font_size = 72
-outline_size = 10
-pixel_size = 0.008
-modulate = Color(0.12, 0.2, 0.32, 1)
-outline_modulate = Color(0.9, 0.95, 1, 1)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.0, 0.2, 2.25)
