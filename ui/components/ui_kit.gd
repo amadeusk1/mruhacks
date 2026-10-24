@@ -159,7 +159,7 @@ static func set_field_error(f: Dictionary, message: String) -> void:
 ## Icon + name + slider + percentage, as on the Settings > Audio board.
 static func slider_row(icon_name: String, text: String, value: float, on_change: Callable) -> HBoxContainer:
 	var row := hbox(14)
-	row.add_child(_glyph(icon_name, 22, T.NAVY))
+	row.add_child(_glyph(icon_name, 28, T.NAVY))
 	var name := label(text, "Body")
 	name.custom_minimum_size.x = 110
 	row.add_child(name)
@@ -185,7 +185,7 @@ static func slider_row(icon_name: String, text: String, value: float, on_change:
 static func toggle_row(icon_name: String, text: String, on: bool, on_change: Callable, state_text := "", subtitle := "") -> HBoxContainer:
 	var row := hbox(14)
 	if icon_name != "":
-		row.add_child(_glyph(icon_name, 22, T.NAVY))
+		row.add_child(_glyph(icon_name, 28, T.NAVY))
 	var col := vbox(0)
 	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	col.add_child(label(text, "Strong" if subtitle != "" else "Body"))

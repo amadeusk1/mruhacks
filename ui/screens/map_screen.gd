@@ -37,10 +37,8 @@ func _init() -> void:
 	title.add_child(UIKit.label("Pengloo Party", "TitleSmall"))
 	title.add_child(UIKit.label("Explore together", "Subtitle"))
 	_view.add_child(title)
-	var x := UIKit.icon_button("close", "Close map", 56)
-	x.theme_type_variation = "DockButton"
-	x.expand_icon = true
-	UIKit.pin(x, Vector2(1, 0), Vector2(-48, 46), Vector2(56, 56))
+	var x := UIKit.icon_button("close", "Close map", 64)
+	UIKit.pin(x, Vector2(1, 0), Vector2(-52, 50), Vector2(64, 64))
 	x.pressed.connect(close)
 	_view.add_child(x)
 

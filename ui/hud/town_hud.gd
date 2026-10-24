@@ -6,12 +6,11 @@ extends Control
 
 const T := preload("res://ui/theme/ui_tokens.gd")
 const RANGE := 3.4
-## marker → (label, icon). Doors use their target; activities their activity id.
-const ACTIONS := {
-	"cinema_lobby": ["Enter cinema", "film"], "cafe_interior": ["Enter café", "cup"],
-	"arcade_interior": ["Enter arcade", "joystick"], "home": ["Go home", "home"],
-	"fishing": ["Go fishing", "fish"], "basketball": ["Shoot hoops", "ball"], "sketch": ["Sketch Club", "brush"],
-	"snowballs": ["Snowball fight", "snowflake"], "sled": ["Sled down", "sled"], "bus": ["Take the bus", "bus"],
+## Interactable activity / location / title → dock icon
+const ICONS := {
+	"cinema": "film", "cinema_lobby": "film", "café": "cup", "cafe": "cup", "cafe_interior": "cup",
+	"arcade": "joystick", "arcade_interior": "joystick", "home": "home", "homes": "home",
+	"fishing": "fish", "basketball": "ball", "sketch": "brush", "snowballs": "snowflake", "sled": "sled",
 }
 ## destinations shown on the map and used for the location chip: marker → (label, icon)
 const PLACES := {
@@ -43,6 +42,7 @@ func _ready() -> void:
 	_mic = UIKit.icon_button("mic" if UIRouter.settings["mic"] else "mic_off", "Microphone", 80)
 	_mic.theme_type_variation = "DockButton"
 	_mic.expand_icon = true
+	_mic.add_theme_constant_override("icon_max_width", 0)
 	UIKit.pin(_mic, Vector2(1, 0), Vector2(-62, 62), Vector2(80, 80))
 	_mic.pressed.connect(func() -> void:
 		var m := MicrophoneScreen.new()
@@ -123,35 +123,29 @@ func _update_action(player: Node3D) -> void:
 	if UIRouter.is_open() or (w and w.has_method("is_bus_menu_open") and bool(w.call("is_bus_menu_open"))):
 		_action.visible = false
 		return
+	# the scene builder's Interactables (doors, activity entrances) and the teammate's bus stop
 	var best: Node3D = null
-	var best_d := RANGE
-	var kind := ""
-	var room := _room()
-	if room:
-		for m in room.get_children():
-			if not (m is Marker3D):
-				continue
-			var key := str(m.get_meta("target", m.get_meta("activity", "")))
-			if not ACTIONS.has(key):
-				continue
-			var d := _flat((m as Node3D).global_position - player.global_position)
-			if d < best_d:
-				best_d = d
-				best = m
-				kind = key
-	for stop in get_tree().get_nodes_in_group("bus_stop"):
-		var d := _flat((stop as Node3D).global_position - player.global_position)
+	var best_d := INF
+	for n in get_tree().get_nodes_in_group("interactables") + get_tree().get_nodes_in_group("bus_stop"):
+		if not n.has_method("can_interact") or not bool(n.call("can_interact")):
+			continue
+		var d := _flat((n as Node3D).global_position - player.global_position)
 		if d < best_d:
 			best_d = d
-			best = stop
-			kind = "bus"
+			best = n
 	_action_target = best
-	_action_kind = kind
 	_action.visible = best != null
-	if best:
-		var a: Array = ACTIONS[kind]
-		_action.set_caption(a[0])
-		_action._icon_rect.texture = UIKit.icon(a[1])
+	if best == null:
+		return
+	if best.is_in_group("bus_stop"):
+		_action_kind = "bus"
+		_action.set_caption("Take the bus")
+		_action._icon_rect.texture = UIKit.icon("bus")
+		return
+	_action_kind = "interactable"
+	_action.set_caption(str(best.call("prompt_text")) if best.has_method("prompt_text") else "Enter")
+	var key := str(best.get("activity")) if str(best.get("activity")) != "" else str(best.get("location"))
+	_action._icon_rect.texture = UIKit.icon(ICONS.get(key, ICONS.get(str(best.get("title")).to_lower(), "door")))
 
 
 func _do_action() -> void:
@@ -159,11 +153,8 @@ func _do_action() -> void:
 		return
 	if _action_kind == "bus" and _action_target.has_method("try_open"):
 		_action_target.call("try_open")
-		return
-	# walk into the door volume / onto the activity spot; the world's own triggers take it from there
-	var player := get_tree().get_first_node_in_group("local_player")
-	if player and player.has_method("command_walk_to"):
-		player.call("command_walk_to", _action_target.global_position)
+	elif _action_target.has_method("interact"):
+		_action_target.call("interact", get_tree().get_first_node_in_group("local_player"))
 
 
 func _flat(v: Vector3) -> float:

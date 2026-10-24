@@ -164,6 +164,7 @@ func _init() -> void:
 	cfocus.border_color = T.TEAL
 	cfocus.set_corner_radius_all(16)
 	th.set_stylebox("focus", "CheckButton", cfocus)
+	th.set_constant("icon_max_width", "CheckButton", 0)  # don't inherit Button's icon clamp
 	th.set_color("font_color", "CheckButton", T.NAVY)
 	th.set_color("font_hover_color", "CheckButton", T.NAVY)
 	th.set_color("font_pressed_color", "CheckButton", T.NAVY)
