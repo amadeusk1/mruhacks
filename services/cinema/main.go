@@ -223,7 +223,7 @@ func (s *Server) protect(fn func(http.ResponseWriter, *http.Request, session)) h
 }
 func (s *Server) login(w http.ResponseWriter, r *http.Request) {
 	s.mu.Lock()
-	ip := strings.Split(r.RemoteAddr, ":")[0]
+	ip := clientIP(r)
 	now := time.Now()
 	attempts := s.attempts[ip][:0]
 	for _, t := range s.attempts[ip] {
@@ -687,4 +687,21 @@ func loopbackAddr(addr string) string {
 		return "127.0.0.1:" + port
 	}
 	return net.JoinHostPort(host, port)
+}
+
+// clientIP is the address the login throttle keys on. Behind the pengloo nginx every request
+// arrives from the proxy, so a header is only trusted when the socket peer is internal
+// (loopback/private, i.e. the compose network); nginx overwrites X-Real-IP with the
+// Cloudflare-reported client, so players don't share one throttle bucket.
+func clientIP(r *http.Request) string {
+	peer, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		peer = r.RemoteAddr
+	}
+	if p := net.ParseIP(peer); p != nil && (p.IsLoopback() || p.IsPrivate()) {
+		if h := net.ParseIP(strings.TrimSpace(r.Header.Get("X-Real-IP"))); h != nil {
+			return h.String()
+		}
+	}
+	return peer
 }

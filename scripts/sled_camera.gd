@@ -30,11 +30,12 @@ func _process(delta: float) -> void:
 	if _target == null:
 		return
 	var blend := 1.0 - exp(-follow_smooth * delta)
+	var y := lerpf(global_position.y, _focus().y, 1.0 - exp(-follow_smooth * 0.5 * delta))  # bumps and jumps don't shake the shot
 	global_position = global_position.lerp(_focus(), blend)
+	global_position.y = y
 
 
 func _focus() -> Vector3:
 	var focus := _target.global_position
-	focus.y = 0.0
-	focus.z -= lead
+	focus.z -= lead  # the rider's own height: the run drops several metres, the frame goes down with it
 	return focus

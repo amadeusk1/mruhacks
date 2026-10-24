@@ -62,6 +62,8 @@ static func from_sockets(room: Node3D, model: Node3D, seat_kit: String, face_poi
 		seat.kit = seat_kit
 		seat.activity = seat_activity
 		seat.verb = "Sit"
+		if seat_kit == "cinema":
+			seat.reach = 3.0  # mid-row theatre seats are taken from the aisle: the rows are too tight to walk along
 		room.add_child(seat)
 		seat.global_position = (s as Node3D).global_position
 		seat.seat_point = seat.global_position

@@ -103,6 +103,8 @@ static func span_gaps(body: StaticBody3D, parent: Node, space: PhysicsDirectSpac
 	for v in faces:
 		box = box.expand(v)
 	var c := box.get_center()
+	var deck := _down(space, c, box.end.y + 1.0, box.position.y - 0.1)
+	var level: float = deck.position.y if deck else box.end.y  # the deck, not a bollard or rail top on it
 	var open := []
 	var n := 24
 	for i in n:
@@ -119,8 +121,8 @@ static func span_gaps(body: StaticBody3D, parent: Node, space: PhysicsDirectSpac
 			elif edge != Vector3.INF:
 				break
 			t += 0.2
-		if edge == Vector3.INF:
-			continue
+		if edge == Vector3.INF or edge.y > level + 0.2:
+			continue  # an edge up on a post or rail would lay a plank at knee height across the deck
 		var hole := false
 		var landed := false
 		var d := 0.2
@@ -153,9 +155,8 @@ static func _guarded(space: PhysicsDirectSpaceState3D, edge: Vector3, dir: Vecto
 
 ## Invisible rails along every side of a rectangular walkable (dock, stair flight) that drops
 ## more than a step into water or onto lower ground. Sides that meet a neighbouring module, the
-## ground or a ramp stay open. room_nav carves them: on the deck side that costs nothing (the
-## navmesh already stops short of the drop), and beside a flight it keeps paths off the rail ends.
-## Returns the number of rails.
+## ground or a ramp stay open. Marked nav_keep: the navmesh already stops at the deck edge, so
+## carving them would only narrow the deck. Returns the number of rails.
 const GUARD_SAMPLE := 0.25
 
 
@@ -225,6 +226,7 @@ static func _guard(parent: Node, run: Array, t0: float, t1: float, edge: float, 
 	body.name = "EdgeGuard"
 	body.collision_layer = 2
 	body.collision_mask = 0
+	body.set_meta("nav_keep", true)
 	var hull := ConvexPolygonShape3D.new()
 	hull.points = pts
 	var col := CollisionShape3D.new()
@@ -316,7 +318,9 @@ static func stair_ramps(nodes: Array, parent: Node) -> int:
 		var b: Vector3 = mods[j][1]
 		var along := (b - a).normalized()
 		var low := clampf(0.25 / maxf(along.y, 0.05), 0.45, 1.5)
-		ramp(parent, a - along * low, b + along * 0.15, 1.9, "FlightRamp")  # out to the edge rails: the treads' own collision is off
+		ramp(parent, a - along * low, b + along * 0.15, 1.4, "FlightRamp")
+		# cheeks start where the ramp is already a step above the ground: the foot stays open
+		_cheeks(parent, a + along * clampf(0.4 / maxf(along.y, 0.05), 0.7, 2.0), b + along * 0.15, 1.4)
 		made += 1
 	return made
 
@@ -333,3 +337,21 @@ static func _below(mods: Array, i: int) -> int:
 		if k != i and (mods[k][1] as Vector3).distance_to(mods[i][0]) < 0.6:
 			return k
 	return -1
+
+
+## Low walls along both sides of a flight (layer 2): the stairs are entered at the foot or the
+## top, never over the side of the ramp, where the capsule wedged against lamp posts.
+static func _cheeks(parent: Node, a: Vector3, b: Vector3, width: float) -> void:
+	var basis := Basis.looking_at((b - a).normalized(), Vector3.UP)
+	for side in [-1.0, 1.0]:
+		var body := StaticBody3D.new()
+		body.name = "FlightCheek"
+		body.collision_layer = 2
+		body.collision_mask = 0
+		var shape := BoxShape3D.new()
+		shape.size = Vector3(0.15, 1.2, a.distance_to(b))
+		var col := CollisionShape3D.new()
+		col.shape = shape
+		body.add_child(col)
+		parent.add_child(body)
+		body.global_transform = Transform3D(basis, (a + b) * 0.5 + basis.x * side * (width * 0.5 + 0.075) + basis.y * 0.5)

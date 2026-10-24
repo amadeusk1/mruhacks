@@ -17,9 +17,21 @@ services:
   web:
     image: nginx:1.28-alpine
     restart: unless-stopped
-    depends_on: [game]
+    depends_on: [game, cinema]
     ports: ["18085:80"]
     volumes:
       - ./web:/usr/share/nginx/html:ro
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
     mem_limit: 128m
+  cinema:
+    build: ./cinema            # services/cinema from the same commit (Go gateway + ffmpeg)
+    image: pengloo-cinema:local
+    restart: unless-stopped
+    env_file: ../../secrets/cinema.env   # Emby key + invite codes; kept outside releases and git
+    environment:
+      CINEMA_LISTEN: 0.0.0.0:8095
+      CINEMA_ORIGIN: https://pengloo.party
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: ["ALL"]
+    mem_limit: 1g
+    cpus: 2
