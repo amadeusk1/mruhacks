@@ -280,7 +280,7 @@ func _build() -> void:
 		_trees(props)
 		var target := _find(hoop, "socket_target") if hoop != null else null
 		var hoop_at := target.global_position if target != null else Vector3(0.0, 1.7, -3.05)
-		Net.court_configure(hoop_at, _bounds(court))
+		Net.court_configure(hoop_at, hoop_at, _bounds(court))
 	_ball = AssetPack.spawn("activities", "basketball")
 	if _ball != null:
 		_ball.name = "Ball"

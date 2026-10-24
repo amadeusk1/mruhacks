@@ -67,6 +67,8 @@ var _court_bodies: Dictionary = {}
 var _court_state: Dictionary = {}
 var _court_send := 0.0
 var _court_sig := ""
+var _court_box := AABB()
+var _court_on := false
 
 
 func _ready() -> void:
@@ -245,7 +247,7 @@ func sled_done() -> void:
 
 
 func note_pose(at: Vector3, yaw: float, speed: float, sitting: bool) -> void:
-	if _place_location == "court" and not _place_hidden:
+	if _place_location == "town" and not _place_hidden:
 		_court_bodies[local_id()] = {"x": at.x, "y": at.y, "z": at.z, "yaw": yaw, "speed": speed}
 	if not is_online():
 		return
@@ -363,7 +365,7 @@ func _set_place(id: int, location: String, spawn: String, hidden: bool, igloo: i
 	if hidden or changed:
 		player["bench"] = ""
 		player["fisher"] = ""
-	if location != "court" or hidden:
+	if location != "town" or hidden:
 		_court_bodies.erase(id)
 	_broadcast()
 	_sync_sled_members()
@@ -427,7 +429,7 @@ func _relay_pose(from_id: int, pose: Dictionary) -> void:
 	var sender: Dictionary = _players[from_id]
 	if bool(sender["hidden"]) or str(sender["location"]) == "" or str(sender["location"]) == "sled_hill":
 		return
-	if str(sender["location"]) == "court":
+	if str(sender["location"]) == "town":
 		_court_bodies[from_id] = {
 			"x": float(pose["x"]),
 			"y": float(pose["y"]),
@@ -580,6 +582,7 @@ func _force_offline() -> void:
 	_arc_cab = ""
 	_arc_solo = false
 	_court_bodies.clear()
+	_court_on = false
 	if _court != null:
 		_court.reset()
 		_court_state = _court.view()
@@ -1258,14 +1261,24 @@ func court_witness(id: int, at: Vector3, yaw: float, speed: float) -> void:
 	_court_bodies[id] = {"x": at.x, "y": at.y, "z": at.z, "yaw": yaw, "speed": speed}
 
 
-func court_configure(hoop: Vector3, bounds: AABB) -> void:
+func court_here(at: Vector3) -> bool:
+	return _court_on and _place_location == "town" and not _place_hidden and _inside_court(at)
+
+
+func court_configure(coral: Vector3, teal: Vector3, bounds: AABB) -> void:
+	_court_box = bounds
+	_court_on = true
 	if _court == null or _mode == Mode.CLIENT:
 		return
-	_court.configure(hoop, bounds)
+	_court.configure_ends(coral, teal, bounds)
+	_court_state = _court.view()
 
 
 func court_action(action: String) -> void:
-	if _closing or _court == null or _place_location != "court":
+	if _closing or _court == null or not _court_on:
+		return
+	var mine: Dictionary = _court_bodies.get(local_id(), {})
+	if mine.is_empty() or not _inside_court(Vector3(float(mine["x"]), 0.0, float(mine["z"]))):
 		return
 	if _mode == Mode.CLIENT:
 		request_court.rpc_id(1, action)
@@ -1273,18 +1286,35 @@ func court_action(action: String) -> void:
 	_court.request(local_id(), action)
 
 
+func _inside_court(at: Vector3) -> bool:
+	var pad := 0.45
+	var origin := _court_box.position
+	var size := _court_box.size
+	return at.x >= origin.x - pad and at.x <= origin.x + size.x + pad \
+		and at.z >= origin.z - pad and at.z <= origin.z + size.z + pad
+
+
 func _tick_court(delta: float) -> void:
-	if _court == null or _mode == Mode.CLIENT:
+	if _court == null or not _court_on or _mode == Mode.CLIENT:
 		return
 	var present: Array = []
-	if _place_location == "court" and not _place_hidden:
-		present.append(local_id())
+	if _place_location == "town" and not _place_hidden:
+		var mine: Dictionary = _court_bodies.get(local_id(), {})
+		if not mine.is_empty() and _inside_court(Vector3(float(mine["x"]), 0.0, float(mine["z"]))):
+			present.append(local_id())
 	for id in _players:
 		var player: Dictionary = _players[id]
-		if str(player["location"]) == "court" and not bool(player["hidden"]) and not present.has(int(id)):
+		if str(player["location"]) != "town" or bool(player["hidden"]):
+			continue
+		var body: Dictionary = _court_bodies.get(int(id), {})
+		if body.is_empty() or not _inside_court(Vector3(float(body["x"]), 0.0, float(body["z"]))):
+			continue
+		if not present.has(int(id)):
 			present.append(int(id))
 	if present.is_empty():
-		if str(_court.phase) != "practice" or int(_court.coral_score) != 0 or int(_court.teal_score) != 0:
+		var busy := str(_court.phase) != "practice" or int(_court.coral_score) != 0 or int(_court.teal_score) != 0 \
+			or str(_court.ball_mode) != "loose"
+		if busy:
 			_court.reset()
 			_publish_court(delta)
 		return
@@ -1320,7 +1350,10 @@ func request_court(action: String) -> void:
 	var id := multiplayer.get_remote_sender_id()
 	if not _players.has(id):
 		return
-	if str(_players[id]["location"]) != "court" or bool(_players[id]["hidden"]):
+	if str(_players[id]["location"]) != "town" or bool(_players[id]["hidden"]):
+		return
+	var body: Dictionary = _court_bodies.get(id, {})
+	if body.is_empty() or not _inside_court(Vector3(float(body["x"]), 0.0, float(body["z"]))):
 		return
 	_court.request(id, action)
 

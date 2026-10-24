@@ -568,7 +568,7 @@ func _court_press(action: String) -> bool:
 	var world := get_tree().get_first_node_in_group("world")
 	if world == null or not world.has_method("current_location_id"):
 		return false
-	if str(world.call("current_location_id")) != "court":
+	if not Net.court_here(global_position):
 		return false
 	if action == "shoot" or action == "pass":
 		if not Net.court_carrying():

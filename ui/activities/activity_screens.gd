@@ -94,14 +94,23 @@ func _sketch_intent(action: String, v: Variant, player: Node) -> void:
 				player.call("stand_up")
 
 
-## Decorate the current home interior (the teammate's home scene spawns homes/snow_dome_interior).
+## Decorate the interior the local player is standing in. Only their own home.
 func _open_home_edit() -> Control:
+	var world := get_tree().get_first_node_in_group("world")
+	if world == null or str(world.call("current_location_id")) != "home":
+		return null
+	if int(world.call("home_owner_id")) != Net.local_id():
+		return null
+	var player := get_tree().get_first_node_in_group("local_player") as Node3D
 	var room: Node3D = null
+	var best := INF
 	for n in get_tree().root.find_children("snow_dome_interior*", "Node3D", true, false):
-		room = n
-		break
+		var d := INF if player == null else player.global_position.distance_to((n as Node3D).global_position)
+		if d < best:
+			best = d
+			room = n
 	var cam := get_viewport().get_camera_3d()
-	if room == null or cam == null:
+	if room == null or cam == null or best > 5.0:
 		push_warning("home_edit: no home interior loaded")
 		return null
 	var ui: Control = (load("res://ui/activities/home/decor_ui.gd") as GDScript).new()

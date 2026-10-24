@@ -129,7 +129,6 @@ func _draw_cinema() -> void:
 func _draw_route() -> void:
 	_draw_dashed("plaza", "sled_hill")
 	_draw_dashed("plaza", "cinema")
-	_draw_dashed("town", "court")
 
 
 func _draw_dashed(from_id: String, to_id: String) -> void:

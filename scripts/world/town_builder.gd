@@ -34,6 +34,10 @@ func _enter_tree() -> void:
 	_build_markers(nav)
 	for b in _layout.get("nav_blockers", []):
 		_box_body(nav, _v(b["pos"]), _v(b["size"]), float(b.get("rot_y_deg", 0)), BLOCK_LAYER)
+	var play := Node.new()
+	play.name = "TownCourt"
+	play.set_script(load("res://scripts/town_court.gd"))
+	add_child(play)
 
 
 func _ready() -> void:
@@ -153,6 +157,12 @@ func _place(nav: Node, p: Dictionary) -> void:
 	node.name = str(p.get("name", id.get_file()))
 	node.transform = _xform(p)
 	nav.add_child(node)
+	if id == "activities/basketball_court_half":
+		node.add_to_group("town_court_half")
+	elif id == "activities/basketball_hoop":
+		node.add_to_group("town_hoop")
+	elif id == "activities/scoreboard":
+		node.add_to_group("town_scoreboard")
 	if not (p.get("tints", {}) as Dictionary).is_empty():
 		var colors := {}
 		for role in p["tints"]:
@@ -313,7 +323,7 @@ func _activity_anchor(marker: Marker3D, activity: String) -> void:
 		"sled":
 			_anchor(marker, "Sled Hill", "Ride", "", "sled_hill", "BusArrival")
 		"basketball":
-			_anchor(marker, "The Court", "Play", "", "court", "BusArrival")
+			pass
 		"sled_finish":
 			pass
 		_:

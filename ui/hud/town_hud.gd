@@ -1,7 +1,7 @@
 class_name TownHud
 extends Control
 ## In-world HUD (board "Town HUD Map and Social", panel 1): location chip, mic state, a compact dock
-## (Map / Outfit / Home / Friends / Emotes) and one contextual action for the nearest door/activity.
+## (Map / Outfit / Home / Friends / Emotes, plus Edit inside your own house) and one contextual action.
 ## Lives under the teammate's PlayHud, so it shows and hides with it.
 
 const T := preload("res://ui/theme/ui_tokens.gd")
@@ -27,7 +27,6 @@ const GUTTER := 16.0
 const DOCK_H := 88.0
 const DOCK_BTN := 112.0
 const DOCK_GAP := 12.0
-const DOCK_COUNT := 5
 const MIC_SIZE := 64.0
 const COIN_W := 156.0
 const COIN_GAP := 12.0
@@ -55,6 +54,7 @@ var _chip: PanelContainer
 var _chip_label: Label
 var _mic: Button
 var _dock: HBoxContainer
+var _edit: Button
 var _dock_rect := Rect2()
 var _action: IconTextButton
 var _action_target: Node3D
@@ -86,6 +86,11 @@ func _ready() -> void:
 		var b := UIKit.dock_button(it[0], it[1])
 		b.pressed.connect(it[2])
 		_dock.add_child(b)
+	_edit = UIKit.dock_button("Edit", "brush")
+	_edit.tooltip_text = "Edit furniture"
+	_edit.visible = false
+	_edit.pressed.connect(_edit_furniture)
+	_dock.add_child(_edit)
 	add_child(_dock)
 	_action = UIKit.button("Enter", "primary", "door", Vector2(0, ACTION_H)) as IconTextButton
 	for st in ["normal", "hover", "pressed"]:
@@ -125,7 +130,11 @@ func _layout() -> void:
 	var chat := get_parent().get_node_or_null("Chat") as Control
 	if chat:
 		_place(chat, MARGIN, vp.y - MARGIN - CHAT_H, CHAT_W, CHAT_H)
-	var dock_w := DOCK_COUNT * DOCK_BTN + (DOCK_COUNT - 1) * DOCK_GAP
+	var count := 0
+	for c in _dock.get_children():
+		if c.visible:
+			count += 1
+	var dock_w := count * DOCK_BTN + maxi(count - 1, 0) * DOCK_GAP
 	var band_left := MARGIN + CHAT_W + GUTTER
 	var band_right := vp.x - MARGIN
 	var dock_x := band_left + maxf(0.0, (band_right - band_left - dock_w) * 0.5)
@@ -221,9 +230,11 @@ func _process(delta: float) -> void:
 	var player := get_tree().get_first_node_in_group("local_player") as Node3D
 	if player == null or not player.is_visible_in_tree():
 		_action.visible = false
+		_set_edit(false)
 		return
 	_update_chip(player)
 	_update_action(player)
+	_set_edit(_in_own_interior(player))
 
 
 func _room() -> Node:
@@ -337,6 +348,35 @@ func _go_home() -> void:
 	var w := get_tree().get_first_node_in_group("world")
 	if w and w.has_method("go_to_homes"):
 		w.call("go_to_homes")
+
+
+func _set_edit(show: bool) -> void:
+	if _edit == null or _edit.visible == show:
+		return
+	_edit.visible = show
+	_layout()
+
+
+## The interior sits far from the yard, so a few metres of the snow-dome shell means "inside".
+func _in_own_interior(player: Node3D) -> bool:
+	if _location_id() != "home":
+		return false
+	var w := get_tree().get_first_node_in_group("world")
+	if w == null or not w.has_method("home_owner_id") or int(w.call("home_owner_id")) != Net.local_id():
+		return false
+	var room := _room()
+	if room == null:
+		return false
+	for n in room.find_children("snow_dome_interior*", "Node3D", true, false):
+		if _flat((n as Node3D).global_position - player.global_position) < 5.0:
+			return true
+	return false
+
+
+func _edit_furniture() -> void:
+	if UIRouter.is_open():
+		return
+	ActivityScreens.open("home_edit")
 
 
 func _open_friends() -> void:
