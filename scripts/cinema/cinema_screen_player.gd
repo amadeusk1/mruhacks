@@ -8,6 +8,7 @@ extends Node
 
 signal texture_changed(tex: Texture2D)
 signal playing_changed(on: bool)
+signal state_changed(state: Dictionary)   ## every gateway state poll (GatewaySource builds its snapshot from it)
 
 const SEG := 10.0
 const FPS := 15.0
@@ -99,6 +100,7 @@ func _fetch(i: int) -> void:
 func _on_state(st: Variant) -> void:
 	if st is Dictionary:
 		apply_state(st)
+		state_changed.emit(st)
 
 
 func _on_segment(b: PackedByteArray, i: int, kind: String, key: String) -> void:
