@@ -283,7 +283,7 @@ func _ledges(nav: Node, space: PhysicsDirectSpaceState3D, h: PackedFloat32Array)
 			if y < water:
 				continue
 			for d in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
-				var q := Vector2i(i, j) + d
+				var q: Vector2i = Vector2i(i, j) + d
 				if q.x < 0 or q.y < 0 or q.x >= n or q.y >= n or y - h[q.y * n + q.x] < LEDGE or done.has(Vector2i(i, j)):
 					continue
 				var at := Vector3(-WATER_HALF + i * GROUND_CELL, y, -WATER_HALF + j * GROUND_CELL)

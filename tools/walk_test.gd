@@ -93,7 +93,12 @@ func _ready() -> void:
 
 
 func _test_room() -> void:
+	if _room.get_script() == null or (_room_name == "town" and _room.get("_layout") == null):
+		_fail("unreachable", "ROOM DID NOT BUILD (script error?)", _p.global_position, "")
+		return
 	var targets := _town_targets() if _room_name == "town" else _interior_targets()
+	if targets.size() < 3:
+		_fail("unreachable", "ROOM HAS NO TARGETS (%d)" % targets.size(), _p.global_position, "")
 	for t in targets:
 		await _click(t[0], t[1], t[2] if t.size() > 2 else 1.0)
 	for l in _lines(targets):
