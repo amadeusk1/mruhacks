@@ -14,8 +14,6 @@ func _ready() -> void:
 	add_child(client)
 	var url := OS.get_environment("PENGLOO_CINEMA_URL")
 	client.set_service(url if url != "" else str(ProjectSettings.get_setting("pengloo/cinema/service_url", "")))
-	# shortcut: the player streams whenever this client is signed in and a film is loaded, even with no
-	# screen or overlay open; add a viewer count before signing in outside the cinema.
 	player = CinemaScreenPlayer.new()
 	player.client = client
 	add_child(player)

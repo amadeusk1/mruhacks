@@ -17,9 +17,9 @@ func _ready() -> void:
 			part = a.get_slice("=", 1)
 	url = OS.get_environment("PENGLOO_CINEMA_URL")
 	code = OS.get_environment("PENGLOO_CINEMA_TEST_CODE")
-	if part in ["screen", "pick", "offline", "viewer", "ambience"]:  # feature flags on for this run only
+	if part in ["screen", "pick", "offline", "viewer", "ambience", "idle"]:  # feature flags on for this run only
 		ProjectSettings.set_setting("pengloo/cinema/service_enabled", true)
-		ProjectSettings.set_setting("pengloo/cinema/screen_video", true)
+		ProjectSettings.set_setting("pengloo/cinema/screen_video", part != "idle")
 		ProjectSettings.set_setting("pengloo/cinema/ambience", part == "ambience")
 	room = (load("res://scenes/locations/cinema.tscn") as PackedScene).instantiate() as Node3D
 	add_child(room)  # enter the cinema
@@ -37,6 +37,8 @@ func _ready() -> void:
 			_offline()
 		"ambience":
 			_with_film(_ambience, CinemaService.client)
+		"idle":
+			_with_film(_idle, CinemaService.client)
 		"viewer":
 			_viewer()
 		"room":  # baseline: just enter and leave the cinema
@@ -143,7 +145,10 @@ func _screen(c: CinemaServiceClient) -> void:
 		var frames := CinemaService.player.frames_shown - before
 		notes.append("%d:%d" % [i + 1, frames])
 		var mat := scr.material_override as StandardMaterial3D if scr else null
-		if mat and mat.albedo_texture and frames > 10:
+		var qs := (scr.mesh as QuadMesh).size if scr else Vector2.ONE
+		if i == 0:
+			notes.append("quad=%.2fx%.2f(%.3f)" % [qs.x, qs.y, qs.x / qs.y])
+		if mat and mat.albedo_texture and frames > 10 and absf(qs.x / qs.y - 16.0 / 9.0) < 0.02:
 			good += 1
 		if i == 0 and scr:
 			var hall := scr.hall
@@ -295,3 +300,25 @@ func _ambience(c: CinemaServiceClient) -> void:
 			restored = false
 	me.call("stand_up")
 	_finish(c, dimmed and tinted and pinned and restored, "lights=%d dimmed=%s spill=%s pinned=%s restored_on_pause=%s" % [amb._lights.size(), dimmed, spill.to_html(false), pinned, restored])
+
+
+# ---- download gate: no view open -> no chunk downloads; overlay open -> downloads; closed -> stop ------
+func _idle(c: CinemaServiceClient) -> void:
+	var count := {"n": 0}
+	c.log_line.connect(func(t: String) -> void:
+		if t.begins_with("/api/segment"):
+			count["n"] += 1)
+	await get_tree().create_timer(6.0).timeout
+	var idle_fetches: int = count["n"]
+	var o: Control = load("res://ui/activities/cinema/cinema_watch_overlay.gd").new()
+	UIRouter.push(o)
+	await get_tree().create_timer(6.0).timeout
+	var open_fetches: int = count["n"] - idle_fetches
+	var picture := CinemaService.player.texture != null
+	o.call("close")
+	await get_tree().create_timer(2.0).timeout  # let in-flight requests land
+	var after_close: int = count["n"]
+	await get_tree().create_timer(12.0).timeout  # crosses at least one chunk boundary
+	var later: int = count["n"] - after_close
+	_finish(c, idle_fetches == 0 and open_fetches > 0 and picture and later == 0,
+		"idle=%d open=%d after_close=%d" % [idle_fetches, open_fetches, later])

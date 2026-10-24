@@ -12,6 +12,7 @@ const SCREEN_MATERIAL := "insert_cinema_screen"
 var player: CinemaScreenPlayer
 var hall: Node3D
 var _mat: StandardMaterial3D
+var _fit := Vector2.ONE           ## the screen surface's size; the picture is fitted inside it
 
 
 static func attach(hall: Node3D, player: CinemaScreenPlayer) -> CinemaScreen:
@@ -35,7 +36,18 @@ static func attach(hall: Node3D, player: CinemaScreenPlayer) -> CinemaScreen:
 	var dims := [box.size.x, box.size.y, box.size.z]
 	dims.remove_at(thin)
 	quad.mesh = QuadMesh.new()
-	(quad.mesh as QuadMesh).size = Vector2(maxf(dims[0], dims[1]), minf(dims[0], dims[1]))
+	quad._fit = Vector2(maxf(dims[0], dims[1]), minf(dims[0], dims[1]))
+	(quad.mesh as QuadMesh).size = quad._fit
+	var bars := MeshInstance3D.new()  # full-size black backing: the letterbox / pillarbox bars
+	bars.name = "Bars"
+	bars.mesh = QuadMesh.new()
+	(bars.mesh as QuadMesh).size = quad._fit
+	var black := StandardMaterial3D.new()
+	black.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	black.albedo_color = Color.BLACK
+	bars.material_override = black
+	bars.position = Vector3(0, 0, -0.005)
+	quad.add_child(bars)
 	quad.material_override = mat
 	hall.add_child(quad)
 	quad.position = center + face * (box.size[thin] * 0.5 + 0.02)
@@ -49,9 +61,24 @@ static func attach(hall: Node3D, player: CinemaScreenPlayer) -> CinemaScreen:
 	return quad
 
 
+func _enter_tree() -> void:
+	if player:
+		player.watch(self)
+
+
+func _exit_tree() -> void:
+	if player:
+		player.unwatch(self)
+
+
+## Letterbox / pillarbox: shrink the quad to the film's aspect; the full-size
+## black backing shows as the bars (16:9 on the 4.6 x 2.4 m screen -> thin bars left and right).
 func _on_texture(t: Texture2D) -> void:
 	_mat.albedo_texture = t
 	_mat.albedo_color = Color.WHITE
+	var aspect := float(t.get_width()) / maxf(1.0, float(t.get_height()))
+	var size := Vector2(_fit.y * aspect, _fit.y) if aspect < _fit.x / _fit.y else Vector2(_fit.x, _fit.x / aspect)
+	(mesh as QuadMesh).size = size
 
 
 func _on_playing(on: bool) -> void:
