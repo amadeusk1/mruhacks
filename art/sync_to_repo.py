@@ -45,7 +45,14 @@ def drop_orphan_meta(root):
 # --- 1. asset folders --------------------------------------------------------
 rsync(os.path.join(VAULT, "Models"), os.path.join(REPO, "Models"), [".DS_Store", "*.blend1"])
 rsync(os.path.join(VAULT, "Renders"), os.path.join(REPO, "Renders"), [".DS_Store"])
-rsync(os.path.join(VAULT, "art"), os.path.join(REPO, "art"), ["_wip/", "__pycache__/", ".DS_Store", "*.blend1"])
+rsync(os.path.join(VAULT, "art"), os.path.join(REPO, "art"), ["_wip/", "__pycache__/", ".DS_Store", "*.blend1",
+                                                             "godot/tints.gd", "godot/sockets.gd"])
+# Runtime helpers ship with the game: art/ is excluded from exports (the web build broke without them)
+for f in ("tints.gd", "sockets.gd"):
+    src, dst = os.path.join(VAULT, "art", "godot", f), os.path.join(REPO, "scripts", "assets", f)
+    if not a.dry_run and os.path.exists(src):
+        os.makedirs(os.path.dirname(dst), exist_ok=True)
+        shutil.copy2(src, dst)
 orphans = sum(drop_orphan_meta(os.path.join(REPO, d)) for d in ("Models", "Renders", "art"))
 
 # --- 2. concept images ---------------------------------------------------------

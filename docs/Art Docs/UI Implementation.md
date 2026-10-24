@@ -65,10 +65,10 @@ Other UI branches register screens with `UIScreens.register("wardrobe", callable
 
 | Screen | File | Notes |
 | --- | --- | --- |
-| Main menu | `ui/screens/main_menu.tscn` (project main scene) | Live town backdrop with a slow camera drift (still when Reduce motion is on), PENGLOO PARTY wordmark, live penguin, Play / Settings / Quit |
+| Main menu | `ui/screens/main_menu.tscn` (project main scene) | Live town backdrop with a slow camera drift (still when Reduce motion is on), PENGLOO PARTY wordmark with a penguin head (`ui/icons/penguin_head.svg`) in the first O and a coral spark, live penguin, Play / Settings / Quit |
 | Your Penguin → Choose a World → Joining | `scripts/lobby.gd` | Same signals and methods `world.gd` already used. Name validation, 6 coat swatches (`Net.COATS`), profile saved to `user://profile.cfg` so returning players skip setup. The worlds are the real options: Practice Island (solo), Host a World, Join a Friend. A join failure keeps the choice and offers Retry |
-| Town HUD | `ui/hud/town_hud.gd` (added by `play_hud.gd`) | Location chip (nearest destination), mic state, Map / Outfit / Home / Friends / Emotes dock, contextual action from the scene builder's `Interactable`s (`prompt_text()`/`interact()`) and the bus stop. Hides the Interactables' floating 3D labels while the HUD is present. M = map, R = emotes |
-| Map | `ui/screens/map_screen.gd` | Top-down render of the real town (`ui/map/town_map.png`) with 10 destination chips placed from `town_layout.json` markers and a live player dot. No teleport |
+| Town HUD | `ui/hud/town_hud.gd` (added by `play_hud.gd`) | Location chip (nearest destination), mic state, Map / Outfit / Home / Friends / Emotes dock, contextual action from the scene builder's `Interactable`s (`prompt_text()`/`interact()`) and the bus stop. Hides the Interactables' floating 3D labels while the HUD is present. Also restyles the teammate's chat box (ivory, navy text, bottom aligned with the dock) and fishing-coin badge (theme chip); their logic is untouched. Location names include Casino. M = map, R = emotes |
+| Map | `ui/screens/map_screen.gd` | Angled three-quarter render of the real town (`ui/map/town_map_angled.png`, orthographic at 50° pitch), with the top-down `town_map.png` as fallback. 11 destination chips (Casino from the casino exterior's `socket_door`) and the live player dot are projected through the stored camera (`town_map_angled.json`). No teleport |
 | Friends / Player card | `friends_panel.gd`, `player_card.gd` | There is no friends service yet, so this is the players in the current world. Visit home and Invite to my igloo are real; Mute voice, Block and Report are disabled, with the reason in a tooltip |
 | Emotes | `emote_picker.gd` | Eight tiles with thumbnails rendered from the real anim_emotes clips, plus the board's little effect marks. Plays through `penguin.play_emote()` |
 | Menu, Settings, Controls, Accessibility, Microphone, Connection lost, Leave confirmation | `pause_menu.gd`, `settings_screen.gd`, `controls_screen.gd` (+ `key_capture.gd`), `accessibility_screen.gd`, `microphone_screen.gd`, `connection_lost.gd`, `confirm_dialog.gd` | Controls read and write the live InputMap (`user://controls.cfg`), and Replace/Cancel handles a duplicate key. Voice isn't implemented, so the mic screens store the preference and say so |
@@ -79,15 +79,34 @@ Other UI branches register screens with `UIScreens.register("wardrobe", callable
 | Tool | What it does |
 | --- | --- |
 | `tools/ui_capture.tscn -- --out=/dir/ [--only=a,b]` | Screenshots every screen at 1280×720 |
-| `tools/map_capture.tscn` | Re-renders the map image and the Choose a World thumbnails. Rerun it whenever the town layout changes |
+| `tools/map_capture.tscn` | Re-renders both map images (angled and top-down) and the Choose a World thumbnails. Rerun it whenever the town layout changes |
 | `tools/emote_thumbs.tscn` | Re-renders the emote thumbnails |
 | `ui/tests/compile_all.tscn` | Compiles every script under `ui/`, `tools/` and `scripts/` |
 
 ## Known gaps
 
-- **Wordmark:** the mockup's penguin face inside the "O" isn't drawn.
-- **Map style:** the map is a top-down render, while the mockup draws an angled illustrated island.
+- **Map style:** the map is a real render of the town, not the mockup's painted illustration.
+- **Coins:** fishing awards coins but nothing spends them yet; the badge is kept as a themed chip because it's real gameplay.
 - **Social and voice:** the friend list, voice, block and report need backend services.
 - **Media library:** connection states belong to the cinema UI (activities branch).
 - **Joining colour:** a joining client still gets the host's coat colour, so Net needs to send the preferred colour in `hello()`.
 - **Settings layout:** the "No items here yet" card on the Settings board belongs in inventory, per the note, so it isn't on Settings.
+
+## Activity, wardrobe, home and casino screens (branch `ui/activities`)
+
+Built on the core theme, tokens and components. Each screen is a Control script under `res://ui/activities/` with `preview(state)` for mock data, and the ones that need a server use `apply_state(dict)` to take state and the `intent(action, value)` signal to send player actions. Open them with `ActivityScreens.open(name)` (autoload): `wardrobe`, `inventory`, `home_edit`, `home_choose`, `home_visitors`, `cinema`, `arcade`, `sketch`, `snowballs`, `basketball`. Town interactables reach them automatically through `Activities.requested`. Mockup comparisons are in `art/_wip/ui_cmp_*.png`; keepers are in `Renders/UI/`.
+
+| Screens | Script | Wired to real gameplay? |
+| --- | --- | --- |
+| Wardrobe, Color, Outfit Slots, Inventory | `wardrobe/wardrobe.gd`, `wardrobe/inventory.gd`, `outfit.gd`, `components/penguin_view.gd` | Yes. A live rigged preview; Done saves to `user://outfit.cfg` and re-dresses the local penguin. Remote players still see the default outfit until Net carries appearance |
+| Make It Home (home, decorate, blocked, selected and save) | `home/decor_ui.gd` + `home/decor_editor.gd` | Yes. A grid built from the shell's `cells` and `blocked_cells`; quarter turns rotate footprints; move/rotate/colour/remove (back to inventory); undo; Saving/Saved/Save failed. The layout is saved locally in `user://home_<shell>.json`, and validation runs on the client only |
+| Choose Home, Home Visitors | `home/home_select.gd`, `components/model_thumb.gd` | Saved locally. Who-can-decorate is locked to Only me (no server enforcement yet) |
+| Fishing Ready, Bite, Reel, Result | `scripts/fishing_hud.gd` (teammate's logic, restyled) | Yes. Cast and Cast again are now explicit buttons; the escape inset is shown on its own |
+| Movie Library, Watch Party | `cinema/cinema_ui.gd` + `cinema/cinema_source.gd` | A provider-neutral `CinemaSource` seam (Plex/Emby/Demo) per the Plex plan. The demo source is always labelled. Controller-gated play/pause/seek/tracks; movie and voice volume are separate |
+| Arcade lobby, Live Puck Rally, Results | `arcade/arcade_ui.gd`, `arcade/puck_board.gd` | Solo against the AI is playable (first to 5). Two-player play needs the host to drive `PuckBoard` |
+| Sled Time trial, Run HUD, Finished | `scripts/sled_hud.gd` (restyled; same API as `sled_run.gd`) | Yes. Best time is saved locally. "Next checkpoint" uses a nominal 300 m course until `sled_run` exposes its checkpoints |
+| Snowball HUD and lobby, Basketball HUD, Round complete | `winter/winter_ui.gd` | Mock state only (no match or court gameplay yet). The throw readiness is a cooldown, not ammo |
+| Sketch Club lobby, Prompt, Draw, Guess, Reveal | `sketch/sketch_ui.gd`, `sketch/sketch_canvas.gd` | Mock assignments. The canvas is real, with normalized strokes, limits, undo and clear-confirm. Each client only ever holds its own assignment |
+| Casino roulette, slots, poker, blackjack + reconnecting/waiting/full/insufficient | `casino/*.gd` | Mock state only; there's no casino server. Roulette uses the single-zero board with pending vs accepted bets; poker and blackjack enable only legal actions; hidden cards never appear in state |
+
+Headless check: `ui/tests/compile_all.tscn`. Screenshot harness: `tools/ui_preview.tscn -- --shots=script|state|bg|out;...`.
