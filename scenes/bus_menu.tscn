@@ -1,0 +1,83 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/bus_menu.gd" id="1_menu"]
+[ext_resource type="Script" path="res://scripts/map_board.gd" id="2_board"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_frame"]
+bg_color = Color(0.08, 0.22, 0.4, 0.98)
+border_color = Color(0.86, 0.93, 0.98, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_close"]
+bg_color = Color(0.82, 0.32, 0.28, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="BusMenu" type="CanvasLayer"]
+script = ExtResource("1_menu")
+
+[node name="Dimmer" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.05, 0.1, 0.16, 0.55)
+
+[node name="Center" type="CenterContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Frame" type="PanelContainer" parent="Center"]
+theme_override_styles/panel = SubResource("StyleBoxFlat_frame")
+
+[node name="Margin" type="MarginContainer" parent="Center/Frame"]
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 14
+
+[node name="Column" type="VBoxContainer" parent="Center/Frame/Margin"]
+theme_override_constants/separation = 8
+
+[node name="Header" type="HBoxContainer" parent="Center/Frame/Margin/Column"]
+
+[node name="Title" type="Label" parent="Center/Frame/Margin/Column/Header"]
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.95, 0.97, 1, 1)
+theme_override_font_sizes/font_size = 26
+text = "Map"
+
+[node name="CloseButton" type="Button" parent="Center/Frame/Margin/Column/Header"]
+custom_minimum_size = Vector2(36, 36)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_close")
+theme_override_styles/hover = SubResource("StyleBoxFlat_close")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_close")
+text = "X"
+
+[node name="MapBoard" type="Control" parent="Center/Frame/Margin/Column"]
+custom_minimum_size = Vector2(680, 400)
+mouse_filter = 0
+script = ExtResource("2_board")
+
+[node name="Hint" type="Label" parent="Center/Frame/Margin/Column"]
+theme_override_colors/font_color = Color(0.84, 0.92, 0.98, 1)
+theme_override_font_sizes/font_size = 16
+text = "Click a place to go there."
+horizontal_alignment = 1

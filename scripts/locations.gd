@@ -1,0 +1,46 @@
+extends RefCounted
+class_name LocationCatalog
+
+## Places the bus can reach. Sled Hill is the downhill run.
+
+const ORDER: Array[String] = ["home", "plaza", "sled_hill"]
+
+const _PLACES := {
+	"home": {
+		"title": "Home",
+		"scene": "res://scenes/locations/home.tscn",
+		"map": Vector2(0.3, 0.28),
+	},
+	"plaza": {
+		"title": "Town",
+		"scene": "res://scenes/locations/plaza.tscn",
+		"map": Vector2(0.34, 0.64),
+	},
+	"sled_hill": {
+		"title": "Sled Hill",
+		"scene": "res://scenes/sled_run.tscn",
+		"map": Vector2(0.63, 0.4),
+	},
+}
+
+
+static func ordered_ids() -> Array[String]:
+	var ids: Array[String] = []
+	ids.append_array(ORDER)
+	return ids
+
+
+static func has_location(location_id: String) -> bool:
+	return _PLACES.has(location_id)
+
+
+static func title_of(location_id: String) -> String:
+	return str(_PLACES[location_id]["title"])
+
+
+static func scene_path(location_id: String) -> String:
+	return str(_PLACES[location_id]["scene"])
+
+
+static func map_point(location_id: String) -> Vector2:
+	return _PLACES[location_id]["map"]

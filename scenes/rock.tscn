@@ -1,0 +1,39 @@
+[gd_scene load_steps=4 format=3]
+
+[sub_resource type="StandardMaterial3D" id="Mat_rock"]
+albedo_color = Color(0.42, 0.45, 0.5, 1)
+roughness = 0.94
+
+[sub_resource type="SphereMesh" id="SphereMesh_rock"]
+radius = 0.5
+height = 1.0
+radial_segments = 16
+rings = 8
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_hit"]
+radius = 0.58
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_area"]
+radius = 0.72
+
+[node name="Rock" type="StaticBody3D" groups=["hazard"]]
+collision_layer = 2
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1.35, 0, 0, 0, 0.7, 0, 0, 0, 1.15, 0, 0.38, 0)
+mesh = SubResource("SphereMesh_rock")
+surface_material_override/0 = SubResource("Mat_rock")
+
+[node name="Hit" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.42, 0)
+shape = SubResource("SphereShape3D_hit")
+
+[node name="Hazard" type="Area3D" parent="."]
+collision_layer = 8
+collision_mask = 0
+monitoring = false
+
+[node name="Shape" type="CollisionShape3D" parent="Hazard"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.42, 0)
+shape = SubResource("SphereShape3D_area")

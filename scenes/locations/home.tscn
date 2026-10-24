@@ -1,0 +1,398 @@
+[gd_scene load_steps=19 format=3]
+
+[ext_resource type="Script" path="res://scripts/room_nav.gd" id="1_nav"]
+[ext_resource type="PackedScene" path="res://scenes/bus_stop.tscn" id="2_bus"]
+[ext_resource type="Script" path="res://scripts/doorway.gd" id="3_door"]
+[ext_resource type="Script" path="res://scripts/home.gd" id="4_home"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_unit"]
+size = Vector3(1, 1, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_unit"]
+size = Vector3(1, 1, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_dome"]
+radius = 0.5
+height = 1.0
+radial_segments = 24
+rings = 12
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_rug"]
+top_radius = 0.5
+bottom_radius = 0.5
+height = 0.04
+radial_segments = 24
+
+[sub_resource type="StandardMaterial3D" id="Mat_snow"]
+albedo_color = Color(0.93, 0.95, 0.98, 1)
+roughness = 0.95
+
+[sub_resource type="StandardMaterial3D" id="Mat_ice"]
+albedo_color = Color(0.62, 0.82, 0.92, 1)
+roughness = 0.22
+metallic = 0.04
+
+[sub_resource type="StandardMaterial3D" id="Mat_curb"]
+albedo_color = Color(0.76, 0.82, 0.86, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="Mat_path"]
+albedo_color = Color(0.74, 0.86, 0.93, 1)
+roughness = 0.88
+
+[sub_resource type="StandardMaterial3D" id="Mat_mouth"]
+albedo_color = Color(0.12, 0.18, 0.24, 1)
+roughness = 0.95
+
+[sub_resource type="StandardMaterial3D" id="Mat_wood"]
+albedo_color = Color(0.52, 0.36, 0.24, 1)
+roughness = 0.82
+
+[sub_resource type="StandardMaterial3D" id="Mat_blanket"]
+albedo_color = Color(0.82, 0.89, 0.93, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="Mat_pillow"]
+albedo_color = Color(0.96, 0.97, 0.98, 1)
+roughness = 0.75
+
+[sub_resource type="StandardMaterial3D" id="Mat_rug"]
+albedo_color = Color(0.72, 0.38, 0.32, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="Mat_window"]
+albedo_color = Color(0.72, 0.88, 0.96, 1)
+roughness = 0.15
+emission_enabled = true
+emission = Color(0.62, 0.84, 0.96, 1)
+emission_energy_multiplier = 0.45
+
+[node name="Home" type="Node3D"]
+script = ExtResource("4_home")
+
+[node name="NavigationRegion3D" type="NavigationRegion3D" parent="."]
+script = ExtResource("1_nav")
+
+[node name="YardFloor" type="StaticBody3D" parent="NavigationRegion3D"]
+transform = Transform3D(14, 0, 0, 0, 0.4, 0, 0, 0, 11, 0, -0.2, 0)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="NavigationRegion3D/YardFloor"]
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = SubResource("Mat_snow")
+
+[node name="Collision" type="CollisionShape3D" parent="NavigationRegion3D/YardFloor"]
+shape = SubResource("BoxShape3D_unit")
+
+[node name="WallNorth" type="StaticBody3D" parent="NavigationRegion3D"]
+transform = Transform3D(14.6, 0, 0, 0, 0.9, 0, 0, 0, 0.45, 0, 0.45, -5.75)
+collision_layer = 2
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="NavigationRegion3D/WallNorth"]
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = SubResource("Mat_curb")
+
+[node name="Collision" type="CollisionShape3D" parent="NavigationRegion3D/WallNorth"]
+shape = SubResource("BoxShape3D_unit")
+
+[node name="WallSouth" type="StaticBody3D" parent="NavigationRegion3D"]
+transform = Transform3D(14.6, 0, 0, 0, 0.9, 0, 0, 0, 0.45, 0, 0.45, 5.75)
+collision_layer = 2
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="NavigationRegion3D/WallSouth"]
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = SubResource("Mat_curb")
+
+[node name="Collision" type="CollisionShape3D" parent="NavigationRegion3D/WallSouth"]
+shape = SubResource("BoxShape3D_unit")
+
+[node name="WallWest" type="StaticBody3D" parent="NavigationRegion3D"]
+transform = Transform3D(0.45, 0, 0, 0, 0.9, 0, 0, 0, 11.5, -7.25, 0.45, 0)
+collision_layer = 2
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="NavigationRegion3D/WallWest"]
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = SubResource("Mat_curb")
+
+[node name="Collision" type="CollisionShape3D" parent="NavigationRegion3D/WallWest"]
+shape = SubResource("BoxShape3D_unit")
+
+[node name="WallEast" type="StaticBody3D" parent="NavigationRegion3D"]
+transform = Transform3D(0.45, 0, 0, 0, 0.9, 0, 0, 0, 11.5, 7.25, 0.45, 0)
+collision_layer = 2
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="NavigationRegion3D/WallEast"]
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = SubResource("Mat_curb")
+
+[node name="Collision" type="CollisionShape3D" parent="NavigationRegion3D/WallEast"]
+shape = SubResource("BoxShape3D_unit")
+
+[node name="IglooBlocker" type="StaticBody3D" parent="NavigationRegion3D"]
+transform = Transform3D(3.3, 0, 0, 0, 2.3, 0, 0, 0, 2.7, -1.7, 1.15, -1.75)
+collision_layer = 2
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="NavigationRegion3D/IglooBlocker"]
+visible = false
+mesh = SubResource("BoxMesh_unit")
+
+[node name="Collision" type="CollisionShape3D" parent="NavigationRegion3D/IglooBlocker"]
+shape = SubResource("BoxShape3D_unit")
+
+[node name="PillarL" type="StaticBody3D" parent="NavigationRegion3D"]
+transform = Transform3D(0.42, 0, 0, 0, 1.44, 0, 0, 0, 1.3, -2.85, 0.72, 0.22)
+collision_layer = 2
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="NavigationRegion3D/PillarL"]
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = SubResource("Mat_ice")
+
+[node name="Collision" type="CollisionShape3D" parent="NavigationRegion3D/PillarL"]
+shape = SubResource("BoxShape3D_unit")
+
+[node name="PillarR" type="StaticBody3D" parent="NavigationRegion3D"]
+transform = Transform3D(0.42, 0, 0, 0, 1.44, 0, 0, 0, 1.3, -0.55, 0.72, 0.22)
+collision_layer = 2
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="NavigationRegion3D/PillarR"]
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = SubResource("Mat_ice")
+
+[node name="Collision" type="CollisionShape3D" parent="NavigationRegion3D/PillarR"]
+shape = SubResource("BoxShape3D_unit")
+
+[node name="Dome" type="MeshInstance3D" parent="NavigationRegion3D"]
+transform = Transform3D(3.6, 0, 0, 0, 4.4, 0, 0, 0, 3.4, -1.7, -0.25, -1.55)
+mesh = SubResource("SphereMesh_dome")
+surface_material_override/0 = SubResource("Mat_ice")
+
+[node name="SnowCap" type="MeshInstance3D" parent="NavigationRegion3D"]
+transform = Transform3D(1.7, 0, 0, 0, 0.7, 0, 0, 0, 1.5, -1.65, 1.7, -1.7)
+mesh = SubResource("SphereMesh_dome")
+surface_material_override/0 = SubResource("Mat_snow")
+
+[node name="Lintel" type="MeshInstance3D" parent="NavigationRegion3D"]
+transform = Transform3D(2.5, 0, 0, 0, 0.32, 0, 0, 0, 1.35, -1.7, 1.5, 0.22)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = SubResource("Mat_ice")
+
+[node name="Mouth" type="MeshInstance3D" parent="NavigationRegion3D"]
+transform = Transform3D(1.4, 0, 0, 0, 1.15, 0, 0, 0, 0.18, -1.7, 0.7, -0.2)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = SubResource("Mat_mouth")
+
+[node name="IceChunk" type="StaticBody3D" parent="NavigationRegion3D"]
+transform = Transform3D(1.5, 0, 0, 0, 1.2, 0, 0, 0, 1.3, -5.2, 0.6, -3.2)
+collision_layer = 2
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="NavigationRegion3D/IceChunk"]
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = SubResource("Mat_ice")
+
+[node name="Collision" type="CollisionShape3D" parent="NavigationRegion3D/IceChunk"]
+shape = SubResource("BoxShape3D_unit")
+
+[node name="PathA" type="MeshInstance3D" parent="NavigationRegion3D"]
+transform = Transform3D(0.9, 0, 0, 0, 0.04, 0, 0, 0, 0.75, -1.15, 0.03, 1.45)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = SubResource("Mat_path")
+
+[node name="PathB" type="MeshInstance3D" parent="NavigationRegion3D"]
+transform = Transform3D(0.85, 0, 0, 0, 0.04, 0, 0, 0, 0.7, -0.35, 0.03, 1.85)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = SubResource("Mat_path")
+
+[node name="PathC" type="MeshInstance3D" parent="NavigationRegion3D"]
+transform = Transform3D(0.85, 0, 0, 0, 0.04, 0, 0, 0, 0.7, 0.55, 0.03, 1.6)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = SubResource("Mat_path")
+
+[node name="PathD" type="MeshInstance3D" parent="NavigationRegion3D"]
+transform = Transform3D(0.8, 0, 0, 0, 0.04, 0, 0, 0, 0.65, 1.35, 0.03, 1.3)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = SubResource("Mat_path")
+
+[node name="BusStop" parent="NavigationRegion3D" instance=ExtResource("2_bus")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 2.15, 0, -1.15)
+
+[node name="InFloor" type="StaticBody3D" parent="NavigationRegion3D"]
+transform = Transform3D(7.6, 0, 0, 0, 0.4, 0, 0, 0, 7.6, 80, -0.2, 0)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="NavigationRegion3D/InFloor"]
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = SubResource("Mat_snow")
+
+[node name="Collision" type="CollisionShape3D" parent="NavigationRegion3D/InFloor"]
+shape = SubResource("BoxShape3D_unit")
+
+[node name="InWallNorth" type="StaticBody3D" parent="NavigationRegion3D"]
+transform = Transform3D(8, 0, 0, 0, 1.8, 0, 0, 0, 0.4, 80, 0.9, -3.95)
+collision_layer = 2
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="NavigationRegion3D/InWallNorth"]
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = SubResource("Mat_ice")
+
+[node name="Collision" type="CollisionShape3D" parent="NavigationRegion3D/InWallNorth"]
+shape = SubResource("BoxShape3D_unit")
+
+[node name="InWallSouthL" type="StaticBody3D" parent="NavigationRegion3D"]
+transform = Transform3D(3.05, 0, 0, 0, 1.8, 0, 0, 0, 0.4, 77.525, 0.9, 3.95)
+collision_layer = 2
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="NavigationRegion3D/InWallSouthL"]
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = SubResource("Mat_ice")
+
+[node name="Collision" type="CollisionShape3D" parent="NavigationRegion3D/InWallSouthL"]
+shape = SubResource("BoxShape3D_unit")
+
+[node name="InWallSouthR" type="StaticBody3D" parent="NavigationRegion3D"]
+transform = Transform3D(3.05, 0, 0, 0, 1.8, 0, 0, 0, 0.4, 82.475, 0.9, 3.95)
+collision_layer = 2
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="NavigationRegion3D/InWallSouthR"]
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = SubResource("Mat_ice")
+
+[node name="Collision" type="CollisionShape3D" parent="NavigationRegion3D/InWallSouthR"]
+shape = SubResource("BoxShape3D_unit")
+
+[node name="InWallWest" type="StaticBody3D" parent="NavigationRegion3D"]
+transform = Transform3D(0.4, 0, 0, 0, 1.8, 0, 0, 0, 8, 76.05, 0.9, 0)
+collision_layer = 2
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="NavigationRegion3D/InWallWest"]
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = SubResource("Mat_ice")
+
+[node name="Collision" type="CollisionShape3D" parent="NavigationRegion3D/InWallWest"]
+shape = SubResource("BoxShape3D_unit")
+
+[node name="InWallEast" type="StaticBody3D" parent="NavigationRegion3D"]
+transform = Transform3D(0.4, 0, 0, 0, 1.8, 0, 0, 0, 8, 83.95, 0.9, 0)
+collision_layer = 2
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="NavigationRegion3D/InWallEast"]
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = SubResource("Mat_ice")
+
+[node name="Collision" type="CollisionShape3D" parent="NavigationRegion3D/InWallEast"]
+shape = SubResource("BoxShape3D_unit")
+
+[node name="InLintel" type="MeshInstance3D" parent="NavigationRegion3D"]
+transform = Transform3D(1.9, 0, 0, 0, 0.28, 0, 0, 0, 0.4, 80, 1.7, 3.95)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = SubResource("Mat_ice")
+
+[node name="Bed" type="StaticBody3D" parent="NavigationRegion3D"]
+transform = Transform3D(2.1, 0, 0, 0, 0.38, 0, 0, 0, 1.1, 80, 0.2, -2.35)
+collision_layer = 2
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="NavigationRegion3D/Bed"]
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = SubResource("Mat_wood")
+
+[node name="Collision" type="CollisionShape3D" parent="NavigationRegion3D/Bed"]
+shape = SubResource("BoxShape3D_unit")
+
+[node name="Blanket" type="MeshInstance3D" parent="NavigationRegion3D"]
+transform = Transform3D(1.95, 0, 0, 0, 0.16, 0, 0, 0, 0.95, 80, 0.42, -2.28)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = SubResource("Mat_blanket")
+
+[node name="Pillow" type="MeshInstance3D" parent="NavigationRegion3D"]
+transform = Transform3D(0.65, 0, 0, 0, 0.14, 0, 0, 0, 0.35, 80, 0.5, -2.75)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = SubResource("Mat_pillow")
+
+[node name="Rug" type="MeshInstance3D" parent="NavigationRegion3D"]
+transform = Transform3D(2.1, 0, 0, 0, 1, 0, 0, 0, 1.6, 80, 0.02, 0.2)
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_rug")
+surface_material_override/0 = SubResource("Mat_rug")
+
+[node name="Window" type="MeshInstance3D" parent="NavigationRegion3D"]
+transform = Transform3D(0.12, 0, 0, 0, 0.55, 0, 0, 0, 0.55, 83.75, 1.15, -0.4)
+mesh = SubResource("SphereMesh_dome")
+surface_material_override/0 = SubResource("Mat_window")
+
+[node name="DoorMat" type="MeshInstance3D" parent="NavigationRegion3D"]
+transform = Transform3D(1.3, 0, 0, 0, 0.03, 0, 0, 0, 0.6, 80, 0.02, 2.7)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = SubResource("Mat_rug")
+
+[node name="ExitSnow" type="MeshInstance3D" parent="NavigationRegion3D"]
+transform = Transform3D(2.2, 0, 0, 0, 0.4, 0, 0, 0, 1.6, 80, -0.22, 4.7)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = SubResource("Mat_snow")
+
+[node name="WarmLight" type="OmniLight3D" parent="NavigationRegion3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80, 1.55, -0.2)
+light_color = Color(1, 0.8, 0.58, 1)
+light_energy = 1.35
+omni_range = 6.5
+
+[node name="YardDoor" type="Area3D" parent="."]
+transform = Transform3D(1.3, 0, 0, 0, 1.6, 0, 0, 0, 0.7, -1.7, 0.8, 0.15)
+collision_layer = 0
+collision_mask = 4
+script = ExtResource("3_door")
+spawn_name = "InsideReturn"
+
+[node name="Shape" type="CollisionShape3D" parent="YardDoor"]
+shape = SubResource("BoxShape3D_unit")
+
+[node name="InsideDoor" type="Area3D" parent="."]
+transform = Transform3D(1.75, 0, 0, 0, 1.7, 0, 0, 0, 0.8, 80, 0.85, 3.55)
+collision_layer = 0
+collision_mask = 4
+script = ExtResource("3_door")
+spawn_name = "OutsideSpawn"
+
+[node name="Shape" type="CollisionShape3D" parent="InsideDoor"]
+shape = SubResource("BoxShape3D_unit")
+
+[node name="InsideSpawn" type="Marker3D" parent="."]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 80, 0.2, 0)
+
+[node name="InsideReturn" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80, 0.2, 1.7)
+
+[node name="OutsideSpawn" type="Marker3D" parent="."]
+transform = Transform3D(0.455, 0, 0.89, 0, 1, 0, -0.89, 0, 0.455, -0.2, 0.2, 2.25)
+
+[node name="BusArrival" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.15, 0.2, 1.05)
+
+[node name="HomeLabel" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.7, 2.2, 0.85)
+billboard = 1
+text = "Home"
+font_size = 72
+outline_size = 10
+pixel_size = 0.008
+modulate = Color(0.12, 0.2, 0.32, 1)
+outline_modulate = Color(0.9, 0.95, 1, 1)
