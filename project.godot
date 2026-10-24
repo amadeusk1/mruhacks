@@ -33,10 +33,6 @@ window/size/viewport_height=720
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 
-[filesystem]
-
-import/blender/enabled=true
-
 [gui]
 
 theme/custom="res://ui/theme/pengloo_theme.tres"
