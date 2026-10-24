@@ -178,19 +178,10 @@ static func ramp(parent: Node, a: Vector3, b: Vector3, width := 1.2, name := "Ra
 	return body
 
 
-## Stair modules: a ramp under the steps from socket_bottom to socket_top, overhanging both
-## ends so a flight of modules joins up. Bridges: ramps from each socket_end_* down to the
-## ground outside it when the deck end sits higher than a step.
+## Bridges: ramps from each socket_end_* down to the ground outside it when the deck end sits
+## higher than a step. Stairs are handled per flight by stair_ramps.
 static func add_ramps(node: Node3D, parent: Node, space: PhysicsDirectSpaceState3D) -> int:
 	var made := 0
-	var bottom := node.find_child("socket_bottom", true, false) as Node3D
-	var top := node.find_child("socket_top", true, false) as Node3D
-	if bottom and top:
-		var a := bottom.global_position
-		var b := top.global_position
-		var along := b - a
-		ramp(parent, a - along.normalized() * 0.45, b + along.normalized() * 0.45, 1.4, node.name + "_ramp")
-		made += 1
 	for end in node.find_children("socket_end_*", "Node3D", true, false):
 		var e := (end as Node3D).global_position
 		var out := Vector3(e.x - node.global_position.x, 0, e.z - node.global_position.z).normalized()
@@ -200,3 +191,50 @@ static func add_ramps(node: Node3D, parent: Node, space: PhysicsDirectSpaceState
 			ramp(parent, e - out * 0.3, hit.position + out * 0.3, 1.2, node.name + "_endramp")
 			made += 1
 	return made
+
+
+## One ramp under each flight of stair modules (a module's socket_top meeting the next one's
+## socket_bottom). Per-module ramps left a lip at every joint: modules overlap, so the flight is
+## steeper than each module's own bottom-to-top line. The low end runs on until its end face is
+## buried 0.25 m; the high end barely overlaps the landing, or it pokes up out of it.
+static func stair_ramps(nodes: Array, parent: Node) -> int:
+	var mods := []  # [bottom, top]
+	for n in nodes:
+		var bottom := (n as Node3D).find_child("socket_bottom", true, false) as Node3D
+		var top := (n as Node3D).find_child("socket_top", true, false) as Node3D
+		if bottom and top:
+			mods.append([bottom.global_position, top.global_position])
+	var used := {}
+	var made := 0
+	for i in mods.size():
+		if used.has(i) or _below(mods, i) != -1:
+			continue  # not the foot of a flight
+		var a: Vector3 = mods[i][0]
+		var j := i
+		used[i] = true
+		while true:
+			var nxt := _above(mods, j)
+			if nxt == -1 or used.has(nxt):
+				break
+			used[nxt] = true
+			j = nxt
+		var b: Vector3 = mods[j][1]
+		var along := (b - a).normalized()
+		var low := clampf(0.25 / maxf(along.y, 0.05), 0.45, 1.5)
+		ramp(parent, a - along * low, b + along * 0.15, 1.4, "FlightRamp")
+		made += 1
+	return made
+
+
+static func _above(mods: Array, i: int) -> int:
+	for k in mods.size():
+		if k != i and (mods[k][0] as Vector3).distance_to(mods[i][1]) < 0.6:
+			return k
+	return -1
+
+
+static func _below(mods: Array, i: int) -> int:
+	for k in mods.size():
+		if k != i and (mods[k][1] as Vector3).distance_to(mods[i][0]) < 0.6:
+			return k
+	return -1

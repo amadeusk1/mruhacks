@@ -252,7 +252,9 @@ def homes():
         place("building_finishing/porch_canopy", dsk[0] - fx * 0.62, dsk[1] - fy * 0.62, yaw, z=dsk[2])
 
     # landmark homes on the north street: the treehouse in its fir grove, the A-frame at the west end
-    building("homes/treehouse_exterior", -22.5, 13.6, 0, "Home4", "home")
+    building("homes/treehouse_exterior", -22.5, 13.6, 0, "Home4")            # door is up the stairs: marker at their foot
+    w = at_socket("homes/treehouse_exterior", "socket_approach", -22.5, 13.6, 0, ground(-22.5, 13.6))
+    mark("Home4Door", w[0], w[1], 0, kind="door", target="home", z=w[2])
     building("homes/aframe_cabin_exterior", -33.0, 13.0, 0, "Home5", "home", tints={"roof": "#207D85"})
     grove([("winter/fir_tree_large", -26.9, 17.4, 30, 1.05), ("winter/fir_tree_small", -27.6, 12.0, 200, 0.95),
            ("winter/fir_tree_medium", -17.6, 11.4, 75, 0.9)],
@@ -359,10 +361,6 @@ def cove():
         place(fish, w[0], w[1], 90, z=w[2] - 0.3, tags=DECOR)
     place("fishing/bucket", -27.95, -14.4, 0)
     place("fishing/tackle_crate", -28.6, -15.0, 20)
-    # boathouse dock corner: crate stack and a barrel on the deck edge
-    place("world_misc/crate", -28.6, -21.35, 10, z=zA + 0.06)
-    place("world_misc/crate", -28.6, -21.35, 35, z=zA + 0.59)
-    place("world_misc/barrel", -27.9, -21.45, 0, z=zA + 0.06)
     # pier B: life ring on the rail, a bucket of fish
     place("fishing/life_ring", -11.05, -16.5, 90, z=zB + 0.3)
     place("fishing/bucket_fish", -11.35, -18.0, 0, z=zB + 0.06)
