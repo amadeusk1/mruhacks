@@ -29,6 +29,7 @@ type Provider interface {
 	Open(context.Context, string) (Playback, error)
 	Stop(context.Context, string) error
 	Fetch(context.Context, *url.URL, string) (*http.Response, error)
+	Source(context.Context, string) (*url.URL, error) // original file, for the segment transcoder
 }
 type Emby struct {
 	Base      *url.URL
@@ -182,4 +183,9 @@ func (p *Emby) Fetch(ctx context.Context, u *url.URL, rangeHeader string) (*http
 		return nil, errors.New("Emby stream unavailable")
 	}
 	return resp, nil
+}
+
+// Source is the original media file (Range-capable); Fetch adds the token header.
+func (p *Emby) Source(_ context.Context, id string) (*url.URL, error) {
+	return p.endpoint("/Videos/"+url.PathEscape(id)+"/stream", url.Values{"static": {"true"}}), nil
 }

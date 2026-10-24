@@ -20,6 +20,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"os/exec"
 	"os/signal"
 	"regexp"
 	"strconv"
@@ -66,6 +67,9 @@ type Server struct {
 	seenCommands                 map[string]bool
 	attempts                     map[string][]time.Time
 	tickets                      map[string]handoff
+	sources                      map[string]string // segment token -> media id (segments.go)
+	ffmpeg, selfURL              string
+	ffmpegSlots                  chan struct{}
 }
 
 // handoff lets the game client (which signed in with the invite code) open the embedded video
@@ -83,7 +87,11 @@ func randomID() string {
 	return hex.EncodeToString(b)
 }
 func newServer(p Provider, origin, host, viewer string) *Server {
-	return &Server{provider: p, origin: origin, hostCode: host, viewerCode: viewer, secure: strings.HasPrefix(origin, "https:"), sessions: map[string]*session{}, resources: map[string]mediaURL{}, reverse: map[string]string{}, seenCommands: map[string]bool{}, attempts: map[string][]time.Time{}, tickets: map[string]handoff{}}
+	return &Server{provider: p, origin: origin, hostCode: host, viewerCode: viewer, secure: strings.HasPrefix(origin, "https:"), sessions: map[string]*session{}, resources: map[string]mediaURL{}, reverse: map[string]string{}, seenCommands: map[string]bool{}, attempts: map[string][]time.Time{}, tickets: map[string]handoff{}, sources: map[string]string{}, ffmpeg: ffmpegPath(), selfURL: "http://127.0.0.1:8095", ffmpegSlots: make(chan struct{}, 4)}
+}
+func ffmpegPath() string {
+	p, _ := exec.LookPath("ffmpeg")
+	return p
 }
 func jsonOut(w http.ResponseWriter, v any) {
 	w.Header().Set("Content-Type", "application/json")
@@ -178,6 +186,8 @@ func (s *Server) handler() http.Handler {
 	}))
 	mux.HandleFunc("GET /cinema/api/state", s.protect(func(w http.ResponseWriter, r *http.Request, u session) { s.touch(u.ID); jsonOut(w, s.snapshot()) }))
 	mux.HandleFunc("POST /cinema/api/claim", s.protect(s.claim))
+	mux.HandleFunc("GET /cinema/api/segment", s.protect(s.segment))
+	mux.HandleFunc("GET /cinema/internal/source/{token}", s.internalSource)
 	mux.HandleFunc("POST /cinema/api/control", s.protect(s.control))
 	mux.HandleFunc("GET /cinema/events", s.protect(s.events))
 	mux.HandleFunc("GET /cinema/media/{id}", s.protect(s.media))
@@ -593,6 +603,7 @@ func main() {
 	if addr == "" {
 		addr = "127.0.0.1:8095"
 	}
+	s.selfURL = "http://" + addr
 	log.Printf("Cinema listening on %s; Emby credentials remain server-side", addr)
 	server := &http.Server{Addr: addr, Handler: s.handler(), ReadHeaderTimeout: 10 * time.Second, IdleTimeout: 60 * time.Second}
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)

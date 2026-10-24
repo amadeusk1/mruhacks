@@ -26,6 +26,9 @@ func (p *fakeProvider) Stop(context.Context, string) error { return nil }
 func (p *fakeProvider) Fetch(context.Context, *url.URL, string) (*http.Response, error) {
 	return &http.Response{StatusCode: 200, Header: http.Header{"Content-Type": []string{"application/vnd.apple.mpegurl"}}, Body: io.NopCloser(strings.NewReader("#EXTM3U\nsegment.ts?api_key=secret\n"))}, nil
 }
+func (p *fakeProvider) Source(context.Context, string) (*url.URL, error) {
+	return url.Parse("https://emby.example/emby/Videos/1/stream?static=true")
+}
 func request(s *Server, method, path, body, cookie string) *httptest.ResponseRecorder {
 	r := httptest.NewRequest(method, path, strings.NewReader(body))
 	r.Header.Set("Origin", s.origin)
@@ -198,5 +201,26 @@ func TestHandoffTicketIsSingleUseAndViewOnly(t *testing.T) {
 	}
 	if m := request(s, "GET", "/cinema/api/state", "", surface); m.Code != 200 {
 		t.Fatal("surface cannot read state", m.Code)
+	}
+}
+
+func TestSegmentValidationAndLoopbackSource(t *testing.T) {
+	s := newServer(&fakeProvider{}, "http://localhost", "host", "viewer")
+	if w := request(s, "GET", "/cinema/api/segment?kind=video&start=0&len=5", "", ""); w.Code != 401 {
+		t.Fatal("anonymous segment", w.Code)
+	}
+	viewer := login(t, s, "viewer")
+	for _, q := range []string{"kind=x&start=0&len=5", "kind=video&start=-1&len=5", "kind=video&start=0&len=99", "kind=video&start=NaN&len=5"} {
+		if w := request(s, "GET", "/cinema/api/segment?"+q, "", viewer); w.Code != 400 {
+			t.Fatal(q, w.Code)
+		}
+	}
+	s.ffmpeg = "/bin/true"
+	if w := request(s, "GET", "/cinema/api/segment?kind=video&start=0&len=5", "", viewer); w.Code != 409 {
+		t.Fatal("no film", w.Code)
+	}
+	s.sources["tok"] = "1"
+	if w := request(s, "GET", "/cinema/internal/source/tok", "", ""); w.Code != 404 {
+		t.Fatal("non-loopback source must 404", w.Code)
 	}
 }
