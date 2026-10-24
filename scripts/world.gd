@@ -54,9 +54,9 @@ func _ready() -> void:
 	var arcade := preload("res://scripts/arcade_session.gd").new()
 	arcade.name = "ArcadeSession"
 	add_child(arcade)
-	var roulette := preload("res://scripts/roulette_session.gd").new()
-	roulette.name = "RouletteSession"
-	add_child(roulette)
+	var casino := preload("res://scripts/casino/casino_session.gd").new()
+	casino.name = "CasinoSession"
+	add_child(casino)
 	_apply_launch_args()
 
 

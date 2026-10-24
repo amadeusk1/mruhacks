@@ -1,249 +1,297 @@
 extends Control
-## Roulette at the casino table. Red, black, or green. The wheel is the 3D rotor;
-## this screen only places the bet and reads the purse.
+## Roulette betting board (Images/Casino - Game UI Mockups.png, roulette tile). The 3D wheel stays
+## visible above it (casino_table_fx.gd spins it for everyone); the host draws the pocket.
+## Pick a chip, tap spots to stack pending chips, PLACE sends them (accepted chips turn solid),
+## UNDO clears pending chips or takes back your last placed batch until the betting closes.
+##   apply_state({phase: "betting"|"spinning"|"result"|"idle"|"reconnecting", left, pocket, history,
+##                bets: {spot: chips} (accepted, mine), table_bets, staked, result: {staked, won}, balance})
+##   intent("bet", {bets: [[spot, chips], ...]})   intent("undo", null)   intent("leave", null)
+## Spots: n0..n36, red, black, odd, even, d1/d2/d3.
 
-signal intent(action: String)
+signal intent(action: String, value: Variant)
 
 const A := preload("res://ui/activities/act_style.gd")
-const REDS := [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36]
-const WHEEL := Vector3(-1.2, 0.758, 0.0)
+const K := preload("res://ui/activities/casino/casino_kit.gd")
+const R := preload("res://scripts/casino/casino_rules.gd")
 
 var blocks_world := true
-var _table: Node3D
-var _ball: Node3D
-var _rotor: AnimationPlayer
-var _clip := ""
-var _rotor_speed := 1.0
-var _mark: Label3D
-var _bet := "red"
-var _stake := 1
-var _pocket := 0
-var _spinning := false
-var _angle := 0.4
-var _omega := 0.0
-var _radius := 0.32
-var _closing := false
-var _result: Label
-var _coins: Label
-var _spin: Button
-var _bets := {}
-var _stakes := {}
-
-
-func setup(table: Node3D) -> void:
-	_table = table
-
-
-func wheel_table() -> Node3D:
-	return _table
+var live := false
+var state := {}
+var _chip := 1          # index into K.CHIP_VALUES
+var _pending := {}      # spot -> chips not yet placed
+var _root: Control
+var _note := ""
+var _note_until := 0.0
 
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	mouse_filter = Control.MOUSE_FILTER_STOP
 	theme = UIKit.THEME
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if state.is_empty() and not live:
+		preview("betting")
+
+
+func apply_state(s: Dictionary) -> void:
+	if str(s.get("phase", "")) != "betting":
+		_pending.clear()
+	state = s
 	_build()
-	_bind_wheel()
-	_refresh_coins()
 
 
-func _process(delta: float) -> void:
-	if not _spinning or _ball == null:
-		return
-	_angle += _omega * delta
-	_omega = move_toward(_omega, 0.0, 2.6 * delta)
-	_radius = move_toward(_radius, 0.18, 0.06 * delta)
-	if _rotor != null and _clip != "":
-		_rotor.speed_scale = maxf(_omega * 0.45, 0.15)
-	_place_ball()
-	if _omega > 0.4:
-		return
-	_spinning = false
-	_settle()
+func notice(message: String) -> void:
+	_note = message
+	_note_until = Time.get_ticks_msec() / 1000.0 + 4.0
+	_build()
 
 
 func _build() -> void:
-	var bar := A.panel(16, 18)
-	A.pin(self, bar, Vector4(0.5, 1, 0.5, 1), Vector4(-520, -168, 520, -22))
-	var col := A.vbox(10)
-	bar.add_child(col)
-	var top := A.hbox(16, BoxContainer.ALIGNMENT_CENTER)
-	col.add_child(top)
-	top.add_child(A.label("ROULETTE", 16, A.MUTED, true))
-	_coins = A.label("0 coins", 22, A.NAVY, true)
-	top.add_child(_coins)
-	top.add_child(A.expander())
-	_result = A.label("Bet red, black, or green", 22, A.NAVY, true)
-	top.add_child(_result)
-	var row := A.hbox(12, BoxContainer.ALIGNMENT_CENTER)
-	col.add_child(row)
-	for amount in [1, 5, 10]:
-		var stake := A.button(str(amount), "secondary", "", 22, Vector2(72, 56))
-		stake.pressed.connect(_choose_stake.bind(amount, stake))
-		row.add_child(stake)
-		_stakes[amount] = stake
-	row.add_child(A.label(" ", 8))
-	for color in ["red", "black", "green"]:
-		var bet := A.button(color.capitalize(), "secondary", "", 22, Vector2(118, 56))
-		bet.pressed.connect(_choose_bet.bind(color))
-		row.add_child(bet)
-		_bets[color] = bet
-	_spin = A.button("Spin", "primary", "", 26, Vector2(132, 56))
-	_spin.pressed.connect(_on_spin)
-	row.add_child(_spin)
-	var leave := A.button("Leave", "danger", "leave", 22, Vector2(120, 56))
-	leave.pressed.connect(close)
-	row.add_child(leave)
-	_choose_stake(1, _stakes[1])
-	_choose_bet("red")
+	if _root:
+		_root.queue_free()
+	_root = A.screen_root()
+	_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_root)
+	var fr := K.frame()
+	A.pin(_root, fr, Vector4(0.5, 1, 0.5, 1), Vector4(-620, -372, 620, -10))
+	var v := A.vbox(6)
+	fr.add_child(v)
+	var phase := str(state.get("phase", ""))
+	var left := int(ceil(float(state.get("left", 0))))
+	var status := {"betting": "Betting open  %s" % _clock(left), "spinning": "No more bets", "result": "Next spin  %s" % _clock(left),
+		"idle": "Take a seat to play"}.get(phase, "Connecting...") as String
+	v.add_child(K.header("Roulette", "%s     Play chips: %d" % [status, int(state.get("balance", 0))]))
+	var felt := K.felt(12)
+	v.add_child(felt)
+	var row := A.hbox(16)
+	felt.add_child(row)
+	row.add_child(_side(phase))
+	row.add_child(_board(phase == "betting"))
+	var acts := A.hbox(14, BoxContainer.ALIGNMENT_END)
+	v.add_child(acts)
+	var msg := _message(phase)
+	var m := A.label(msg, 19, A.NAVY, true)
+	m.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	m.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	acts.add_child(m)
+	var undo := K.action("Undo", "secondary", 150)
+	undo.disabled = phase != "betting" or (_pending.is_empty() and (state.get("bets", {}) as Dictionary).is_empty())
+	undo.pressed.connect(_undo)
+	acts.add_child(undo)
+	var place := K.action("Place", "primary", 220)
+	var cost := _pending_total()
+	place.disabled = phase != "betting" or _pending.is_empty() or cost > int(state.get("balance", 0))
+	place.tooltip_text = "Not enough play chips" if cost > int(state.get("balance", 0)) else ""
+	place.pressed.connect(_place)
+	acts.add_child(place)
+	var leave := K.action("Leave", "secondary", 150)
+	leave.pressed.connect(func() -> void: intent.emit("leave", null))
+	acts.add_child(leave)
+	if phase == "reconnecting":
+		A.pin(_root, K.state_card("reconnecting"), Vector4(0.5, 0.5, 0.5, 0.5), Vector4(-230, -150, 230, 150))
+	elif int(state.get("balance", 0)) < 1 and int(state.get("staked", 0)) == 0 and phase in ["betting", "idle"]:
+		_broke()
 
 
-func _choose_stake(amount: int, _button: Button) -> void:
-	if _spinning:
+func _message(phase: String) -> String:
+	if _note != "" and Time.get_ticks_msec() / 1000.0 < _note_until:
+		return _note
+	var res: Dictionary = state.get("result", {})
+	var pocket := int(state.get("pocket", -1))
+	match phase:
+		"spinning":
+			return "Spinning... you have %d chips on the table." % int(state.get("staked", 0)) if int(state.get("staked", 0)) > 0 else "Spinning..."
+		"result":
+			var head := "%d %s" % [pocket, R.roulette_color(pocket).capitalize()]
+			if res.is_empty():
+				return head
+			var won := int(res.get("won", 0))
+			return "%s  ·  you won %d!" % [head, won] if won > 0 else "%s  ·  no luck this spin" % head
+		"betting":
+			if not _pending.is_empty():
+				return "%d chips ready. Press PLACE." % _pending_total()
+			return "Tap the board to bet. %d on the table." % int(state.get("staked", 0)) if int(state.get("staked", 0)) > 0 else "Pick a chip, tap the board."
+	return ""
+
+
+func _side(phase: String) -> Control:
+	var col := A.vbox(8)
+	col.custom_minimum_size = Vector2(250, 0)
+	col.add_child(A.label("Last results", 16, Color(1, 1, 1, 0.8), true))
+	var hist := A.hbox(4)
+	for p in (state.get("history", []) as Array).slice(0, 7):
+		hist.add_child(_pocket_chip(int(p), 30))
+	col.add_child(hist)
+	if phase in ["spinning", "result"] and int(state.get("pocket", -1)) >= 0 and phase == "result":
+		var big := A.hbox(8)
+		big.add_child(_pocket_chip(int(state["pocket"]), 56))
+		col.add_child(big)
+	col.add_child(A.expander())
+	col.add_child(A.label("Play chip:", 16, A.WHITE, true))
+	var chips := A.hbox(6)
+	for i in K.CHIP_VALUES.size():
+		var b := Button.new()
+		b.flat = true
+		b.custom_minimum_size = Vector2(42, 42)
+		b.tooltip_text = "%d chips" % K.CHIP_VALUES[i]
+		b.focus_mode = Control.FOCUS_ALL
+		var dot := K.chip(i, 40, i == _chip)
+		b.add_child(dot)
+		var t := A.label(str(K.CHIP_VALUES[i]), 12, A.NAVY if i == 0 else A.WHITE, true, HORIZONTAL_ALIGNMENT_CENTER)
+		t.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		t.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		b.add_child(t)
+		b.pressed.connect(func() -> void:
+			_chip = i
+			_build())
+		chips.add_child(b)
+	col.add_child(chips)
+	return col
+
+
+func _pocket_chip(n: int, px: int) -> Control:
+	var p := PanelContainer.new()
+	p.custom_minimum_size = Vector2(px, px)
+	p.add_theme_stylebox_override("panel", A.box(_swatch(R.roulette_color(n)), px / 2, 2, Color(1, 1, 1, 0.7), 0))
+	var l := A.label(str(n), int(px * 0.45), A.WHITE, true, HORIZONTAL_ALIGNMENT_CENTER)
+	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	p.add_child(l)
+	return p
+
+
+func _board(open: bool) -> Control:
+	var g := GridContainer.new()
+	g.columns = 1
+	var wrap := A.hbox(0)
+	var zero := _cell("n0", "0", Vector2(52, 150), open)
+	wrap.add_child(zero)
+	var right := A.vbox(0)
+	wrap.add_child(right)
+	var nums := GridContainer.new()
+	nums.columns = 12
+	nums.add_theme_constant_override("h_separation", 0)
+	nums.add_theme_constant_override("v_separation", 0)
+	for r in 3:
+		for col in 12:
+			var n := col * 3 + (3 - r)
+			nums.add_child(_cell("n%d" % n, str(n), Vector2(56, 50), open))
+	right.add_child(nums)
+	var dozens := A.hbox(0)
+	for d in 3:
+		dozens.add_child(_cell("d%d" % (d + 1), ["1 - 12", "13 - 24", "25 - 36"][d], Vector2(224, 40), open))
+	right.add_child(dozens)
+	var outs := A.hbox(0)
+	for o in ["red", "black", "odd", "even"]:
+		outs.add_child(_cell(o, o.to_upper(), Vector2(168, 40), open))
+	right.add_child(outs)
+	return wrap
+
+
+func _cell(spot: String, text: String, sz: Vector2, open: bool) -> Button:
+	var b := Button.new()
+	b.custom_minimum_size = sz
+	b.text = text
+	b.focus_mode = Control.FOCUS_ALL
+	b.disabled = not open
+	var bg := K.FELT_DARK
+	if spot.begins_with("n"):
+		bg = _swatch(R.roulette_color(int(spot.substr(1))))
+	elif spot == "red":
+		bg = _swatch("red").darkened(0.1)
+	elif spot == "black":
+		bg = _swatch("black")
+	var lit: bool = int(state.get("pocket", -1)) >= 0 and str(state.get("phase", "")) == "result" and R.roulette_return(spot, int(state["pocket"])) > 0
+	for st in ["normal", "hover", "pressed", "disabled", "focus"]:
+		var sb := A.box(bg.lightened(0.15) if st == "hover" else bg, 2, 2 if not lit else 4, Color("#F2C230") if lit else Color(1, 1, 1, 0.55), 0)
+		if st == "focus":
+			sb.draw_center = false
+			sb.border_color = Color("#F2C230")
+		b.add_theme_stylebox_override(st, sb)
+	for cname in ["font_color", "font_hover_color", "font_pressed_color", "font_disabled_color", "font_focus_color"]:
+		b.add_theme_color_override(cname, A.WHITE)
+	b.add_theme_font_size_override("font_size", 18 if spot.begins_with("n") else 16)
+	b.pressed.connect(func() -> void:
+		_pending[spot] = int(_pending.get(spot, 0)) + int(K.CHIP_VALUES[_chip])
+		CasinoSfx.play(self, "chip", -12.0)
+		_build())
+	var mine := int((state.get("bets", {}) as Dictionary).get(spot, 0))
+	var pend := int(_pending.get(spot, 0))
+	var others := int((state.get("table_bets", {}) as Dictionary).get(spot, 0)) - mine
+	if mine + pend > 0 or others > 0:
+		var tag := PanelContainer.new()
+		var solid := mine > 0
+		tag.add_theme_stylebox_override("panel", A.box(Color("#F2C230") if solid else Color(1, 1, 1, 0.85), 10, 0, Color.TRANSPARENT, 0))
+		tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var amount := mine + pend if mine + pend > 0 else others
+		var l := A.label(str(amount), 12, A.NAVY, true, HORIZONTAL_ALIGNMENT_CENTER)
+		l.custom_minimum_size = Vector2(26, 0)
+		tag.add_child(l)
+		tag.modulate.a = 1.0 if (mine + pend > 0) else 0.55
+		b.add_child(tag)
+		tag.position = Vector2(sz.x - 30, 2)
+	return b
+
+
+func _place() -> void:
+	if _pending.is_empty():
 		return
-	_stake = amount
-	for n in _stakes:
-		(_stakes[n] as Button).text = str(n) if int(n) != amount else "%s*" % n
+	var list := []
+	for spot in _pending:
+		var left := int(_pending[spot])
+		for i in range(K.CHIP_VALUES.size() - 1, -1, -1):  # break into table chips
+			while left >= int(K.CHIP_VALUES[i]):
+				list.append([spot, int(K.CHIP_VALUES[i])])
+				left -= int(K.CHIP_VALUES[i])
+	_pending.clear()
+	intent.emit("bet", {"bets": list})
+	_build()
 
 
-func _choose_bet(color: String) -> void:
-	if _spinning:
+func _undo() -> void:
+	if not _pending.is_empty():
+		_pending.clear()
+		_build()
 		return
-	_bet = color
-	for key in _bets:
-		(_bets[key] as Button).text = str(key).capitalize() if str(key) != color else "• %s" % str(key).capitalize()
+	intent.emit("undo", null)
 
 
-func _on_spin() -> void:
-	if _spinning:
-		return
-	var hud := _purse()
-	if hud != null and int(hud.coins) < _stake:
-		_result.text = "Not enough coins"
-		return
-	if hud != null:
-		hud.add_coins(-_stake)
-	_pocket = randi() % 37
-	_spinning = true
-	_omega = 12.0
-	_radius = 0.36
-	_spin.disabled = true
-	if _mark:
-		_mark.visible = false
-	_result.text = "Spinning..."
-	_refresh_coins()
-	intent.emit("spin")
+func _broke() -> void:
+	var card := K.state_card("insufficient", "Your purse is empty. Grab a free refill of play chips.")
+	A.pin(_root, card, Vector4(0.5, 0.5, 0.5, 0.5), Vector4(-240, -170, 240, 170))
+	var b := K.action("Free refill", "primary", 220)
+	b.pressed.connect(func() -> void: intent.emit("refill", null))
+	(card.get_child(0) as VBoxContainer).add_child(b)
 
 
-func _settle() -> void:
-	var color := _color_of(_pocket)
-	if _mark:
-		_mark.text = str(_pocket)
-		_mark.modulate = _swatch(color)
-		_mark.visible = true
-	var won := color == _bet
-	if won:
-		var pay := _stake * (14 if color == "green" else 2)
-		var hud := _purse()
-		if hud != null:
-			hud.add_coins(pay)
-		_result.text = "%d %s  ·  you win %d" % [_pocket, color, pay]
-	else:
-		_result.text = "%d %s" % [_pocket, color]
-	_spin.disabled = false
-	if _rotor != null:
-		_rotor.speed_scale = 0.2
-	_refresh_coins()
+func _pending_total() -> int:
+	var n := 0
+	for s in _pending:
+		n += int(_pending[s])
+	return n
 
 
-func _bind_wheel() -> void:
-	if _table == null:
-		return
-	for ap in _table.find_children("*", "AnimationPlayer", true, false):
-		for clip in (ap as AnimationPlayer).get_animation_list():
-			if String(clip).find("rotor") >= 0 or String(clip).ends_with("_spin"):
-				_rotor = ap
-				_clip = String(clip)
-				_rotor_speed = ap.speed_scale
-				if not ap.is_playing():
-					ap.play(_clip)
-				ap.speed_scale = 0.2
-				break
-		if _rotor != null:
-			break
-	_ball = AssetPack.spawn("casino", "roulette_ball")
-	if _ball:
-		_ball.name = "RouletteBall"
-		_table.add_child(_ball)
-		_place_ball()
-	_mark = Label3D.new()
-	_mark.name = "RouletteMark"
-	_mark.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	_mark.font_size = 96
-	_mark.pixel_size = 0.004
-	_mark.outline_size = 18
-	_mark.outline_modulate = Color(0.08, 0.16, 0.2)
-	_mark.position = WHEEL + Vector3(0, 0.32, 0)
-	_mark.visible = false
-	_table.add_child(_mark)
-
-
-func _place_ball() -> void:
-	if _ball == null:
-		return
-	_ball.position = Vector3(
-		WHEEL.x + cos(_angle) * _radius,
-		WHEEL.y + 0.04,
-		WHEEL.z + sin(_angle) * _radius
-	)
-
-
-func _refresh_coins() -> void:
-	var hud := _purse()
-	_coins.text = "%d coins" % (int(hud.coins) if hud != null else 0)
-
-
-func _purse() -> Node:
-	var world := get_tree().get_first_node_in_group("world")
-	if world == null:
-		return null
-	return world.get_node_or_null("PlayHud")
-
-
-func _clear_wheel() -> void:
-	if is_instance_valid(_ball):
-		_ball.queue_free()
-	if is_instance_valid(_mark):
-		_mark.queue_free()
-	if _rotor != null and is_instance_valid(_rotor):
-		_rotor.speed_scale = _rotor_speed
-	_ball = null
-	_mark = null
-	_rotor = null
+func _clock(sec: int) -> String:
+	return "%02d:%02d" % [sec / 60, sec % 60]
 
 
 func close() -> void:
-	if _closing:
-		return
-	_closing = true
-	_spinning = false
-	_clear_wheel()
-	intent.emit("leave")
-	UIRouter.remove(self)
-	queue_free()
-
-
-static func _color_of(n: int) -> String:
-	if n == 0:
-		return "green"
-	return "red" if n in REDS else "black"
+	intent.emit("leave", null)
 
 
 static func _swatch(color: String) -> Color:
 	match color:
 		"red":
-			return Color(0.86, 0.22, 0.18)
+			return Color("#D6453C")
 		"green":
-			return Color(0.16, 0.55, 0.32)
+			return Color("#2E9E5E")
 		_:
-			return Color(0.12, 0.14, 0.18)
+			return Color("#232733")
+
+
+func preview(s: String) -> void:
+	match s:
+		"result":
+			apply_state({"phase": "result", "left": 3, "pocket": 17, "history": [17, 4, 0, 32, 21], "bets": {"n17": 10, "red": 5},
+				"result": {"staked": 15, "won": 360}, "balance": 820})
+		_:
+			apply_state({"phase": "betting", "left": 12, "pocket": -1, "history": [4, 0, 32, 21, 15], "bets": {"red": 10, "n17": 5},
+				"table_bets": {"red": 35, "n17": 5, "d2": 25}, "staked": 15, "balance": 340})
