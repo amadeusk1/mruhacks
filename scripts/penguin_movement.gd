@@ -24,6 +24,7 @@ extends CharacterBody3D
 
 var _click_active := false
 var _input_locked := false
+var _typing_locked := false
 var _phase := 0.0
 var _clips: AnimationPlayer
 var _foot_l: Node3D
@@ -41,6 +42,14 @@ var _seat_bench: Node
 var _seat_point := Vector3.ZERO
 var _stand_point := Vector3.ZERO
 var _pending_bench: Node
+var _remote_peer := 0
+var _net_target := Vector3.ZERO
+var _net_yaw := 0.0
+var _net_speed := 0.0
+var _net_sitting := false
+var _has_net_pose := false
+var _name_label: Label3D
+var _tint_applied := -1
 
 const _GRAVITY := 28.0
 const _CLICK_MASK := 3
@@ -48,7 +57,12 @@ const _FLOOR_LAYER := 1
 
 
 func _ready() -> void:
+	_remote_peer = int(get_meta("remote_peer", 0))
+	if _remote_peer != 0:
+		_setup_remote()
+		return
 	add_to_group("player")
+	add_to_group("local_player")
 	_ensure_actions()
 	agent.target_desired_distance = stop_distance
 	agent.path_desired_distance = 0.5
@@ -69,6 +83,16 @@ func set_travel_locked(locked: bool) -> void:
 		halt()
 
 
+## Chat focus. Stops walking without pulling the penguin out of a seat.
+func set_typing_locked(locked: bool) -> void:
+	_typing_locked = locked
+	if locked:
+		_pending_bench = null
+		_cancel_click()
+		if not _sitting:
+			velocity = Vector3(0.0, velocity.y, 0.0)
+
+
 func is_sitting() -> bool:
 	return _sitting
 
@@ -78,7 +102,7 @@ func current_bench() -> Node:
 
 
 func sit_down(bench: Node, seat: Vector3, yaw: float, stand: Vector3) -> void:
-	if _input_locked:
+	if _blocks_play():
 		return
 	halt()
 	_sitting = true
@@ -108,15 +132,18 @@ func face_point(point: Vector3) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if _input_locked:
+	if _remote_peer != 0 or _blocks_play():
 		return
 	if event.is_action_pressed("click_walk"):
 		_try_click(event)
 
 
 func _physics_process(delta: float) -> void:
+	if _remote_peer != 0:
+		_step_remote(delta)
+		return
 	var direction := Vector3.ZERO
-	var wish := Vector3.ZERO if _input_locked else _camera_wish()
+	var wish := Vector3.ZERO if _blocks_play() else _camera_wish()
 	if _sitting and wish != Vector3.ZERO:
 		stand_up()
 	if _sitting:
@@ -124,6 +151,7 @@ func _physics_process(delta: float) -> void:
 		velocity = Vector3.ZERO
 		_plant_shadow()
 		_animate(delta, 0.0)
+		_publish_pose()
 		return
 	if wish != Vector3.ZERO:
 		if _click_active:
@@ -137,6 +165,7 @@ func _physics_process(delta: float) -> void:
 		velocity = Vector3.ZERO
 		_plant_shadow()
 		_animate(delta, 0.0)
+		_publish_pose()
 		return
 
 	var planar := Vector3(velocity.x, 0.0, velocity.z)
@@ -155,6 +184,7 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 	_plant_shadow()
 	_animate(delta, facing.length())
+	_publish_pose()
 
 
 ## Starts a click-walk to a world point, snapped onto the snow mesh.
@@ -184,6 +214,8 @@ func _try_click(event: InputEvent = null) -> void:
 			return
 	if collider != null and collider.is_in_group("bench") and collider.has_method("try_sit"):
 		if _sitting and _seat_bench == collider:
+			return
+		if collider.has_method("bench_key") and Net.bench_held_by_other(str(collider.call("bench_key"))):
 			return
 		if _sitting:
 			stand_up()
@@ -238,6 +270,13 @@ func _follow_path() -> Vector3:
 	return to_next.normalized()
 
 
+func _blocks_play() -> bool:
+	if _input_locked or _typing_locked:
+		return true
+	var focused := get_viewport().gui_get_focus_owner()
+	return focused is LineEdit
+
+
 func _camera_wish() -> Vector3:
 	var input := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
 	if input.length_squared() < 0.0001:
@@ -288,6 +327,83 @@ func _clear_seat(relocate: bool) -> void:
 	if relocate:
 		global_position = Vector3(_stand_point.x, 0.2, _stand_point.z)
 		velocity = Vector3.ZERO
+	if _remote_peer == 0:
+		Net.release_bench()
+
+
+func present_remote(target: Vector3, yaw: float, speed: float, sitting: bool) -> void:
+	if not _has_net_pose or global_position.distance_to(target) > 2.0:
+		global_position = target
+		rotation.y = yaw
+	_net_target = target
+	_net_yaw = yaw
+	_net_speed = speed
+	_net_sitting = sitting
+	_has_net_pose = true
+
+
+func apply_identity(player_name: String, color_index: int) -> void:
+	if _name_label == null:
+		_name_label = Label3D.new()
+		_name_label.name = "NameLabel"
+		_name_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+		_name_label.font_size = 42
+		_name_label.outline_size = 8
+		_name_label.pixel_size = 0.005
+		_name_label.position = Vector3(0.0, 1.4, 0.0)
+		_name_label.modulate = Color(0.97, 0.98, 1.0)
+		_name_label.outline_modulate = Color(0.08, 0.14, 0.22)
+		_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		add_child(_name_label)
+	_name_label.text = player_name
+	if _tint_applied == color_index:
+		return
+	_tint_applied = color_index
+	var coat := Net.coat_color(color_index)
+	_tint(visual.get_node("Body") as MeshInstance3D, coat)
+	_tint(visual.get_node("FlipperL") as MeshInstance3D, coat)
+	_tint(visual.get_node("FlipperR") as MeshInstance3D, coat)
+
+
+func _setup_remote() -> void:
+	collision_layer = 0
+	collision_mask = 0
+	agent.debug_enabled = false
+	agent.avoidance_enabled = false
+	marker.hide_marker()
+	_pose_placeholder()
+	_clips = _find_clips()
+
+
+func _step_remote(delta: float) -> void:
+	if _has_net_pose:
+		var blend := 1.0 - exp(-18.0 * delta)
+		global_position = global_position.lerp(_net_target, blend)
+		rotation.y = lerp_angle(rotation.y, _net_yaw, blend)
+	if _sitting and not _net_sitting:
+		_restore_feet()
+	_sitting = _net_sitting
+	if _sitting:
+		_seat_point = global_position
+	_plant_shadow()
+	_animate(delta, 0.0 if _net_sitting else _net_speed)
+
+
+func _publish_pose() -> void:
+	if _remote_peer != 0:
+		return
+	Net.note_pose(global_position, rotation.y, Vector2(velocity.x, velocity.z).length(), _sitting)
+
+
+func _tint(mesh: MeshInstance3D, color: Color) -> void:
+	if mesh == null:
+		return
+	var source := mesh.get_surface_override_material(0) as StandardMaterial3D
+	if source == null:
+		return
+	var mat := source.duplicate() as StandardMaterial3D
+	mat.albedo_color = color
+	mesh.set_surface_override_material(0, mat)
 
 
 func _restore_feet() -> void:

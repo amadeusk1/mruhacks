@@ -1,25 +1,52 @@
 extends Node3D
 
-## Owns the penguin and camera. Rooms are swapped under LocationHost.
+## Owns the local penguin, camera, and room swaps.
+## Remote penguins live under Players and only appear in the current place.
+
+const PENGUIN := preload("res://scenes/penguin.tscn")
 
 @onready var _host: Node3D = $LocationHost
 @onready var _penguin = $Penguin
+@onready var _players: Node3D = $Players
 @onready var _menu = $BusMenu
+@onready var _lobby = $Lobby
+@onready var _hud = $PlayHud
 @onready var _camera_rig: Node3D = $CameraRig
 @onready var _world_camera: Camera3D = $CameraRig/Camera3D
 
 var _current_id := ""
 var _traveling := false
 var _activity := false
+var _in_game := false
+var _epoch := 0
 var _penguin_layer := 0
 var _penguin_mask := 0
+var _puppets: Dictionary = {}
+var _poses: Dictionary = {}
+var _place_sig: Dictionary = {}
+var _presence: Label
 
 
 func _ready() -> void:
 	add_to_group("world")
 	_menu.destination_chosen.connect(_on_destination_chosen)
 	_menu.dismissed.connect(_on_menu_dismissed)
-	await travel_to("home", "InsideSpawn")
+	_penguin.set_travel_locked(true)
+	_penguin.visible = false
+	_penguin.process_mode = Node.PROCESS_MODE_DISABLED
+	_hud.set_play_visible(false)
+	_build_presence()
+	_lobby.host_requested.connect(_on_host_pressed)
+	_lobby.join_requested.connect(_on_join_pressed)
+	_lobby.solo_requested.connect(_on_solo_pressed)
+	Net.session_started.connect(_on_session_started)
+	Net.roster_changed.connect(_on_roster_changed)
+	Net.remote_pose.connect(_on_remote_pose)
+	Net.seat_denied.connect(_on_seat_denied)
+	Net.connect_failed.connect(_on_connect_failed)
+	Net.host_lost.connect(_on_host_lost)
+	Net.chat_received.connect(_on_chat)
+	_apply_launch_args()
 
 
 func current_location_id() -> String:
@@ -31,7 +58,7 @@ func is_bus_menu_open() -> bool:
 
 
 func open_bus_menu() -> void:
-	if _traveling or _current_id == "":
+	if _traveling or _current_id == "" or not _in_game:
 		return
 	_menu.open_for(_current_id)
 	_penguin.set_travel_locked(true)
@@ -39,7 +66,7 @@ func open_bus_menu() -> void:
 
 func close_bus_menu() -> void:
 	_menu.dismiss()
-	if not _traveling:
+	if not _traveling and _in_game:
 		_penguin.set_travel_locked(false)
 
 
@@ -48,7 +75,7 @@ func is_traveling() -> bool:
 
 
 func travel_to(location_id: String, spawn_name: String = "BusArrival") -> void:
-	if _traveling or location_id == _current_id:
+	if not _in_game or _traveling or location_id == _current_id:
 		return
 	if not LocationCatalog.has_location(location_id):
 		return
@@ -58,38 +85,57 @@ func travel_to(location_id: String, spawn_name: String = "BusArrival") -> void:
 		if location_id != "plaza":
 			await travel_to("plaza")
 		return
+	var epoch := _epoch
 	_traveling = true
 	_menu.dismiss()
 	_penguin.set_travel_locked(true)
 	_penguin.halt()
+	_despawn_all()
+	if _current_id != "":
+		Net.hide_presence()
 	_clear_room()
 	var packed := load(path) as PackedScene
 	var room := packed.instantiate()
 	_host.add_child(room)
 	_current_id = location_id
-	if room.is_in_group("activity"):
-		_enter_activity()
+	if epoch != _epoch:
 		_traveling = false
 		return
+	if room.is_in_group("activity"):
+		_enter_activity()
+		Net.arrive(location_id, "", true)
+		_traveling = false
+		_sync_puppets()
+		_refresh_presence()
+		return
 	_leave_activity()
-	# room_nav bakes during the room's _ready. The map syncs on the physics step.
 	await get_tree().physics_frame
+	if epoch != _epoch:
+		_traveling = false
+		return
 	_place_penguin(room, spawn_name)
 	await get_tree().physics_frame
+	if epoch != _epoch:
+		_traveling = false
+		return
 	_refresh_stop(room)
 	_penguin.set_travel_locked(false)
+	Net.arrive(location_id, spawn_name, false)
 	_traveling = false
+	_sync_puppets()
+	_refresh_presence()
 
 
 ## Door trip inside the current room. The landing marker is outside the door volume.
 func shift_to_marker(marker_name: String) -> void:
-	if _traveling or _activity or _host.get_child_count() == 0:
+	if not _in_game or _traveling or _activity or _host.get_child_count() == 0:
 		return
 	var room := _host.get_child(0)
 	var marker := room.get_node_or_null(marker_name) as Node3D
 	if marker == null:
 		push_error("Missing spawn marker: %s" % marker_name)
 		return
+	var epoch := _epoch
 	_traveling = true
 	_penguin.set_travel_locked(true)
 	_penguin.halt()
@@ -99,18 +145,31 @@ func shift_to_marker(marker_name: String) -> void:
 	_penguin.halt()
 	_apply_camera(room, marker_name)
 	await get_tree().physics_frame
+	if epoch != _epoch:
+		_traveling = false
+		return
 	_refresh_stop(room)
 	await get_tree().create_timer(0.35).timeout
+	if epoch != _epoch:
+		_traveling = false
+		return
 	if not _menu.visible:
 		_penguin.set_travel_locked(false)
 	_traveling = false
+	_sync_puppets()
 
 
 func _place_penguin(room: Node, spawn_name: String) -> void:
 	var arrival := room.get_node(spawn_name) as Node3D
 	var stop := room.get_node("NavigationRegion3D/BusStop") as Node3D
-	_penguin.global_position = Vector3(arrival.global_position.x, 0.2, arrival.global_position.z)
+	var extra := 0.0
+	if spawn_name == "InsideSpawn" and Net.is_online():
+		extra = float(posmod(Net.local_id() - 1, 4)) * 0.7
+	_penguin.global_position = Vector3(arrival.global_position.x + extra, 0.2, arrival.global_position.z)
 	_penguin.velocity = Vector3.ZERO
+	_penguin.process_mode = Node.PROCESS_MODE_INHERIT
+	_penguin.visible = true
+	_hud.set_play_visible(true)
 	if spawn_name == "BusArrival":
 		_penguin.face_point(stop.global_position)
 	else:
@@ -149,6 +208,7 @@ func _enter_activity() -> void:
 	_penguin.visible = false
 	_penguin.process_mode = Node.PROCESS_MODE_DISABLED
 	_penguin.global_position = Vector3(0.0, -40.0, 0.0)
+	_hud.set_play_visible(false)
 	_camera_rig.set_process(false)
 	_world_camera.current = false
 
@@ -160,7 +220,6 @@ func _leave_activity() -> void:
 	_penguin.collision_layer = _penguin_layer
 	_penguin.collision_mask = _penguin_mask
 	_penguin.visible = true
-	_penguin.process_mode = Node.PROCESS_MODE_INHERIT
 	_camera_rig.set_process(true)
 	_world_camera.current = true
 
@@ -176,6 +235,270 @@ func _on_destination_chosen(location_id: String) -> void:
 
 
 func _on_menu_dismissed() -> void:
-	if _traveling:
+	if _traveling or not _in_game:
 		return
 	_penguin.set_travel_locked(false)
+
+
+func _on_host_pressed() -> void:
+	_lobby.set_busy(true)
+	_lobby.set_status("Opening 127.0.0.1:7777…")
+	var error := Net.host_game(_lobby.player_name())
+	if error != "":
+		_lobby.set_busy(false)
+		_lobby.set_status(error)
+
+
+func _on_join_pressed() -> void:
+	_lobby.set_busy(true)
+	_lobby.set_status("Connecting to 127.0.0.1:7777…")
+	var error := Net.join_game(_lobby.player_name())
+	if error != "":
+		_lobby.set_busy(false)
+		_lobby.set_status(error)
+
+
+func _on_solo_pressed() -> void:
+	_lobby.set_busy(true)
+	Net.play_solo(_lobby.player_name())
+
+
+func _on_connect_failed(message: String) -> void:
+	if _in_game:
+		return
+	_lobby.set_busy(false)
+	_lobby.set_status(message)
+
+
+func _on_session_started() -> void:
+	if _in_game:
+		return
+	_in_game = true
+	_lobby.hide_lobby()
+	var profile := Net.local_profile()
+	_penguin.apply_identity(str(profile["name"]), int(profile["color"]))
+	DisplayServer.window_set_title("%s — %s" % [Net.role_label(), str(profile["name"])])
+	await travel_to("home", "InsideSpawn")
+	_refresh_presence()
+
+
+func _on_host_lost() -> void:
+	_end_session("The host left. Host a new game or join again.")
+
+
+func _end_session(message: String) -> void:
+	_epoch += 1
+	_in_game = false
+	_traveling = false
+	Net.shutdown()
+	_leave_activity()
+	_menu.dismiss()
+	_clear_room()
+	_current_id = ""
+	_despawn_all()
+	_penguin.set_travel_locked(true)
+	_penguin.visible = false
+	_penguin.process_mode = Node.PROCESS_MODE_DISABLED
+	_camera_rig.set_process(true)
+	_world_camera.current = true
+	if _presence != null:
+		_presence.text = ""
+	_hud.set_play_visible(false)
+	_lobby.show_lobby(message)
+
+
+func send_chat(message: String) -> void:
+	var text := message.strip_edges()
+	if text == "":
+		return
+	if text.length() > 80:
+		text = text.substr(0, 80)
+	if Net.is_online():
+		Net.say(text)
+	else:
+		var speaker := str(Net.local_profile()["name"]) if _in_game else "You"
+		_hud.add_line(speaker, text)
+
+
+func _on_chat(speaker: String, message: String) -> void:
+	_hud.add_line(speaker, message)
+
+
+func _on_roster_changed() -> void:
+	if _in_game:
+		var profile := Net.local_profile()
+		_penguin.apply_identity(str(profile["name"]), int(profile["color"]))
+	_sync_puppets()
+	_refresh_presence()
+
+
+func _on_remote_pose(peer_id: int, x: float, y: float, z: float, yaw: float, speed: float, sitting: bool) -> void:
+	_poses[peer_id] = {
+		"at": Vector3(x, y, z),
+		"yaw": yaw,
+		"speed": speed,
+		"sitting": sitting,
+	}
+	var puppet: Node = _puppets.get(peer_id)
+	if puppet == null or not is_instance_valid(puppet):
+		return
+	puppet.present_remote(Vector3(x, y, z), yaw, speed, sitting)
+	puppet.visible = true
+
+
+func _on_seat_denied(key: String) -> void:
+	if not _penguin.is_sitting():
+		return
+	var bench: Object = _penguin.current_bench()
+	if bench != null and is_instance_valid(bench) and bench.has_method("bench_key"):
+		if str(bench.call("bench_key")) != key:
+			return
+	_penguin.stand_up()
+
+
+func _sync_puppets() -> void:
+	if not _in_game or _traveling:
+		return
+	var live: Dictionary = {}
+	for entry in Net.roster():
+		var id := int(entry.get("id", 0))
+		live[id] = true
+		if id == Net.local_id():
+			continue
+		var hidden := bool(entry.get("hidden", false))
+		var location := str(entry.get("location", ""))
+		var sig := "%s|%s" % [location, hidden]
+		if str(_place_sig.get(id, "")) != sig:
+			_place_sig[id] = sig
+			_poses.erase(id)
+			_despawn_puppet(id)
+		if hidden or location == "" or location != _current_id:
+			_despawn_puppet(id)
+			continue
+		_ensure_puppet(entry)
+	var stale: Array = []
+	for id in _puppets.keys():
+		if not live.has(int(id)):
+			stale.append(int(id))
+	for id in stale:
+		_despawn_puppet(id)
+		_place_sig.erase(id)
+		_poses.erase(id)
+
+
+func _ensure_puppet(entry: Dictionary) -> void:
+	var id := int(entry.get("id", 0))
+	var puppet: Node = _puppets.get(id)
+	if puppet == null or not is_instance_valid(puppet):
+		puppet = PENGUIN.instantiate()
+		puppet.set_meta("remote_peer", id)
+		_players.add_child(puppet)
+		_puppets[id] = puppet
+		puppet.visible = false
+		print("Net avatar %s (%s) entered %s" % [str(entry.get("name", "")), id, str(entry.get("location", ""))])
+	puppet.apply_identity(str(entry.get("name", "Penguin")), int(entry.get("color", 0)))
+	if _poses.has(id):
+		var pose: Dictionary = _poses[id]
+		puppet.present_remote(pose["at"], float(pose["yaw"]), float(pose["speed"]), bool(pose["sitting"]))
+		puppet.visible = true
+
+
+func _despawn_puppet(id: int) -> void:
+	if not _puppets.has(id):
+		return
+	var node: Node = _puppets[id]
+	_puppets.erase(id)
+	if is_instance_valid(node):
+		node.visible = false
+		node.process_mode = Node.PROCESS_MODE_DISABLED
+		node.queue_free()
+
+
+func _despawn_all() -> void:
+	for id in _puppets.keys():
+		_despawn_puppet(int(id))
+	_puppets.clear()
+	_poses.clear()
+	_place_sig.clear()
+
+
+func _refresh_presence() -> void:
+	if _presence == null:
+		return
+	if not _in_game or not Net.is_online():
+		_presence.text = ""
+		return
+	var lines: Array[String] = []
+	var mine := Net.local_profile()
+	var self_place := ""
+	for entry in Net.roster():
+		if int(entry.get("id", 0)) == Net.local_id():
+			self_place = _place_label(entry)
+			continue
+		lines.append("%s — %s" % [str(entry.get("name", "Penguin")), _place_label(entry)])
+	var head := "You are %s" % str(mine["name"])
+	if self_place != "":
+		head += " — " + self_place
+	lines.insert(0, head)
+	_presence.text = "\n".join(lines)
+
+
+func _place_label(entry: Dictionary) -> String:
+	var location := str(entry.get("location", ""))
+	var hidden := bool(entry.get("hidden", false))
+	if location == "":
+		return "Arriving"
+	var title := location
+	if LocationCatalog.has_location(location):
+		title = LocationCatalog.title_of(location)
+	if hidden and location != "sled_hill":
+		return "Traveling"
+	return title
+
+
+func _build_presence() -> void:
+	var layer := CanvasLayer.new()
+	layer.layer = 5
+	add_child(layer)
+	_presence = Label.new()
+	_presence.position = Vector2(18, 14)
+	_presence.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_presence.add_theme_font_size_override("font_size", 18)
+	_presence.add_theme_color_override("font_color", Color(0.08, 0.16, 0.24))
+	_presence.add_theme_color_override("font_outline_color", Color(0.98, 0.96, 0.92))
+	_presence.add_theme_constant_override("outline_size", 6)
+	layer.add_child(_presence)
+
+
+func _apply_launch_args() -> void:
+	var host := false
+	var join := false
+	var solo := false
+	var named := ""
+	var seconds := 0
+	for arg in OS.get_cmdline_user_args():
+		if arg == "--net-host":
+			host = true
+		elif arg == "--net-join":
+			join = true
+		elif arg == "--net-solo":
+			solo = true
+		elif arg.begins_with("--net-name="):
+			named = arg.trim_prefix("--net-name=")
+		elif arg.begins_with("--net-seconds="):
+			seconds = int(arg.trim_prefix("--net-seconds="))
+	if named != "":
+		_lobby.set_name_text(named)
+	if seconds > 0:
+		_quit_after(seconds)
+	if host:
+		call_deferred("_on_host_pressed")
+	elif join:
+		call_deferred("_on_join_pressed")
+	elif solo:
+		call_deferred("_on_solo_pressed")
+
+
+func _quit_after(seconds: int) -> void:
+	await get_tree().create_timer(seconds).timeout
+	get_tree().quit()

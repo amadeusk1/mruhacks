@@ -18,10 +18,19 @@ config/name="Club Penguin Movement"
 run/main_scene="res://scenes/main_menu.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")
 
+[autoload]
+
+Travel="*res://scripts/travel.gd"
+Net="*res://scripts/net.gd"
+
 [display]
 
 window/size/viewport_width=1280
 window/size/viewport_height=720
+
+[filesystem]
+
+import/blender/enabled=false
 
 [gui]
 

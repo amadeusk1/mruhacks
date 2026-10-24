@@ -1,9 +1,11 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://scripts/world.gd" id="1_world"]
 [ext_resource type="Script" path="res://scripts/follow_camera.gd" id="2_camera"]
 [ext_resource type="PackedScene" path="res://scenes/penguin.tscn" id="3_penguin"]
 [ext_resource type="PackedScene" path="res://scenes/bus_menu.tscn" id="4_menu"]
+[ext_resource type="PackedScene" path="res://scenes/play_hud.tscn" id="5_hud"]
+[ext_resource type="Script" path="res://scripts/lobby.gd" id="6_lobby"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
 sky_top_color = Color(0.42, 0.66, 0.92, 1)
@@ -33,6 +35,8 @@ shadow_enabled = true
 
 [node name="LocationHost" type="Node3D" parent="."]
 
+[node name="Players" type="Node3D" parent="."]
+
 [node name="Penguin" parent="." instance=ExtResource("3_penguin")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.7, 0.2, 5)
 
@@ -47,3 +51,8 @@ fov = 35.0
 current = true
 
 [node name="BusMenu" parent="." instance=ExtResource("4_menu")]
+
+[node name="Lobby" type="CanvasLayer" parent="."]
+script = ExtResource("6_lobby")
+
+[node name="PlayHud" parent="." instance=ExtResource("5_hud")]

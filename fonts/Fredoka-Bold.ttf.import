@@ -2,13 +2,13 @@
 
 importer="font_data_dynamic"
 type="FontFile"
-uid="uid://buivo0hr3yx08"
-path="res://.godot/imported/BagelFatOne-Regular.ttf-ebe97d21445c0dc704afeae31a1aa3b2.fontdata"
+uid="uid://c1a2g0wj4j42g"
+path="res://.godot/imported/Fredoka-Bold.ttf-982956071f36f4f46b4c1917b3d91565.fontdata"
 
 [deps]
 
-source_file="res://fonts/BagelFatOne-Regular.ttf"
-dest_files=["res://.godot/imported/BagelFatOne-Regular.ttf-ebe97d21445c0dc704afeae31a1aa3b2.fontdata"]
+source_file="res://fonts/Fredoka-Bold.ttf"
+dest_files=["res://.godot/imported/Fredoka-Bold.ttf-982956071f36f4f46b4c1917b3d91565.fontdata"]
 
 [params]
 

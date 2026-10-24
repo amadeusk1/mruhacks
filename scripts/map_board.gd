@@ -5,7 +5,7 @@ extends Control
 signal place_chosen(location_id: String)
 
 const _PIN := preload("res://scripts/map_pin.gd")
-const _FONT := preload("res://fonts/BagelFatOne-Regular.ttf")
+const _FONT := preload("res://fonts/Fredoka-Bold.ttf")
 
 var _current_id := ""
 var _pins: Array = []

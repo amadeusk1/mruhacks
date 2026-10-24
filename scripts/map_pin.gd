@@ -2,7 +2,7 @@ extends Control
 
 ## A place marker on the bus map. The current place does not travel.
 
-const _FONT := preload("res://fonts/BagelFatOne-Regular.ttf")
+const _FONT := preload("res://fonts/Fredoka-Bold.ttf")
 
 signal chosen(location_id: String)
 

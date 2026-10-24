@@ -43,8 +43,25 @@ func approach_point() -> Vector3:
 	return _offset(Vector3(seat_side * _SEAT_X, 0.0, _STAND_Z))
 
 
+func bench_key() -> String:
+	var location := ""
+	var world := get_tree().get_first_node_in_group("world")
+	if world != null and world.has_method("current_location_id"):
+		location = str(world.call("current_location_id"))
+	var room: Node = self
+	while room != null:
+		var parent := room.get_parent()
+		if parent != null and parent.name == "LocationHost":
+			break
+		room = parent
+	var rel := name
+	if room != null:
+		rel = str(room.get_path_to(self))
+	return "%s:%s" % [location, rel]
+
+
 func try_sit(force := false) -> bool:
-	var player := get_tree().get_first_node_in_group("player")
+	var player := _local_player()
 	if player == null or not player.has_method("sit_down"):
 		return false
 	if player.has_method("is_sitting") and bool(player.call("is_sitting")) and player.call("current_bench") == self:
@@ -55,12 +72,14 @@ func try_sit(force := false) -> bool:
 		return false
 	if force and flat.length() > 2.2:
 		return false
+	if not Net.claim_bench(bench_key()):
+		return false
 	player.call("sit_down", self, seat_global(), face_yaw, stand)
 	return true
 
 
 func _process(_delta: float) -> void:
-	var player := get_tree().get_first_node_in_group("player") as Node3D
+	var player := _local_player() as Node3D
 	if player == null:
 		_prompt.visible = false
 		return
@@ -69,7 +88,13 @@ func _process(_delta: float) -> void:
 		here = player.call("current_bench") == self
 	var stand := approach_point()
 	var flat := Vector2(player.global_position.x - stand.x, player.global_position.z - stand.z)
+	var taken := Net.bench_held_by_other(bench_key())
+	_prompt.text = "Taken" if taken else "Click to sit"
 	_prompt.visible = not here and flat.length() < 1.7
+
+
+func _local_player() -> Node:
+	return get_tree().get_first_node_in_group("local_player")
 
 
 func _offset(amount: Vector3) -> Vector3:

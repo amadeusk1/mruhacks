@@ -1,6 +1,6 @@
 [gd_resource type="Theme" format=3]
 
-[ext_resource type="FontFile" path="res://fonts/BagelFatOne-Regular.ttf" id="1_rstb8"]
+[ext_resource type="FontFile" uid="uid://c1a2g0wj4j42g" path="res://fonts/Fredoka-Bold.ttf" id="1_rstb8"]
 
 [resource]
 default_font = ExtResource("1_rstb8")

@@ -16,7 +16,7 @@ func _ready() -> void:
 
 
 func _on_body_entered(body: Node3D) -> void:
-	if not body.is_in_group("player"):
+	if not body.is_in_group("local_player"):
 		return
 	var world := get_tree().get_first_node_in_group("world")
 	if world == null or not world.has_method("shift_to_marker"):

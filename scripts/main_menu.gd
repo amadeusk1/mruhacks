@@ -5,14 +5,14 @@ extends Control
 const TITLE := "Welcome"
 const WORLD_SCENE := "res://scenes/world.tscn"
 
-@onready var _title: Label = $Center/Card/Margin/Column/Title
-@onready var _enter: Button = $Center/Card/Margin/Column/EnterButton
+@onready var _title: Label = $Center/Stack/Title
+@onready var _enter: Button = $Center/Stack/Card/Margin/Column/EnterButton
 
 
 func _ready() -> void:
 	_title.text = TITLE
 	_enter.pressed.connect(_enter_town)
-	$Center/Card/Margin/Column/QuitButton.pressed.connect(_quit)
+	$Center/Stack/Card/Margin/Column/QuitButton.pressed.connect(_quit)
 	_enter.grab_focus()
 
 

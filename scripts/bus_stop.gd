@@ -27,7 +27,7 @@ func is_occupied() -> bool:
 func refresh_occupancy() -> void:
 	_occupied = false
 	for body in _stand.get_overlapping_bodies():
-		if body.is_in_group("player"):
+		if body.is_in_group("local_player"):
 			_occupied = true
 			break
 	_refresh_prompt()
@@ -56,14 +56,14 @@ func _process(_delta: float) -> void:
 
 
 func _on_stand_entered(body: Node3D) -> void:
-	if not body.is_in_group("player"):
+	if not body.is_in_group("local_player"):
 		return
 	_occupied = true
 	_refresh_prompt()
 
 
 func _on_stand_exited(body: Node3D) -> void:
-	if not body.is_in_group("player"):
+	if not body.is_in_group("local_player"):
 		return
 	_occupied = false
 	_refresh_prompt()
