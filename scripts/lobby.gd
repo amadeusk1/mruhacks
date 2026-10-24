@@ -10,7 +10,7 @@ signal solo_requested
 
 const T := preload("res://ui/theme/ui_tokens.gd")
 const PROFILE := "user://profile.cfg"
-const WORLDS := [
+var WORLDS := [
 	{"id": "solo", "name": "Practice Island", "desc": "Explore the island on your own.", "count": "Just you",
 		"action": "Play solo", "thumb": "res://ui/screens/world_thumb_0.png"},
 	{"id": "host", "name": "Host a World", "desc": "Friends on your network can join you.", "count": "Up to 8",
@@ -37,6 +37,9 @@ var _busy := false
 
 
 func _ready() -> void:
+	if OS.has_feature("web"):
+		WORLDS.remove_at(1)
+		WORLDS[1] = {"id": "join", "name": "Pengloo Party", "desc": "Join the shared island with friends.", "count": "Online", "action": "Join world", "thumb": "res://ui/screens/world_thumb_1.png"}
 	layer = 20
 	_load_profile()
 	_build()
@@ -251,7 +254,7 @@ func _build_choose() -> Control:
 	_go.pressed.connect(_go_pressed)
 	bottom.add_child(_go)
 	col.add_child(bottom)
-	_select(int(_profile.get("world", 0)))
+	_select(int(_profile.get("world", 1 if OS.has_feature("web") else 0)))
 	return card
 
 
