@@ -9,6 +9,7 @@ const LAYOUT := "res://Models/world/town_layout.json"
 const STUB := "res://scripts/world/town_layout_stub.json"
 const ENV_FORWARD := "res://scenes/env/town_env_forward.tres"
 const ENV_COMPAT := "res://scenes/env/town_env_compat.tres"
+const FOLIAGE := preload("res://scripts/world/foliage_batch.gdshader")
 const BATCH_MIN := 6  # identical untinted, part-less props batched into one MultiMesh
 const FLOOR_LAYER := 1
 const BLOCK_LAYER := 2
@@ -107,7 +108,7 @@ func _build_placements(nav: Node) -> void:
 	var groups := {}
 	for p in _layout["placements"]:
 		var id := str(p["id"])
-		var batchable: bool = (p.get("tints", {}) as Dictionary).is_empty() and AssetRegistry.parts(id).is_empty() \
+		var batchable: bool = (p.get("tints", {}) as Dictionary).is_empty() and _sway_only(id) \
 			and not (p.get("tags", []) as Array).has("walkable") and not (p.get("tags", []) as Array).has("blocker")
 		groups.get_or_add(id if batchable else "", []).append(p)
 	for id in groups:
@@ -146,17 +147,26 @@ func _place(nav: Node, p: Dictionary) -> void:
 	_start_ambient(node)
 
 
+## Assets whose only moving parts sway (tree crowns, shrub tops) batch fine: the sway moves
+## into the foliage shader. Doors, flags and the like need real nodes.
+func _sway_only(id: String) -> bool:
+	for part in AssetRegistry.parts(id).values():
+		if part.get("motion", "") != "sway":
+			return false
+	return true
+
+
 func _batch(nav: Node, id: String, items: Array) -> void:
 	var proto := _spawn(id)
 	if proto == null:
 		return
+	var parts := AssetRegistry.parts(id)
 	for mi in proto.find_children("*", "MeshInstance3D", true, false):
 		var local := _local_to(proto, mi)
+		var sway := float(parts.get(String(mi.get_parent().name), parts.get(String(mi.name), {})).get("amp_deg", 0.0))
 		var mesh := mi.mesh.duplicate() as Mesh
-		for s in mesh.get_surface_count():  # Tints.prepare put the shade-enabled copies in overrides
-			var ov: Material = mi.get_surface_override_material(s)
-			if ov:
-				mesh.surface_set_material(s, ov)
+		for s in mesh.get_surface_count():
+			mesh.surface_set_material(s, _batch_material(mi.get_active_material(s), sway))
 		var mm := MultiMesh.new()
 		mm.transform_format = MultiMesh.TRANSFORM_3D
 		mm.mesh = mesh
@@ -172,6 +182,21 @@ func _batch(nav: Node, id: String, items: Array) -> void:
 
 func _spawn(id: String) -> Node3D:  # teammate's loader: instancing plus Tints.prepare
 	return AssetPack.spawn(id.get_base_dir(), id.get_file())
+
+
+## Foliage shader version of a surface: same colour/shade, sway, and the occlusion hole.
+## Glowing surfaces (lanterns) keep their own material.
+func _batch_material(src: Material, sway: float) -> Material:
+	var base := src as BaseMaterial3D
+	if base == null or base.emission_enabled or base.transparency != BaseMaterial3D.TRANSPARENCY_DISABLED:
+		return src
+	var m := ShaderMaterial.new()
+	m.shader = FOLIAGE
+	m.set_shader_parameter("albedo", base.albedo_color)
+	m.set_shader_parameter("use_vertex_shade", base.vertex_color_use_as_albedo)
+	m.set_shader_parameter("roughness", base.roughness)
+	m.set_shader_parameter("sway_deg", sway)
+	return m
 
 
 func _local_to(root: Node3D, n: Node3D) -> Transform3D:

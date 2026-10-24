@@ -41,8 +41,11 @@ func _physics_process(delta: float) -> void:
 			_collect(room)
 	if _player == null or not _player.visible or _room == null:
 		_set_silhouette(false)
+		RenderingServer.global_shader_parameter_set("occlusion_radius", 0.0)
 		return
 	var target := _player.global_position + Vector3(0, 0.45, 0)
+	RenderingServer.global_shader_parameter_set("occlusion_target", target)  # batched foliage hole
+	RenderingServer.global_shader_parameter_set("occlusion_radius", 0.11)
 	var from := _camera.global_position
 	var to := target - (target - from).normalized() * 0.35
 	var support := _support_root()

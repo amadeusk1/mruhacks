@@ -80,3 +80,14 @@ interact={
 3d_physics/layer_2="blockers"
 3d_physics/layer_3="penguin"
 3d_physics/layer_4="hazards"
+
+[shader_globals]
+
+occlusion_target={
+"type": "vec3",
+"value": Vector3(0, 0, 0)
+}
+occlusion_radius={
+"type": "float",
+"value": 0.0
+}
