@@ -588,7 +588,7 @@ def layout():
         return not keep_out.blocked(p, r)
     def density(p):
         """0..1 tree density: the deep coastal forest ring only (between-district clumps are hand-placed)."""
-        ring = 1 - smoothstep(-9.0, -4.5, island_d(p))
+        ring = smoothstep(-9.0, -4.5, island_d(p))                  # 1 within 4.5 m of the coast, 0 inland of 9 m
         return ring * (0.75 + 0.25 * RNG.random())
     planted = 0
     for _ in range(24000):
