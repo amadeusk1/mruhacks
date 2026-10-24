@@ -131,6 +131,10 @@ func _enter_tree() -> void:
 			_seats(nav, placed[g[0]], g)
 	if _cfg.has("shell_seats"):
 		_shell_seats(nav, sockets, _cfg["shell_seats"])
+	for key in placed:  # loose seating props (the arcade bench); seats the games made above win
+		var pl: Array = placed[key]
+		if pl[0]:
+			(func(): SeatSpot.furnish(nav, pl[0], pl[1], str(AssetRegistry.entry(pl[1]).get("category", "")))).call_deferred()
 	for l in _cfg.get("lights", []):
 		var light := OmniLight3D.new()  # warm lamp pools
 		light.light_color = Color("#FFC76B")

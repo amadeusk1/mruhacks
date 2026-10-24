@@ -160,7 +160,8 @@ func _build_placements(nav: Node) -> void:
 	for p in _layout["placements"]:
 		var id := str(p["id"])
 		var batchable: bool = (p.get("tints", {}) as Dictionary).is_empty() and _sway_only(id) \
-			and not (p.get("tags", []) as Array).has("walkable") and not (p.get("tags", []) as Array).has("blocker")
+			and not (p.get("tags", []) as Array).has("walkable") and not (p.get("tags", []) as Array).has("blocker") \
+			and not AssetRegistry.sockets(id).keys().any(func(k): return String(k).begins_with("socket_seat"))  # seats need real nodes
 		groups.get_or_add(id if batchable else "", []).append(p)
 	for id in groups:
 		if id != "" and groups[id].size() >= BATCH_MIN:
@@ -216,6 +217,8 @@ func _place(nav: Node, p: Dictionary) -> void:
 	_start_ambient(node)
 	if id == "activities/communal_table":  # Sketch Club: sitting here joins the table's game
 		(func(): SeatSpot.from_sockets(nav, node, "sketch", node.global_position, "sketch")).call_deferred()  # needs globals
+	else:  # every other bench, stool and chair (deferred after the Sketch Club seats, which win)
+		(func(): SeatSpot.furnish(nav, node, id, str(AssetRegistry.entry(id).get("category", "")))).call_deferred()
 
 
 ## A solid prop left hovering (its ground was flattened or regraded after it was placed) drops

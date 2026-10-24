@@ -453,6 +453,15 @@ func _try_click(event: InputEvent = null) -> void:
 		_pending_bench = collider
 		_begin_click(_closest_nav_point(collider.call("approach_point")))
 		return
+	var seat := SeatSpot.pick(get_tree(), raw, 0.7)  # benches, stools, chairs: walk over, then sit
+	if seat != null and not (_sitting and _seat_bench == seat):
+		if _sitting:
+			stand_up()
+		if Vector2(global_position.x - seat.seat_point.x, global_position.z - seat.seat_point.z).length() < 0.8 and seat.try_sit():
+			return
+		_pending_bench = seat
+		_begin_click(_closest_nav_point(seat.seat_point))
+		return
 	if not _sitting and _court_press("shoot"):
 		_cancel_click()
 		return
@@ -524,7 +533,9 @@ func _cancel_click() -> void:
 func _follow_path() -> Vector3:
 	var target := agent.target_position
 	var offset := Vector2(global_position.x - target.x, global_position.z - target.z)
-	if offset.length() <= stop_distance:
+	var seat := _pending_bench as SeatSpot  # the seat's furniture is solid: arriving beside it is enough
+	var at_seat := seat != null and Vector2(global_position.x - seat.seat_point.x, global_position.z - seat.seat_point.z).length() < 1.1
+	if offset.length() <= stop_distance or at_seat:
 		var bench := _pending_bench
 		_pending_bench = null
 		_cancel_click()
