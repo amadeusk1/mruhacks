@@ -105,9 +105,30 @@ func _build_wordmark() -> void:
 	(box.get_child(1) as Control).custom_minimum_size.x = 0
 	(box.get_child(1) as Label).position.x = 60
 	add_child(box)
+	get_tree().process_frame.connect(_o_face.bind(box.get_child(0) as Label, box), CONNECT_ONE_SHOT)
 	var sparks := Sparks.new()
-	sparks.position = Vector2(800, 240)
+	sparks.position = Vector2(660, 250)
 	add_child(sparks)
+
+
+## Penguin head sitting in the counter of the first "O" of PENGLOO, like the mockup's W●RLD.
+func _o_face(word: Label, box: Control) -> void:
+	var f := word.get_theme_font("font")
+	var fs := word.get_theme_font_size("font_size")
+	var ow := f.get_string_size("O", HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
+	var x0 := f.get_string_size("PENG", HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x + ow * 0.8  # tuned against the render (kerning + outline)
+	var asc := f.get_ascent(fs)
+	var cap := f.get_string_size("O", HORIZONTAL_ALIGNMENT_LEFT, -1, fs).y
+	var head := TextureRect.new()
+	head.texture = UIKit.icon("penguin_head")
+	head.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	head.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	var d := ow * 0.62
+	head.size = Vector2(d, d)
+	head.position = word.position + Vector2(x0 + (ow - d) * 0.5, word.size.y * 0.5 - d * 0.5 + fs * 0.02)
+	head.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	word.add_child(head)
+	head.position -= word.position
 
 
 class Sparks extends Control:
