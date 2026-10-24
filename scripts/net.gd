@@ -73,6 +73,7 @@ var _voice_pos: Dictionary = {}     # host: peer -> last pose position (voice pr
 var _voice_budget: Dictionary = {}  # host: peer -> bytes allowed this second
 const VOICE_RANGE := 20.0
 const VOICE_BYTES_PER_SEC := 24000
+var court_loft := 0.5  # how high the local player aims a shot: 0 flattest, 1 tallest lob
 
 
 func _ready() -> void:
@@ -1361,6 +1362,8 @@ func court_action(action: String) -> void:
 	var mine: Dictionary = _court_bodies.get(local_id(), {})
 	if mine.is_empty() or not _inside_court(Vector3(float(mine["x"]), 0.0, float(mine["z"]))):
 		return
+	if action == "shoot":
+		action = "shoot:%.2f" % court_loft
 	if _mode == Mode.CLIENT:
 		request_court.rpc_id(1, action)
 		return

@@ -39,6 +39,8 @@ func _ready() -> void:
 			_with_film(_ambience, CinemaService.client)
 		"idle":
 			_with_film(_idle, CinemaService.client)
+		"default":
+			_default()
 		"viewer":
 			_viewer()
 		"room":  # baseline: just enter and leave the cinema
@@ -116,7 +118,7 @@ func _overlay(c: CinemaServiceClient) -> void:
 		var o: Control = load("res://ui/activities/cinema/cinema_watch_overlay.gd").new()
 		UIRouter.push(o)
 		var before := CinemaService.player.frames_shown
-		await get_tree().create_timer(6.0 if i == 0 else 3.0).timeout  # first open waits for the first chunk
+		await get_tree().create_timer(10.0 if i == 0 else 3.0).timeout  # cold start: first chunk transcodes (~4-8 s)
 		var p: CinemaScreenPlayer = o.get("player")
 		var pic := (o.get("_picture") as TextureRect).texture
 		var shown := p.frames_shown - before
@@ -322,3 +324,17 @@ func _idle(c: CinemaServiceClient) -> void:
 	var later: int = count["n"] - after_close
 	_finish(c, idle_fetches == 0 and open_fetches > 0 and picture and later == 0,
 		"idle=%d open=%d after_close=%d" % [idle_fetches, open_fetches, later])
+
+
+# ---- default config (no PENGLOO_CINEMA_URL): production URL; unreachable/undeployed -> labelled Demo ------
+func _default() -> void:
+	var url_ok := CinemaService.service_url() == "https://pengloo.party/cinema/"
+	Activities.request("cinema", room.find_child("CinemaLibraryKiosk", true, false), null)
+	await _until(func() -> bool:
+		var u: Control = UIRouter.top()
+		return u != null and u.get("source") != null and str(u.get("source").status) in ["demo", "signed_out"], 20.0)
+	var ui: Control = UIRouter.top()
+	var st := str(ui.get("source").status) if ui and ui.get("source") else "none"
+	if ui:
+		ui.call("close")
+	_done(url_ok and st in ["demo", "signed_out"], "url=%s status=%s" % [CinemaService.service_url(), st])

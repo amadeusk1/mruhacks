@@ -116,8 +116,8 @@ world/region_use_async_iterations=false
 
 [pengloo]
 
-cinema/service_enabled=false
-cinema/service_url="http://127.0.0.1:8095/cinema/"
-cinema/watch_overlay=false
-cinema/screen_video=false
-cinema/ambience=false
+cinema/service_enabled=true
+cinema/service_url="https://pengloo.party/cinema/"
+cinema/watch_overlay=true
+cinema/screen_video=true
+cinema/ambience=true
