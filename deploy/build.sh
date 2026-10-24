@@ -7,6 +7,8 @@ mkdir -p builds/web builds/server
 "$GODOT" --headless --path . --import
 "$GODOT" --headless --path . --export-release Web builds/web/index.html
 "$GODOT" --headless --path . --export-release 'Linux Server' builds/server/pengloo.x86_64
+mkdir -p builds/web/branding
+cp ui/branding/*.png builds/web/branding/
 python3 - <<'PY'
 import gzip, shutil
 from pathlib import Path

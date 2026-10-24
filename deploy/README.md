@@ -8,7 +8,7 @@ Initial source snapshot: main `ddb9d29cfcefa102e987dd31580c6e5cadcc42dc`, plus t
 
 Debian 12 x86_64 at `192.168.1.242`, SSH user **nick** (lowercase). No password belongs in this repo. Docker and Compose were already installed. Existing services are untouched; default game port 7777 is occupied by another game.
 
-Deployment: `/home/nick/pengloo/releases/ddb9d29-web-final`
+Deployment: `/home/nick/pengloo/current`
 Persistent game data: `/home/nick/pengloo/data`
 Compose project: `pengloo`
 Website port: `18085` → nginx container port 80.
@@ -49,7 +49,7 @@ Godot release templates prohibit command-line scene/path overrides. `scenes/star
 ## Operations
 
 ```sh
-cd /home/nick/pengloo/releases/ddb9d29-web-final
+cd /home/nick/pengloo/current
 docker compose -p pengloo ps
 docker compose -p pengloo logs --tail 100 game
 docker compose -p pengloo logs --tail 100 web
@@ -68,3 +68,7 @@ curl -fsS http://127.0.0.1:18085/health
 This is the existing prototype game made accessible through a persistent shared server. Names are not authenticated accounts; inventory/house ownership still follow existing prototype behavior, including peer-ID-based identities. There is no new account database, automatic player reconnection, persistent authoritative world save, or comprehensive anti-cheat in this change. There is an eight-client admission limit. Client movement/location claims retain the current game's trust model.
 
 Current main emits town placement/navmesh warnings, including walkable-edge gaps. They are not claimed fixed by deployment. Do not equate this deployment with a completed production backend or all minigames being acceptance-tested.
+
+## Branding update
+
+The Pengloo Party browser branding release is `releases/party-branding`. The `current` symlink points there. Only the web container was recreated for this visual update; the active game container remains on its prior identical-networking release. The new folder includes a copy of that server binary for a later full restart. See [[Pengloo Party - Branding and Loading Screen]].

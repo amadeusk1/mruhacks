@@ -37,6 +37,9 @@ func _ready() -> void:
 	quit.pressed.connect(func() -> void: get_tree().quit())
 	add_child(quit)
 	play.grab_focus()
+	if OS.has_feature("web"):
+		await get_tree().process_frame
+		JavaScriptBridge.eval("window.penglooReady?.()")
 
 
 func _build_backdrop() -> void:
@@ -99,25 +102,12 @@ func _process(delta: float) -> void:
 
 
 func _build_wordmark() -> void:
-	var box := UIKit.vbox(-46)
-	box.position = Vector2(150, 70)
-	box.rotation = deg_to_rad(-3)
-	for word in ["PENGLOO", "PARTY"]:
-		var l := UIKit.label(word, "Wordmark")
-		l.add_theme_font_size_override("font_size", 132)
-		l.add_theme_color_override("font_outline_color", T.PANEL)
-		l.add_theme_constant_override("outline_size", 26)
-		l.add_theme_color_override("font_shadow_color", Color(0.06, 0.12, 0.24, 0.35))
-		l.add_theme_constant_override("shadow_offset_y", 8)
-		l.add_theme_constant_override("shadow_outline_size", 26)
-		box.add_child(l)
-	(box.get_child(1) as Control).custom_minimum_size.x = 0
-	(box.get_child(1) as Label).position.x = 60
-	add_child(box)
-	get_tree().process_frame.connect(_o_face.bind(box.get_child(0) as Label, box), CONNECT_ONE_SHOT)
-	var sparks := Sparks.new()
-	sparks.position = Vector2(660, 250)
-	add_child(sparks)
+	var logo := TextureRect.new()
+	logo.texture = preload("res://ui/branding/pengloo-party-logo.png")
+	logo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	logo.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	logo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(UIKit.pin(logo, Vector2(0.5, 0), Vector2(0, 190), Vector2(780, 320)))
 
 
 ## Penguin head sitting in the counter of the first "O" of PENGLOO, like the mockup's W●RLD.

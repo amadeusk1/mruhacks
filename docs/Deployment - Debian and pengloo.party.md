@@ -16,7 +16,7 @@ Branch: `deploy/debian`, based on main `ddb9d29cfcefa102e987dd31580c6e5cadcc42dc
 - Debian 12, x86_64, IP `192.168.1.242`, hostname SaladBar.
 - SSH username is **nick**, lowercase. The server password is intentionally not stored in this note or Git.
 - Existing Docker/Compose installation is used. Other containers were not changed.
-- Release folder: `/home/nick/pengloo/releases/ddb9d29-web-final`.
+- Release folder: `/home/nick/pengloo/current`.
 - Persistent data directory: `/home/nick/pengloo/data`.
 - Compose project: `pengloo`.
 - Containers: `pengloo-game-1` and `pengloo-web-1`, both restart unless stopped.
@@ -37,7 +37,7 @@ The browser menu hides hosting and defaults to the online shared world. Its titl
 
 ```sh
 ssh nick@192.168.1.242
-cd /home/nick/pengloo/releases/ddb9d29-web-final
+cd /home/nick/pengloo/current
 docker compose -p pengloo ps
 docker compose -p pengloo logs --tail 100 game
 docker compose -p pengloo logs --tail 100 web
@@ -89,3 +89,7 @@ Repeat protocol tests using `tools/deployment_smoke.tscn` in the checkout: launc
 - The full server world is loaded for current activity configuration. A lean dedicated-server scene would reduce work/memory; do not remove it without preserving court/activity initialization.
 - Cinema PR #2 needs a deliberate merge and deployment of its separate Emby gateway. Keep its private env server-side; see [[Cinema - Claude Handoff and Local Setup]].
 - Browser/mobile performance, all minigames, multiple isolated worlds, monitoring and durable world saves need further acceptance work.
+
+## Branding update
+
+The Pengloo Party browser branding release is `releases/party-branding`. The `current` symlink points there. Only the web container was recreated for this visual update; the active game container remains on its prior identical-networking release. The new folder includes a copy of that server binary for a later full restart. See [[Pengloo Party - Branding and Loading Screen]].
