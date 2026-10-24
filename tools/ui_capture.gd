@@ -44,6 +44,8 @@ func _run() -> void:
 	w.call("_on_solo_pressed")
 	await _wait(7.0)
 	if _want("hud"):
+		_stand_at_cafe()
+		await _wait(1.5)
 		await _shot("hud")
 	for s in ["map", "friends", "player_card", "emotes", "pause", "settings", "controls", "accessibility",
 			"microphone", "connection_lost", "leave_confirm", "results"]:
@@ -54,6 +56,24 @@ func _run() -> void:
 		await _shot(s)
 		UIRouter.close_all()
 		await _wait(0.3)
+
+
+## Put the penguin just outside the café door (its Interactable) so the HUD shows "Enter Café".
+func _stand_at_cafe() -> void:
+	var player := get_tree().get_first_node_in_group("local_player") as Node3D
+	for n in get_tree().get_nodes_in_group("interactables"):
+		var key := (str(n.get("location")) + str(n.get("title"))).to_lower()
+		if "caf" in key and player:
+			var door := (n as Node3D).global_position
+			var out := (Vector3(0, door.y, 0) - door).normalized()
+			player.global_position = door + out * 1.2
+			if player.has_method("halt"):
+				player.call("halt")
+			if player.has_method("face_point"):
+				player.call("face_point", door)
+			print("AT CAFE ", door)
+			return
+	print("NO CAFE INTERACTABLE")
 
 
 func _wait(s: float) -> void:

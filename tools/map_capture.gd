@@ -41,6 +41,25 @@ func _ready() -> void:
 	f.store_string(JSON.stringify(meta))
 	f.close()
 	print("MAP saved")
+	# angled illustrated view (default map art): high three-quarter, ~50 deg pitch, looking north
+	vp.size = Vector2i(2048, 1280)
+	cam.size = 62.0
+	var pitch := deg_to_rad(50.0)
+	var focus := Vector3(CENTER.x, 0, CENTER.y + 2.0)
+	var eye := focus + Vector3(0, sin(pitch), cos(pitch)) * 120.0
+	cam.look_at_from_position(eye, focus, Vector3.UP)
+	for i in 20:
+		await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	vp.get_texture().get_image().save_png("res://ui/map/town_map_angled.png")
+	var b := cam.global_transform.basis
+	var cmeta := {"projection": "ortho", "size": cam.size, "aspect": float(vp.size.x) / vp.size.y,
+		"origin": [eye.x, eye.y, eye.z], "x": [b.x.x, b.x.y, b.x.z], "y": [b.y.x, b.y.y, b.y.z], "z": [b.z.x, b.z.y, b.z.z]}
+	var cf := FileAccess.open("res://ui/map/town_map_angled.json", FileAccess.WRITE)
+	cf.store_string(JSON.stringify(cmeta))
+	cf.close()
+	cam.size = HALF.y * 2.0
+	print("ANGLED saved")
 	# world-select thumbnails (Choose a World rows): three village views like the mockup
 	var shots := [[Vector3(-4, 7, 24), Vector3(-15, 0, 18)], [Vector3(14, 8, 8), Vector3(-2, 1, -8)], [Vector3(26, 6, 6), Vector3(10, 1, -2)]]
 	vp.size = Vector2i(520, 330)

@@ -5,6 +5,8 @@ extends UIModal
 ## player's dot. Locating only: there is no teleport.
 
 const MAP_PNG := "res://ui/map/town_map.png"
+const ANGLED_PNG := "res://ui/map/town_map_angled.png"   # default: illustrated three-quarter view
+const ANGLED_JSON := "res://ui/map/town_map_angled.json"
 const MAP_JSON := "res://ui/map/town_map.json"
 const LAYOUT := "res://Models/world/town_layout.json"
 
@@ -46,13 +48,22 @@ func _init() -> void:
 class MapView extends Control:
 	var tex: Texture2D
 	var bounds := Rect2(-40, -36, 80, 72)   # Godot x/z covered by the image
-	var places := []                          # [label, icon, Vector2 world xz]
+	var cam_xf: Transform3D                   # angled map camera (orthographic)
+	var cam_size := 0.0
+	var cam_aspect := 1.6
 	var _chips := []
 	var _t := 0.0
 
 	func _ready() -> void:
 		clip_contents = true
-		if ResourceLoader.exists(MapScreen.MAP_PNG):
+		if ResourceLoader.exists(MapScreen.ANGLED_PNG) and FileAccess.file_exists(MapScreen.ANGLED_JSON):
+			tex = load(MapScreen.ANGLED_PNG)
+			var c: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(MapScreen.ANGLED_JSON))
+			var v := func(k): return Vector3(c[k][0], c[k][1], c[k][2])
+			cam_xf = Transform3D(Basis(v.call("x"), v.call("y"), v.call("z")), v.call("origin"))
+			cam_size = float(c["size"])
+			cam_aspect = float(c["aspect"])
+		elif ResourceLoader.exists(MapScreen.MAP_PNG):
 			tex = load(MapScreen.MAP_PNG)
 		if FileAccess.file_exists(MapScreen.MAP_JSON):
 			var j: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(MapScreen.MAP_JSON))
@@ -60,15 +71,15 @@ class MapView extends Control:
 		var layout = JSON.parse_string(FileAccess.get_file_as_string(MapScreen.LAYOUT)) if FileAccess.file_exists(MapScreen.LAYOUT) else {}
 		var named := {}
 		for m in (layout.get("markers", []) if layout is Dictionary else []):
-			named[m["name"]] = m["pos"]
-		for mname in TownHud.PLACES:
-			if named.has(mname):
-				var p: Array = named[mname]
-				var it: Array = TownHud.PLACES[mname]
+			named[m["name"]] = Vector3(m["pos"][0], m["pos"][1], m["pos"][2])
+		for key in TownHud.PLACES:
+			var at = TownHud.place_position(key, layout if layout is Dictionary else {}, named)
+			if at != null:
+				var it: Array = TownHud.PLACES[key]
 				var chip := UIKit.chip(it[0], it[1], 20)
 				chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 				add_child(chip)
-				_chips.append([chip, Vector2(p[0], p[2])])
+				_chips.append([chip, at])
 		if tex == null:
 			add_child(UIKit.pin(UIWidgets.state_panel("empty", "Map not drawn yet", "Run tools/map_capture.tscn to render the island."),
 				Vector2(0.5, 0.5), Vector2.ZERO, Vector2(420, 120)))
@@ -83,9 +94,13 @@ class MapView extends Control:
 		var sz := Vector2(tex.get_width(), tex.get_height()) * s
 		return Rect2((size - sz) * 0.5, sz)
 
-	func to_screen(xz: Vector2) -> Vector2:
+	func to_screen(p: Vector3) -> Vector2:
 		var r := _image_rect()
-		return r.position + (xz - bounds.position) / bounds.size * r.size
+		if cam_size > 0.0:  # orthographic projection through the angled render's camera
+			var c := cam_xf.affine_inverse() * p
+			var uv := Vector2(0.5 + c.x / (cam_size * cam_aspect), 0.5 - c.y / cam_size)
+			return r.position + uv * r.size
+		return r.position + (Vector2(p.x, p.z) - bounds.position) / bounds.size * r.size
 
 	func _layout() -> void:
 		for c in _chips:
@@ -112,7 +127,7 @@ class MapView extends Control:
 			draw_circle(at, 4, Color("#15274D"))
 		var player := get_tree().get_first_node_in_group("local_player") as Node3D
 		if player and player.is_visible_in_tree():
-			var at := to_screen(Vector2(player.global_position.x, player.global_position.z))
+			var at := to_screen(player.global_position)
 			var pulse := 1.0 + 0.25 * sin(_t * 4.0)
 			draw_circle(at, 18 * pulse, Color(0.1, 0.61, 0.63, 0.25))
 			draw_circle(at, 11, Color.WHITE)

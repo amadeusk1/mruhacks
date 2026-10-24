@@ -9,7 +9,7 @@ const RANGE := 3.4
 ## Interactable activity / location / title → dock icon
 const ICONS := {
 	"cinema": "film", "cinema_lobby": "film", "café": "cup", "cafe": "cup", "cafe_interior": "cup",
-	"arcade": "joystick", "arcade_interior": "joystick", "home": "home", "homes": "home",
+	"arcade": "joystick", "arcade_interior": "joystick", "home": "home", "homes": "home", "casino": "dice", "casino_interior": "dice",
 	"fishing": "fish", "basketball": "ball", "sketch": "brush", "snowballs": "snowflake", "sled": "sled",
 }
 ## destinations shown on the map and used for the location chip: marker → (label, icon)
@@ -17,8 +17,26 @@ const PLACES := {
 	"Spawn": ["Plaza", "pin"], "CafeDoor": ["Café", "cup"], "CinemaDoor": ["Cinema", "film"],
 	"ArcadeDoor": ["Arcade", "joystick"], "HomesGate": ["Homes", "home"], "SketchEntry": ["Sketch Club", "brush"],
 	"SledStart": ["Sled Hill", "sled"], "ArenaGate": ["Snowballs", "snowflake"], "CourtEntry": ["Court", "ball"],
-	"FishingSpot0": ["Fishing", "fish"],
+	"FishingSpot0": ["Fishing", "fish"], "@casino/casino_exterior": ["Casino", "dice"],
 }
+const LAYOUT := "res://Models/world/town_layout.json"
+
+
+## Godot-space position of a PLACES key: a marker name, or "@kit/asset" = that placement's socket_door.
+static func place_position(key: String, layout: Dictionary, markers: Dictionary) -> Variant:
+	if not key.begins_with("@"):
+		return markers.get(key)
+	var id := key.substr(1)
+	for p in layout.get("placements", []):
+		if p["id"] != id:
+			continue
+		var at := Vector3(p["pos"][0], p["pos"][1], p["pos"][2])
+		var sock := Vector3.ZERO
+		var s = AssetRegistry.sockets(id).get("socket_door")
+		if s != null:
+			sock = Vector3(s[0], s[2], -s[1])   # Blender Z-up -> Godot Y-up
+		return at + sock.rotated(Vector3.UP, deg_to_rad(float(p.get("rot_y_deg", 0))))
+	return null
 
 var _chip: PanelContainer
 var _chip_label: Label
@@ -49,10 +67,19 @@ func _ready() -> void:
 		m.closed.connect(_refresh_mic)
 		UIRouter.push(m))
 	add_child(_mic)
-	var coin := get_parent().get_node_or_null("CoinBadge") as Control
-	if coin:  # teammate's coin badge moves left of the mic button
+	var coin := get_parent().get_node_or_null("CoinBadge") as PanelContainer
+	if coin:  # teammate's fishing coins: themed chip left of the mic button
 		coin.offset_left -= 104
 		coin.offset_right -= 104
+		coin.offset_top = 20
+		coin.offset_bottom = 84
+		coin.add_theme_stylebox_override("panel", UIKit.THEME.get_stylebox("panel", "Chip"))
+		var amount := coin.find_child("Amount", true, false) as Label
+		if amount:
+			amount.theme_type_variation = "Strong"
+			amount.add_theme_font_size_override("font_size", 30)
+			amount.add_theme_color_override("font_color", T.NAVY_TITLE)
+	_restyle_chat()
 	var dock := UIKit.hbox(14)
 	for it in [["Map", "map", _open_map], ["Outfit", "shirt", _open_outfit], ["Home", "home", _go_home],
 			["Friends", "friends", _open_friends], ["Emotes", "smile", _open_emotes]]:
@@ -71,6 +98,42 @@ func _ready() -> void:
 	_action.pressed.connect(_do_action)
 	add_child(UIKit.pin(_action, Vector2(0.5, 0.5), Vector2(300, -20), Vector2(320, 84)))
 	UIRouter.stack_changed.connect(_refresh_mic)
+
+
+## Teammate's chat box in the theme: ivory panel, navy text, bottom aligned with the dock. Visual only.
+func _restyle_chat() -> void:
+	var chat := get_parent().get_node_or_null("Chat") as Control
+	if chat == null:
+		return
+	# bottom of the entry lines up with the dock's bottom edge (dock: 104 tall, 22 above screen edge)
+	chat.offset_left = 22
+	chat.offset_right = 22 + 372
+	chat.offset_bottom = -22
+	chat.offset_top = -22 - 214
+	var log_panel := chat.get_node_or_null("Log") as PanelContainer
+	if log_panel:
+		var sb := (UIKit.THEME.get_stylebox("panel", "Card") as StyleBoxFlat).duplicate()
+		sb.bg_color = Color(T.PANEL, 0.94)
+		sb.content_margin_left = 18
+		sb.content_margin_right = 18
+		sb.content_margin_top = 12
+		sb.content_margin_bottom = 12
+		sb.set_corner_radius_all(20)
+		log_panel.add_theme_stylebox_override("panel", sb)
+		var lines := log_panel.find_child("Lines", true, false) as Label
+		if lines:
+			lines.add_theme_font_size_override("font_size", 20)
+	var entry := chat.get_node_or_null("Entry") as LineEdit
+	if entry:
+		entry.custom_minimum_size.y = 58
+		for st in ["normal", "focus"]:
+			var e := (UIKit.THEME.get_stylebox(st, "LineEdit") as StyleBoxFlat).duplicate()
+			e.set_corner_radius_all(18)
+			e.bg_color = T.PANEL
+			entry.add_theme_stylebox_override(st, e)
+		entry.add_theme_color_override("font_color", T.NAVY)
+		entry.add_theme_color_override("font_placeholder_color", T.MUTED)
+		entry.add_theme_font_size_override("font_size", 21)
 
 
 func _refresh_mic() -> void:
@@ -106,16 +169,28 @@ func _update_chip(player: Node3D) -> void:
 	var room := _room()
 	if id == LocationCatalog.MAIN and room:
 		var best := INF
-		for mname in PLACES:
-			var m := room.get_node_or_null(mname) as Node3D
-			if m:
-				var d := _flat(m.global_position - player.global_position)
+		for key in PLACES:
+			var at = _place_world(key, room)
+			if at != null:
+				var d := _flat((at as Vector3) - player.global_position)
 				if d < best:
 					best = d
-					text = "Town Plaza" if mname == "Spawn" else PLACES[mname][0]
+					text = "Town Plaza" if key == "Spawn" else PLACES[key][0]
 		if best > 14.0:
 			text = "Town"
 	_chip_label.text = text
+
+
+var _layout_cache := {}
+
+
+func _place_world(key: String, room: Node) -> Variant:
+	if not key.begins_with("@"):
+		var m := room.get_node_or_null(key) as Node3D
+		return m.global_position if m else null
+	if _layout_cache.is_empty() and FileAccess.file_exists(LAYOUT):
+		_layout_cache = JSON.parse_string(FileAccess.get_file_as_string(LAYOUT))
+	return place_position(key, _layout_cache, {})
 
 
 func _update_action(player: Node3D) -> void:
