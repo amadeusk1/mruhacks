@@ -25,109 +25,186 @@ var _progress := 0.34
 var _held := false
 var _paid := false
 
+# Presentation follows Images/UI - Fishing.png (Ready / Bite / Reel / Result); logic unchanged.
+const A := preload("res://ui/activities/act_style.gd")
+const FISH_ICON := {"fish_round": "fishing/fish_round", "fish_slim": "fishing/fish_slim", "fish_spiky": "fishing/fish_spiky"}
+
 var _status: Label
 var _hint: Label
-var _track: ColorRect
-var _band: ColorRect
-var _mark: ColorRect
-var _meter: ColorRect
-var _fill: ColorRect
-var _card: PanelContainer
+var _track: PanelContainer
+var _band: PanelContainer
+var _mark: TextureRect
+var _meter: PanelContainer
+var _fill: PanelContainer
+var _card: Control
 var _card_title: Label
 var _card_body: Label
+var _panel: PanelContainer
+var _pages := {}
+var _card_icon: TextureRect
+var _miss_box: PanelContainer
+var _bob_icon: TextureRect
 
 
 func open(penguin: Node) -> void:
 	_penguin = penguin
-	_begin_cast()
+	_phase = "ready"
+	_show_page("ready")
+	_lock_clicks(false)
 
 
 func _ready() -> void:
 	layer = 6
 	var root := Control.new()
-	root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.theme = UIKit.THEME
 	add_child(root)
-	var panel := PanelContainer.new()
-	panel.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	panel.offset_left = -268.0
-	panel.offset_top = 84.0
-	panel.offset_right = -16.0
-	panel.offset_bottom = 548.0
-	panel.mouse_filter = Control.MOUSE_FILTER_STOP
-	panel.add_theme_stylebox_override("panel", _panel_style())
-	root.add_child(panel)
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 16)
-	margin.add_theme_constant_override("margin_right", 16)
-	margin.add_theme_constant_override("margin_top", 14)
-	margin.add_theme_constant_override("margin_bottom", 14)
-	panel.add_child(margin)
-	var column := VBoxContainer.new()
-	column.add_theme_constant_override("separation", 10)
-	margin.add_child(column)
-	var title := Label.new()
-	title.text = "Fishing"
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 26)
-	title.add_theme_color_override("font_color", Color(0.95, 0.97, 1))
-	column.add_child(title)
-	_status = Label.new()
-	_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_status.add_theme_font_size_override("font_size", 18)
-	_status.add_theme_color_override("font_color", Color(0.78, 0.9, 0.96))
-	column.add_child(_status)
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 12)
-	row.alignment = BoxContainer.ALIGNMENT_CENTER
-	column.add_child(row)
-	_track = ColorRect.new()
-	_track.custom_minimum_size = Vector2(72, 300)
-	_track.color = Color(0.06, 0.14, 0.22, 0.95)
+	_panel = A.panel(26, 26)
+	_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	A.pin(root, _panel, Vector4(1, 0.5, 1, 0.5), Vector4(-470, -300, -40, 300))
+	var stack := Control.new()
+	_panel.add_child(stack)
+	# READY
+	var ready := _page(stack, "ready")
+	ready.add_child(A.title("Gone Fishing!", 38, HORIZONTAL_ALIGNMENT_CENTER))
+	var sub := A.label("Cast, wait, then reel\nwhen you get a bite.", 20, A.SUB, false, HORIZONTAL_ALIGNMENT_CENTER)
+	ready.add_child(sub)
+	ready.add_child(_bobber(150))
+	var cast := A.button("Cast", "primary", "hook", 28, Vector2(0, 72))
+	cast.pressed.connect(func() -> void: if _phase in ["ready", "card"]: _begin_cast())
+	ready.add_child(cast)
+	ready.add_child(_leave_btn())
+	# BITE
+	var bite := _page(stack, "bite")
+	bite.add_child(A.spacer(0, 16))
+	bite.add_child(A.title("Bite!", 56, HORIZONTAL_ALIGNMENT_CENTER))
+	bite.add_child(A.label("Hook now!", 26, A.NAVY, true, HORIZONTAL_ALIGNMENT_CENTER))
+	var splash := _bobber(170)
+	bite.add_child(splash)
+	var hook := A.button("Hook", "primary", "hook", 30, Vector2(0, 76))
+	hook.pressed.connect(func() -> void: if _phase == "bite": _begin_reel())
+	bite.add_child(hook)
+	# WAIT (bobber floats; same layout as ready, no Cast)
+	var wait := _page(stack, "wait")
+	_status = A.title("Waiting...", 36, HORIZONTAL_ALIGNMENT_CENTER)
+	wait.add_child(_status)
+	_hint = A.label("Watch the bobber.", 20, A.SUB, false, HORIZONTAL_ALIGNMENT_CENTER)
+	wait.add_child(_hint)
+	_bob_icon = _bobber(170)
+	wait.add_child(_bob_icon)
+	wait.add_child(A.expander())
+	wait.add_child(_leave_btn())
+	# REEL
+	var reel := _page(stack, "reel")
+	reel.add_child(A.title("Reel It In!", 36, HORIZONTAL_ALIGNMENT_CENTER))
+	reel.add_child(A.label("Hold to raise  ·  Release to lower", 18, A.SUB, false, HORIZONTAL_ALIGNMENT_CENTER))
+	var row := A.hbox(22)
+	row.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	reel.add_child(row)
+	var arrow := A.icon("play", 26, A.TEAL)
+	arrow.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(arrow)
+	_track = PanelContainer.new()
+	_track.custom_minimum_size = Vector2(84, 300)
+	_track.add_theme_stylebox_override("panel", A.box(Color("#E6E2DA"), 30, 2, Color("#D8D2C6")))
 	_track.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(_track)
-	_band = ColorRect.new()
-	_band.color = Color(1.0, 0.72, 0.32, 0.9)
+	var holder := Control.new()
+	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_track.add_child(holder)
+	_band = PanelContainer.new()
+	_band.add_theme_stylebox_override("panel", A.box(A.TEAL, 6))
 	_band.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_track.add_child(_band)
-	_mark = ColorRect.new()
-	_mark.color = Color(0.95, 0.55, 0.18)
+	holder.add_child(_band)
+	_mark = TextureRect.new()
+	_mark.texture = A.asset_icon("fishing/fish_round")
+	_mark.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_mark.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_track.add_child(_mark)
-	_meter = ColorRect.new()
-	_meter.custom_minimum_size = Vector2(22, 300)
-	_meter.color = Color(0.06, 0.14, 0.22, 0.95)
+	holder.add_child(_mark)
+	var right := A.vbox(10)
+	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(right)
+	right.add_child(A.spacer(0, 70))
+	right.add_child(A.label("Catch", 21, A.NAVY, true))
+	_meter = PanelContainer.new()
+	_meter.custom_minimum_size = Vector2(0, 30)
+	_meter.add_theme_stylebox_override("panel", A.box(Color("#E6E2DA"), 15))
 	_meter.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.add_child(_meter)
-	_fill = ColorRect.new()
-	_fill.color = Color(0.45, 0.82, 0.55)
+	right.add_child(_meter)
+	var mh := Control.new()
+	mh.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_meter.add_child(mh)
+	_fill = PanelContainer.new()
+	_fill.add_theme_stylebox_override("panel", A.box(A.TEAL, 15))
 	_fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_meter.add_child(_fill)
-	_hint = Label.new()
-	_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_hint.add_theme_font_size_override("font_size", 15)
-	_hint.add_theme_color_override("font_color", Color(0.9, 0.94, 0.98))
-	column.add_child(_hint)
-	_card = PanelContainer.new()
-	_card.visible = false
-	_card.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_card.add_theme_stylebox_override("panel", _card_style())
-	column.add_child(_card)
-	var card_box := VBoxContainer.new()
-	card_box.add_theme_constant_override("separation", 6)
-	_card.add_child(card_box)
-	_card_title = Label.new()
-	_card_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_card_title.add_theme_font_size_override("font_size", 22)
-	_card_title.add_theme_color_override("font_color", Color(0.12, 0.18, 0.24))
-	card_box.add_child(_card_title)
-	_card_body = Label.new()
-	_card_body.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_card_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_card_body.add_theme_font_size_override("font_size", 16)
-	_card_body.add_theme_color_override("font_color", Color(0.18, 0.28, 0.36))
-	card_box.add_child(_card_body)
+	mh.add_child(_fill)
+	right.add_child(A.expander())
+	right.add_child(_leave_btn())
+	# RESULT (caught card + escaped inset; mutually exclusive in play)
+	var res := _page(stack, "card")
+	var top := A.hbox(16)
+	res.add_child(top)
+	_card = A.vbox(4)
+	_card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	top.add_child(_card)
+	_card_title = A.title("Caught!", 38, HORIZONTAL_ALIGNMENT_CENTER)
+	_card.add_child(_card_title)
+	_card_icon = TextureRect.new()
+	_card_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_card_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_card_icon.custom_minimum_size = Vector2(0, 150)
+	_card.add_child(_card_icon)
+	_card_body = A.label("", 22, A.NAVY, true, HORIZONTAL_ALIGNMENT_CENTER)
+	_card.add_child(_card_body)
+	_miss_box = PanelContainer.new()
+	_miss_box.add_theme_stylebox_override("panel", A.box(A.CARD, 18, 0, Color.TRANSPARENT, 12))
+	_miss_box.custom_minimum_size = Vector2(120, 0)
+	var mv := A.vbox(4)
+	_miss_box.add_child(mv)
+	mv.add_child(A.label("It got away...", 16, A.NAVY, false, HORIZONTAL_ALIGNMENT_CENTER))
+	var ghost := A.icon("fish", 64, Color("#8FA9C4"))
+	ghost.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	mv.add_child(ghost)
+	mv.add_child(A.label("Try again!", 15, A.SUB, false, HORIZONTAL_ALIGNMENT_CENTER))
+	top.add_child(_miss_box)
+	var again := A.button("Cast again", "primary", "rod", 26, Vector2(0, 70))
+	again.pressed.connect(_begin_cast)
+	res.add_child(again)
+	res.add_child(_leave_btn())
+	_show_page("ready")
+	_phase = "ready"
+
+
+func _page(stack: Control, page_name: String) -> VBoxContainer:
+	var v := A.vbox(14)
+	v.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	stack.add_child(v)
+	_pages[page_name] = v
+	return v
+
+
+func _show_page(page_name: String) -> void:
+	for k in _pages:
+		_pages[k].visible = k == page_name
+
+
+func _bobber(h: float) -> TextureRect:
+	var t := TextureRect.new()
+	t.texture = A.asset_icon("fishing/bobber")
+	t.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	t.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	t.custom_minimum_size = Vector2(0, h)
+	t.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	t.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return t
+
+
+func _leave_btn() -> Button:
+	var b := A.button("Leave", "secondary", "", 22, Vector2(0, 58))
+	b.pressed.connect(_leave)
+	return b
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -158,24 +235,20 @@ func _process(delta: float) -> void:
 			if pressed:
 				_begin_reel()
 			elif _bite_left <= 0.0:
-				_show_card("Too slow", "It swam off. Casting again.")
+				_show_card("", "")
 				_tell("miss")
 		"reel":
 			_step_reel(delta)
-		"card":
-			_card_left -= delta
-			if _card_left <= 0.0:
-				_begin_cast()
+		"card", "ready":
+			pass   # waits for Cast / Cast again (mockup flow)
 	_layout_bar()
 
 
 func _begin_cast() -> void:
 	_phase = "cast"
 	_age = 0.0
-	_card.visible = false
-	_track.visible = true
-	_meter.visible = true
-	_status.text = "Casting"
+	_show_page("wait")
+	_status.text = "Casting..."
 	_hint.text = "Watch the bobber."
 	_lock_clicks(false)
 	_tell("cast")
@@ -184,8 +257,8 @@ func _begin_cast() -> void:
 func _begin_wait() -> void:
 	_phase = "wait"
 	_wait_left = randf_range(1.1, 2.5)
-	_status.text = "Waiting"
-	_hint.text = "Tap when the bobber dips."
+	_status.text = "Waiting..."
+	_hint.text = "Hook when the bobber dips."
 	_lock_clicks(false)
 	_tell("wait")
 
@@ -193,8 +266,7 @@ func _begin_wait() -> void:
 func _begin_bite() -> void:
 	_phase = "bite"
 	_bite_left = 1.15
-	_status.text = "Hook!"
-	_hint.text = "Tap Space or the mouse."
+	_show_page("bite")
 	_lock_clicks(true)
 	_tell("bite")
 
@@ -208,9 +280,8 @@ func _begin_reel() -> void:
 	_band_y = 0.38
 	_progress = 0.32
 	_paid = false
-	_mark.color = _fish["color"]
-	_status.text = "Reel it in"
-	_hint.text = "Hold Space or the mouse to raise the bar."
+	_mark.texture = A.asset_icon(FISH_ICON.get(str(_fish["model"]), "fishing/fish_round"))
+	_show_page("reel")
 	_lock_clicks(true)
 	_tell("reel")
 
@@ -242,7 +313,7 @@ func _step_reel(delta: float) -> void:
 	if _progress >= 1.0:
 		_caught()
 	elif _progress <= 0.0:
-		_show_card("It got away", "The line went slack. Casting again.")
+		_show_card("", "")
 		_tell("miss")
 
 
@@ -254,20 +325,22 @@ func _caught() -> void:
 		var world := get_tree().get_first_node_in_group("world")
 		if world and world.has_method("grant_coins"):
 			world.call("grant_coins", coins)
-	_show_card(str(_fish["name"]), "%d cm    +%d coins" % [size, coins])
+	_show_card(str(_fish["name"]), "%s  ·  %d cm" % [str(_fish["name"]), size])
 	_tell("catch:%s" % str(_fish["model"]))
 
 
+## Empty title means the fish escaped: the "It got away" inset alone, no Caught card.
 func _show_card(title: String, body: String) -> void:
 	_phase = "card"
-	_card_left = 2.1
-	_card.visible = true
-	_track.visible = false
-	_meter.visible = false
-	_card_title.text = title
-	_card_body.text = body
-	_status.text = ""
-	_hint.text = "Move or Escape to leave."
+	_show_page("card")
+	var caught := title != ""
+	_card.visible = caught
+	_miss_box.visible = not caught
+	_miss_box.size_flags_horizontal = Control.SIZE_SHRINK_END if caught else Control.SIZE_EXPAND_FILL
+	if caught:
+		_card_title.text = "Caught!"
+		_card_body.text = body
+		_card_icon.texture = A.asset_icon(FISH_ICON.get(str(_fish.get("model", "")), "fishing/fish_round"))
 	_lock_clicks(false)
 
 
@@ -301,33 +374,34 @@ func _next_turn() -> float:
 
 
 func _layout_bar() -> void:
-	var height := _track.size.y
+	if not _pages["reel"].visible:
+		return
+	var height := _track.size.y - 8.0
 	if height < 8.0:
 		return
-	_band.position = Vector2(8.0, (1.0 - (_band_y + _band_h)) * height)
-	_band.size = Vector2(56.0, _band_h * height)
-	_mark.position = Vector2(14.0, (1.0 - _fish_y) * height - 9.0)
-	_mark.size = Vector2(44.0, 18.0)
-	var meter_h := _meter.size.y
-	_fill.position = Vector2(0.0, (1.0 - _progress) * meter_h)
-	_fill.size = Vector2(_meter.size.x, _progress * meter_h)
+	var w := _track.size.x
+	_band.position = Vector2(4.0, 4.0 + (1.0 - (_band_y + _band_h)) * height)
+	_band.size = Vector2(w - 8.0, _band_h * height)
+	_mark.position = Vector2(8.0, 4.0 + (1.0 - _fish_y) * height - 22.0)
+	_mark.size = Vector2(w - 16.0, 44.0)
+	_fill.position = Vector2.ZERO
+	_fill.size = Vector2(maxf(30.0, _meter.size.x * _progress), _meter.size.y)
 
 
-func _panel_style() -> StyleBoxFlat:
-	var box := StyleBoxFlat.new()
-	box.bg_color = Color(0.08, 0.2, 0.32, 0.94)
-	box.border_color = Color(0.86, 0.93, 0.98)
-	box.set_border_width_all(3)
-	box.set_corner_radius_all(16)
-	return box
-
-
-func _card_style() -> StyleBoxFlat:
-	var box := StyleBoxFlat.new()
-	box.bg_color = Color(0.96, 0.93, 0.86)
-	box.set_corner_radius_all(12)
-	box.content_margin_left = 10
-	box.content_margin_right = 10
-	box.content_margin_top = 10
-	box.content_margin_bottom = 10
-	return box
+func preview(state: String) -> void:
+	_penguin = null
+	_fish = FISH[0]
+	match state:
+		"bite":
+			_show_page("bite")
+		"reel":
+			_show_page("reel")
+			_band_y = 0.36; _fish_y = 0.48; _progress = 0.62
+			await get_tree().process_frame
+			_layout_bar()
+		"result":
+			_show_card("Sunny", "Sunny  ·  24 cm")
+		"escaped":
+			_show_card("", "")
+		_:
+			_show_page("ready")

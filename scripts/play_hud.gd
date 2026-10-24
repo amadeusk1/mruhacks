@@ -15,6 +15,7 @@ var _lines: PackedStringArray = PackedStringArray()
 
 
 func _ready() -> void:
+	$Root.add_child(TownHud.new())  # UI core: location chip, mic, dock and contextual action
 	_entry.text_submitted.connect(_on_submitted)
 	_entry.focus_entered.connect(_on_focus_entered)
 	_entry.focus_exited.connect(_on_focus_exited)

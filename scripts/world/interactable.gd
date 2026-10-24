@@ -68,7 +68,8 @@ func interact(player: Node) -> bool:
 func _process(_delta: float) -> void:
 	if _note != "" and Time.get_ticks_msec() / 1000.0 > _note_until:
 		_note = ""
-	_label.visible = can_interact() and _is_nearest()
+	# the town HUD shows this prompt as its action button (UI mockup); keep the 3D label as fallback
+	_label.visible = can_interact() and get_tree().get_first_node_in_group("town_hud") == null and _is_nearest()
 	if _label.visible:
 		_label.text = "F  " + prompt_text()
 
