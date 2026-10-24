@@ -1,0 +1,4 @@
+# HyperFrames render caches (snapshots, thumbnails, waveforms)
+.hyperframes/
+.thumbnails/
+.waveform-cache/
