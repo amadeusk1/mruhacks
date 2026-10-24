@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "note": "Stand-in until Models/world/town_layout.json ships from the Blender town build.",
+  "terrain": "",
+  "water_level": -0.5,
+  "sun": {"rotation_deg": [-48, -35, 0], "color": "#FFE2B0", "energy": 1.25},
+  "camera": {"center": [0, 0, 0], "limit_x": 14, "limit_z": 10, "height": 15, "distance": 12.5},
+  "placements": [
+    {"id": "cafe/cafe_exterior", "name": "Cafe", "pos": [-9, 0, -6], "rot_y_deg": 20, "tags": ["building", "blocker"]},
+    {"id": "cinema/cinema_exterior", "name": "Cinema", "pos": [0, 0, -12], "rot_y_deg": 0, "tags": ["building", "blocker"]},
+    {"id": "arcade/arcade_exterior", "name": "Arcade", "pos": [9, 0, -6], "rot_y_deg": -20, "tags": ["building", "blocker"]},
+    {"id": "plaza/small_fountain", "name": "Fountain", "pos": [0, 0, 0], "tags": ["prop", "blocker"]},
+    {"id": "plaza/bench", "pos": [-3.6, 0, 2.5], "rot_y_deg": 0, "tags": ["prop"]},
+    {"id": "plaza/bench", "pos": [3.6, 0, 2.5], "rot_y_deg": 0, "tags": ["prop"]},
+    {"id": "plaza/lantern_post", "pos": [-4, 0, -3], "tags": ["light"]},
+    {"id": "plaza/lantern_post", "pos": [4, 0, -3], "tags": ["light"]},
+    {"id": "plaza/lantern_post", "pos": [-4, 0, 4], "tags": ["light"]},
+    {"id": "plaza/lantern_post", "pos": [4, 0, 4], "tags": ["light"]},
+    {"id": "winter/fir_tree_large", "pos": [-15, 0, -10], "tags": ["tree"]},
+    {"id": "winter/fir_tree_large", "pos": [15, 0, -10], "tags": ["tree"]},
+    {"id": "winter/fir_tree_large", "pos": [-16, 0, 4], "tags": ["tree"]},
+    {"id": "winter/fir_tree_large", "pos": [16, 0, 5], "tags": ["tree"]},
+    {"id": "winter/fir_tree_large", "pos": [-12, 0, 10], "tags": ["tree"]},
+    {"id": "winter/fir_tree_large", "pos": [12, 0, 11], "tags": ["tree"]},
+    {"id": "nature_dock/broad_tree_snow", "pos": [-6, 0, 8], "tags": ["tree"]}
+  ],
+  "markers": [
+    {"name": "BusArrival", "pos": [3, 0.2, 6], "rot_y_deg": 200, "kind": "spawn"},
+    {"name": "BusStop", "pos": [6.5, 0, 7.5], "rot_y_deg": 90, "kind": "bus"}
+  ]
+}

@@ -209,7 +209,7 @@ func _on_town() -> void:
 	hud.lock()
 	var world := get_tree().get_first_node_in_group("world")
 	if world and world.has_method("travel_to"):
-		world.call_deferred("travel_to", "plaza")
+		world.call_deferred("travel_to", LocationCatalog.MAIN)
 		return
 	get_tree().change_scene_to_file("res://scenes/world.tscn")
 

@@ -294,7 +294,7 @@ func _on_session_started() -> void:
 	var profile := Net.local_profile()
 	_penguin.apply_identity(str(profile["name"]), int(profile["color"]))
 	DisplayServer.window_set_title("%s — %s" % [Net.role_label(), str(profile["name"])])
-	await travel_to("plaza", "BusArrival")
+	await travel_to(LocationCatalog.MAIN, "BusArrival")
 	_refresh_presence()
 
 
