@@ -66,12 +66,12 @@ The teammate's `AssetPack.mount_bird` puts the rigged `avatar_base` (from `anim_
 ## Camera visibility
 
 `scripts/world/occlusion_fader.gd` on `CameraRig`:
-- **Fading:** every placement whose world AABB crosses the camera-to-penguin segment dithers to 30% (alpha hash, 0.15 s in, 0.3 s out) and is restored exactly.
-- **Roofs:** roofs and cutaways hide while the player is in that building's footprint.
-- **Never faded:** the terrain, the room the player is inside, and what they stand on.
-- **Silhouette:** a teal overlay shader draws the hidden parts of the penguin, and nametags ignore depth.
-- **Batched foliage:** it can't fade per object, so `foliage_batch.gdshader` cuts a dithered circle around the penguin instead.
-- **Reduced motion:** `Settings.reduced_motion` makes fades instant.
+- **When something fades:** an object fades only if its projected screen rectangle overlaps the penguin's screen circle and it is nearer the camera than the penguin. Anything under 1.2 m tall (benches, planters, lamps, signs) never fades.
+- **How it fades:** a covering object doesn't stipple all over. It switches to a shader with the same colour, shade and emission, which cuts a soft dithered circle around the penguin (35% kept, ordered 4×4 dither). The hole grows in over 0.15 s and closes over 0.3 s, then the original materials are restored exactly.
+- **Roofs:** roofs and cutaways hide while the player is in that building's footprint. The room the player is inside, the terrain, and what they stand on never fade.
+- **Silhouette:** an always-on teal shader shows the parts of the penguin something is covering, and nametags ignore depth.
+- **Batched trees:** these use the same circular hole through `foliage_batch.gdshader`.
+- **Reduced motion:** `Settings.reduced_motion` makes the fade instant.
 
 ## Performance and ambient
 
