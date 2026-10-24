@@ -1,8 +1,8 @@
 extends Node3D
 
 ## The owned pet that is currently out. No collision, so it never blocks a door.
-## Pebble trails and sits. Slick stays beside you and splashes on the dock.
-## Ember trots ahead and looks back when you stop.
+## Penguins walk on the ground. Fish hover beside you. The mesh already sits
+## at the right height, so this node stays on the ground.
 
 var _kind := ""
 var _body: Node
@@ -43,30 +43,30 @@ func _process(delta: float) -> void:
 		speed = Vector2(body.velocity.x, body.velocity.z).length()
 	var moving := speed > 0.35
 	var goal := player.global_position
-	match _kind:
-		"slick":
-			goal += right * 0.72 - forward * 0.2
-		"ember":
-			goal += forward * 0.95
-		_:
-			goal += -forward * 0.88 + right * 0.15
+	var family := str(PetCatalog.find(_kind).get("family", "penguin"))
+	if family == "fish":
+		goal += right * 0.72 - forward * 0.15
+	elif _kind == "tuxedo":
+		goal += forward * 0.9 + right * 0.2
+	elif _kind == "puff":
+		goal += -forward * 0.95 - right * 0.28
+	else:
+		goal += -forward * 0.85 + right * 0.18
 	goal.y = 0.0
 	var dist := Vector2(global_position.x - goal.x, global_position.z - goal.z).length()
 	if fresh or dist > 7.5 or global_position.y < -2.0:
 		global_position = goal
 	else:
 		var rate := 3.4 + dist * 2.8
-		if _kind == "ember":
-			rate += 1.5
-		elif _kind == "slick":
-			rate += 0.5
+		if _kind == "tuxedo":
+			rate += 1.2
+		elif family == "fish":
+			rate += 0.6
 		global_position.x = move_toward(global_position.x, goal.x, rate * delta)
 		global_position.z = move_toward(global_position.z, goal.z, rate * delta)
 		global_position.y = 0.0
 	var face := goal - global_position
-	if _kind == "ember" and not moving:
-		face = player.global_position - global_position
-	elif _kind == "pebble" and not moving:
+	if not moving:
 		face = player.global_position - global_position
 	elif face.length_squared() < 0.002:
 		face = forward
@@ -74,12 +74,8 @@ func _process(delta: float) -> void:
 	if face.length_squared() > 0.0004:
 		var yaw := atan2(-face.x, -face.z)
 		rotation.y = lerp_angle(rotation.y, yaw, 1.0 - exp(-delta * 8.0))
-	var on_dock := false
-	if _kind == "slick" and world != null and world.has_method("current_location_id"):
-		if str(world.call("current_location_id")) == "plaza":
-			on_dock = player.global_position.x < -11.2 and absf(player.global_position.z) < 7.0
 	if _body != null and _body.has_method("set_follow_state"):
-		_body.call("set_follow_state", moving, on_dock)
+		_body.call("set_follow_state", moving, false)
 
 
 func _mount(id: String) -> void:
