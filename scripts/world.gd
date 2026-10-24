@@ -51,6 +51,12 @@ func _ready() -> void:
 	Net.host_lost.connect(_on_host_lost)
 	Net.chat_received.connect(_on_chat)
 	Net.home_invite.connect(_on_home_invite)
+	var arcade := preload("res://scripts/arcade_session.gd").new()
+	arcade.name = "ArcadeSession"
+	add_child(arcade)
+	var roulette := preload("res://scripts/roulette_session.gd").new()
+	roulette.name = "RouletteSession"
+	add_child(roulette)
 	_apply_launch_args()
 
 

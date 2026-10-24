@@ -16,6 +16,7 @@ const PUCK_C := Color("#173B6B")
 
 var target := 5
 var ai_right := true           ## solo: computer plays the right paddle
+var mirror := false            ## host match: draw the snapshot, don't simulate
 var running := false
 var score := Vector2i.ZERO
 var _lp := 0.5                 ## paddle centres, 0..1 of board height
@@ -42,8 +43,31 @@ func _serve(dir: int) -> void:
 	_vel = Vector2(0.42 * dir, randf_range(-0.22, 0.22))
 
 
-func _process(delta: float) -> void:
+func pose() -> Dictionary:
+	return {
+		"px": _puck.x, "py": _puck.y, "lp": _lp, "rp": _rp,
+		"sa": score.x, "sb": score.y, "running": running,
+	}
+
+
+## Host match step. Paddles are already decided; this only moves the puck.
+func step_with(delta: float, left_y: float, right_y: float) -> void:
 	if not running:
+		return
+	_lp = clampf(left_y, PAD_H * 0.5, 1.0 - PAD_H * 0.5)
+	_rp = clampf(right_y, PAD_H * 0.5, 1.0 - PAD_H * 0.5)
+	_step(delta)
+
+
+func apply_view(px: float, py: float, left_y: float, right_y: float) -> void:
+	_puck = Vector2(px, py)
+	_lp = left_y
+	_rp = right_y
+	queue_redraw()
+
+
+func _process(delta: float) -> void:
+	if mirror or not running:
 		queue_redraw()
 		return
 	var axis := Input.get_axis("move_forward", "move_back") if InputMap.has_action("move_forward") else 0.0

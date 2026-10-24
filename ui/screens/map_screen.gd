@@ -2,7 +2,7 @@ class_name MapScreen
 extends UIModal
 ## Island map (board "Town HUD Map and Social", panel 2): a real top-down render of the town
 ## (ui/map/town_map.png, made by tools/map_capture.tscn) with cream destination chips and the
-## player's dot. Locating only: there is no teleport.
+## player's dot. A chip takes you to that place.
 
 const MAP_PNG := "res://ui/map/town_map.png"
 const ANGLED_PNG := "res://ui/map/town_map_angled.png"   # default: illustrated three-quarter view
@@ -37,7 +37,10 @@ func _init() -> void:
 	title.position = Vector2(40, 30)
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	title.add_child(UIKit.label("Pengloo Party", "TitleSmall"))
-	title.add_child(UIKit.label("Explore together", "Subtitle"))
+	title.add_child(UIKit.label("Click a place to go there.", "Subtitle"))
+	for child in title.get_children():
+		if child is Control:
+			(child as Control).mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_view.add_child(title)
 	var x := UIKit.icon_button("close", "Close map", 64)
 	UIKit.pin(x, Vector2(1, 0), Vector2(-52, 50), Vector2(64, 64))
@@ -51,6 +54,21 @@ class MapView extends Control:
 	var cam_xf: Transform3D                   # angled map camera (orthographic)
 	var cam_size := 0.0
 	var cam_aspect := 1.6
+	## Map chip → [location id, spawn marker]. Town activities land on their marker.
+	const TRIPS := {
+		"Spawn": ["town", "Spawn"],
+		"CafeDoor": ["cafe", "Inside"],
+		"CinemaDoor": ["cinema", "InsideLobby"],
+		"ArcadeDoor": ["arcade", "Inside"],
+		"HomesGate": ["home", "InsideSpawn"],
+		"SketchEntry": ["town", "SketchEntry"],
+		"SledStart": ["sled_hill", "BusArrival"],
+		"ArenaGate": ["town", "ArenaGate"],
+		"CourtEntry": ["town", "CourtEntry"],
+		"FishingSpot0": ["town", "FishingSpot0"],
+		"@casino/casino_exterior": ["casino", "Inside"],
+	}
+
 	var _chips := []
 	var _t := 0.0
 
@@ -72,19 +90,75 @@ class MapView extends Control:
 		var named := {}
 		for m in (layout.get("markers", []) if layout is Dictionary else []):
 			named[m["name"]] = Vector3(m["pos"][0], m["pos"][1], m["pos"][2])
+		var here := _location_id()
 		for key in TownHud.PLACES:
 			var at = TownHud.place_position(key, layout if layout is Dictionary else {}, named)
-			if at != null:
-				var it: Array = TownHud.PLACES[key]
-				var chip := UIKit.chip(it[0], it[1], 20)
-				chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
-				add_child(chip)
-				_chips.append([chip, at])
+			if at == null or not TRIPS.has(key):
+				continue
+			var it: Array = TownHud.PLACES[key]
+			var chip := _place_button(str(it[0]), str(it[1]), key, here)
+			add_child(chip)
+			_chips.append([chip, at])
 		if tex == null:
 			add_child(UIKit.pin(UIWidgets.state_panel("empty", "Map not drawn yet", "Run tools/map_capture.tscn to render the island."),
 				Vector2(0.5, 0.5), Vector2.ZERO, Vector2(420, 120)))
 		resized.connect(_layout)
 		_layout.call_deferred()
+
+	func _place_button(place_name: String, icon_name: String, key: String, here: String) -> Button:
+		var button := Button.new()
+		button.text = place_name
+		button.icon = UIKit.icon(icon_name)
+		button.focus_mode = Control.FOCUS_NONE
+		button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		button.alignment = HORIZONTAL_ALIGNMENT_CENTER
+		var trip: Array = TRIPS[key]
+		var here_now := str(trip[0]) == here and (str(trip[0]) != "town" or key == "Spawn")
+		var base := UIKit.THEME.get_stylebox("panel", "Chip").duplicate() as StyleBoxFlat
+		base.content_margin_left = 14
+		base.content_margin_right = 16
+		base.content_margin_top = 8
+		base.content_margin_bottom = 8
+		if here_now:
+			base.border_color = Color("#1A9CA0")
+			base.set_border_width_all(3)
+		var hover := base.duplicate() as StyleBoxFlat
+		hover.bg_color = base.bg_color.lightened(0.06)
+		var pressed := base.duplicate() as StyleBoxFlat
+		pressed.bg_color = base.bg_color.darkened(0.06)
+		button.add_theme_stylebox_override("normal", base)
+		button.add_theme_stylebox_override("hover", hover)
+		button.add_theme_stylebox_override("pressed", pressed)
+		button.add_theme_stylebox_override("focus", base)
+		button.add_theme_color_override("font_color", Color("#15274D"))
+		button.add_theme_color_override("font_hover_color", Color("#15274D"))
+		button.add_theme_color_override("font_pressed_color", Color("#15274D"))
+		button.add_theme_font_size_override("font_size", 20)
+		button.pressed.connect(_go.bind(key))
+		return button
+
+	func _go(key: String) -> void:
+		var trip: Array = TRIPS[key]
+		var loc := str(trip[0])
+		var spawn := str(trip[1])
+		var world := get_tree().get_first_node_in_group("world")
+		if world != null:
+			var here := _location_id()
+			if here == loc and loc == "town" and world.has_method("shift_to_marker"):
+				world.call("shift_to_marker", spawn)
+			elif here != loc and world.has_method("travel_to"):
+				world.call("travel_to", loc, spawn)
+		var screen := get_parent()
+		while screen != null and not (screen is MapScreen):
+			screen = screen.get_parent()
+		if screen is MapScreen:
+			(screen as MapScreen).close()
+
+	func _location_id() -> String:
+		var world := get_tree().get_first_node_in_group("world")
+		if world != null and world.has_method("current_location_id"):
+			return str(world.call("current_location_id"))
+		return ""
 
 	func _image_rect() -> Rect2:
 		if tex == null:

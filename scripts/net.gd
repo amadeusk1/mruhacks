@@ -14,6 +14,7 @@ signal chat_received(speaker: String, message: String)
 signal home_invite(from_id: int, from_name: String)
 signal sled_gate(race_id: int, phase: String, seconds: float)
 signal sled_pose(peer_id: int, x: float, y: float, z: float, yaw: float, steer: float, crashed: bool)
+signal arcade_state(state: Dictionary)
 
 const PORT := 7777
 const ADDRESS := "127.0.0.1"
@@ -54,6 +55,10 @@ var _sled_phase := ""
 var _sled_left := 0.0
 var _sled_status: Dictionary = {}
 var _sled_notice: Dictionary = {}
+var _arc_cab := ""
+var _arc_solo := false
+var _arc_pad := 0.5
+var _arc: Dictionary = {}
 
 
 func _ready() -> void:
@@ -67,6 +72,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if _closing:
 		return
+	_tick_arcade(delta)
 	_tick_sled(delta)
 	if _place_location == "sled_hill":
 		_tick_sled_pose(delta)
@@ -544,6 +550,9 @@ func _force_offline() -> void:
 	_sled_left = 0.0
 	_sled_status.clear()
 	_sled_notice.clear()
+	_arc.clear()
+	_arc_cab = ""
+	_arc_solo = false
 	_color_next = 0
 	_closing = false
 
@@ -935,3 +944,266 @@ func _roster_has_self() -> bool:
 		if int(entry.get("id", 0)) == local_id():
 			return true
 	return false
+
+
+## Puck Rally on a duo cabinet. The host steps the puck; each penguin only sends its paddle.
+func arcade_watch(cabinet: String) -> void:
+	_arc_cab = cabinet
+	_arc_solo = false
+	_arc_pad = 0.5
+	if _mode == Mode.HOST:
+		_arc_set_solo(local_id(), false)
+	elif _mode == Mode.CLIENT:
+		request_arcade_watch.rpc_id(1)
+
+
+func arcade_solo() -> void:
+	_arc_solo = true
+	if _mode == Mode.HOST:
+		_arc_set_solo(local_id(), true)
+	elif _mode == Mode.CLIENT:
+		request_arcade_solo.rpc_id(1)
+
+
+func arcade_stop() -> void:
+	if _arc_cab == "" and not _arc_solo:
+		_arc_cab = ""
+		return
+	_arc_cab = ""
+	_arc_solo = false
+	if _mode == Mode.HOST:
+		_arc_set_solo(local_id(), false)
+		_arc_clear_player(local_id())
+	elif _mode == Mode.CLIENT:
+		request_arcade_stop.rpc_id(1)
+
+
+func arcade_ready() -> void:
+	if _arc_cab == "" or _arc_solo:
+		return
+	if _mode == Mode.HOST:
+		_arc_mark_ready(local_id())
+	elif _mode == Mode.CLIENT:
+		request_arcade_ready.rpc_id(1)
+
+
+func arcade_paddle(y: float) -> void:
+	_arc_pad = clampf(y, 0.0, 1.0)
+	if _arc_cab == "" or _arc_solo or not is_online():
+		return
+	if _mode == Mode.HOST:
+		_arc_set_pad(local_id(), _arc_pad)
+	elif _mode == Mode.CLIENT:
+		request_arcade_paddle.rpc_id(1, _arc_pad)
+
+
+func _tick_arcade(delta: float) -> void:
+	if _mode != Mode.HOST:
+		return
+	var groups := {}
+	for id in _players.keys():
+		var bench := str(_players[id].get("bench", ""))
+		var cab := _arc_cab_of(bench)
+		if cab == "":
+			continue
+		if not groups.has(cab):
+			groups[cab] = {}
+		groups[cab][_arc_side_of(bench)] = int(id)
+	var drop: Array = []
+	for cab in _arc.keys():
+		var seated: Dictionary = groups.get(cab, {})
+		if seated.size() < 2 or not seated.has(0) or not seated.has(1):
+			if str(_arc[cab].get("phase", "")) == "live":
+				_arc_publish(str(cab), seated, "results")
+			drop.append(cab)
+	for cab in drop:
+		_arc.erase(cab)
+	for cab in groups.keys():
+		var seated: Dictionary = groups[cab]
+		if seated.size() < 2 or not seated.has(0) or not seated.has(1):
+			continue
+		_arc_play(str(cab), seated, delta)
+
+
+func _arc_play(cab: String, seated: Dictionary, delta: float) -> void:
+	var t := _arc_table(cab)
+	var a := int(seated[0])
+	var b := int(seated[1])
+	var solo: Dictionary = t["solo"]
+	if bool(solo.get(a, false)) or bool(solo.get(b, false)):
+		return
+	if str(t["phase"]) != "live":
+		var ready: Dictionary = t["ready"]
+		if not bool(ready.get(a, false)) or not bool(ready.get(b, false)):
+			return
+		var fresh := PuckBoard.new()
+		fresh.start()
+		t["board"] = fresh
+		t["phase"] = "live"
+		t["send"] = 0.0
+		t["sa"] = 0
+		t["sb"] = 0
+		_arc_publish(cab, seated, "live")
+		return
+	var board: PuckBoard = t["board"]
+	if board == null:
+		t["phase"] = "idle"
+		return
+	var pads: Dictionary = t["pads"]
+	board.step_with(delta, float(pads.get(a, 0.5)), float(pads.get(b, 0.5)))
+	var pose := board.pose()
+	var changed := int(pose["sa"]) != int(t["sa"]) or int(pose["sb"]) != int(t["sb"])
+	t["sa"] = int(pose["sa"])
+	t["sb"] = int(pose["sb"])
+	t["send"] = float(t["send"]) - delta
+	var done := not bool(pose["running"])
+	if float(t["send"]) > 0.0 and not changed and not done:
+		return
+	t["send"] = 0.05
+	_arc_publish(cab, seated, "results" if done else "live")
+	if done:
+		t["phase"] = "idle"
+		t["ready"] = {}
+		t["board"] = null
+
+
+func _arc_publish(cab: String, seated: Dictionary, phase: String) -> void:
+	var t: Dictionary = _arc.get(cab, {})
+	var board: PuckBoard = t.get("board")
+	var px := 0.5
+	var py := 0.5
+	var lp := 0.5
+	var rp := 0.5
+	var sa := int(t.get("sa", 0))
+	var sb := int(t.get("sb", 0))
+	if board != null:
+		var pose := board.pose()
+		px = float(pose["px"])
+		py = float(pose["py"])
+		lp = float(pose["lp"])
+		rp = float(pose["rp"])
+		sa = int(pose["sa"])
+		sb = int(pose["sb"])
+	if _arc_cab == cab and not _arc_solo:
+		arcade_state.emit({
+			"cab": cab, "phase": phase,
+			"px": px, "py": py, "lp": lp, "rp": rp, "sa": sa, "sb": sb,
+		})
+	for side in seated.keys():
+		var id := int(seated[side])
+		if id == local_id() or not multiplayer.get_peers().has(id):
+			continue
+		deliver_arcade.rpc_id(id, cab, phase, px, py, lp, rp, sa, sb)
+
+
+func _arc_table(cab: String) -> Dictionary:
+	if cab == "":
+		return {}
+	if not _arc.has(cab):
+		_arc[cab] = {
+			"phase": "idle", "ready": {}, "pads": {}, "solo": {},
+			"board": null, "send": 0.0, "sa": -1, "sb": -1,
+		}
+	return _arc[cab]
+
+
+func _arc_bench(id: int) -> String:
+	if not _players.has(id):
+		return ""
+	return str(_players[id].get("bench", ""))
+
+
+func _arc_cab_of(bench: String) -> String:
+	if bench.ends_with("_player_1"):
+		return bench.trim_suffix("_player_1")
+	if bench.ends_with("_player_2"):
+		return bench.trim_suffix("_player_2")
+	return ""
+
+
+func _arc_side_of(bench: String) -> int:
+	return 1 if bench.ends_with("_player_2") else 0
+
+
+func _arc_set_solo(id: int, on: bool) -> void:
+	var cab := _arc_cab_of(_arc_bench(id))
+	if cab == "":
+		return
+	var t := _arc_table(cab)
+	if on:
+		t["solo"][id] = true
+		(t["ready"] as Dictionary).erase(id)
+	else:
+		(t["solo"] as Dictionary).erase(id)
+
+
+func _arc_clear_player(id: int) -> void:
+	for cab in _arc.keys():
+		var t: Dictionary = _arc[cab]
+		(t["ready"] as Dictionary).erase(id)
+		(t["pads"] as Dictionary).erase(id)
+		(t["solo"] as Dictionary).erase(id)
+
+
+func _arc_mark_ready(id: int) -> void:
+	var cab := _arc_cab_of(_arc_bench(id))
+	if cab == "":
+		return
+	var t := _arc_table(cab)
+	if bool((t["solo"] as Dictionary).get(id, false)):
+		return
+	t["ready"][id] = true
+
+
+func _arc_set_pad(id: int, y: float) -> void:
+	var cab := _arc_cab_of(_arc_bench(id))
+	if cab == "":
+		return
+	_arc_table(cab)["pads"][id] = clampf(y, 0.0, 1.0)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func request_arcade_watch() -> void:
+	if _mode != Mode.HOST:
+		return
+	_arc_set_solo(multiplayer.get_remote_sender_id(), false)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func request_arcade_solo() -> void:
+	if _mode != Mode.HOST:
+		return
+	_arc_set_solo(multiplayer.get_remote_sender_id(), true)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func request_arcade_stop() -> void:
+	if _mode != Mode.HOST:
+		return
+	var id := multiplayer.get_remote_sender_id()
+	_arc_set_solo(id, false)
+	_arc_clear_player(id)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func request_arcade_ready() -> void:
+	if _mode != Mode.HOST:
+		return
+	_arc_mark_ready(multiplayer.get_remote_sender_id())
+
+
+@rpc("any_peer", "call_remote", "unreliable_ordered")
+func request_arcade_paddle(y: float) -> void:
+	if _mode != Mode.HOST:
+		return
+	_arc_set_pad(multiplayer.get_remote_sender_id(), y)
+
+
+@rpc("authority", "call_remote", "reliable")
+func deliver_arcade(cab: String, phase: String, px: float, py: float, lp: float, rp: float, sa: int, sb: int) -> void:
+	if _mode != Mode.CLIENT or _arc_solo or cab == "" or cab != _arc_cab:
+		return
+	arcade_state.emit({
+		"cab": cab, "phase": phase,
+		"px": px, "py": py, "lp": lp, "rp": rp, "sa": sa, "sb": sb,
+	})

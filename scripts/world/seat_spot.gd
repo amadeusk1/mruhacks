@@ -48,7 +48,7 @@ func interact(player: Node) -> bool:
 	if player.has_method("set_seat_clip"):
 		player.call("set_seat_clip", kit)
 	if activity != "":
-		Activities.request(activity, self, player)  # no listener yet: the penguin still sits
+		Activities.request(activity, self, player)
 	return true
 
 

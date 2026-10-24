@@ -16,6 +16,12 @@ extends Node3D
 
 var _target: Node3D
 var _center := Vector3.ZERO
+var _pin_on := false
+var _pin := Vector3.ZERO
+var _saved_height := 8.0
+var _saved_distance := 6.0
+var _saved_look := 0.7
+var _saved_smooth := 6.0
 
 
 func set_frame(center: Vector3, next_limit_x: float, next_limit_z: float, next_height: float = -1.0, next_distance: float = -1.0) -> void:
@@ -28,6 +34,35 @@ func set_frame(center: Vector3, next_limit_x: float, next_limit_z: float, next_h
 	if _target != null:
 		global_position = _clamped_focus()
 	camera.look_at(global_position + Vector3(0.0, look_height, 0.0), Vector3.UP)
+
+
+## Hold the frame on a world point (the roulette wheel) instead of the penguin.
+## A second call tightens the same shot; unpin_focus restores the room camera.
+func pin_focus(point: Vector3, next_height: float, next_distance: float, look_y: float) -> void:
+	if not _pin_on:
+		_saved_height = height
+		_saved_distance = distance
+		_saved_look = look_height
+		_saved_smooth = follow_smooth
+	_pin_on = true
+	_pin = point
+	height = next_height
+	distance = next_distance
+	look_height = look_y
+	follow_smooth = 2.4
+	camera.position = Vector3(0.0, height, distance)
+
+
+func unpin_focus() -> void:
+	if not _pin_on:
+		return
+	_pin_on = false
+	height = _saved_height
+	distance = _saved_distance
+	look_height = _saved_look
+	follow_smooth = _saved_smooth
+	camera.position = Vector3(0.0, height, distance)
+	_aim()
 
 
 func _ready() -> void:
@@ -47,9 +82,20 @@ func _process(delta: float) -> void:
 		return
 	var blend := 1.0 - exp(-follow_smooth * delta)
 	global_position = global_position.lerp(_clamped_focus(), blend)
+	if _pin_on:
+		_aim()
+
+
+func _aim() -> void:
+	var at := global_position + Vector3(0.0, look_height, 0.0)
+	if camera.global_position.distance_squared_to(at) < 0.01:
+		return
+	camera.look_at(at, Vector3.UP)
 
 
 func _clamped_focus() -> Vector3:
+	if _pin_on:
+		return Vector3(_pin.x, 0.0, _pin.z)
 	var focus := _target.global_position
 	focus.x = clampf(focus.x, _center.x - limit_x, _center.x + limit_x)
 	focus.y = 0.0
