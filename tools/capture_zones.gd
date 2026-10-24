@@ -4,7 +4,8 @@ extends Node
 const SPOTS := {
 	"plaza": Vector3(0, 0, 0), "homes": Vector3(-23.5, 0, 0), "dock": Vector3(-18, 0, 18),
 	"sled": Vector3(-21, 0, -24), "arena": Vector3(26, 0, -20), "court": Vector3(25.5, 0, 19.2),
-	"stream": Vector3(13, 0, 2), "casino": Vector3(22, 0, -6),
+	"stream": Vector3(13, 0, 2), "casino": Vector3(22, 0, -6), "arcade": Vector3(8.8, 0, -12.8),
+	"houseboat": Vector3(-14.5, 0, 26), "lighthouse": Vector3(1.7, 0, 42), "bridge": Vector3(13.3, 0, 0.2), "treehouse": Vector3(-27, 0, -13),
 }
 func _ready() -> void:
 	var w: Node = load("res://scenes/world.tscn").instantiate()

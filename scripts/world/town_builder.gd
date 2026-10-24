@@ -18,6 +18,7 @@ const BLOCK_LAYER := 2
 
 var _layout: Dictionary
 var _walks: Array = []  # walkable placements' floor bodies, joined to the ground in _ready
+var _blockers: Array = []  # [node, id, scale]: collision built in _ready, once the ground is queryable
 var _glows: Array = []  # [material, base_energy, phase]
 var _saved_env: Environment
 var _saved_sun := {}
@@ -47,6 +48,8 @@ func _ready() -> void:
 	var open := 0
 	var space := get_world_3d().direct_space_state
 	var ramps := 0
+	for b in _blockers:
+		_blocker(nav, b[0], b[1], b[2], space)
 	for pair in _walks:
 		ramps += WalkSurface.add_ramps(pair[0], nav, space)
 	await get_tree().physics_frame
@@ -182,14 +185,148 @@ func _place(nav: Node, p: Dictionary) -> void:
 		if walk:
 			_walks.append([node, walk])
 	if tags.has("blocker"):
-		if id == "world_misc/homes_arch":
-			_arch_posts(node)  # posts only, so the gateway stays open
-		else:
-			var size := AssetRegistry.size(id) * float(p.get("scale", 1.0))
-			_box_body(nav, node.position + Vector3(0, size.y * 0.5, 0), size, float(p.get("rot_y_deg", 0.0)), BLOCK_LAYER)
+		_blockers.append([node, id, float(p.get("scale", 1.0))])  # posts only for the homes arch: see _footprint
 	_start_ambient(node)
 	if id == "activities/communal_table":  # Sketch Club: sitting here joins the table's game
 		(func(): SeatSpot.from_sockets(nav, node, "sketch", node.global_position, "sketch")).call_deferred()  # needs globals
+
+
+## Blocker collision from the model's own feet, not its AABB box (a box across bunting posts,
+## string lights or a scaled rock walled off paths). Geometry below FOOT_H m is rasterised to
+## FOOT_CELL cells; each connected patch becomes a convex prism (rocks shrunk to 75%), or row
+## boxes when the patch is concave (fence corners). Moving parts (tree crowns, flags, doors)
+## never block. room_nav carves each prism's outline, so the navmesh routes around the same shapes.
+## Heights are measured from the ground under the placement, not its origin: rocks sit sunk up to 1 m.
+const FOOT_H := 0.6
+const FOOT_CELL := 0.15
+const BLOCK_TOP := 2.0  # well over the 1.25 m agent height, or the bake keeps the floor under the prism
+var _footprints := {}  # "id@scale" -> Array of [kind, data] in the asset's scaled local XZ
+
+
+func _blocker(nav: Node, node: Node3D, id: String, scale: float, space: PhysicsDirectSpaceState3D) -> void:
+	# Ground around the placement, in the asset's frame. Several rays: one at the origin can drop
+	# through a fountain basin or onto the stream bed and leave the prism top at knee height.
+	var at := node.global_position
+	var lo := INF
+	var hi := -INF
+	var size := AssetRegistry.size(id) * scale
+	var ring := maxf(size.x, size.z) * 0.5 + 0.3  # just outside the model
+	for o in [Vector3.ZERO, Vector3(0.8, 0, 0), Vector3(-0.8, 0, 0), Vector3(0, 0, 0.8), Vector3(0, 0, -0.8),
+			Vector3(ring, 0, 0), Vector3(-ring, 0, 0), Vector3(0, 0, ring), Vector3(0, 0, -ring)]:
+		var hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(at + o + Vector3.UP * 4.0, at + o + Vector3.DOWN * 4.0, FLOOR_LAYER))
+		if hit:
+			lo = minf(lo, hit.position.y - at.y)
+			hi = maxf(hi, hit.position.y - at.y)
+	if lo == INF:
+		lo = 0.0
+		hi = 0.0
+	lo = snappedf(lo, 0.1)
+	var ground := snappedf(hi, 0.1)
+	var key := "%s@%.2f@%.1f@%.1f" % [id, scale, lo, ground]
+	if not _footprints.has(key):
+		_footprints[key] = _footprint(node, id, scale, ground)
+	var body := StaticBody3D.new()
+	body.name = node.name + "_block"
+	body.collision_layer = BLOCK_LAYER
+	body.collision_mask = 0
+	body.set_meta("blocker_of", id)
+	body.transform = Transform3D(node.basis.orthonormalized(), node.position)
+	for piece in _footprints[key]:
+		var col := CollisionShape3D.new()
+		if piece[0] == "hull":
+			var pts := PackedVector3Array()
+			for q in piece[1]:
+				pts.append(Vector3(q.x, lo - 0.3, q.y))
+				pts.append(Vector3(q.x, ground + BLOCK_TOP, q.y))
+			var hull := ConvexPolygonShape3D.new()
+			hull.points = pts  # before assigning: an empty hull on a shape node logs a build error
+			col.shape = hull
+		else:  # [box, Rect2]
+			var r: Rect2 = piece[1]
+			col.shape = BoxShape3D.new()
+			col.shape.size = Vector3(r.size.x, ground + BLOCK_TOP - lo + 0.3, r.size.y)
+			col.position = Vector3(r.get_center().x, (ground + BLOCK_TOP + lo - 0.3) * 0.5, r.get_center().y)
+		body.add_child(col)
+	nav.add_child(body)
+
+
+func _footprint(node: Node3D, id: String, scale: float, ground: float) -> Array:
+	var parts := AssetRegistry.parts(id)
+	var cells := {}
+	for mi in node.find_children("*", "MeshInstance3D", true, false):
+		if mi.mesh == null or parts.has(String(mi.name)) or parts.has(String(mi.get_parent().name)):
+			continue
+		var xf := Transform3D(Basis.IDENTITY.scaled(Vector3.ONE * scale), Vector3.ZERO) * _local_to(node, mi)
+		for s in mi.mesh.get_surface_count():
+			var f := (mi.mesh as Mesh).surface_get_arrays(s)
+			var v: PackedVector3Array = f[Mesh.ARRAY_VERTEX]
+			var idx = f[Mesh.ARRAY_INDEX]
+			if idx != null and (idx as PackedInt32Array).is_empty():
+				idx = null
+			var count: int = idx.size() if idx != null else v.size()
+			for t in range(0, count, 3):
+				var a := xf * v[idx[t] if idx != null else t]
+				var b := xf * v[idx[t + 1] if idx != null else t + 1]
+				var c := xf * v[idx[t + 2] if idx != null else t + 2]
+				if minf(a.y, minf(b.y, c.y)) > ground + FOOT_H or maxf(a.y, maxf(b.y, c.y)) < ground - 0.05:
+					continue
+				var n := maxi(1, ceili(maxf(a.distance_to(b), maxf(b.distance_to(c), c.distance_to(a))) / (FOOT_CELL * 0.5)))
+				for i in n + 1:
+					for j in n + 1 - i:
+						var q := a + (b - a) * (float(i) / n) + (c - a) * (float(j) / n)
+						if q.y < ground + FOOT_H and q.y > ground - 0.05:  # the cross-section a penguin meets
+							cells[Vector2i(floori(q.x / FOOT_CELL), floori(q.z / FOOT_CELL))] = true
+	var out := []
+	var rock := id.contains("rock")
+	while not cells.is_empty():
+		var seed: Vector2i = cells.keys()[0]
+		var patch := [seed]
+		cells.erase(seed)
+		var k := 0
+		while k < patch.size():
+			for d in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1), Vector2i(1, 1), Vector2i(-1, -1), Vector2i(1, -1), Vector2i(-1, 1)]:
+				var nb: Vector2i = patch[k] + d
+				if cells.has(nb):
+					cells.erase(nb)
+					patch.append(nb)
+			k += 1
+		var corners := PackedVector2Array()
+		for cell in patch:
+			for o in [Vector2(0, 0), Vector2(1, 0), Vector2(0, 1), Vector2(1, 1)]:
+				corners.append((Vector2(cell) + o) * FOOT_CELL)
+		var hull := Geometry2D.convex_hull(corners)
+		var area := absf(_area(hull))
+		if rock:  # players snag on the outer bumps otherwise
+			var mid := Vector2.ZERO
+			for q in hull:
+				mid += q
+			mid /= hull.size()
+			for i in hull.size():
+				hull[i] = mid + (hull[i] - mid) * 0.75
+			out.append(["hull", hull])
+		elif patch.size() * FOOT_CELL * FOOT_CELL >= 0.6 * area or patch.size() < 4:
+			out.append(["hull", hull])
+		else:  # concave patch: one box per run of cells along each row
+			var rows := {}
+			for cell in patch:
+				rows[cell.y] = rows.get(cell.y, []) + [cell.x]
+			for z in rows:
+				var xs: Array = rows[z]
+				xs.sort()
+				var start: int = xs[0]
+				for i in xs.size():
+					if i == xs.size() - 1 or xs[i + 1] != xs[i] + 1:
+						out.append(["box", Rect2(Vector2(start, z) * FOOT_CELL, Vector2(xs[i] - start + 1, 1) * FOOT_CELL)])
+						if i < xs.size() - 1:
+							start = xs[i + 1]
+	return out
+
+
+func _area(poly: PackedVector2Array) -> float:
+	var a := 0.0
+	for i in poly.size():
+		a += poly[i].cross(poly[(i + 1) % poly.size()])
+	return a * 0.5
 
 
 ## Assets whose only moving parts sway (tree crowns, shrub tops) batch fine: the sway moves
@@ -398,8 +535,9 @@ func _bridge_approaches(bridge: Node3D) -> void:
 			landing.rotation.y = PI
 		var seam := Sockets.find(landing, "seam_bridge")
 		var end := Sockets.find(bridge, end_name)
-		if seam != null and end != null:
-			landing.position += bridge.to_local(end.global_position) - bridge.to_local(seam.global_position)
+		if seam != null and end != null:  # not in the tree yet: compose transforms instead of global_position
+			var to_bridge := WalkSurface._world(bridge).affine_inverse()
+			landing.position += (to_bridge * WalkSurface._world(end)).origin - (to_bridge * WalkSurface._world(seam)).origin
 		else:
 			landing.position = Vector3(3.4 if end_name == "end_e" else -3.4, 0.0, 0.0)
 
@@ -439,9 +577,9 @@ func _ribbon_floor(parent: Node3D, pts: PackedVector3Array, width: float) -> voi
 
 
 func _tri(st: SurfaceTool, a: Vector3, b: Vector3, c: Vector3) -> void:
-	st.add_vertex(a)
-	st.add_vertex(b)
+	st.add_vertex(a)  # Godot fronts are clockwise: emitted a, c, b so the deck top faces up (else no navmesh)
 	st.add_vertex(c)
+	st.add_vertex(b)
 
 
 ## Side rails block a fall into the stream. Not a BoxShape3D, and marked nav_keep, so
@@ -477,22 +615,6 @@ func _trimesh_body(mi: MeshInstance3D, layer: int) -> void:
 	shape.shape = mi.mesh.create_trimesh_shape()
 	body.add_child(shape)
 	mi.add_child(body)
-
-
-## The homes arch's full-size blocker filled the opening. Two posts leave a walkway between them.
-func _arch_posts(arch: Node3D) -> void:
-	var body := StaticBody3D.new()
-	body.name = "ArchPosts"
-	body.collision_layer = BLOCK_LAYER
-	body.collision_mask = 0
-	arch.add_child(body)
-	for side in [-1.0, 1.0]:
-		var shape := CollisionShape3D.new()
-		var box := BoxShape3D.new()
-		box.size = Vector3(0.5, 2.6, 0.5)
-		shape.shape = box
-		shape.position = Vector3(side * 1.35, 1.3, 0.0)
-		body.add_child(shape)
 
 
 func _box_body(parent: Node, center: Vector3, size: Vector3, rot_y: float, layer: int) -> StaticBody3D:

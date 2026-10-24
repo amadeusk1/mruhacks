@@ -102,3 +102,8 @@ occlusion_radius={
 
 renderer/rendering_method.web="gl_compatibility"
 textures/default_filters/use_nearest_mipmap_filter=false
+
+[navigation]
+
+world/map_use_async_iterations=false
+world/region_use_async_iterations=false

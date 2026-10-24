@@ -34,7 +34,7 @@ func _bake() -> void:
 	mesh.geometry_collision_mask = 1
 	mesh.geometry_source_geometry_mode = NavigationMesh.SOURCE_GEOMETRY_ROOT_NODE_CHILDREN
 	navigation_mesh = mesh
-	bake_navigation_mesh(false)
+	bake_navigation_mesh(false)  # applied at once only with async map/region iterations off (project.godot)
 	if navigation_mesh == null or navigation_mesh.get_polygon_count() == 0:
 		push_error("Snow navmesh bake produced no walkable polygons.")
 	else:
@@ -50,9 +50,10 @@ func _carve_blockers() -> void:
 			if not (child is CollisionShape3D):
 				continue
 			var shape_node := child as CollisionShape3D
-			if not (shape_node.shape is BoxShape3D):
-				continue
-			_carve_box(shape_node)
+			if shape_node.shape is BoxShape3D:
+				_carve_box(shape_node)
+			elif shape_node.shape is ConvexPolygonShape3D:
+				_carve_hull(shape_node)
 
 
 func _carve_box(shape_node: CollisionShape3D) -> void:
@@ -79,6 +80,35 @@ func _carve_box(shape_node: CollisionShape3D) -> void:
 	# footprint is discarded, including any ledge on top of a block.
 	obstacle.global_position = origin
 	obstacle.height = 4.0
+	obstacle.avoidance_enabled = false
+	obstacle.affect_navigation_mesh = true
+	obstacle.vertices = verts
+
+
+## Town blockers are prisms over the model's real footprint: carve their outline, from the
+## bottom of the prism up, so it works on the sled hill as well as the plaza.
+func _carve_hull(shape_node: CollisionShape3D) -> void:
+	var xf := shape_node.global_transform
+	var flat := PackedVector2Array()
+	var low := INF
+	var high := -INF
+	for q in (shape_node.shape as ConvexPolygonShape3D).points:
+		var p := xf * q
+		flat.append(Vector2(p.x, p.z))
+		low = minf(low, p.y)
+		high = maxf(high, p.y)
+	var hull := Geometry2D.convex_hull(flat)
+	if hull.size() < 4:
+		return
+	var centre := Vector2(xf.origin.x, xf.origin.z)
+	var verts := PackedVector3Array()
+	for i in hull.size() - 1:  # convex_hull repeats the first point at the end
+		verts.append(Vector3(hull[i].x - centre.x, 0.0, hull[i].y - centre.y))
+	var obstacle := NavigationObstacle3D.new()
+	obstacle.name = "NavCarve"
+	add_child(obstacle)
+	obstacle.global_position = Vector3(centre.x, low, centre.y)
+	obstacle.height = high - low
 	obstacle.avoidance_enabled = false
 	obstacle.affect_navigation_mesh = true
 	obstacle.vertices = verts
