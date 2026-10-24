@@ -7,6 +7,7 @@ extends Node
 ## Output: `texture` (for a 3D screen material or a 2D overlay) and `texture_changed`.
 
 signal texture_changed(tex: Texture2D)
+signal playing_changed(on: bool)
 
 const SEG := 10.0
 const FPS := 15.0
@@ -54,7 +55,9 @@ func apply_state(st: Dictionary) -> void:
 	if on != playing or absf(pos - position()) > 0.35:
 		_base_pos = pos
 		_base_ms = Time.get_ticks_msec()
-	playing = on
+	if on != playing:
+		playing = on
+		playing_changed.emit(on)
 
 
 func position() -> float:

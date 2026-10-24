@@ -23,6 +23,8 @@ func _ready() -> void:
 	if hall:
 		var screen := Sockets.find(hall, "screen")
 		SeatSpot.from_sockets(self, hall, "cinema", screen.global_position if screen else hall.global_position)
+		if CinemaService.enabled("screen_video"):
+			CinemaScreen.attach(hall, CinemaService.player)
 	var lobby := find_child("cinema_lobby", true, false) as Node3D
 	if lobby:
 		SeatSpot.from_sockets(self, lobby, "stool")

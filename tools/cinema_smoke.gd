@@ -17,6 +17,9 @@ func _ready() -> void:
 			part = a.get_slice("=", 1)
 	url = OS.get_environment("PENGLOO_CINEMA_URL")
 	code = OS.get_environment("PENGLOO_CINEMA_TEST_CODE")
+	if part == "screen":  # feature flags on for this run only
+		ProjectSettings.set_setting("pengloo/cinema/service_enabled", true)
+		ProjectSettings.set_setting("pengloo/cinema/screen_video", true)
 	room = (load("res://scenes/locations/cinema.tscn") as PackedScene).instantiate() as Node3D
 	add_child(room)  # enter the cinema
 	await get_tree().process_frame
@@ -24,7 +27,9 @@ func _ready() -> void:
 		"client":
 			_client()
 		"overlay":
-			_with_film(_overlay)
+			_with_film(_overlay, CinemaService.client)
+		"screen":
+			_with_film(_screen, CinemaService.client)
 		"room":  # baseline: just enter and leave the cinema
 			_done(true)
 		_:
@@ -61,9 +66,10 @@ func _client() -> void:
 
 
 ## Signs in as host, starts the longest film, then calls body(client). Ends paused + signed out.
-func _with_film(body: Callable) -> void:
-	var c := CinemaServiceClient.new()
-	add_child(c)
+func _with_film(body: Callable, shared: CinemaServiceClient = null) -> void:
+	var c := shared if shared else CinemaServiceClient.new()
+	if shared == null:
+		add_child(c)
 	c.log_line.connect(func(t: String) -> void: print("HTTP %.1f %s" % [Time.get_ticks_msec() / 1000.0, t]))
 	c.set_service(url)
 	c.login("Smoke", code, func(ok: bool, err: String) -> void:
@@ -82,7 +88,8 @@ func _with_film(body: Callable) -> void:
 					c.control("play", {}, func(playing: bool, _d2: Variant) -> void:
 						if not (loaded and playing):
 							_done(false, "host could not start the film"); return
-						body.call(c))))))
+						# past the opening titles, so a screenshot shows picture
+						c.control("seek", {"position": 600.0}, func(_o: bool, _d3: Variant) -> void: body.call(c)))))))
 
 
 func _finish(c: CinemaServiceClient, ok: bool, why: String) -> void:
@@ -96,15 +103,50 @@ func _overlay(c: CinemaServiceClient) -> void:
 	var notes: Array = []
 	for i in 5:
 		var o: Control = load("res://ui/activities/cinema/cinema_watch_overlay.gd").new()
-		o.set("client", c)
 		UIRouter.push(o)
+		var before := CinemaService.player.frames_shown
 		await get_tree().create_timer(6.0 if i == 0 else 3.0).timeout  # first open waits for the first chunk
 		var p: CinemaScreenPlayer = o.get("player")
 		var pic := (o.get("_picture") as TextureRect).texture
-		notes.append("%d:%d" % [i + 1, p.frames_shown])
-		if pic != null and p.frames_shown > 10 and p.playing:
+		var shown := p.frames_shown - before
+		notes.append("%d:%d" % [i + 1, shown])
+		if pic != null and shown > 10 and p.playing:
 			good += 1
 		print("OPEN %d %.1f frames=%d" % [i + 1, Time.get_ticks_msec() / 1000.0, p.frames_shown])
 		o.call("close")
 		await get_tree().process_frame
 	_finish(c, good == 5, "opens with picture %d/5 frames %s" % [good, " ".join(notes)])
+
+
+# ---- 3. video on the auditorium screen ------------------------------------------------------
+func _screen(c: CinemaServiceClient) -> void:
+	var notes: Array = []
+	var good := 0
+	for i in 5:  # enter the cinema, watch the big screen, leave; five times
+		if i > 0:
+			room.queue_free()
+			await get_tree().process_frame
+			room = (load("res://scenes/locations/cinema.tscn") as PackedScene).instantiate() as Node3D
+			add_child(room)
+		var before := CinemaService.player.frames_shown
+		await get_tree().create_timer(6.0).timeout  # entering rebuilds the cinema + navmesh first
+		var scr := room.find_child("CinemaScreen", true, false) as CinemaScreen
+		var frames := CinemaService.player.frames_shown - before
+		notes.append("%d:%d" % [i + 1, frames])
+		var mat := scr.material_override as StandardMaterial3D if scr else null
+		if mat and mat.albedo_texture and frames > 10:
+			good += 1
+		if i == 0 and scr:
+			var hall := scr.hall
+			var screen := Sockets.find(hall, "screen")
+			var cam := Camera3D.new()
+			room.add_child(cam)
+			var marker := room.get_node_or_null("InsideScreen") as Node3D  # where players land in the hall
+			cam.global_position = (marker.global_position if marker else hall.global_position) + Vector3(0, 2.2, 1.5)
+			cam.look_at(screen.global_position)
+			cam.fov = 60
+			cam.current = true
+			await get_tree().create_timer(0.5).timeout
+			await RenderingServer.frame_post_draw
+			get_viewport().get_texture().get_image().save_png("/tmp/cinema_smoke_screen.png")
+	_finish(c, good == 5, "screen with picture %d/5 frames %s" % [good, " ".join(notes)])
