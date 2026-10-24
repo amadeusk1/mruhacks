@@ -175,55 +175,92 @@ def build_exterior():
     return house
 
 
+# Interior shell follows Art Docs/Interior Spacing Standard: ~10 x 8 m floor, 1.6 m doorway,
+# 2.5 x 2.5 m entry zone, 2.0 m main aisle, seats >= 1.15 m apart. Seat anchors are
+# socket_<anchor>_seat_<k> and face socket_<anchor>.
+IW, ID = 10.0, 8.0                 # interior floor
+IH = 2.4
+OW, OD = IW + 2 * T, ID + 2 * T    # outer footprint
+I_DOOR_X, I_DOOR_W, I_DOOR_H = -0.2, 1.6, 1.9
+I_SERV_X, I_SERV_W = 2.6, 1.8
+TABLES = {"table_0": (-2.9, 1.9), "table_1": (-2.9, -1.9), "table_2": (2.6, -1.9)}
+SEAT_R = 0.6                       # seats on the diagonals: ring radius 0.85 m, neighbours 1.2 m apart
+COUNTER = (2.9, 2.0)
+COUNTER_STOOLS = (-1.15, 0.0, 1.15)
+STOOL_Y = COUNTER[1] - 0.275 - 0.45
+
+
+def interior_layout():
+    """Anchor sockets (Blender coords, floor level) keyed by name, for the shell and the spacing check."""
+    s = {}
+    for t, (x, y) in TABLES.items():
+        s[t] = (x, y)
+        for k, (dx, dy) in enumerate(((SEAT_R, SEAT_R), (-SEAT_R, SEAT_R), (-SEAT_R, -SEAT_R), (SEAT_R, -SEAT_R))):
+            s[f"{t}_seat_{k}"] = (x + dx, y + dy)
+    s["counter"] = COUNTER
+    for k, dx in enumerate(COUNTER_STOOLS):
+        s[f"counter_seat_{k}"] = (COUNTER[0] + dx, STOOL_Y)
+    return s
+
+
 def build_interior_shell():
     b = Builder("cafe_interior_shell", seed=311)
-    b.box(W + 0.3, D + 0.3, SLAB, 0, 0, 0, "stone_dark", bevel=0.03)
-    # checker tile floor
-    n, m = 8, 6
-    fw, fd = W - 2 * T, D - 2 * T
+    b.box(OW + 0.3, OD + 0.3, SLAB, 0, 0, 0, "stone_dark", bevel=0.03)
+    # tile floor, ~0.5 m tiles
+    n, m = 20, 16
     for i in range(n):
         for j in range(m):
-            b.box(fw / n - 0.02, fd / m - 0.02, 0.03, -fw / 2 + fw * (i + 0.5) / n, -fd / 2 + fd * (j + 0.5) / m, SLAB,
+            b.box(IW / n - 0.02, ID / m - 0.02, 0.03, -IW / 2 + IW * (i + 0.5) / n, -ID / 2 + ID * (j + 0.5) / m, SLAB,
                   pick(("paving", "paving_b", "stone"), i * 3 + j * 5 + (i + j) % 2), bevel=0.012)
     # walls are built with their detailed face (-Y local) pointing into the room
-    with b.at((0, D / 2 - T / 2, SLAB)):                                      # back
-        masonry_wall(b, W, H, openings=[(-0.3, 1.02, 0, 1.68)], quoins=(True, True), cap=ROOF_T[0])
-        door_unit(b, -0.3, socket=False, part_name="door_leaf_back")
-    with b.at((-W / 2 + T / 2, 0, SLAB), rotz=90):                            # left, two windows
-        masonry_wall(b, D - 2 * T, H, openings=[(-0.65, 0.76, 0.86, 1.72), (0.65, 0.76, 0.86, 1.72)], cap=ROOF_T[0])
-        window_unit(b, -0.65, 0.93)
-        window_unit(b, 0.65, 0.93)
-    # corner blocks
+    with b.at((0, OD / 2 - T / 2, SLAB)):                                         # back: service door
+        masonry_wall(b, OW, IH, openings=[(-0.5, 1.02, 0, 1.68)], quoins=(True, True), cap=ROOF_T[0])
+        door_unit(b, -0.5, socket=False, part_name="door_leaf_back")
+    with b.at((-OW / 2 + T / 2, 0, SLAB), rotz=90):                               # left: windows by the tables
+        masonry_wall(b, OD - 2 * T, IH, openings=[(-1.9, 0.76, 0.86, 1.72), (1.9, 0.76, 0.86, 1.72)], cap=ROOF_T[0])
+        window_unit(b, -1.9, 0.93)
+        window_unit(b, 1.9, 0.93)
     for sx, sy in ((-1, 1), (1, 1), (-1, -1)):
-        b.box(T + 0.1, T + 0.1, 0.22, sx * (W / 2 - T / 2), sy * (D / 2 - T / 2), TOP, "stone_grey", bevel=0.03)
-    b.socket("door_back", (-0.3, D / 2 - T - 0.5, SLAB))
-    b.socket("door_front", (DOOR_X, -D / 2 + T + 0.5, SLAB))
-    b.socket("counter", (0.75, 0.2, SLAB))
-    b.socket("coffee_station", (1.2, D / 2 - T - 0.25, SLAB), rotz=180)
-    b.socket("wall_shelf", (0.9, D / 2 - T, SLAB + 1.35), rotz=180)
-    b.socket("menu_board", (-1.4, D / 2 - T, SLAB + 1.2), rotz=180)
-    b.socket("table_0", (-1.3, 0.55, SLAB))
-    b.socket("table_1", (-1.2, -0.6, SLAB))
-    shell = b.finish(KIT, "room", {"footprint_m": [W, D], "floor_z": SLAB, "cutaway_child": "cafe_interior_shell_cutaway"})
+        b.box(T + 0.1, T + 0.1, 0.22, sx * (OW / 2 - T / 2), sy * (OD / 2 - T / 2), SLAB + IH, "stone_grey", bevel=0.03)
+    z = SLAB
+    lay = interior_layout()
+    for name, (x, y) in lay.items():
+        b.socket(name, (x, y, z))
+    b.socket("door_back", (-0.5, ID / 2 - 0.5, z))
+    b.socket("door_front", (I_DOOR_X, -ID / 2 + 0.5, z))
+    b.socket("exit", (I_DOOR_X, -ID / 2 + 0.35, z))
+    b.socket("spawn_inside", (I_DOOR_X, -ID / 2 + 1.4, z))
+    b.socket("entry_zone", (I_DOOR_X, -ID / 2 + 1.25, z))
+    b.socket("coffee_station", (3.0, ID / 2 - 0.25, z), rotz=180)
+    b.socket("wall_shelf", (4.1, ID / 2, z + 1.35), rotz=180)
+    b.socket("menu_board", (1.5, ID / 2, z + 1.3), rotz=180)
+    b.socket("pastry_case", (COUNTER[0] + 0.35, COUNTER[1], z + 0.86))
+    b.socket("mug_set", (3.3, ID / 2 - 0.25, z + 0.88))
+    b.socket("table_0_top", (TABLES["table_0"][0], TABLES["table_0"][1], z + 0.6))
+    shell = b.finish(KIT, "room", {"footprint_m": [OW, OD], "interior_m": [IW, ID], "floor_z": SLAB,
+                                   "cutaway_child": "cafe_interior_shell_cutaway", "doorway_clear_m": I_DOOR_W,
+                                   "entry_zone_m": [2.5, 2.5], "main_aisle_m": 2.0,
+                                   "seat_anchor_rule": "socket_<anchor>_seat_<k> faces socket_<anchor>"})
 
     c = Builder("cafe_interior_shell_cutaway", seed=312)
-    with c.at((0, -D / 2 + T / 2, SLAB)):
-        masonry_wall(c, W, H, openings=[(DOOR_X, 1.02, 0, 1.68), (SERV_X, SERV_W, SERV_ZB, SERV_ZT)],
+    with c.at((0, -OD / 2 + T / 2, SLAB)):                                        # front: double door + glazed window
+        sw, zb, zt = I_SERV_W, SERV_ZB, SERV_ZT
+        masonry_wall(c, OW, IH, openings=[(I_DOOR_X, I_DOOR_W + 0.16, 0, I_DOOR_H + 0.08), (I_SERV_X, sw, zb, zt)],
                      quoins=(True, True), cap=ROOF_T[0])
-        door_unit(c, DOOR_X, socket=False, part_name="door_leaf_front")
-        c.box(SERV_W + 0.06, T + 0.3, 0.06, SERV_X, -0.08, SERV_ZB - 0.06, "wood_c", bevel=0.015)
-        c.box(SERV_W, 0.03, SERV_ZT - SERV_ZB, SERV_X, 0, SERV_ZB, "glass", bevel=0)
-        c.box(0.07, T + 0.02, SERV_ZT - SERV_ZB, SERV_X, 0, SERV_ZB, "wood", bevel=0.008)          # centre post
-        for s in (-1, 1):                                                                           # sash bars
-            c.box(0.05, 0.05, SERV_ZT - SERV_ZB, SERV_X + s * SERV_W / 4, -0.03, SERV_ZB, "wood", bevel=0.006)
-        c.box(SERV_W, 0.05, 0.05, SERV_X, -0.03, SERV_ZB + (SERV_ZT - SERV_ZB) * 0.55, "wood", bevel=0.006)
-        c.box(SERV_W + 0.2, T + 0.06, 0.08, SERV_X, 0, SERV_ZT, "wood", bevel=0.012)
-        awning(c, w=SERV_W + 0.5, depth=0.75, drop=0.38, x=SERV_X, y=-T / 2 - 0.01, z=H - 0.02, stripes=6, a=AWN_T[0], c=AWN_T[1])
-    with c.at((W / 2 - T / 2, 0, SLAB), rotz=90):
-        masonry_wall(c, D - 2 * T, H, openings=[(-0.6, 0.76, 0.86, 1.72), (0.6, 0.76, 0.86, 1.72)], cap=ROOF_T[0])
-        window_unit(c, -0.6, 0.93, box=True)
-        window_unit(c, 0.6, 0.93, box=True)
-    c.box(T + 0.1, T + 0.1, 0.22, W / 2 - T / 2, -D / 2 + T / 2, TOP, "stone_grey", bevel=0.03)
+        door_unit(c, I_DOOR_X, w=I_DOOR_W, h=I_DOOR_H, socket=False, part_name="door_leaf_front", double=True)
+        c.box(sw + 0.06, T + 0.3, 0.06, I_SERV_X, -0.08, zb - 0.06, "wood_c", bevel=0.015)
+        c.box(sw, 0.03, zt - zb, I_SERV_X, 0, zb, "glass", bevel=0)
+        c.box(0.07, T + 0.02, zt - zb, I_SERV_X, 0, zb, "wood", bevel=0.008)                 # centre post
+        for s in (-1, 1):                                                                   # sash bars
+            c.box(0.05, 0.05, zt - zb, I_SERV_X + s * sw / 4, -0.03, zb, "wood", bevel=0.006)
+        c.box(sw, 0.05, 0.05, I_SERV_X, -0.03, zb + (zt - zb) * 0.55, "wood", bevel=0.006)
+        c.box(sw + 0.2, T + 0.06, 0.08, I_SERV_X, 0, zt, "wood", bevel=0.012)
+        awning(c, w=sw + 0.5, depth=0.75, drop=0.38, x=I_SERV_X, y=-T / 2 - 0.01, z=IH - 0.02, stripes=7,
+               a=AWN_T[0], c=AWN_T[1])
+    with c.at((OW / 2 - T / 2, 0, SLAB), rotz=90):                                 # right
+        masonry_wall(c, OD - 2 * T, IH, openings=[(-1.9, 0.76, 0.86, 1.72)], cap=ROOF_T[0])
+        window_unit(c, -1.9, 0.93, box=True)
+    c.box(T + 0.1, T + 0.1, 0.22, OW / 2 - T / 2, -OD / 2 + T / 2, SLAB + IH, "stone_grey", bevel=0.03)
     attach(c.finish(KIT, "room"), shell)
     return shell
 

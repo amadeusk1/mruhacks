@@ -51,6 +51,7 @@ Sheets, or parts of sheets, that belong in Godot (particles, shaders, triggers) 
 | [Housing Placement Data](Art%20Docs/Housing%20Placement%20Data.md) | Grid cells, placement layers, surfaces, interior cell masks, saved layout record |
 | [Movable Parts and Effects](Art%20Docs/Movable%20Parts%20and%20Effects.md) | `part_*` children with pivots and motion data (doors, curtains, crowns, flags, rims), `socket_fx_*` effect emitters |
 | [Game Setup](Art%20Docs/Game%20Setup.md) | How the Godot game loads the art pack: autoloads, the layout-driven town, penguin visuals, environments, branches, screenshots |
+| [UI Implementation](Art%20Docs/UI%20Implementation.md) | Pengloo Party UI in Godot: theme tokens, components, UIRouter, every core screen and its mockup comparison |
 | [Godot Integration](Art%20Docs/Godot%20Integration.md) | Verified Godot 4.7 import results, `Tints` and `Sockets` helper scripts, animation library and clothing setup |
 | [Kit Authoring Guide](Art%20Docs/Kit%20Authoring%20Guide.md) | How to add or change a model, Builder parts and helpers, the quality checks |
 

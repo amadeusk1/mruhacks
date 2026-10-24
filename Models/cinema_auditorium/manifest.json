@@ -4,9 +4,9 @@
     "file": "cinema_auditorium/seat_single.glb",
     "category": "seat",
     "size_m": [
-      0.86,
-      0.751,
-      0.957
+      1.46,
+      0.777,
+      0.996
     ],
     "sockets": {
       "socket_seat": [
@@ -24,28 +24,28 @@
     "file": "cinema_auditorium/seat_row_4.glb",
     "category": "seat",
     "size_m": [
-      3.02,
-      0.751,
-      0.957
+      4.91,
+      0.777,
+      0.996
     ],
     "sockets": {
       "socket_seat_0": [
-        -1.08,
+        -1.725,
         -0.02,
         0.38
       ],
       "socket_seat_1": [
-        -0.36,
+        -0.575,
         -0.02,
         0.38
       ],
       "socket_seat_2": [
-        0.36,
+        0.575,
         -0.02,
         0.38
       ],
       "socket_seat_3": [
-        1.08,
+        1.725,
         -0.02,
         0.38
       ]
@@ -53,7 +53,53 @@
     "tints": {
       "upholstery": "#E0483D"
     },
-    "seat_pitch_m": 0.72
+    "seat_pitch_m": 1.15
+  },
+  {
+    "id": "cinema_auditorium/seat_row_6",
+    "file": "cinema_auditorium/seat_row_6.glb",
+    "category": "seat",
+    "size_m": [
+      7.21,
+      0.777,
+      0.996
+    ],
+    "sockets": {
+      "socket_seat_0": [
+        -2.875,
+        -0.02,
+        0.38
+      ],
+      "socket_seat_1": [
+        -1.725,
+        -0.02,
+        0.38
+      ],
+      "socket_seat_2": [
+        -0.575,
+        -0.02,
+        0.38
+      ],
+      "socket_seat_3": [
+        0.575,
+        -0.02,
+        0.38
+      ],
+      "socket_seat_4": [
+        1.725,
+        -0.02,
+        0.38
+      ],
+      "socket_seat_5": [
+        2.875,
+        -0.02,
+        0.38
+      ]
+    },
+    "tints": {
+      "upholstery": "#E0483D"
+    },
+    "seat_pitch_m": 1.15
   },
   {
     "id": "cinema_auditorium/riser",
@@ -61,8 +107,8 @@
     "category": "floor",
     "size_m": [
       3.2,
-      1.2,
-      0.22
+      1.4,
+      0.3
     ],
     "sockets": {},
     "tints": {},
@@ -223,9 +269,9 @@
     "file": "cinema_auditorium/exit_door.glb",
     "category": "door",
     "size_m": [
-      1.1,
+      2.14,
       0.15,
-      1.86
+      2.04
     ],
     "sockets": {
       "socket_door": [
@@ -235,21 +281,35 @@
       ]
     },
     "parts": {
-      "part_door_leaf": {
+      "part_door_l": {
         "pivot": [
-          -0.37,
+          -0.86,
           -0.03,
           0.0
         ],
         "motion": "hinge",
         "axis": "z",
         "open_deg": -90
+      },
+      "part_door_r": {
+        "pivot": [
+          0.86,
+          -0.03,
+          0.0
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 90
       }
     },
     "part_clips": {
-      "part_door_leaf": [
-        "door_leaf_open",
-        "door_leaf_close"
+      "part_door_l": [
+        "door_l_open",
+        "door_l_close"
+      ],
+      "part_door_r": [
+        "door_r_open",
+        "door_r_close"
       ]
     },
     "tints": {
@@ -261,9 +321,9 @@
     "file": "cinema_auditorium/auditorium_shell.glb",
     "category": "building",
     "size_m": [
-      5.96,
-      8.16,
-      3.74
+      14.76,
+      12.76,
+      4.54
     ],
     "sockets": {},
     "tints": {
@@ -271,104 +331,134 @@
       "wall": "#1F5A66"
     },
     "interior_m": [
-      5.2,
-      7.4
+      14.0,
+      12.0
     ],
     "floor_z": 0.05,
-    "tier_rise_m": 0.22
+    "tier_rise_m": 0.3
   },
   {
     "id": "cinema_auditorium/cinema_auditorium",
     "file": "cinema_auditorium/cinema_auditorium.glb",
     "category": "room",
     "size_m": [
-      5.96,
-      8.16,
-      3.74
+      14.76,
+      12.76,
+      4.54
     ],
     "sockets": {
       "socket_exit": [
-        -1.9,
-        -3.05,
-        0.93
+        -6.2,
+        -4.0,
+        1.25
       ],
       "socket_screen": [
         0.0,
-        3.5,
-        1.9
+        5.8,
+        2.4
       ],
       "socket_screen__park.001": [
         0.0,
-        3.5,
-        1.9
+        5.8,
+        2.4
       ],
       "socket_seat_0": [
-        0.42,
-        0.47,
-        0.65
+        2.875,
+        1.67,
+        0.73
       ],
       "socket_seat_1": [
-        -0.3,
-        0.47,
-        0.65
+        1.725,
+        1.67,
+        0.73
       ],
       "socket_seat_10": [
-        -1.02,
-        -1.93,
-        1.09
+        -1.725,
+        0.27,
+        1.03
       ],
       "socket_seat_11": [
-        -1.74,
-        -1.93,
-        1.09
+        -2.875,
+        0.27,
+        1.03
+      ],
+      "socket_seat_12": [
+        2.875,
+        -1.13,
+        1.33
+      ],
+      "socket_seat_13": [
+        1.725,
+        -1.13,
+        1.33
+      ],
+      "socket_seat_14": [
+        0.575,
+        -1.13,
+        1.33
+      ],
+      "socket_seat_15": [
+        -0.575,
+        -1.13,
+        1.33
+      ],
+      "socket_seat_16": [
+        -1.725,
+        -1.13,
+        1.33
+      ],
+      "socket_seat_17": [
+        -2.875,
+        -1.13,
+        1.33
       ],
       "socket_seat_2": [
-        -1.02,
-        0.47,
-        0.65
+        0.575,
+        1.67,
+        0.73
       ],
       "socket_seat_3": [
-        -1.74,
-        0.47,
-        0.65
+        -0.575,
+        1.67,
+        0.73
       ],
       "socket_seat_4": [
-        0.42,
-        -0.73,
-        0.87
+        -1.725,
+        1.67,
+        0.73
       ],
       "socket_seat_5": [
-        -0.3,
-        -0.73,
-        0.87
+        -2.875,
+        1.67,
+        0.73
       ],
       "socket_seat_6": [
-        -1.02,
-        -0.73,
-        0.87
+        2.875,
+        0.27,
+        1.03
       ],
       "socket_seat_7": [
-        -1.74,
-        -0.73,
-        0.87
+        1.725,
+        0.27,
+        1.03
       ],
       "socket_seat_8": [
-        0.42,
-        -1.93,
-        1.09
+        0.575,
+        0.27,
+        1.03
       ],
       "socket_seat_9": [
-        -0.3,
-        -1.93,
-        1.09
+        -0.575,
+        0.27,
+        1.03
       ]
     },
     "parts": {
       "part_curtain_l_inner": {
         "pivot": [
-          -0.44,
-          3.2,
-          3.05
+          -0.632,
+          5.5,
+          3.85
         ],
         "motion": "slide",
         "dir": [
@@ -376,13 +466,13 @@
           0.0,
           0.0
         ],
-        "dist": 1.64
+        "dist": 2.505
       },
       "part_curtain_l_outer": {
         "pivot": [
-          -1.26,
-          3.43,
-          3.05
+          -1.837,
+          5.73,
+          3.85
         ],
         "motion": "slide",
         "dir": [
@@ -390,13 +480,13 @@
           0.0,
           0.0
         ],
-        "dist": 0.82
+        "dist": 1.3
       },
       "part_curtain_r_inner": {
         "pivot": [
-          0.44,
-          3.2,
-          3.05
+          0.632,
+          5.5,
+          3.85
         ],
         "motion": "slide",
         "dir": [
@@ -404,13 +494,13 @@
           0.0,
           0.0
         ],
-        "dist": 1.64
+        "dist": 2.505
       },
       "part_curtain_r_outer": {
         "pivot": [
-          1.26,
-          3.43,
-          3.05
+          1.837,
+          5.73,
+          3.85
         ],
         "motion": "slide",
         "dir": [
@@ -418,17 +508,27 @@
           0.0,
           0.0
         ],
-        "dist": 0.82
+        "dist": 1.3
       },
-      "part_door_leaf": {
+      "part_door_l": {
         "pivot": [
-          -2.52,
-          -3.42,
-          0.93
+          -6.92,
+          -4.86,
+          1.25
         ],
         "motion": "hinge",
         "axis": "z",
         "open_deg": -90
+      },
+      "part_door_r": {
+        "pivot": [
+          -6.92,
+          -3.14,
+          1.25
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 90
       }
     },
     "part_clips": {
@@ -448,9 +548,13 @@
         "curtain_r_outer_open",
         "curtain_r_outer_close"
       ],
-      "part_door_leaf": [
-        "door_leaf_open",
-        "door_leaf_close"
+      "part_door_l": [
+        "door_l_open",
+        "door_l_close"
+      ],
+      "part_door_r": [
+        "door_r_open",
+        "door_r_close"
       ]
     },
     "tints": {
@@ -463,10 +567,12 @@
     },
     "prefab": true,
     "interior_m": [
-      5.2,
-      7.4
+      14.0,
+      12.0
     ],
-    "seats": 12,
-    "note": "seat_0..11 face the screen (+Y); exit door on the left wall at the rear landing"
+    "seats": 18,
+    "seat_pitch_m": 1.15,
+    "row_pitch_m": 1.4,
+    "note": "seat_0..17 face the screen (+Y); 1.6 m aisle on the right; double exit door on the left wall at the rear landing"
   }
 ]
