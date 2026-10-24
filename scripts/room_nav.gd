@@ -29,6 +29,7 @@ func _bake() -> void:
 	mesh.agent_max_climb = 0.35  # matches penguin_movement STEP_HEIGHT
 	mesh.agent_max_slope = 50.0  # under the penguin's 55 degree floor_max_angle: click where you can walk
 	mesh.cell_size = 0.15
+	mesh.region_min_size = 6.0  # drop islands under ~0.8 m² (inside a ring of chairs): clicks snapped onto them and stalled
 	mesh.cell_height = 0.1
 	mesh.geometry_parsed_geometry_type = NavigationMesh.PARSED_GEOMETRY_STATIC_COLLIDERS
 	mesh.geometry_collision_mask = 1

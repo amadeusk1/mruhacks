@@ -103,6 +103,8 @@ static func span_gaps(body: StaticBody3D, parent: Node, space: PhysicsDirectSpac
 	for v in faces:
 		box = box.expand(v)
 	var c := box.get_center()
+	var deck := _down(space, c, box.end.y + 1.0, box.position.y - 0.1)
+	var level: float = deck.position.y if deck else box.end.y  # the deck, not a bollard or rail top on it
 	var open := []
 	var n := 24
 	for i in n:
@@ -119,8 +121,8 @@ static func span_gaps(body: StaticBody3D, parent: Node, space: PhysicsDirectSpac
 			elif edge != Vector3.INF:
 				break
 			t += 0.2
-		if edge == Vector3.INF:
-			continue
+		if edge == Vector3.INF or edge.y > level + 0.2:
+			continue  # an edge up on a post or rail would lay a plank at knee height across the deck
 		var hole := false
 		var landed := false
 		var d := 0.2
@@ -222,7 +224,8 @@ static func stair_ramps(nodes: Array, parent: Node) -> int:
 		var along := (b - a).normalized()
 		var low := clampf(0.25 / maxf(along.y, 0.05), 0.45, 1.5)
 		ramp(parent, a - along * low, b + along * 0.15, 1.4, "FlightRamp")
-		_cheeks(parent, a + along * 0.7, b + along * 0.15, 1.4)  # the foot stays open to diagonal approaches
+		# cheeks start where the ramp is already a step above the ground: the foot stays open
+		_cheeks(parent, a + along * clampf(0.4 / maxf(along.y, 0.05), 0.7, 2.0), b + along * 0.15, 1.4)
 		made += 1
 	return made
 
