@@ -13,6 +13,7 @@ const FOLIAGE := preload("res://scripts/world/foliage_batch.gdshader")
 const BATCH_MIN := 6  # identical untinted, part-less props batched into one MultiMesh
 const FLOOR_LAYER := 1
 const BLOCK_LAYER := 2
+const SAMPLE_LAYER := 1 << 7  # the visual terrain's trimesh, only sampled into the ground heightfield
 
 @onready var _nav: NavigationRegion3D = $NavigationRegion3D
 
@@ -47,11 +48,14 @@ func _ready() -> void:
 	var nav := get_node("NavigationRegion3D")
 	var open := 0
 	var space := get_world_3d().direct_space_state
+	_ground_heightfield(nav, space)
+	await get_tree().physics_frame
 	var ramps := 0
 	for b in _blockers:
-		_blocker(nav, b[0], b[1], b[2], space)
+		Footprint.blocker(nav, b[0], b[1], b[2], space)
 	for pair in _walks:
 		ramps += WalkSurface.add_ramps(pair[0], nav, space)
+	ramps += WalkSurface.stair_ramps(_walks.map(func(pair): return pair[0]), nav)
 	await get_tree().physics_frame
 	for pair in _walks:
 		WalkSurface.span_gaps(pair[1], nav, space)
@@ -66,6 +70,8 @@ func _ready() -> void:
 	print("Town walkables: %d, ramps: %d, gap spans: %d, edge guards: %d" % [_walks.size(), ramps, nav.get_children().filter(func(n): return n.has_meta("gap_span")).size(), guards])
 	if open > 0:
 		push_warning("Town: %d walkable edges drop off with no guard (layout fix needed)" % open)
+	await get_tree().physics_frame  # gap spans registered before the shore is traced
+	_water_edges(nav, space)
 	if nav.has_method("rebake"):
 		nav.call("rebake")
 	AmbientFx.dress(self)
@@ -136,7 +142,7 @@ func _build_terrain(nav: Node) -> void:
 	Tints.prepare(terrain)
 	for mi in terrain.find_children("*", "MeshInstance3D", true, false):
 		if not String(mi.name).begins_with("water"):  # v2 merges snow/rock/sand into "town_terrain"
-			_trimesh_body(mi, FLOOR_LAYER)
+			_trimesh_body(mi, SAMPLE_LAYER)
 
 
 func _build_placements(nav: Node) -> void:
@@ -165,6 +171,7 @@ func _place(nav: Node, p: Dictionary) -> void:
 	if node == null:
 		return
 	node.name = str(p.get("name", id.get_file()))
+	node.set_meta("asset_id", id)
 	node.transform = _xform(p)
 	nav.add_child(node)
 	if id == "activities/basketball_court_half":
@@ -192,148 +199,105 @@ func _place(nav: Node, p: Dictionary) -> void:
 		if walk:
 			_walks.append([node, walk])
 	if tags.has("blocker"):
-		_blockers.append([node, id, float(p.get("scale", 1.0))])  # posts only for the homes arch: see _footprint
+		_blockers.append([node, id, float(p.get("scale", 1.0))])  # Footprint.blocker: posts only for the homes arch
 	_start_ambient(node)
 	if id == "activities/communal_table":  # Sketch Club: sitting here joins the table's game
 		(func(): SeatSpot.from_sockets(nav, node, "sketch", node.global_position, "sketch")).call_deferred()  # needs globals
 
 
-## Blocker collision from the model's own feet, not its AABB box (a box across bunting posts,
-## string lights or a scaled rock walled off paths). Geometry below FOOT_H m is rasterised to
-## FOOT_CELL cells; each connected patch becomes a convex prism (rocks shrunk to 75%), or row
-## boxes when the patch is concave (fence corners). Moving parts (tree crowns, flags, doors)
-## never block. room_nav carves each prism's outline, so the navmesh routes around the same shapes.
-## Heights are measured from the ground under the placement, not its origin: rocks sit sunk up to 1 m.
-const FOOT_H := 0.6
-const FOOT_CELL := 0.15
-const BLOCK_TOP := 2.0  # well over the 1.25 m agent height, or the bake keeps the floor under the prism
-var _footprints := {}  # "id@scale" -> Array of [kind, data] in the asset's scaled local XZ
+## The walkable ground is one heightfield sampled from the visual terrain and paths every
+## GROUND_CELL m: no curb risers, snow-lip slivers or seams between meshes for the capsule to
+## catch on (8 cm curbs become gentle ramps). Decks, stairs and bridges stay separate bodies.
+const GROUND_CELL := 0.3
 
 
-func _blocker(nav: Node, node: Node3D, id: String, scale: float, space: PhysicsDirectSpaceState3D) -> void:
-	# Ground around the placement, in the asset's frame. Several rays: one at the origin can drop
-	# through a fountain basin or onto the stream bed and leave the prism top at knee height.
-	var at := node.global_position
-	var lo := INF
-	var hi := -INF
-	var size := AssetRegistry.size(id) * scale
-	var ring := maxf(size.x, size.z) * 0.5 + 0.3  # just outside the model
-	for o in [Vector3.ZERO, Vector3(0.8, 0, 0), Vector3(-0.8, 0, 0), Vector3(0, 0, 0.8), Vector3(0, 0, -0.8),
-			Vector3(ring, 0, 0), Vector3(-ring, 0, 0), Vector3(0, 0, ring), Vector3(0, 0, -ring)]:
-		var hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(at + o + Vector3.UP * 4.0, at + o + Vector3.DOWN * 4.0, FLOOR_LAYER))
-		if hit:
-			lo = minf(lo, hit.position.y - at.y)
-			hi = maxf(hi, hit.position.y - at.y)
-	if lo == INF:
-		lo = 0.0
-		hi = 0.0
-	lo = snappedf(lo, 0.1)
-	var ground := snappedf(hi, 0.1)
-	var key := "%s@%.2f@%.1f@%.1f" % [id, scale, lo, ground]
-	if not _footprints.has(key):
-		_footprints[key] = _footprint(node, id, scale, ground)
+func _ground_heightfield(nav: Node, space: PhysicsDirectSpaceState3D) -> void:
+	var n := int(WATER_HALF * 2.0 / GROUND_CELL) + 1
+	var low := float(_layout.get("water_level", 0.0)) - 3.0
+	var h := PackedFloat32Array()
+	h.resize(n * n)
+	for j in n:
+		for i in n:
+			var x := -WATER_HALF + i * GROUND_CELL
+			var z := -WATER_HALF + j * GROUND_CELL
+			var hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(Vector3(x, 40, z), Vector3(x, low, z), SAMPLE_LAYER))
+			h[j * n + i] = hit.position.y if hit else low
+	var faces := PackedVector3Array()
+	for j in n - 1:  # shortcut: one triangle pair per cell; merge flat cells if the collision cost ever shows
+		for i in n - 1:
+			var x := -WATER_HALF + i * GROUND_CELL
+			var z := -WATER_HALF + j * GROUND_CELL
+			var a := Vector3(x, h[j * n + i], z)
+			var b := Vector3(x + GROUND_CELL, h[j * n + i + 1], z)
+			var c := Vector3(x, h[(j + 1) * n + i], z + GROUND_CELL)
+			var d := Vector3(x + GROUND_CELL, h[(j + 1) * n + i + 1], z + GROUND_CELL)
+			faces.append_array([a, b, c, b, d, c])  # clockwise seen from above: Godot's front face
+	var shape := ConcavePolygonShape3D.new()
+	shape.set_faces(faces)
+	var col := CollisionShape3D.new()
+	col.shape = shape
 	var body := StaticBody3D.new()
-	body.name = node.name + "_block"
-	body.collision_layer = BLOCK_LAYER
+	body.name = "Ground"
+	body.collision_layer = FLOOR_LAYER
 	body.collision_mask = 0
-	body.set_meta("blocker_of", id)
-	body.transform = Transform3D(node.basis.orthonormalized(), node.position)
-	for piece in _footprints[key]:
-		var col := CollisionShape3D.new()
-		if piece[0] == "hull":
-			var pts := PackedVector3Array()
-			for q in piece[1]:
-				pts.append(Vector3(q.x, lo - 0.3, q.y))
-				pts.append(Vector3(q.x, ground + BLOCK_TOP, q.y))
-			var hull := ConvexPolygonShape3D.new()
-			hull.points = pts  # before assigning: an empty hull on a shape node logs a build error
-			col.shape = hull
-		else:  # [box, Rect2]
-			var r: Rect2 = piece[1]
-			col.shape = BoxShape3D.new()
-			col.shape.size = Vector3(r.size.x, ground + BLOCK_TOP - lo + 0.3, r.size.y)
-			col.position = Vector3(r.get_center().x, (ground + BLOCK_TOP + lo - 0.3) * 0.5, r.get_center().y)
-		body.add_child(col)
+	body.add_child(col)
 	nav.add_child(body)
+	for b in nav.find_children("*", "StaticBody3D", true, false):
+		if b.collision_layer == SAMPLE_LAYER:
+			b.queue_free()
 
 
-func _footprint(node: Node3D, id: String, scale: float, ground: float) -> Array:
-	var parts := AssetRegistry.parts(id)
-	var cells := {}
-	for mi in node.find_children("*", "MeshInstance3D", true, false):
-		if mi.mesh == null or parts.has(String(mi.name)) or parts.has(String(mi.get_parent().name)):
-			continue
-		var xf := Transform3D(Basis.IDENTITY.scaled(Vector3.ONE * scale), Vector3.ZERO) * _local_to(node, mi)
-		for s in mi.mesh.get_surface_count():
-			var f := (mi.mesh as Mesh).surface_get_arrays(s)
-			var v: PackedVector3Array = f[Mesh.ARRAY_VERTEX]
-			var idx = f[Mesh.ARRAY_INDEX]
-			if idx != null and (idx as PackedInt32Array).is_empty():
-				idx = null
-			var count: int = idx.size() if idx != null else v.size()
-			for t in range(0, count, 3):
-				var a := xf * v[idx[t] if idx != null else t]
-				var b := xf * v[idx[t + 1] if idx != null else t + 1]
-				var c := xf * v[idx[t + 2] if idx != null else t + 2]
-				if minf(a.y, minf(b.y, c.y)) > ground + FOOT_H or maxf(a.y, maxf(b.y, c.y)) < ground - 0.05:
-					continue
-				var n := maxi(1, ceili(maxf(a.distance_to(b), maxf(b.distance_to(c), c.distance_to(a))) / (FOOT_CELL * 0.5)))
-				for i in n + 1:
-					for j in n + 1 - i:
-						var q := a + (b - a) * (float(i) / n) + (c - a) * (float(j) / n)
-						if q.y < ground + FOOT_H and q.y > ground - 0.05:  # the cross-section a penguin meets
-							cells[Vector2i(floori(q.x / FOOT_CELL), floori(q.z / FOOT_CELL))] = true
-	var out := []
-	var rock := id.contains("rock")
-	while not cells.is_empty():
-		var seed: Vector2i = cells.keys()[0]
-		var patch := [seed]
-		cells.erase(seed)
-		var k := 0
-		while k < patch.size():
-			for d in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1), Vector2i(1, 1), Vector2i(-1, -1), Vector2i(1, -1), Vector2i(-1, 1)]:
-				var nb: Vector2i = patch[k] + d
-				if cells.has(nb):
-					cells.erase(nb)
-					patch.append(nb)
-			k += 1
-		var corners := PackedVector2Array()
-		for cell in patch:
-			for o in [Vector2(0, 0), Vector2(1, 0), Vector2(0, 1), Vector2(1, 1)]:
-				corners.append((Vector2(cell) + o) * FOOT_CELL)
-		var hull := Geometry2D.convex_hull(corners)
-		var area := absf(_area(hull))
-		if rock:  # players snag on the outer bumps otherwise
-			var mid := Vector2.ZERO
-			for q in hull:
-				mid += q
-			mid /= hull.size()
-			for i in hull.size():
-				hull[i] = mid + (hull[i] - mid) * 0.75
-			out.append(["hull", hull])
-		elif patch.size() * FOOT_CELL * FOOT_CELL >= 0.6 * area or patch.size() < 4:
-			out.append(["hull", hull])
-		else:  # concave patch: one box per run of cells along each row
-			var rows := {}
-			for cell in patch:
-				rows[cell.y] = rows.get(cell.y, []) + [cell.x]
-			for z in rows:
-				var xs: Array = rows[z]
-				xs.sort()
-				var start: int = xs[0]
-				for i in xs.size():
-					if i == xs.size() - 1 or xs[i + 1] != xs[i] + 1:
-						out.append(["box", Rect2(Vector2(start, z) * FOOT_CELL, Vector2(xs[i] - start + 1, 1) * FOOT_CELL)])
-						if i < xs.size() - 1:
-							start = xs[i + 1]
-	return out
+## Invisible walls over the sea and the stream: every WATER_CELL square whose top floor lies under
+## the water line (or has no floor) becomes part of a tall prism on the blocker layer, merged into
+## rectangles. Decks, bridges and gap spans above the water keep their cells dry.
+const WATER_CELL := 0.5
+const WATER_HALF := 50.0
 
 
-func _area(poly: PackedVector2Array) -> float:
-	var a := 0.0
-	for i in poly.size():
-		a += poly[i].cross(poly[(i + 1) % poly.size()])
-	return a * 0.5
+func _water_edges(nav: Node, space: PhysicsDirectSpaceState3D) -> void:
+	var water := float(_layout.get("water_level", -INF))
+	if water == -INF:
+		return
+	var n := int(WATER_HALF * 2.0 / WATER_CELL)
+	var wet := {}
+	for i in n:
+		for j in n:
+			var x := -WATER_HALF + (i + 0.5) * WATER_CELL
+			var z := -WATER_HALF + (j + 0.5) * WATER_CELL
+			var hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(Vector3(x, 30, z), Vector3(x, water - 8.0, z), FLOOR_LAYER))
+			if hit.is_empty() or hit.position.y < water - 0.05:
+				wet[Vector2i(i, j)] = true
+	var walls := 0
+	while not wet.is_empty():  # greedy rectangles: grow along i, then along j while the whole row is wet
+		var c: Vector2i = wet.keys()[0]
+		var i1 := c.x
+		while wet.has(Vector2i(i1 + 1, c.y)):
+			i1 += 1
+		var j1 := c.y
+		while range(c.x, i1 + 1).all(func(i): return wet.has(Vector2i(i, j1 + 1))):
+			j1 += 1
+		for i in range(c.x, i1 + 1):
+			for j in range(c.y, j1 + 1):
+				wet.erase(Vector2i(i, j))
+		var lo := Vector2(-WATER_HALF + c.x * WATER_CELL, -WATER_HALF + c.y * WATER_CELL)
+		var hi := Vector2(-WATER_HALF + (i1 + 1) * WATER_CELL, -WATER_HALF + (j1 + 1) * WATER_CELL)
+		var pts := PackedVector3Array()
+		for q in [lo, Vector2(hi.x, lo.y), hi, Vector2(lo.x, hi.y)]:
+			pts.append(Vector3(q.x, water - 8.0, q.y))
+			pts.append(Vector3(q.x, water + Footprint.BLOCK_TOP + 0.5, q.y))
+		var body := StaticBody3D.new()
+		body.name = "WaterEdge"
+		body.collision_layer = BLOCK_LAYER
+		body.collision_mask = 0
+		body.set_meta("blocker_of", "water_edge")
+		var hull := ConvexPolygonShape3D.new()
+		hull.points = pts
+		var col := CollisionShape3D.new()
+		col.shape = hull
+		body.add_child(col)
+		nav.add_child(body)
+		walls += 1
+	print("Town water edges: %d walls" % walls)
 
 
 ## Assets whose only moving parts sway (tree crowns, shrub tops) batch fine: the sway moves
@@ -525,8 +489,7 @@ func _bridge_crossing(bridge: Node3D) -> void:
 		pts.append(Vector3(x, _bridge_deck_y(x), 0.0))
 	pts.append(Vector3(4.5, 0.07, 0.0))
 	pts.append(Vector3(5.2, 0.07, 0.0))
-	_ribbon_floor(bridge, pts, 1.2)
-	_bridge_rails(bridge)
+	_ribbon_floor(bridge, pts, 1.2)  # no rail colliders: the water edges hold the sides, and rail ends snagged the path
 
 
 ## Visible ramps from the path (0.07 m) up to each deck end. Collision is the ribbon,
@@ -587,31 +550,6 @@ func _tri(st: SurfaceTool, a: Vector3, b: Vector3, c: Vector3) -> void:
 	st.add_vertex(a)  # Godot fronts are clockwise: emitted a, c, b so the deck top faces up (else no navmesh)
 	st.add_vertex(c)
 	st.add_vertex(b)
-
-
-## Side rails block a fall into the stream. Not a BoxShape3D, and marked nav_keep, so
-## room_nav does not carve them out of the deck (a carved rail erases the only crossing).
-func _bridge_rails(bridge: Node3D) -> void:
-	var body := StaticBody3D.new()
-	body.name = "BridgeRails"
-	body.collision_layer = BLOCK_LAYER
-	body.collision_mask = 0
-	body.set_meta("nav_keep", true)
-	bridge.add_child(body)
-	for side in [-1.0, 1.0]:
-		var shape := CollisionShape3D.new()
-		var box := ConvexPolygonShape3D.new()
-		var h := Vector3(4.3, 0.75, 0.08)
-		box.points = PackedVector3Array([
-			Vector3(-h.x, -h.y, -h.z), Vector3(h.x, -h.y, -h.z),
-			Vector3(h.x, h.y, -h.z), Vector3(-h.x, h.y, -h.z),
-			Vector3(-h.x, -h.y, h.z), Vector3(h.x, -h.y, h.z),
-			Vector3(h.x, h.y, h.z), Vector3(-h.x, h.y, h.z),
-		])
-		shape.shape = box
-		# Bottom sits at the snow so the corner cannot catch a foot. Inner face at ±0.64.
-		shape.position = Vector3(0.0, 0.75, side * 0.72)
-		body.add_child(shape)
 
 
 func _trimesh_body(mi: MeshInstance3D, layer: int) -> void:

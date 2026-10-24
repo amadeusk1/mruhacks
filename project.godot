@@ -112,3 +112,4 @@ world/region_use_async_iterations=false
 
 cinema/service_enabled=false
 cinema/service_url="http://127.0.0.1:8095/cinema/"
+cinema/watch_overlay=false
