@@ -107,3 +107,8 @@ textures/default_filters/use_nearest_mipmap_filter=false
 
 world/map_use_async_iterations=false
 world/region_use_async_iterations=false
+
+[pengloo]
+
+cinema/service_enabled=false
+cinema/service_url="http://127.0.0.1:8095/cinema/"
