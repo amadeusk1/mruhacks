@@ -6,11 +6,11 @@ extends Node3D
 
 @export var target_path: NodePath
 @export var follow_smooth := 7.0
-@export var height := 14.0
-@export var distance := 12.0
-@export var look_height := 0.55
-@export var fov := 50.0
-@export var lead := 5.0
+@export var height := 9.0
+@export var distance := 8.5
+@export var look_height := 0.7
+@export var fov := 42.0
+@export var lead := 3.5
 
 @onready var camera: Camera3D = $Camera3D
 

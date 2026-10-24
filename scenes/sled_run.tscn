@@ -113,22 +113,22 @@ mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = SubResource("Mat_start")
 
 [node name="StartPostL" type="MeshInstance3D" parent="."]
-transform = Transform3D(0.4, 0, 0, 0, 2.6, 0, 0, 0, 0.4, -6.15, 1.3, 7)
+transform = Transform3D(0.4, 0, 0, 0, 3.2, 0, 0, 0, 0.4, -6.15, 1.6, 7)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = SubResource("Mat_start")
 
 [node name="StartPostR" type="MeshInstance3D" parent="."]
-transform = Transform3D(0.4, 0, 0, 0, 2.6, 0, 0, 0, 0.4, 6.15, 1.3, 7)
+transform = Transform3D(0.4, 0, 0, 0, 3.2, 0, 0, 0, 0.4, 6.15, 1.6, 7)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = SubResource("Mat_start")
 
 [node name="StartBar" type="MeshInstance3D" parent="."]
-transform = Transform3D(12.6, 0, 0, 0, 0.32, 0, 0, 0, 0.4, 0, 2.5, 7)
+transform = Transform3D(12.6, 0, 0, 0, 0.36, 0, 0, 0, 0.4, 0, 3.05, 7)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = SubResource("Mat_start")
 
 [node name="StartLabel" type="Label3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.05, 7)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.65, 7)
 pixel_size = 0.016
 modulate = Color(0.55, 0.9, 0.62, 1)
 outline_modulate = Color(0.08, 0.14, 0.1, 1)
