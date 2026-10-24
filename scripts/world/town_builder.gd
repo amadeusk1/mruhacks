@@ -37,6 +37,10 @@ func _enter_tree() -> void:
 
 func _ready() -> void:
 	_apply_environment()
+	AmbientFx.dress(self)
+	var world := get_tree().get_first_node_in_group("world")
+	if world:
+		AmbientFx.snowfall(self, world.get_node("CameraRig"))
 
 
 func _exit_tree() -> void:

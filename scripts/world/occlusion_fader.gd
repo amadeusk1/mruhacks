@@ -8,7 +8,7 @@ extends Node
 const FADE_TO := 0.3
 const FADE_IN := 0.15   # seconds to reach FADE_TO
 const FADE_OUT := 0.3   # seconds to come back
-const RADIUS := 0.5     # occluder AABBs are inflated by this (a cheap capsule sweep)
+const RADIUS := 0.25    # occluder AABBs are inflated by this (a cheap capsule sweep)
 const SKIP_NAMES := ["Terrain", "terrain_", "town_terrain", "water", "Shadow", "ClickMarker"]
 const ROOF_TAGS := ["_roof", "_cutaway"]
 const SILHOUETTE := preload("res://scripts/world/occluded_silhouette.gdshader")

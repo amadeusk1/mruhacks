@@ -135,6 +135,10 @@ func _cut_front(shell: Node3D, z_cut: float) -> void:
 			mi.set_surface_override_material(si, null)
 
 
+func _ready() -> void:
+	AmbientFx.dress(self)  # steam on the coffee station and mugs; no snow indoors
+
+
 func camera_for_spawn(_spawn_name: String) -> Dictionary:
 	var c: Dictionary = _cfg["camera"]
 	return {"center": Vector3(0, 0, 0.3), "limit_x": c["limit_x"], "limit_z": c["limit_z"],
