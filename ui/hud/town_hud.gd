@@ -20,6 +20,19 @@ const PLACES := {
 	"FishingSpot0": ["Fishing", "fish"], "@casino/casino_exterior": ["Casino", "dice"],
 }
 const LAYOUT := "res://Models/world/town_layout.json"
+const MARGIN := 22.0
+const CHAT_W := 340.0
+const CHAT_H := 200.0
+const GUTTER := 16.0
+const DOCK_H := 88.0
+const DOCK_BTN := 112.0
+const DOCK_GAP := 12.0
+const DOCK_COUNT := 5
+const MIC_SIZE := 64.0
+const COIN_W := 156.0
+const COIN_GAP := 12.0
+const ACTION_H := 56.0
+const ACTION_GAP := 12.0
 
 
 ## Godot-space position of a PLACES key: a marker name, or "@kit/asset" = that placement's socket_door.
@@ -41,6 +54,8 @@ static func place_position(key: String, layout: Dictionary, markers: Dictionary)
 var _chip: PanelContainer
 var _chip_label: Label
 var _mic: Button
+var _dock: HBoxContainer
+var _dock_rect := Rect2()
 var _action: IconTextButton
 var _action_target: Node3D
 var _action_kind := ""
@@ -55,61 +70,113 @@ func _ready() -> void:
 	ControlsScreen.ensure_actions()
 	_chip = UIKit.chip("Town", "pin", 30)
 	_chip_label = _chip.find_children("*", "Label", true, false)[0]
-	_chip.position = Vector2(22, 20)
 	add_child(_chip)
-	_mic = UIKit.icon_button("mic" if UIRouter.settings["mic"] else "mic_off", "Microphone", 80)
-	_mic.theme_type_variation = "DockButton"
-	_mic.expand_icon = true
-	_mic.add_theme_constant_override("icon_max_width", 0)
-	UIKit.pin(_mic, Vector2(1, 0), Vector2(-62, 62), Vector2(80, 80))
+	_mic = UIKit.icon_button("mic" if UIRouter.settings["mic"] else "mic_off", "Microphone", MIC_SIZE)
+	_mic.add_theme_constant_override("icon_max_width", 32)
 	_mic.pressed.connect(func() -> void:
 		var m := MicrophoneScreen.new()
 		m.closed.connect(_refresh_mic)
 		UIRouter.push(m))
 	add_child(_mic)
-	var coin := get_parent().get_node_or_null("CoinBadge") as PanelContainer
-	if coin:  # teammate's fishing coins: themed chip left of the mic button
-		coin.offset_left -= 104
-		coin.offset_right -= 104
-		coin.offset_top = 20
-		coin.offset_bottom = 84
-		coin.add_theme_stylebox_override("panel", UIKit.THEME.get_stylebox("panel", "Chip"))
-		var amount := coin.find_child("Amount", true, false) as Label
-		if amount:
-			amount.theme_type_variation = "Strong"
-			amount.add_theme_font_size_override("font_size", 30)
-			amount.add_theme_color_override("font_color", T.NAVY_TITLE)
-	_restyle_chat()
-	var dock := UIKit.hbox(14)
+	_style_coin()
+	_style_chat()
+	_dock = UIKit.hbox(int(DOCK_GAP))
 	for it in [["Map", "map", _open_map], ["Outfit", "shirt", _open_outfit], ["Home", "home", _go_home],
 			["Friends", "friends", _open_friends], ["Emotes", "smile", _open_emotes]]:
 		var b := UIKit.dock_button(it[0], it[1])
 		b.pressed.connect(it[2])
-		dock.add_child(b)
-	add_child(UIKit.pin(dock, Vector2(0.5, 1), Vector2(142, -74), Vector2(806, 104)))
-	_action = UIKit.button("Enter café", "primary", "cup", Vector2(300, 84)) as IconTextButton
+		_dock.add_child(b)
+	add_child(_dock)
+	_action = UIKit.button("Enter", "primary", "door", Vector2(0, ACTION_H)) as IconTextButton
 	for st in ["normal", "hover", "pressed"]:
 		var sb := (UIKit.THEME.get_stylebox(st, "PrimaryButton") as StyleBoxFlat).duplicate()
-		sb.set_border_width_all(5)
+		sb.set_border_width_all(4)
 		sb.border_color = Color.WHITE
-		sb.set_corner_radius_all(26)
+		sb.set_corner_radius_all(28)
+		sb.content_margin_left = 18
+		sb.content_margin_right = 18
+		sb.content_margin_top = 8
+		sb.content_margin_bottom = 8
 		_action.add_theme_stylebox_override(st, sb)
+	_action.add_theme_font_size_override("font_size", 22)
 	_action.visible = false
 	_action.pressed.connect(_do_action)
-	add_child(UIKit.pin(_action, Vector2(0.5, 0.5), Vector2(300, -20), Vector2(320, 84)))
+	add_child(_action)
 	UIRouter.stack_changed.connect(_refresh_mic)
+	_layout.call_deferred()
 
 
-## Teammate's chat box in the theme: ivory panel, navy text, bottom aligned with the dock. Visual only.
-func _restyle_chat() -> void:
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_RESIZED and is_node_ready():
+		_layout()
+
+
+## One pass for the four regions. Chat stays left of the dock, coins stay left of the mic.
+func _layout() -> void:
+	var vp := get_viewport_rect().size
+	if vp.x < 2.0 or vp.y < 2.0:
+		return
+	_chip.position = Vector2(MARGIN, 20)
+	_place(_mic, vp.x - MARGIN - MIC_SIZE, MARGIN, MIC_SIZE, MIC_SIZE)
+	var coin := get_parent().get_node_or_null("CoinBadge") as Control
+	if coin:
+		_place(coin, vp.x - MARGIN - MIC_SIZE - COIN_GAP - COIN_W, MARGIN, COIN_W, MIC_SIZE)
+	var chat := get_parent().get_node_or_null("Chat") as Control
+	if chat:
+		_place(chat, MARGIN, vp.y - MARGIN - CHAT_H, CHAT_W, CHAT_H)
+	var dock_w := DOCK_COUNT * DOCK_BTN + (DOCK_COUNT - 1) * DOCK_GAP
+	var band_left := MARGIN + CHAT_W + GUTTER
+	var band_right := vp.x - MARGIN
+	var dock_x := band_left + maxf(0.0, (band_right - band_left - dock_w) * 0.5)
+	dock_x = minf(dock_x, maxf(band_left, band_right - dock_w))
+	var dock_y := vp.y - MARGIN - DOCK_H
+	_dock_rect = Rect2(dock_x, dock_y, dock_w, DOCK_H)
+	_place(_dock, dock_x, dock_y, dock_w, DOCK_H)
+	_place_action()
+
+
+func _place(c: Control, x: float, y: float, w: float, h: float) -> void:
+	c.anchor_left = 0.0
+	c.anchor_top = 0.0
+	c.anchor_right = 0.0
+	c.anchor_bottom = 0.0
+	c.offset_left = x
+	c.offset_top = y
+	c.offset_right = x + w
+	c.offset_bottom = y + h
+
+
+func _place_action() -> void:
+	if _dock_rect.size.x <= 0.0:
+		return
+	var min_size := _action.get_combined_minimum_size()
+	var w := maxf(min_size.x, 1.0)
+	var h := maxf(min_size.y, ACTION_H)
+	var vp := get_viewport_rect().size
+	var center := _dock_rect.position.x + _dock_rect.size.x * 0.5
+	var x := center - w * 0.5
+	var chat_right := MARGIN + CHAT_W + GUTTER
+	x = clampf(x, chat_right, maxf(chat_right, vp.x - MARGIN - w))
+	var y := _dock_rect.position.y - ACTION_GAP - h
+	_place(_action, x, y, w, h)
+
+
+func _style_coin() -> void:
+	var coin := get_parent().get_node_or_null("CoinBadge") as PanelContainer
+	if coin == null:
+		return
+	coin.add_theme_stylebox_override("panel", UIKit.THEME.get_stylebox("panel", "Chip"))
+	var amount := coin.find_child("Amount", true, false) as Label
+	if amount:
+		amount.theme_type_variation = "Strong"
+		amount.add_theme_font_size_override("font_size", 30)
+		amount.add_theme_color_override("font_color", T.NAVY_TITLE)
+
+
+func _style_chat() -> void:
 	var chat := get_parent().get_node_or_null("Chat") as Control
 	if chat == null:
 		return
-	# bottom of the entry lines up with the dock's bottom edge (dock: 104 tall, 22 above screen edge)
-	chat.offset_left = 22
-	chat.offset_right = 22 + 372
-	chat.offset_bottom = -22
-	chat.offset_top = -22 - 214
 	var log_panel := chat.get_node_or_null("Log") as PanelContainer
 	if log_panel:
 		var sb := (UIKit.THEME.get_stylebox("panel", "Card") as StyleBoxFlat).duplicate()
@@ -215,6 +282,7 @@ func _update_action(player: Node3D) -> void:
 	_action.set_caption(str(best.call("prompt_text")) if best.has_method("prompt_text") else "Enter")
 	var key := str(best.get("activity")) if str(best.get("activity")) != "" else str(best.get("location"))
 	_action._icon_rect.texture = UIKit.icon(ICONS.get(key, ICONS.get(str(best.get("title")).to_lower(), "door")))
+	_place_action.call_deferred()
 
 
 func _do_action() -> void:
