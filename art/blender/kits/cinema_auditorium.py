@@ -14,7 +14,7 @@ STEP = 0.3                          # tier rise: each row's eyes clear the heads
 TIER_D = 1.4                        # tier depth = row pitch
 FRONT_Y = 2.6                       # front edge of the first seat tier
 ROW_SEATS = 6
-SEAT_PITCH = 1.15
+SEAT_PITCH = 1.155                  # 1.15 m minimum plus float margin
 SEAT_W = 0.84                       # cushion width; shared armrests fill the rest of the pitch
 ARM_W = SEAT_PITCH - SEAT_W
 SEAT_Z = 0.38                       # seat cushion top above its floor

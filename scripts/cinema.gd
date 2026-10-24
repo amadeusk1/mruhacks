@@ -30,18 +30,18 @@ func camera_for_spawn(spawn_name: String) -> Dictionary:
 	if spawn_name == "InsideScreen":
 		return {
 			"center": get_meta("hall_center", Vector3(240.0, 0.0, 50.0)),
-			"limit_x": 2.2,
-			"limit_z": 3.0,
-			"height": 8.6,
-			"distance": 5.6,
+			"limit_x": 6.0,
+			"limit_z": 5.0,
+			"height": 11.0,
+			"distance": 7.5,
 		}
 	if spawn_name.begins_with("Inside") or spawn_name == "ScreenReturn":
 		return {
 			"center": get_meta("lobby_center", Vector3(240.0, 0.0, 0.0)),
-			"limit_x": 3.4,
-			"limit_z": 2.4,
-			"height": 8.2,
-			"distance": 5.4,
+			"limit_x": 5.0,
+			"limit_z": 4.0,
+			"height": 10.0,
+			"distance": 7.0,
 		}
 	return {
 		"center": Vector3(0.0, 0.0, 0.6),
