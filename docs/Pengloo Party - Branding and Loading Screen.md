@@ -57,3 +57,9 @@ Technical reference: [Godot custom web HTML shell](https://docs.godotengine.org/
 ## Validation
 
 Web and Linux release exports completed. A real Chromium session loaded the exported game through to the new title screen with no JavaScript/GDScript errors observed. The loading overlay disappeared after the title readiness callback. A simulated interrupted download exposed the retry button; a 390px-wide layout had no horizontal overflow. The preview is a captured implementation, not generated concept art.
+
+## Current integration
+
+PR: https://github.com/amadeusk1/mruhacks/pull/10 (`feature/party-branding`). Based on main `349df85`, preserving its cinema bridge and networking. The earlier branding commit on `deploy/debian` is superseded by this current-main integration; do not deploy that older branch over newer game builds.
+
+Branding web release: `/home/nick/pengloo/releases/party-branding-current`. Only the web container is recreated; the running multiplayer and cinema containers stay in place. The release retains the current server and cinema files for consistent maintenance. The `current` symlink identifies the web release. Check actual Docker mounts before future updates because multiple collaborators may deploy newer builds.
