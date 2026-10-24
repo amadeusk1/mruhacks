@@ -54,12 +54,13 @@ func interact(player: Node) -> bool:
 
 ## SeatSpots at every `socket_seat*` under `model` (seat-contact height), facing `face_point`,
 ## or (Vector3.INF) out of the front of whatever furniture owns the socket (sofas, armchairs).
-static func from_sockets(room: Node3D, model: Node3D, seat_kit: String, face_point: Vector3 = Vector3.INF) -> int:
+static func from_sockets(room: Node3D, model: Node3D, seat_kit: String, face_point: Vector3 = Vector3.INF, seat_activity: String = "") -> int:
 	var n := 0
 	for s in model.find_children("socket_seat*", "Node3D", true, false):
 		var seat := SeatSpot.new()
 		seat.name = "%s_%s" % [s.get_parent().name, s.name]
 		seat.kit = seat_kit
+		seat.activity = seat_activity
 		seat.verb = "Sit"
 		room.add_child(seat)
 		seat.global_position = (s as Node3D).global_position

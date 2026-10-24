@@ -45,6 +45,8 @@ func open(screen: String) -> Control:
 			c.set("state", {"mode": "lobby", "coral": [Net.local_profile()["name"]], "teal": [], "waiting": true})
 		"basketball":
 			c.set("state", {"mode": "court", "score": 0, "time_left": 60.0, "standings": [[Net.local_profile()["name"], 0]], "power": 0.0, "band": [0.62, 0.78]})
+	if screen == "sketch":
+		_wire_sketch(c)
 	if c.has_signal("intent"):
 		c.connect("intent", func(action: String, _v = null) -> void:
 			if action in ["leave", "close", "leave_seat"] and is_instance_valid(c):
@@ -53,6 +55,43 @@ func open(screen: String) -> Control:
 	UIRouter.push(c)
 	_open = c
 	return c
+
+
+## Sketch Club runs on the real SketchClub session: seated players join the table, everyone
+## else watches (lobby/progress/reveal). Leaving frees the seat and the slot.
+func _wire_sketch(c: Control) -> void:
+	var player := get_tree().get_first_node_in_group("local_player")
+	var seated := player != null and player.has_method("is_sitting") and bool(player.call("is_sitting"))
+	if seated:
+		SketchClub.join()
+	c.connect("intent", _sketch_intent.bind(player))
+	var push := func(v: Dictionary) -> void:
+		if is_instance_valid(c) and not v.is_empty():
+			c.call("apply_state", v)
+	SketchClub.view_changed.connect(push)
+	c.tree_exiting.connect(func() -> void: SketchClub.view_changed.disconnect(push))
+	if not SketchClub.view.is_empty():
+		push.call(SketchClub.view)
+	elif not seated:
+		c.call("apply_state", {"phase": "lobby", "players": [], "seated": false})
+
+
+func _sketch_intent(action: String, v: Variant, player: Node) -> void:
+	match action:
+		"ready":
+			SketchClub.ready()
+		"submit_text":
+			SketchClub.submit_text(str(v))
+		"submit_drawing":
+			SketchClub.submit_drawing(v)
+		"next_entry":
+			SketchClub.next_entry()
+		"play_again":
+			SketchClub.play_again()
+		"leave":
+			SketchClub.leave()
+			if is_instance_valid(player) and player.has_method("stand_up") and bool(player.call("is_sitting")):
+				player.call("stand_up")
 
 
 ## Decorate the current home interior (the teammate's home scene spawns homes/snow_dome_interior).

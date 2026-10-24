@@ -4,7 +4,9 @@ extends Control
 ## their own assignment via apply_state(); nothing about other chains is held here until reveal.
 ##   state: {phase, players:[names], deadline_s, assignment: {text|strokes}, reveal:{chain, entries:[{who, kind, text|strokes}], index, total}}
 ## Intents: ready, leave, submit_text(text), submit_drawing(strokes), next_entry.
-## No session server exists yet; preview() feeds mock assignments.
+## Live state comes from the SketchClub autoload (ActivityScreens wires it); preview() keeps mock
+## states for UI captures.  Extra live fields: ready[], seated, min_players, is_host, round/rounds,
+## reveal.done, assignment.fallback, phase "spectate".
 
 signal intent(action: String, value: Variant)
 
@@ -53,7 +55,7 @@ func _build() -> void:
 	var phase := str(state.get("phase", "lobby"))
 	var sub := {"lobby": "A silly drawing game with friends", "prompt": "Write a silly idea for the next drawing",
 		"draw": "Draw the prompt below", "guess": "Describe this drawing", "wait": "Waiting for everyone...",
-		"reveal": "See how the idea changed!"}.get(phase, "") as String
+		"reveal": "See how the idea changed!", "spectate": "A game is underway at the table"}.get(phase, "") as String
 	var head := A.vbox(-4)
 	A.pin(_root, head, Vector4(0.5, 0, 0.5, 0), Vector4(-360, 14, 360, 110))
 	head.add_child(A.title("Sketch Club", 50, HORIZONTAL_ALIGNMENT_CENTER))
@@ -75,6 +77,8 @@ func _build() -> void:
 			_wait()
 		"reveal":
 			_reveal()
+		"spectate":
+			_spectate()
 		_:
 			_lobby()
 
@@ -98,11 +102,23 @@ func _lobby() -> void:
 		col.add_child(pv)
 		pv.call_deferred("set_look", Net.coat_color(0), {"head": ["red_beanie", "glasses", "", "bucket_hat"][i % 4] if i % 4 != 1 else ""} if i % 4 != 1 else {"face": "glasses"})
 		row.add_child(col)
+	var readies: Array = state.get("ready", [])
+	for i in mini(readies.size(), row.get_child_count()):
+		if readies[i]:
+			var tick := A.chip("Ready", Color("#BDEBE6"), A.NAVY, "check", 18, Vector2(14, 6))
+			tick.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+			(row.get_child(i) as Control).add_child(tick)
 	var bar := A.hbox(24, BoxContainer.ALIGNMENT_CENTER)
 	A.pin(_root, bar, Vector4(0.5, 1, 0.5, 1), Vector4(-420, -122, 420, -30))
-	var ready := A.button("Ready", "primary", "pencil", 32, Vector2(520, 84))
-	ready.pressed.connect(func() -> void: intent.emit("ready", null))
-	bar.add_child(ready)
+	var need := int(state.get("min_players", 3)) - names.size()
+	if not bool(state.get("seated", true)):
+		var hint := A.label("Sit at the table to join the next game", 24, A.NAVY, true, HORIZONTAL_ALIGNMENT_CENTER)
+		bar.add_child(hint)
+	else:
+		var ready := A.button("Ready" if need <= 0 else "Waiting for %d more" % need, "primary", "pencil", 32, Vector2(520, 84))
+		ready.disabled = need > 0
+		ready.pressed.connect(func() -> void: intent.emit("ready", null); ready.disabled = true; ready.text = "Ready!")
+		bar.add_child(ready)
 	var leave := _leave_button()
 	bar.add_child(leave)
 
@@ -249,7 +265,8 @@ func _guess() -> void:
 	mute.add_child(mi)
 	mute.add_child(A.label("Private round\nMic muted", 16, A.SUB, false, HORIZONTAL_ALIGNMENT_CENTER))
 	top.add_child(mute)
-	v.add_child(A.label("Describe this drawing", 22, A.NAVY, true))
+	var fb := str(state.get("assignment", {}).get("fallback", ""))
+	v.add_child(A.label(fb if fb != "" else "Describe this drawing", 22, A.NAVY, true))
 	var f := UIKit.field("A space penguin", str(state.get("draft", "")), false)
 	v.add_child(f["root"])
 	var row := A.hbox(16)
@@ -313,13 +330,33 @@ func _reveal() -> void:
 				cv.set_strokes(e["strokes"])
 			else:
 				cv.call_deferred("demo")
-	var next := A.button("Next entry", "primary", "arrow_right", 30, Vector2(440, 78))
-	next.pressed.connect(func() -> void: intent.emit("next_entry", null))
-	A.pin(_root, next, Vector4(0.5, 1, 0.5, 1), Vector4(-220, -150, 220, -72))
+	var owner := str(r.get("owner", ""))
+	if owner != "":
+		var oc := A.chip("%s's chain · %d of %d" % [owner, int(r.get("chain", 0)) + 1, int(r.get("chains", 1))], A.WHITE, A.NAVY, "users", 20)
+		A.pin(_root, oc, Vector4(0, 0, 0, 0), Vector4(96, 26, 520, 0))
+	if bool(state.get("is_host", true)):
+		var done := bool(r.get("done", false))
+		var next := A.button("Play again" if done else "Next entry", "primary", "arrow_right", 30, Vector2(440, 78))
+		next.pressed.connect(func() -> void: intent.emit("play_again" if done else "next_entry", null))
+		A.pin(_root, next, Vector4(0.5, 1, 0.5, 1), Vector4(-220, -150, 220, -72))
+	else:
+		var wait := A.label("The host is revealing the chains", 22, A.SUB, false, HORIZONTAL_ALIGNMENT_CENTER)
+		A.pin(_root, wait, Vector4(0.5, 1, 0.5, 1), Vector4(-300, -130, 300, -90))
 	var voice := A.hbox(8, BoxContainer.ALIGNMENT_CENTER)
 	voice.add_child(A.icon("mic", 22, A.NAVY))
 	voice.add_child(A.label("Voice back on", 18, A.NAVY))
 	A.pin(_root, voice, Vector4(0.5, 1, 0.5, 1), Vector4(-120, -60, 120, -26))
+
+
+func _spectate() -> void:
+	var p := A.panel(26, 26)
+	A.pin(_root, p, Vector4(0.5, 0.5, 0.5, 0.5), Vector4(-320, -110, 320, 110))
+	var v := A.vbox(10)
+	p.add_child(v)
+	v.add_child(A.title("Round %d of %d" % [int(state.get("round", 0)) + 1, int(state.get("rounds", 1))], 38, HORIZONTAL_ALIGNMENT_CENTER))
+	v.add_child(A.label("%d of %d players are done. Watch the reveal on the easel!" % [int(state.get("submitted", 0)), (state.get("players", []) as Array).size()], 19, A.SUB, false, HORIZONTAL_ALIGNMENT_CENTER))
+	var leave := _leave_button()
+	A.pin(_root, leave, Vector4(0.5, 0.5, 0.5, 0.5), Vector4(-100, 140, 100, 200))
 
 
 func close() -> void:

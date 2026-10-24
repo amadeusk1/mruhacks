@@ -17,6 +17,11 @@ const SEATS := {
 	"cinema": ["cinema/cinema_sit", "cinema/cinema_watch", "cinema/cinema_stand"],
 	"arcade": ["arcade/arcade_enter", "arcade/arcade_play", "arcade/arcade_exit"],
 	"sketch": ["drawing/sketch_sit", "drawing/sketch_think", "drawing/sketch_stand"],
+	# Sketch Club phases (SketchClub): same seat, the loop changes with the round
+	"sketch_think": ["", "drawing/sketch_think", "drawing/sketch_stand"],
+	"sketch_draw": ["", "drawing/sketch_draw", "drawing/sketch_stand"],
+	"sketch_wait": ["", "drawing/sketch_wait", "drawing/sketch_stand"],
+	"sketch_reveal": ["drawing/sketch_reveal", "drawing/sketch_think", "drawing/sketch_stand"],
 	"armchair": ["home/armchair_sit", "home/armchair_idle", "home/armchair_stand"],
 	"stool": ["everyday/stool_back_up_sit", "social/sit_idle", "social/sit_exit"],
 }

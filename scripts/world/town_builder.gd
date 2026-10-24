@@ -149,6 +149,8 @@ func _place(nav: Node, p: Dictionary) -> void:
 		var size := AssetRegistry.size(id) * float(p.get("scale", 1.0))
 		_box_body(nav, node.position + Vector3(0, size.y * 0.5, 0), size, float(p.get("rot_y_deg", 0.0)), BLOCK_LAYER)
 	_start_ambient(node)
+	if id == "activities/communal_table":  # Sketch Club: sitting here joins the table's game
+		SeatSpot.from_sockets(nav, node, "sketch", node.global_position, "sketch")
 
 
 ## Assets whose only moving parts sway (tree crowns, shrub tops) batch fine: the sway moves

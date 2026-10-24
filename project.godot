@@ -23,6 +23,7 @@ config/features=PackedStringArray("4.7", "Forward Plus")
 Net="*res://scripts/net.gd"
 AssetRegistry="*res://scripts/assets/asset_registry.gd"
 Activities="*res://scripts/world/activities.gd"
+SketchClub="*res://scripts/activities/sketch_club.gd"
 UIRouter="*res://ui/ui_router.gd"
 ActivityScreens="*res://ui/activities/activity_screens.gd"
 
