@@ -14,3 +14,5 @@ New concept sheets are references, not implemented assets or clips. Penguins rem
 
 - [Waddle World UI mockups](Waddle%20World%20-%20UI%20Mockups.md): 12 boards covering 48 primary menu/gameplay screens; placeholder title and simple shared UI.
 - [Developer handoff — start here](Dev%20Handoff%20-%20Start%20Here.md): server, data contracts, gameplay, UI, housing, deployment and QA.
+
+- [Casino concept set](Casino%20-%20Concept%20Index.md): roulette, slots, poker, blackjack, shared props, UI, animations and revised island placement.

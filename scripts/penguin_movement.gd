@@ -56,6 +56,7 @@ var _has_net_pose := false
 var _name_label: Label3D
 var _tint_applied := -1
 var _overlay := ""  # emote/activity clip playing until the penguin moves
+var _seat_kit := ""  # "casino": seated clips come from that kit instead of the bench "sit"
 
 const _GRAVITY := 28.0
 const _CLICK_MASK := 3
@@ -433,6 +434,9 @@ func _clear_seat(relocate: bool) -> void:
 	if not _sitting:
 		return
 	_sitting = false
+	if _seat_kit != "":
+		_seat_kit = ""
+		_play_overlay("leave_seat", "casino")
 	_end_fishing()
 	_seat_bench = null
 	_restore_feet()
@@ -533,6 +537,20 @@ func _restore_feet() -> void:
 		_foot_r.position.z = _foot_r_z
 
 
+## Seat style for the current seat: "casino" hops on and loops casino_seated_idle.
+func set_seat_clip(kit: String) -> void:
+	_seat_kit = kit
+	if _clips and kit == "casino" and _clips.has_animation("casino/hop_onto_seat"):
+		_clips.speed_scale = 1.0
+		_clips.play("casino/hop_onto_seat", 0.1)
+		var idle := PenguinAnims.resolve(_clips, "casino_seated_idle", "casino")
+		if idle == "":  # this kit kept its glTF "_loop" suffix
+			idle = PenguinAnims.resolve(_clips, "casino_seated_idle_loop", "casino")
+		if idle != "":
+			_clips.get_animation(idle).loop_mode = Animation.LOOP_LINEAR
+			_clips.queue(idle)
+
+
 ## Plays an emote ("wave", "dance", "emote_cheer"...) from anim_emotes. Moving cancels it.
 func play_emote(emote_name: String) -> bool:
 	return _play_overlay(emote_name, "emotes")
@@ -577,6 +595,10 @@ func _animate(delta: float, speed: float) -> void:
 		visual.rotation.x = deg_to_rad(lean)
 		visual.position.y = 0.0
 		return
+	if _sitting and _seat_kit != "":
+		visual.rotation = Vector3.ZERO
+		visual.position.y = 0.0
+		return  # set_seat_clip queued the seated loop
 	if _sitting:
 		if _clips and _clips.has_animation("sit"):
 			_clips.speed_scale = 1.0

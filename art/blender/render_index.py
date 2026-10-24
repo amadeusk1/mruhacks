@@ -12,6 +12,7 @@ GROUPS = [  # (heading, kits) in the order a reader cares about
     ("Cinema", ["cinema", "cinema_lobby", "cinema_auditorium"]),
     ("Arcade", ["arcade"]),
     ("Activities", ["fishing", "winter", "activities", "interaction_props"]),
+    ("Casino", ["casino"]),
     ("Housing", ["homes", "room_kit", "home_themes", "interior_finishing"]),
     ("Effects", ["fx"]),
 ]
