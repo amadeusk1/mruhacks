@@ -361,7 +361,7 @@ def placements():
                 last = None
                 continue
             t, n = _frame(i)
-            q = TRACK[i] + n * sgn * (WIDTH[i] * 0.5 + LIP * 0.75)
+            q = TRACK[i] + n * sgn * (WIDTH[i] * 0.5 + LIP * 0.95)
             if last is None:
                 last, acc = q, 0.0
                 continue
@@ -370,7 +370,7 @@ def placements():
                 mid, d = (q + last) * 0.5, q - last
                 yaw = math.degrees(math.atan2(d.y, d.x))
                 z = surf_z(i, sgn * WIDTH[i] * 0.5) + BERM_H * 0.8
-                if blocks(mid) or blocks(q) or blocks(last):       # tight inner bend: chord would cut the track
+                if blocks(mid, 0.15) or blocks(q, 0.15) or blocks(last, 0.15):   # tight inner bend: chord would cut the track
                     last, acc = q, 0.0
                     continue
                 if k % 2 == 0:
