@@ -245,7 +245,7 @@ func _at_sketch(player: Node3D) -> bool:
 		var bench := player.call("current_bench") as Node
 		if bench != null and str(bench.get("kit")) == "sketch":
 			return true
-	var pavilion := _pavilion()
+	var pavilion := _find_pavilion()
 	if pavilion == null:
 		return false
 	var local := pavilion.to_local(player.global_position)
@@ -253,7 +253,7 @@ func _at_sketch(player: Node3D) -> bool:
 	return absf(local.x) <= half.x + SKETCH_PAD and absf(local.z) <= half.y + SKETCH_PAD
 
 
-func _pavilion() -> Node3D:
+func _find_pavilion() -> Node3D:
 	if is_instance_valid(_pavilion):
 		return _pavilion
 	for n in get_tree().get_nodes_in_group("sketch_pavilion"):
