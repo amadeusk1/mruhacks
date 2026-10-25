@@ -120,7 +120,9 @@ func _client_script() -> void:
 	var end := Time.get_ticks_msec() + 15000
 	while int(_hud().get("_unread")) < 2 and Time.get_ticks_msec() < end:
 		await get_tree().create_timer(0.2).timeout
-	checks["unread_badge"] = int(_hud().get("_unread")) == 2 and "2 new" in str(_hud().get("_toggle").text)
+	var badge: Label = _hud().get("_badge")
+	var badge_panel: CanvasItem = _hud().get("_badge_panel")
+	checks["unread_badge"] = int(_hud().get("_unread")) == 2 and badge_panel != null and badge_panel.visible and badge.text == "2"
 	await _shot("chat_minimized")
 	_hud().call("toggle_chat")  # restore: full history, badge cleared
 	await get_tree().create_timer(0.6).timeout

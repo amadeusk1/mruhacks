@@ -1,7 +1,8 @@
 extends RefCounted
 
-## Host-owned half-court match. One ball. Teams are dealt from arrival order.
-## Clients only display the dictionary from view().
+## Host-owned court. One ball. Clients only display the dictionary from view().
+## Solo is open shoot-around. 1v1, 3v3 and 5v5 tip off once both sides are full.
+## Teams are dealt from arrival order; extras sit and rotate in the next game.
 
 const GRAVITY := 9.8
 const BALL_R := 0.12
@@ -14,6 +15,8 @@ const WIN_SCORE := 11
 const WIN_CAP := 15
 const MATCH_SECONDS := 240.0
 const LOFT_DEFAULT := 0.5
+## Players on one side. Solo is 0: nobody is dealt, the paint stays open.
+const FORMATS := {"solo": 0, "1v1": 1, "3v3": 3, "5v5": 5}
 
 var force_make := false
 
@@ -33,6 +36,7 @@ var text := "Shoot around"
 var teams: Dictionary = {}
 var game_index := 0
 var solo := false
+var ruleset := "solo"
 
 var hoop := Vector3(0.0, 1.67, -3.0)
 var hoop_coral := Vector3(0.0, 1.67, -3.0)
@@ -91,6 +95,7 @@ func reset() -> void:
 	teams.clear()
 	game_index = 0
 	solo = false
+	ruleset = "solo"
 	_arrival.clear()
 	_flight_kind = ""
 	_bodies.clear()
@@ -105,6 +110,8 @@ func request(id: int, action: String) -> void:
 		_pass(id)
 	elif action == "steal":
 		_steal(id)
+	elif bits[0] == "mode":
+		_choose_format(bits[1] if bits.size() > 1 else "")
 
 
 func tick(delta: float, present: Array, bodies: Dictionary) -> void:
@@ -115,18 +122,17 @@ func tick(delta: float, present: Array, bodies: Dictionary) -> void:
 	_sync_sides(ids)
 	if ball_mode == "held" and not ids.has(possessor):
 		_drop_loose(ball_pos)
-	if phase == "practice" and ids.size() >= 2:
-		_open_lobby()
-	elif solo and ids.size() >= 2:
+	if solo and ids.size() >= 2:
 		solo = false
+	if phase == "practice" and ruleset != "solo" and ids.size() >= _needed():
 		_open_lobby()
 	elif phase == "lobby":
-		if ids.size() < 2:
+		if ruleset == "solo" or ids.size() < _needed():
 			_open_practice()
 		else:
 			teams = _deal(_arrival, game_index)
 			phase_left -= delta
-			text = "Teams in %d" % maxi(1, int(ceil(phase_left)))
+			text = "%s in %d" % [_format_label(), maxi(1, int(ceil(phase_left)))]
 			if phase_left <= 0.0:
 				teams = _deal(_arrival, game_index)
 				_start_live()
@@ -138,7 +144,7 @@ func tick(delta: float, present: Array, bodies: Dictionary) -> void:
 			teal_score = 0
 			overtime = false
 			clock = MATCH_SECONDS
-			if ids.size() >= 2:
+			if ruleset != "solo" and ids.size() >= _needed():
 				_open_lobby()
 			else:
 				_open_practice()
@@ -151,7 +157,9 @@ func tick(delta: float, present: Array, bodies: Dictionary) -> void:
 			_intercept(ids)
 		_check_out()
 	if phase == "practice":
-		if ball_mode == "held":
+		if ruleset != "solo" and ids.size() < _needed():
+			text = _wait_text(ids.size()) if ball_mode != "held" else "Click to shoot"
+		elif ball_mode == "held":
 			text = "Click to shoot"
 		elif text == "Click to shoot":
 			text = "Shoot around"
@@ -177,6 +185,9 @@ func view() -> Dictionary:
 		"text": text,
 		"overtime": overtime,
 		"solo": solo,
+		"format": ruleset,
+		"need": _needed(),
+		"here": _arrival.size(),
 	}
 
 
@@ -561,6 +572,10 @@ func _drop_loose(at: Vector3) -> void:
 func _open_lobby() -> void:
 	phase = "lobby"
 	phase_left = 5.0
+	coral_score = 0
+	teal_score = 0
+	overtime = false
+	clock = MATCH_SECONDS
 	possessor = 0
 	ball_mode = "loose"
 	ball_vel = Vector3.ZERO
@@ -568,7 +583,7 @@ func _open_lobby() -> void:
 	_flight_kind = ""
 	solo = false
 	teams = _deal(_arrival, game_index)
-	text = "Teams in 5"
+	text = "%s in 5" % _format_label()
 
 
 func _begin_solo(id: int) -> void:
@@ -645,37 +660,60 @@ func _sync_sides(ids: Array[int]) -> void:
 
 
 func _deal(ids: Array[int], game: int) -> Dictionary:
-	var count := ids.size()
-	if count <= 1:
+	var per := _per_side()
+	var window := per * 2
+	if per <= 0 or ids.size() < window:
 		return {}
-	var shift := game % count if count > 4 else 0
+	var count := ids.size()
+	var shift := game % count if count > window else 0
 	var ordered: Array[int] = []
 	for i in count:
 		ordered.append(ids[(i + shift) % count])
-	var playing: Array[int] = []
-	for i in mini(4, ordered.size()):
-		playing.append(ordered[i])
-	var dealt: Dictionary = {}
-	if playing.size() == 2:
-		dealt[playing[0]] = "coral"
-		dealt[playing[1]] = "teal"
-	elif playing.size() == 3:
-		var solo := game % 3
-		for i in 3:
-			dealt[playing[i]] = "coral" if i == solo else "teal"
-	else:
-		var pairs := [
-			[[0, 2], [1, 3]],
-			[[0, 1], [2, 3]],
-			[[0, 3], [1, 2]],
-		]
-		var pair: Array = pairs[game % 3]
-		var coral_idx: Array = pair[0]
-		for i in playing.size():
-			dealt[playing[i]] = "coral" if coral_idx.has(i) else "teal"
-	for i in range(4, ordered.size()):
+	var flip := game % 2 == 1
+	var dealt := {}
+	for i in window:
+		var side := "coral" if i < per else "teal"
+		if flip:
+			side = "teal" if side == "coral" else "coral"
+		dealt[ordered[i]] = side
+	for i in range(window, ordered.size()):
 		dealt[ordered[i]] = "bench"
 	return dealt
+
+
+func _choose_format(name: String) -> void:
+	var key := name.to_lower()
+	if not FORMATS.has(key) or phase == "live":
+		return
+	if key == ruleset and phase != "result":
+		return
+	ruleset = key
+	if phase == "result":
+		return
+	if ruleset != "solo" and _arrival.size() >= _needed():
+		_open_lobby()
+	elif phase != "practice":
+		_open_practice()
+	elif ruleset == "solo":
+		text = "Click to shoot" if ball_mode == "held" else "Shoot around"
+	else:
+		text = _wait_text(_arrival.size())
+
+
+func _per_side() -> int:
+	return int(FORMATS.get(ruleset, 0))
+
+
+func _needed() -> int:
+	return _per_side() * 2
+
+
+func _format_label() -> String:
+	return "Solo" if ruleset == "solo" else ruleset
+
+
+func _wait_text(count: int) -> String:
+	return "%s needs %d   (%d here)" % [_format_label(), _needed(), count]
 
 
 func _can_touch(id: int) -> bool:

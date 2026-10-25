@@ -11,6 +11,7 @@ const PER_CHAR_S := 0.06
 const FADE_S := 0.4
 const TYPING_TIMEOUT_S := 8.0
 const MAX_W := 320.0
+const FONT_SIZE := 22
 const NAME_Y := 1.4     ## penguin nameplate height (penguin_movement.gd NameLabel)
 const GAP_PX := 26.0    ## bubble tail tip sits this far above the nameplate's centre
 
@@ -30,9 +31,7 @@ func _on_chat(peer_id: int, _speaker: String, message: String) -> void:
 
 func _on_typing(peer_id: int, typing: bool) -> void:
 	var b: Bubble = _bubbles.get(peer_id)
-	# A real message stays up for its full time. Dots only show when nothing else is on screen,
-	# otherwise a player who keeps typing hides their own line after a second.
-	if typing and (b == null or b.typing or b.expired()):
+	if typing and (b == null or b.typing or b.age() > 1.0):  # dots win once a message has been read a moment
 		_show(peer_id, "• • •", TYPING_TIMEOUT_S, true)
 	elif not typing and b and b.typing:
 		b.fade()
@@ -54,22 +53,7 @@ func _penguin(peer_id: int) -> Node3D:
 	for p in get_tree().get_nodes_in_group("remote_player"):
 		if int(p.get_meta("remote_peer", 0)) == peer_id:
 			return p as Node3D
-	# A puppet can exist before it joins the group (spawned this frame).
-	var root := get_tree().current_scene
-	if root:
-		for p in root.find_children("*", "CharacterBody3D", true, false):
-			if int(p.get_meta("remote_peer", 0)) == peer_id:
-				return p as Node3D
 	return null
-
-
-func _head(who: Node3D) -> Vector3:
-	if who == null:
-		return Vector3.ZERO
-	var label := who.get_node_or_null("NameLabel") as Node3D
-	if label:
-		return label.global_position
-	return who.global_position + Vector3(0, NAME_Y, 0)
 
 
 func _process(_delta: float) -> void:
@@ -82,16 +66,11 @@ func _process(_delta: float) -> void:
 			_bubbles.erase(peer_id)
 			continue
 		var who := _penguin(peer_id)
-		var head := _head(who)
-		var on_screen := who != null and cam != null and who.visible and who.is_visible_in_tree() and not cam.is_position_behind(head)
-		b.visible = on_screen
+		var head := who.global_position + Vector3(0, NAME_Y, 0) if who else Vector3.ZERO
+		b.visible = who != null and cam != null and who.is_visible_in_tree() and not cam.is_position_behind(head)
 		if b.visible:
 			var tip := cam.unproject_position(head) - Vector2(0, GAP_PX)
-			var at := tip - Vector2(b.size.x * 0.5, b.size.y + Bubble.TAIL_H)
-			var vp := get_viewport_rect().size
-			at.x = clampf(at.x, 8.0, maxf(8.0, vp.x - b.size.x - 8.0))
-			at.y = clampf(at.y, 8.0, maxf(8.0, vp.y - b.size.y - Bubble.TAIL_H - 8.0))
-			b.position = at.round()
+			b.position = (tip - Vector2(b.size.x * 0.5, b.size.y + Bubble.TAIL_H)).round()
 	_unstack()
 
 
@@ -126,8 +105,9 @@ class Bubble:
 		_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		_label.add_theme_color_override("font_color", T.NAVY)
-		_label.add_theme_font_size_override("font_size", 22)
-		_label.position = Vector2(14, 8)
+		_label.add_theme_font_size_override("font_size", ChatBubbles.FONT_SIZE)
+		_label.add_theme_constant_override("line_spacing", 3)
+		_label.position = Vector2(16, 10)
 		add_child(_label)
 
 	func set_message(text: String, seconds: float, is_typing: bool) -> void:
@@ -140,12 +120,14 @@ class Bubble:
 		_label.custom_minimum_size = Vector2.ZERO
 		_label.size = Vector2.ZERO
 		var font := _label.get_theme_font("font")
-		var one_line := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 22).x
+		var one_line := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, ChatBubbles.FONT_SIZE).x
+		var wraps := one_line + 4.0 > ChatBubbles.MAX_W
+		_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT if wraps else HORIZONTAL_ALIGNMENT_CENTER
 		var w := clampf(one_line + 4.0, 24.0, ChatBubbles.MAX_W)
 		_label.custom_minimum_size.x = w
 		_label.size.x = w
 		var h := _label.get_minimum_size().y
-		size = Vector2(w + 28, h + 16)
+		size = Vector2(w + 32, h + 20)
 		queue_redraw()
 
 	func age() -> float:

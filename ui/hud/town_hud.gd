@@ -130,8 +130,8 @@ func _layout() -> void:
 		_place(coin, vp.x - MARGIN - MIC_SIZE - COIN_GAP - COIN_W, MARGIN, COIN_W, MIC_SIZE)
 	var floor_m := MARGIN + Mobile.pad()
 	var chat := get_parent().get_node_or_null("Chat") as Control
+	var chat_size := _chat_size(vp)
 	if chat:
-		var chat_size := _chat_size(vp)
 		var chat_y := vp.y - floor_m - chat_size.y
 		var entry := chat.get_node_or_null("Entry") as LineEdit
 		if entry and entry.has_focus() and Mobile.active():
@@ -151,7 +151,6 @@ func _layout() -> void:
 				(c as Control).custom_minimum_size = Vector2(btn, 72)
 	_dock.add_theme_constant_override("separation", int(gap))
 	var dock_w := count * btn + maxi(count - 1, 0) * gap
-	var chat_size := _chat_size(vp)
 	var band_left := MARGIN + chat_size.x + GUTTER
 	var band_right := vp.x - MARGIN
 	var dock_y := vp.y - floor_m - DOCK_H
@@ -166,9 +165,11 @@ func _layout() -> void:
 
 
 func _chat_size(vp: Vector2) -> Vector2:
-	if vp.x < 980.0:
-		return Vector2(minf(vp.x - MARGIN * 2.0, 560.0), minf(360.0, vp.y * 0.46))
-	return Vector2(minf(CHAT_W, vp.x * 0.46), minf(CHAT_H, vp.y * 0.46))
+	var w := minf(vp.x - MARGIN * 2.0, 560.0) if vp.x < 980.0 else minf(CHAT_W, vp.x * 0.46)
+	if _chat_minimized():
+		return Vector2(w, 58.0)
+	var h := minf(360.0, vp.y * 0.46) if vp.x < 980.0 else minf(CHAT_H, vp.y * 0.46)
+	return Vector2(w, h)
 
 
 func _place(c: Control, x: float, y: float, w: float, h: float) -> void:
@@ -202,6 +203,11 @@ func _place_action() -> void:
 	_place(_action, x, y, w, h)
 
 
+## Closed chat is the say-something field with the icon on its right.
+func _chat_minimized() -> bool:
+	return bool(UIRouter.settings.get("chat_minimized", false))
+
+
 func _style_coin() -> void:
 	var coin := get_parent().get_node_or_null("CoinBadge") as PanelContainer
 	if coin == null:
@@ -221,16 +227,13 @@ func _style_chat() -> void:
 	var log_panel := chat.get_node_or_null("Log") as PanelContainer
 	if log_panel:
 		var sb := (UIKit.THEME.get_stylebox("panel", "Card") as StyleBoxFlat).duplicate()
-		sb.bg_color = Color(T.PANEL, 0.94)
-		sb.content_margin_left = 18
-		sb.content_margin_right = 18
-		sb.content_margin_top = 12
-		sb.content_margin_bottom = 12
+		sb.bg_color = Color(T.PANEL, 0.98)
+		sb.content_margin_left = 16
+		sb.content_margin_right = 16
+		sb.content_margin_top = 14
+		sb.content_margin_bottom = 14
 		sb.set_corner_radius_all(20)
 		log_panel.add_theme_stylebox_override("panel", sb)
-		var lines := log_panel.find_child("Lines", true, false) as Label
-		if lines:
-			lines.add_theme_font_size_override("font_size", 22)
 	var entry := chat.get_node_or_null("Entry") as LineEdit
 	if entry:
 		entry.custom_minimum_size.y = 58

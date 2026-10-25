@@ -9,6 +9,10 @@ reloadable = false
 
 [libraries]
 
+; This DLL divides by zero while the editor is registering it, so the editor
+; never finishes opening. editor_hint is only set inside the editor; Play still
+; loads the real library below.
+windows.editor_hint.x86_64 = "libs/twovoip.editor.skip.dll"
 macos = "libs/libtwovoip.macos.template_debug.universal.framework"
 windows.x86_64 = "libs/libtwovoip.windows.template_debug.x86_64.dll"
 linux.x86_64 = "libs/libtwovoip.linux.template_debug.x86_64.so"

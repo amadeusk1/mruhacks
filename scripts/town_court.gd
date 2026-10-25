@@ -6,7 +6,8 @@ extends Node
 const CORAL := Color(0.91, 0.4, 0.32)
 const TEAL := Color(0.2, 0.68, 0.72)
 const _Match := preload("res://scripts/court_match.gd")
-const HINT := "Walk into the ball.  Click shoots.  F passes."
+const HINT := "Walk into the ball.  Click shoots.  F passes.  F on a dribbler steals."
+const MODE_KEYS := ["solo", "1v1", "3v3", "5v5"]
 const AIM_DOTS := 18
 const AIM_GOOD := Color(0.4, 0.95, 0.5)
 const AIM_OK := Color(1.0, 0.85, 0.3)
@@ -26,6 +27,9 @@ var _status: Label
 var _line: Label
 var _hint: Label
 var _hud: Control
+var _modes: Array[Button] = []
+var _mode_sig := ""
+var _dressed: Array[Node] = []
 var _center := Vector3.ZERO
 var _swish := 0.0
 var _shown_points := -1
@@ -57,6 +61,12 @@ func _ready() -> void:
 		_ball.global_position = Vector3(_center.x, 0.2, _center.z)
 	_board()
 	_hud_layer()
+
+
+func _exit_tree() -> void:
+	for body in _dressed:
+		if is_instance_valid(body):
+			_dress(body, "")
 
 
 func _physics_process(_delta: float) -> void:
@@ -239,22 +249,30 @@ func _paint(state: Dictionary) -> void:
 		on_court = Net.court_here(player.global_position)
 	if _hud != null:
 		_hud.visible = on_court
+	var format_name := str(state.get("format", "solo"))
+	var format_label := "Solo" if format_name == "solo" else format_name
 	if _score != null:
-		if phase == "practice":
+		if phase == "practice" and format_name == "solo":
 			_score.text = str(coral) if coral > 0 else "Open"
+		elif phase == "practice":
+			_score.text = format_label
 		else:
 			_score.text = "%d  -  %d" % [coral, teal]
+	_sync_modes(state)
+	_mark_teams(str(state.get("teams", "")))
 	if not on_court:
 		return
 	if _line != null:
-		if phase == "practice":
+		if phase == "practice" and format_name == "solo":
 			_line.text = "Shoot around" if coral == 0 else "You %d" % coral
+		elif phase == "practice" or phase == "lobby":
+			_line.text = str(state.get("text", ""))
 		elif bool(state.get("overtime", false)) and phase == "live":
-			_line.text = "Next basket     Coral %d     Teal %d" % [coral, teal]
+			_line.text = "%s     Next basket     Coral %d     Teal %d" % [format_label, coral, teal]
 		else:
-			_line.text = "Coral %d     %d:%02d     Teal %d" % [coral, minute, second, teal]
+			_line.text = "%s     Coral %d     %d:%02d     Teal %d" % [format_label, coral, minute, second, teal]
 	if _status != null:
-		var note := str(state.get("text", ""))
+		var note := "" if phase == "practice" or phase == "lobby" else str(state.get("text", ""))
 		var mine := _my_side(str(state.get("teams", "")))
 		if mine == "coral" or mine == "teal":
 			note = "%s   You are %s" % [note, "Coral" if mine == "coral" else "Teal"]
@@ -363,12 +381,12 @@ func _hud_layer() -> void:
 	layer.layer = 2
 	add_child(layer)
 	var root := VBoxContainer.new()
-	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.mouse_filter = Control.MOUSE_FILTER_PASS
 	root.set_anchors_preset(Control.PRESET_CENTER_TOP)
 	root.offset_left = -240.0
 	root.offset_right = 240.0
 	root.offset_top = 18.0
-	root.offset_bottom = 110.0
+	root.offset_bottom = 168.0
 	root.alignment = BoxContainer.ALIGNMENT_CENTER
 	layer.add_child(root)
 	_hud = root
@@ -381,6 +399,133 @@ func _hud_layer() -> void:
 	root.add_child(_line)
 	root.add_child(_status)
 	root.add_child(_hint)
+	root.add_child(_mode_row(font))
+
+
+func _mode_row(font: Font) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.name = "Modes"
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 8)
+	row.mouse_filter = Control.MOUSE_FILTER_PASS
+	var labels := {"solo": "Solo", "1v1": "1v1", "3v3": "3v3", "5v5": "5v5"}
+	for key in MODE_KEYS:
+		var b := Button.new()
+		b.text = str(labels[key])
+		b.set_meta("format", key)
+		b.focus_mode = Control.FOCUS_NONE
+		b.custom_minimum_size = Vector2(76, 34)
+		b.mouse_filter = Control.MOUSE_FILTER_STOP
+		b.tooltip_text = "Play %s" % str(labels[key])
+		b.add_theme_font_size_override("font_size", 16)
+		for color_name in ["font_color", "font_hover_color", "font_pressed_color", "font_disabled_color"]:
+			b.add_theme_color_override(color_name, Color(0.97, 0.98, 1.0))
+		if font != null:
+			b.add_theme_font_override("font", font)
+		b.pressed.connect(_pick_mode.bind(key))
+		row.add_child(b)
+		_modes.append(b)
+	return row
+
+
+func _pick_mode(key: String) -> void:
+	Net.court_action("mode:%s" % key)
+
+
+func _sync_modes(state: Dictionary) -> void:
+	var current := str(state.get("format", "solo"))
+	var locked := str(state.get("phase", "")) == "live"
+	var sig := "%s|%s" % [current, locked]
+	if sig == _mode_sig:
+		return
+	_mode_sig = sig
+	for b in _modes:
+		_style_mode(b, str(b.get_meta("format")) == current, locked)
+
+
+func _style_mode(button: Button, on: bool, locked: bool) -> void:
+	button.disabled = locked
+	var fill := Color(0.2, 0.68, 0.72, 0.95) if on else Color(0.08, 0.16, 0.24, 0.72)
+	for st in ["normal", "hover", "pressed", "disabled", "focus"]:
+		var sb := StyleBoxFlat.new()
+		sb.bg_color = fill if st == "normal" or st == "disabled" else fill.lightened(0.08)
+		sb.set_corner_radius_all(14)
+		sb.set_border_width_all(2)
+		sb.border_color = Color(0.97, 0.98, 1.0, 0.9 if on else 0.35)
+		sb.content_margin_left = 8
+		sb.content_margin_right = 8
+		sb.content_margin_top = 2
+		sb.content_margin_bottom = 2
+		button.add_theme_stylebox_override(st, sb)
+
+
+func _mark_teams(packed: String) -> void:
+	var sides := {}
+	for piece in packed.split(",", false):
+		var bits := piece.split(":")
+		if bits.size() == 2:
+			sides[int(bits[0])] = bits[1]
+	var bodies: Array[Node] = []
+	var player := get_tree().get_first_node_in_group("local_player")
+	if player != null:
+		bodies.append(player)
+	for node in get_tree().get_nodes_in_group("remote_player"):
+		bodies.append(node)
+	for body in bodies:
+		if not is_instance_valid(body):
+			continue
+		var id := Net.local_id()
+		if int(body.get_meta("remote_peer", 0)) != 0:
+			id = int(body.get_meta("remote_peer"))
+		var side := str(sides.get(id, ""))
+		if side == "" and body.get_node_or_null("TeamRing") == null:
+			continue
+		if body not in _dressed:
+			_dressed.append(body)
+		_dress(body, side)
+
+
+func _dress(body: Node, side: String) -> void:
+	var show := side == "coral" or side == "teal"
+	var color := CORAL if side == "coral" else TEAL
+	var ring := body.get_node_or_null("TeamRing") as MeshInstance3D
+	var scarf := body.get_node_or_null("TeamScarf") as MeshInstance3D
+	if ring == null:
+		ring = MeshInstance3D.new()
+		ring.name = "TeamRing"
+		var disc := CylinderMesh.new()
+		disc.top_radius = 0.42
+		disc.bottom_radius = 0.42
+		disc.height = 0.035
+		ring.mesh = disc
+		ring.position = Vector3(0.0, 0.03, 0.0)
+		body.add_child(ring)
+	if scarf == null:
+		scarf = MeshInstance3D.new()
+		scarf.name = "TeamScarf"
+		var band := TorusMesh.new()
+		band.inner_radius = 0.15
+		band.outer_radius = 0.23
+		band.rings = 8
+		band.ring_segments = 8
+		scarf.mesh = band
+		scarf.position = Vector3(0.0, 0.58, 0.0)
+		body.add_child(scarf)
+	ring.visible = show
+	scarf.visible = show
+	if not show:
+		return
+	_tint_mesh(ring, color)
+	_tint_mesh(scarf, color)
+
+
+func _tint_mesh(mesh: MeshInstance3D, color: Color) -> void:
+	var mat := mesh.material_override as StandardMaterial3D
+	if mat == null:
+		mat = StandardMaterial3D.new()
+		mat.roughness = 0.7
+		mesh.material_override = mat
+	mat.albedo_color = color
 
 
 func _label(font: Font, size: int) -> Label:
