@@ -16,37 +16,26 @@
     }
     .word {
       position: absolute;
-      left: 0;
-      right: 0;
-      top: 50%;
-      margin-top: -150px;
-      text-align: center;
-      font-size: 240px;
-      font-weight: 900;
-      line-height: 300px;
-      letter-spacing: -0.01em;
-      white-space: nowrap;
+      inset: 0;
     }
-    /* Art shows only inside the letters, like the reference's footage-in-logo shots */
+    /* Art shows only inside the logo, like the reference's footage-in-logo shots (frames of the real game) */
     .fill {
-      color: transparent;
       background-size: 1920px 1080px;
       background-position: center;
-      -webkit-background-clip: text;
-      background-clip: text;
+      -webkit-mask: url("assets/pengloo-party-logo.png") center / 1300px auto no-repeat;
+      mask: url("assets/pengloo-party-logo.png") center / 1300px auto no-repeat;
     }
-    #lg-a { background-image: url("assets/arcade.jpg"); }
-    #lg-b { background-image: url("assets/plaza.jpg"); }
-    #lg-c { background-image: url("assets/cafe.jpg"); }
+    #lg-a { background-image: url("assets/game-plaza.jpg"); }
+    #lg-b { background-image: url("assets/game-dance.jpg"); }
+    #lg-c { background-image: url("assets/game-bridge.jpg"); }
     .solid {
-      color: #f5f9fc;
-      text-shadow:
-        0 3px 0 #d7e7f0,
-        0 6px 0 #b9d3e1,
-        0 9px 0 #8fb6ca,
-        0 12px 0 #0f6f8c,
-        0 15px 0 #0b3d55,
-        0 30px 40px rgba(0, 0, 0, 0.5);
+      display: grid;
+      place-items: center;
+    }
+    .solid img {
+      width: 1300px;
+      height: auto;
+      filter: drop-shadow(0 30px 40px rgba(0, 0, 0, 0.5));
     }
   </style>
   <div data-hf-id="hf-2m4l"
@@ -54,18 +43,17 @@
     data-composition-id="logo"
     data-width="1920"
     data-height="1080"
-    data-composition-variables='[{"id":"projectName","type":"string","label":"Project name","default":"[Project Name]"}]'
   >
     <div data-hf-id="hf-0zb1" id="lg-zoom" data-layout-allow-overflow>
-      <div data-hf-id="hf-0wj1" id="lg-a" class="word fill clip" data-start="0" data-duration="0.7" data-track-index="1" data-var-text="projectName">[Project Name]</div>
-      <div data-hf-id="hf-0g7l" id="lg-b" class="word fill clip" data-start="0.7" data-duration="0.7" data-track-index="1" data-var-text="projectName">[Project Name]</div>
-      <div data-hf-id="hf-7622" id="lg-c" class="word fill clip" data-start="1.4" data-duration="0.7" data-track-index="1" data-var-text="projectName">[Project Name]</div>
-      <div data-hf-id="hf-gvlm" id="lg-solid" class="word solid clip" data-start="2.1" data-duration="1.43333" data-track-index="1" data-var-text="projectName">[Project Name]</div>
+      <div data-hf-id="hf-0wj1" id="lg-a" class="word fill clip" data-start="0" data-duration="0.7" data-track-index="1"></div>
+      <div data-hf-id="hf-0g7l" id="lg-b" class="word fill clip" data-start="0.7" data-duration="0.7" data-track-index="1"></div>
+      <div data-hf-id="hf-7622" id="lg-c" class="word fill clip" data-start="1.4" data-duration="0.7" data-track-index="1"></div>
+      <div data-hf-id="hf-gvlm" id="lg-solid" class="word solid clip" data-start="2.1" data-duration="1.43333" data-track-index="1"><img src="assets/pengloo-party-logo.png" alt="Pengloo Party"></div>
     </div>
   </div>
   <script>
     const tl = gsap.timeline({ paused: true });
-    // The camera pulls out of one letter while the art inside cuts on each beat.
+    // The camera pulls out of the logo while the art inside cuts on each beat.
     tl.fromTo("#lg-zoom", { scale: 7 }, { scale: 1, duration: 2.1, ease: "power3.out" }, 0);
     // The solid logo lands slightly large and settles, then holds dead still.
     tl.fromTo("#lg-solid", { scale: 1.05 }, { scale: 1, duration: 0.35, ease: "expo.out" }, 2.1);

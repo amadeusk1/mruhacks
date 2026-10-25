@@ -244,21 +244,14 @@
   .slide--key { background: #0a2433; }
   .key-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
   .key-flash { position: absolute; inset: 0; background: radial-gradient(circle at 50% 50%, #ffffff 0%, rgba(255, 255, 255, 0.7) 30%, rgba(255, 255, 255, 0) 70%); opacity: 0; }
-  .key-logo { position: absolute; left: 0; right: 0; top: 50%; margin-top: -190px; text-align: center; }
+  .key-logo { position: absolute; left: 0; right: 0; top: 50%; margin-top: -300px; text-align: center; }
   .key-logo-in { display: inline-block; transform-origin: 50% 60%; }
-  .key-logo h2 {
-    font-size: 250px;
-    font-weight: 900;
-    line-height: 1;
-    letter-spacing: -0.02em;
-    transform: rotate(-4deg);
-    background: linear-gradient(180deg, #ffffff 0%, #e6f7fd 45%, #8fdaec 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    -webkit-text-stroke: 12px #0b3d55;
-    paint-order: stroke fill;
-    filter: drop-shadow(0 12px 0 #0b3d55) drop-shadow(0 28px 30px rgba(4, 18, 27, 0.45));
+  .key-logo img {
+    display: block;
+    width: 1200px;
+    height: auto;
+    margin: 0 auto;
+    filter: drop-shadow(0 28px 30px rgba(4, 18, 27, 0.45));
   }
   .key-tag {
     display: inline-block;
@@ -412,7 +405,7 @@
     <div class="key-flash"></div>
     <div class="key-logo">
       <div class="key-logo-in">
-        <h2 data-name></h2>
+        <img src="assets/pengloo-party-logo.png" alt="Pengloo Party">
         <div class="key-tag">A cozy island to hang out with your friends</div>
       </div>
     </div>
@@ -479,6 +472,7 @@
   </div>
 
   <div class="progress" id="progress"></div>
+  <audio id="song-tail" src="assets/song-tail.m4a" preload="auto" loop></audio>
 </main>
 
 <script>
@@ -689,6 +683,22 @@
     }],
   };
 
+  // ---------- Song: after the trailer it keeps playing quietly until the live demo ----------
+
+  // song-tail.m4a is the full song cut from where the trailer's music stops, so it never seeks.
+  const songTail = document.getElementById("song-tail");
+  const SONG_VOLUME = 0.25;
+  const trailerIndex = slides.indexOf(trailer.closest(".slide"));
+  const demoIndex = slides.findIndex((s) => s.id === "s-play");
+
+  function startSong() {
+    if (!songTail.paused) return;
+    if (songTail.currentTime > 0) songTail.load(); // back to the start without seeking
+    songTail.volume = SONG_VOLUME;
+    songTail.play().catch(() => {});
+  }
+  trailer.addEventListener("ended", startSong);
+
   // ---------- Navigation ----------
 
   let current = 0;
@@ -718,6 +728,8 @@
     } else {
       trailer.pause();
     }
+    if (current > trailerIndex && current < demoIndex) startSong();
+    else songTail.pause();
     instant = finished;
     if (finished) {
       while (done < stepsOf(current).length) playStep();

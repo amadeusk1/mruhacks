@@ -22,50 +22,45 @@
   </head>
   <body>
     <!--
-      20 s launch trailer. Cuts sit on beats of the song's first 20 s (172 BPM),
-      floored to the frame at 30 fps. Shape follows the Party Animals release trailer:
-      shots halve (2.8 s, 1.4 s, 0.7 s), then the name's letters zoom out with art
-      inside them, the logo lands on dark, then the event card.
+      9.1 s launch trailer of real game footage. Cuts sit on beats of the song (172 BPM),
+      floored to the frame at 30 fps: the five slide-6 penguins jump out of their cards into the
+      game (Flow, frames-to-video), walk the plaza together (tools/film_walk.gd), then the logo
+      zooms out with game frames inside it and lands on dark. Filmed features join after the walk.
     -->
     <div data-hf-id="hf-at0g"
       id="root"
       data-composition-id="main"
       data-start="0"
-      data-duration="20"
+      data-duration="9.1"
       data-width="1920"
       data-height="1080"
     >
-      <div data-hf-id="hf-gmvp"
-        id="montage"
-        data-composition-id="montage"
-        data-composition-src="compositions/montage.html"
+      <video data-hf-id="hf-intr"
+        id="intro"
+        class="clip"
+        src="assets/flow-intro.mp4"
         data-start="0"
-        data-duration="14.2"
+        data-duration="2.76667"
         data-track-index="1"
-        data-track-kind="graphics"
-        data-width="1920"
-        data-height="1080"
-      ></div>
+        muted
+      ></video>
+
+      <video data-hf-id="hf-walk"
+        id="walk"
+        class="clip"
+        src="assets/walk.mp4"
+        data-start="2.76667"
+        data-duration="2.8"
+        data-track-index="1"
+        muted
+      ></video>
 
       <div data-hf-id="hf-guyk"
         id="logo"
         data-composition-id="logo"
         data-composition-src="compositions/logo.html"
-        data-start="14.2"
+        data-start="5.56667"
         data-duration="3.53333"
-        data-track-index="1"
-        data-track-kind="graphics"
-        data-variable-values='{"projectName":"Pengloo"}'
-        data-width="1920"
-        data-height="1080"
-      ></div>
-
-      <div data-hf-id="hf-iy21"
-        id="card"
-        data-composition-id="card"
-        data-composition-src="compositions/card.html"
-        data-start="17.73333"
-        data-duration="2.26667"
         data-track-index="1"
         data-track-kind="graphics"
         data-width="1920"
@@ -77,7 +72,7 @@
         class="clip"
         src="assets/song.m4a"
         data-start="0"
-        data-duration="20"
+        data-duration="9.1"
         data-track-index="2"
         data-volume="1"
       ></audio>
