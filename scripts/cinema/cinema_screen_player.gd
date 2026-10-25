@@ -54,6 +54,7 @@ func has_views() -> bool:
 func _ready() -> void:
 	_audio = AudioStreamPlayer.new()
 	_audio.bus = "Movie" if AudioServer.get_bus_index("Movie") >= 0 else "Master"
+	_audio.playback_type = AudioServer.PLAYBACK_TYPE_STREAM  # runtime MP3 chunks + seeks need Stream; web Sample mode stays silent
 	add_child(_audio)
 	var poll := Timer.new()
 	poll.wait_time = 1.0
