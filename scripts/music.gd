@@ -128,7 +128,12 @@ func _load(song: String) -> void:
 		_cache[song] = AudioStreamOggVorbis.load_from_buffer(body)
 		if _wanted == song:
 			_play(song))
-	req.request("music/" + song.uri_encode() + ".ogg")
+	# HTTPRequest needs an absolute URL ("music/..." fails with Invalid URL scheme)
+	var origin := str(JavaScriptBridge.eval("location.origin"))
+	if req.request(origin + "/music/" + song.uri_encode() + ".ogg") != OK:
+		push_warning("music: couldn't request %s" % song)
+		req.queue_free()
+		_wanted = ""
 
 
 func _held() -> bool:
