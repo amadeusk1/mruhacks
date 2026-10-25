@@ -21,8 +21,8 @@ const PLACES := {
 }
 const LAYOUT := "res://Models/world/town_layout.json"
 const MARGIN := 22.0
-const CHAT_W := 340.0
-const CHAT_H := 200.0
+const CHAT_W := 400.0
+const CHAT_H := 340.0
 const GUTTER := 16.0
 const DOCK_H := 88.0
 const DOCK_BTN := 112.0
@@ -129,14 +129,15 @@ func _layout() -> void:
 	if coin:
 		_place(coin, vp.x - MARGIN - MIC_SIZE - COIN_GAP - COIN_W, MARGIN, COIN_W, MIC_SIZE)
 	var chat := get_parent().get_node_or_null("Chat") as Control
+	var chat_size := _chat_size()
 	if chat:
-		_place(chat, MARGIN, vp.y - MARGIN - CHAT_H, CHAT_W, CHAT_H)
+		_place(chat, MARGIN, vp.y - MARGIN - chat_size.y, chat_size.x, chat_size.y)
 	var count := 0
 	for c in _dock.get_children():
 		if c.visible:
 			count += 1
 	var dock_w := count * DOCK_BTN + maxi(count - 1, 0) * DOCK_GAP
-	var band_left := MARGIN + CHAT_W + GUTTER
+	var band_left := MARGIN + _chat_span() + GUTTER
 	var band_right := vp.x - MARGIN
 	var dock_x := band_left + maxf(0.0, (band_right - band_left - dock_w) * 0.5)
 	dock_x = minf(dock_x, maxf(band_left, band_right - dock_w))
@@ -171,10 +172,25 @@ func _place_action() -> void:
 	var vp := get_viewport_rect().size
 	var center := _dock_rect.position.x + _dock_rect.size.x * 0.5
 	var x := center - w * 0.5
-	var chat_right := MARGIN + CHAT_W + GUTTER
+	var chat_right := MARGIN + _chat_span() + GUTTER
 	x = clampf(x, chat_right, maxf(chat_right, vp.x - MARGIN - w))
 	var y := _dock_rect.position.y - ACTION_GAP - h
 	_place(_action, x, y, w, h)
+
+
+## Closed chat is the say-something field with the icon on its right.
+func _chat_minimized() -> bool:
+	return bool(UIRouter.settings.get("chat_minimized", false))
+
+
+func _chat_span() -> float:
+	return CHAT_W
+
+
+func _chat_size() -> Vector2:
+	if not _chat_minimized():
+		return Vector2(CHAT_W, CHAT_H)
+	return Vector2(CHAT_W, 58.0)
 
 
 func _style_coin() -> void:
@@ -196,16 +212,13 @@ func _style_chat() -> void:
 	var log_panel := chat.get_node_or_null("Log") as PanelContainer
 	if log_panel:
 		var sb := (UIKit.THEME.get_stylebox("panel", "Card") as StyleBoxFlat).duplicate()
-		sb.bg_color = Color(T.PANEL, 0.94)
-		sb.content_margin_left = 18
-		sb.content_margin_right = 18
-		sb.content_margin_top = 12
-		sb.content_margin_bottom = 12
+		sb.bg_color = Color(T.PANEL, 0.98)
+		sb.content_margin_left = 16
+		sb.content_margin_right = 16
+		sb.content_margin_top = 14
+		sb.content_margin_bottom = 14
 		sb.set_corner_radius_all(20)
 		log_panel.add_theme_stylebox_override("panel", sb)
-		var lines := log_panel.find_child("Lines", true, false) as Label
-		if lines:
-			lines.add_theme_font_size_override("font_size", 20)
 	var entry := chat.get_node_or_null("Entry") as LineEdit
 	if entry:
 		entry.custom_minimum_size.y = 58
@@ -216,7 +229,7 @@ func _style_chat() -> void:
 			entry.add_theme_stylebox_override(st, e)
 		entry.add_theme_color_override("font_color", T.NAVY)
 		entry.add_theme_color_override("font_placeholder_color", T.MUTED)
-		entry.add_theme_font_size_override("font_size", 21)
+		entry.add_theme_font_size_override("font_size", 22)
 
 
 func _refresh_mic() -> void:

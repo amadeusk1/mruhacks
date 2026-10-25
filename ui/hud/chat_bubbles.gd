@@ -10,7 +10,8 @@ const BASE_S := 5.0
 const PER_CHAR_S := 0.06
 const FADE_S := 0.4
 const TYPING_TIMEOUT_S := 8.0
-const MAX_W := 260.0
+const MAX_W := 300.0
+const FONT_SIZE := 22
 const NAME_Y := 1.4     ## penguin nameplate height (penguin_movement.gd NameLabel)
 const GAP_PX := 26.0    ## bubble tail tip sits this far above the nameplate's centre
 
@@ -104,8 +105,9 @@ class Bubble:
 		_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		_label.add_theme_color_override("font_color", T.NAVY)
-		_label.add_theme_font_size_override("font_size", 18)
-		_label.position = Vector2(14, 8)
+		_label.add_theme_font_size_override("font_size", ChatBubbles.FONT_SIZE)
+		_label.add_theme_constant_override("line_spacing", 3)
+		_label.position = Vector2(16, 10)
 		add_child(_label)
 
 	func set_message(text: String, seconds: float, is_typing: bool) -> void:
@@ -118,12 +120,14 @@ class Bubble:
 		_label.custom_minimum_size = Vector2.ZERO
 		_label.size = Vector2.ZERO
 		var font := _label.get_theme_font("font")
-		var one_line := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 18).x
+		var one_line := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, ChatBubbles.FONT_SIZE).x
+		var wraps := one_line + 4.0 > ChatBubbles.MAX_W
+		_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT if wraps else HORIZONTAL_ALIGNMENT_CENTER
 		var w := clampf(one_line + 4.0, 24.0, ChatBubbles.MAX_W)
 		_label.custom_minimum_size.x = w
 		_label.size.x = w
 		var h := _label.get_minimum_size().y
-		size = Vector2(w + 28, h + 16)
+		size = Vector2(w + 32, h + 20)
 		queue_redraw()
 
 	func age() -> float:

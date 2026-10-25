@@ -1,23 +1,33 @@
 extends CanvasLayer
 
-## Corner coin count and the chat box: full session history (scrolls), minimize / restore
-## (button or C, remembered in settings) with an unread badge, Enter or T to type even when minimized.
+## Corner coin count and the chat box: full session history stays on the newest line unless
+## the player scrolls up. Minimize (button or C, remembered in settings) leaves the
+## say-something field with the chat icon on its right, and a red badge for unread lines.
 ## Speech bubbles over heads: ui/hud/chat_bubbles.gd.
 
 const T := preload("res://ui/theme/ui_tokens.gd")
 const SPEAKER := "You"
 const MAX_LINES := 300   ## session history kept (scrollable)
+const NAME_SIZE := 18
+const BODY_SIZE := 22
 
 var coins := 0
 
+var _entries: Array[Dictionary] = []
 var _lines: PackedStringArray = PackedStringArray()
 var _scroll: ScrollContainer
+var _feed: VBoxContainer
+var _spacer: Control
 var _toggle: Button
+var _title: Label
+var _badge_panel: PanelContainer
+var _badge: Label
 var _unread := 0
 var _typing_sent := false
+var _follow := true
+var _stick_gen := 0
 
 @onready var _amount: Label = $Root/CoinBadge/Margin/Row/Amount
-@onready var _log: Label = $Root/Chat/Log/Margin/Lines
 @onready var _entry: LineEdit = $Root/Chat/Entry
 @onready var _chat: VBoxContainer = $Root/Chat
 @onready var _log_panel: Control = $Root/Chat/Log
@@ -28,7 +38,9 @@ func _ready() -> void:
 	bubbles.name = "ChatBubbles"
 	$Root.add_child(bubbles)
 	$Root.move_child($Root.get_child(-1), 0)
-	$Root.add_child(TownHud.new())  # UI core: location chip, mic, dock and contextual action
+	var hud := TownHud.new()
+	hud.name = "TownHud"
+	$Root.add_child(hud)  # UI core: location chip, mic, dock and contextual action
 	_build_chat_chrome()
 	_entry.text_submitted.connect(_on_submitted)
 	_entry.text_changed.connect(_on_text_changed)
@@ -63,7 +75,6 @@ func _unhandled_input(event: InputEvent) -> void:
 		close_chat()
 		return
 	if _is_chat_key(event) and not _entry.has_focus():
-		_entry.visible = true  # typing works while minimized too
 		_entry.call_deferred("grab_focus")
 		get_viewport().set_input_as_handled()
 	elif _is_toggle_key(event) and not _entry.has_focus() and not UIRouter.is_open():
@@ -80,10 +91,15 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func add_line(speaker: String, message: String) -> void:
+	var mine := speaker == SPEAKER or speaker == str(Net.local_profile().get("name", ""))
+	if mine:
+		_follow = true  # sending a line brings you back to the latest message
+	_entries.append({"speaker": speaker, "message": message})
 	_lines.append("%s: %s" % [speaker, message])
-	if _lines.size() > MAX_LINES:
+	if _entries.size() > MAX_LINES:
+		_entries.pop_front()
 		_lines.remove_at(0)
-	if minimized() and speaker != str(Net.local_profile().get("name", "")) and speaker != SPEAKER:  # your own lines aren't news
+	if minimized() and not mine:  # your own lines aren't news
 		_unread += 1
 		_refresh_toggle()
 	_refresh_log()
@@ -92,36 +108,75 @@ func add_line(speaker: String, message: String) -> void:
 ## Header row (title + minimize/restore with unread badge) and a scrolling history.
 func _build_chat_chrome() -> void:
 	_chat.alignment = BoxContainer.ALIGNMENT_END  # minimized: the header sits at the bottom
-	var margin := _log.get_parent()
-	margin.remove_child(_log)
+	var lines := $Root/Chat/Log/Margin/Lines
+	var margin := lines.get_parent()
+	margin.remove_child(lines)
+	lines.queue_free()
 	_scroll = ScrollContainer.new()
 	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	margin.add_child(_scroll)
-	_log.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_scroll.add_child(_log)
+	_feed = VBoxContainer.new()
+	_feed.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_feed.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_feed.add_theme_constant_override("separation", 12)
+	_spacer = Control.new()
+	_spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_feed.add_child(_spacer)
+	_scroll.add_child(_feed)
+	_scroll.resized.connect(_on_log_resized)
+	_scroll.gui_input.connect(_on_log_pointer)
+	_scroll.get_v_scroll_bar().gui_input.connect(_on_log_pointer)
 	var head := HBoxContainer.new()
 	head.alignment = BoxContainer.ALIGNMENT_END
 	_chat.add_child(head)
 	_chat.move_child(head, 0)
-	_toggle = Button.new()
+	_title = Label.new()
+	_title.text = "Chat"
+	_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_title.add_theme_font_override("font", UIKit.THEME.get_font("font", "Strong"))
+	_title.add_theme_font_size_override("font_size", 20)
+	_title.add_theme_color_override("font_color", T.NAVY_TITLE)
+	head.add_child(_title)
+	_toggle = UIKit.icon_button("chevron_down", "Show chat (C)", 58)
 	_toggle.focus_mode = Control.FOCUS_NONE
-	_toggle.custom_minimum_size = Vector2(0, 44)  # touch-sized
-	_toggle.tooltip_text = "Minimize or show chat (C)"
-	_toggle.add_theme_font_size_override("font_size", 18)
-	for st in ["normal", "hover", "pressed"]:
-		var sb := StyleBoxFlat.new()
-		sb.bg_color = Color(T.PANEL, 0.94) if st != "hover" else T.PANEL
-		sb.border_color = T.LINE
-		sb.set_border_width_all(2)
-		sb.set_corner_radius_all(16)
-		sb.content_margin_left = 16
-		sb.content_margin_right = 16
-		_toggle.add_theme_stylebox_override(st, sb)
-	for c in ["font_color", "font_hover_color", "font_pressed_color"]:
-		_toggle.add_theme_color_override(c, T.NAVY)
 	_toggle.pressed.connect(toggle_chat)
-	head.add_child(_toggle)
+	var composer := HBoxContainer.new()
+	composer.name = "Composer"
+	composer.add_theme_constant_override("separation", 8)
+	composer.alignment = BoxContainer.ALIGNMENT_CENTER
+	_chat.remove_child(_entry)
+	_entry.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_entry.custom_minimum_size.y = 58
+	composer.add_child(_entry)
+	composer.add_child(_toggle)
+	_chat.add_child(composer)
+	var glyph := _ChatGlyph.new()
+	glyph.name = "ChatGlyph"
+	_toggle.add_child(glyph)
+	_badge_panel = PanelContainer.new()
+	_badge_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_badge_panel.visible = false
+	var badge_box := StyleBoxFlat.new()
+	badge_box.bg_color = Color("#D6453C")
+	badge_box.set_corner_radius_all(12)
+	badge_box.content_margin_left = 5
+	badge_box.content_margin_right = 5
+	badge_box.content_margin_top = 1
+	badge_box.content_margin_bottom = 1
+	_badge_panel.add_theme_stylebox_override("panel", badge_box)
+	_badge = Label.new()
+	_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_badge.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_badge.add_theme_font_override("font", UIKit.THEME.get_font("font", "Strong"))
+	_badge.add_theme_font_size_override("font_size", 14)
+	_badge.add_theme_color_override("font_color", Color.WHITE)
+	_badge_panel.add_child(_badge)
+	_toggle.add_child(_badge_panel)
+	_toggle.resized.connect(_place_badge)
 	_apply_minimized()
 
 
@@ -135,28 +190,113 @@ func toggle_chat() -> void:
 
 
 func _apply_minimized() -> void:
+	_sync_chat_frame(not minimized())
+
+
+## Open panel, or just the bottom row: the field, with the chat icon on its right.
+func _sync_chat_frame(stick_to_latest := false) -> void:
 	var mini := minimized()
 	if not mini:
 		_unread = 0
+	if stick_to_latest:
+		_follow = true
 	_log_panel.visible = not mini
-	_entry.visible = not mini or _entry.has_focus()
+	_entry.visible = true
+	_title.visible = not mini
+	(_title.get_parent() as Control).visible = not mini
 	_refresh_toggle()
-	if not mini:
-		_scroll_to_end.call_deferred()
+	_relayout_chat()
+	if stick_to_latest:
+		_stick_bottom_soon()
+
+
+func _relayout_chat() -> void:
+	var hud := get_tree().get_first_node_in_group("town_hud")
+	if hud and hud.has_method("_layout"):
+		hud.call("_layout")
 
 
 func _refresh_toggle() -> void:
-	if minimized():
-		_toggle.text = "Chat  ▴" if _unread == 0 else "Chat · %d new  ▴" % _unread
-		_toggle.add_theme_color_override("font_color", T.NAVY if _unread == 0 else Color("#D6453C"))
+	var mini := minimized()
+	_toggle.custom_minimum_size = Vector2(58, 58)
+	_toggle.icon = null
+	var glyph := _toggle.get_node_or_null("ChatGlyph") as CanvasItem
+	if glyph:
+		glyph.visible = true
+	_toggle.tooltip_text = "Show chat (C)" if mini else "Hide chat (C)"
+	var alert := mini and _unread > 0
+	_badge_panel.visible = alert
+	if alert:
+		_badge.text = str(_unread) if _unread < 10 else "9+"
+		_place_badge()
+
+
+func _place_badge() -> void:
+	if _badge_panel == null or not _badge_panel.visible or _toggle.size.x < 2.0:
+		return
+	var s := _badge_panel.get_combined_minimum_size()
+	var side := maxf(maxf(s.x, s.y), 22.0)
+	_badge_panel.size = Vector2(side, side)
+	_badge_panel.position = Vector2(_toggle.size.x - side - 2.0, 2.0)
+
+
+func _on_log_resized() -> void:
+	_pin_log()
+	if _follow:
+		_stick_bottom()
+
+
+## Wheel and scrollbar drags are the player reading history. Code-driven jumps are ignored.
+func _on_log_pointer(event: InputEvent) -> void:
+	if event is InputEventMouseButton:
+		var mouse := event as InputEventMouseButton
+		if mouse.button_index == MOUSE_BUTTON_WHEEL_UP and mouse.pressed:
+			var bar := _scroll.get_v_scroll_bar()
+			if bar.max_value - bar.page > 1.0 and bar.value > 1.0:
+				_follow = false
+				_stick_gen += 1
+			return
+		if mouse.button_index == MOUSE_BUTTON_WHEEL_DOWN and mouse.pressed:
+			_mark_scroll.call_deferred()
+			return
+		if mouse.button_index == MOUSE_BUTTON_LEFT:
+			_mark_scroll.call_deferred()
+	elif event is InputEventMouseMotion and (event as InputEventMouseMotion).button_mask & MOUSE_BUTTON_MASK_LEFT:
+		_mark_scroll.call_deferred()
+	elif event is InputEventPanGesture:
+		_mark_scroll.call_deferred()
+
+
+func _mark_scroll() -> void:
+	if _scroll == null:
+		return
+	var bar := _scroll.get_v_scroll_bar()
+	var bottom := bar.max_value - bar.page
+	var at_bottom := bottom <= 1.0 or bar.value >= bottom - 12.0
+	if at_bottom:
+		_follow = true
+		_stick_bottom()
 	else:
-		_toggle.text = "Hide chat  ▾"
-		_toggle.add_theme_color_override("font_color", T.NAVY)
+		_follow = false
+		_stick_gen += 1
 
 
-func _scroll_to_end() -> void:
-	if _scroll:
-		_scroll.scroll_vertical = int(_scroll.get_v_scroll_bar().max_value)
+func _stick_bottom() -> void:
+	if not _follow or _scroll == null:
+		return
+	_pin_log()
+	_scroll.scroll_vertical = int(_scroll.get_v_scroll_bar().max_value)
+
+
+## Layout catches up a frame or two after new lines are added. A scroll-up cancels this.
+func _stick_bottom_soon() -> void:
+	_stick_gen += 1
+	var gen := _stick_gen
+	for _i in 3:
+		if gen != _stick_gen or not _follow:
+			return
+		_stick_bottom()
+		await get_tree().process_frame
 
 
 func _on_text_changed(text: String) -> void:
@@ -189,24 +329,115 @@ func _on_submitted(text: String) -> void:
 func _on_focus_entered() -> void:
 	_entry.visible = true
 	_set_typing(true)
+	_sync_chat_frame()
 
 
 func _on_focus_exited() -> void:
 	_set_typing(false)
 	_stop_typing()
-	if minimized():
-		_entry.visible = false
+	_sync_chat_frame()
 
 
 func _refresh_log() -> void:
-	if _lines.is_empty():
-		_log.text = "Chat with friends here."
-		_log.add_theme_color_override("font_color", Color(0.55, 0.56, 0.61, 1))  # UI theme: muted on ivory
+	if _feed == null:
 		return
-	_log.text = "\n".join(_lines)
-	_log.add_theme_color_override("font_color", Color(0.08, 0.15, 0.3, 1))  # UI theme: navy on ivory
-	if _scroll and _scroll.scroll_vertical >= int(_scroll.get_v_scroll_bar().max_value - _scroll.size.y - 24):
-		_scroll_to_end.call_deferred()  # follow new lines unless the player scrolled up to read
+	var saved := _scroll.scroll_vertical if _scroll else 0
+	for c in _feed.get_children():
+		if c != _spacer:
+			_feed.remove_child(c)
+			c.free()
+	if _entries.is_empty():
+		_feed.add_child(_hint("Chat with friends here."))
+	else:
+		for entry in _entries:
+			_feed.add_child(_message_block(str(entry["speaker"]), str(entry["message"])))
+	_pin_log()
+	if _follow:
+		_scroll.scroll_vertical = int(_scroll.get_v_scroll_bar().max_value)
+	else:
+		_scroll.scroll_vertical = saved
+	if _follow:
+		_stick_bottom_soon()
+	else:
+		_restore_scroll.call_deferred(saved)
+
+
+func _restore_scroll(saved: int) -> void:
+	if _follow or _scroll == null:
+		return
+	_pin_log()
+	_scroll.scroll_vertical = saved
+
+
+func _fit_widths() -> void:
+	var w := _scroll.size.x - 16.0  # keep wrapped lines clear of the scrollbar
+	if w < 8.0:
+		return
+	for c in _feed.get_children():
+		if c == _spacer:
+			continue
+		var block := c as Control
+		block.custom_minimum_size.x = w
+		for lab in block.get_children():
+			if lab is Label:
+				(lab as Label).custom_minimum_size.x = w
+
+
+## Short history sits on the bottom of the panel, the way a chat is read.
+func _pin_log() -> void:
+	if _scroll == null or _feed == null or _spacer == null:
+		return
+	_fit_widths()
+	var sep := float(_feed.get_theme_constant("separation"))
+	var content := 0.0
+	var n := 0
+	for c in _feed.get_children():
+		if c == _spacer:
+			continue
+		content += (c as Control).get_combined_minimum_size().y
+		n += 1
+	if n > 0:
+		content += sep * n
+	var extra := maxf(0.0, _scroll.size.y - content)
+	if absf(_spacer.custom_minimum_size.y - extra) > 1.0:
+		_spacer.custom_minimum_size.y = extra
+
+
+func _message_block(speaker: String, message: String) -> Control:
+	var block := VBoxContainer.new()
+	block.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	block.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	block.add_theme_constant_override("separation", 2)
+	var who := Label.new()
+	who.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	who.text = speaker
+	who.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	who.add_theme_font_override("font", UIKit.THEME.get_font("font", "Strong"))
+	who.add_theme_font_size_override("font_size", NAME_SIZE)
+	var mine := speaker == SPEAKER or speaker == str(Net.local_profile().get("name", ""))
+	who.add_theme_color_override("font_color", T.TEAL_PRESSED if mine else T.NAVY_TITLE)
+	var said := Label.new()
+	said.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	said.text = message
+	said.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	said.add_theme_font_size_override("font_size", BODY_SIZE)
+	said.add_theme_constant_override("line_spacing", 4)
+	said.add_theme_color_override("font_color", T.NAVY)
+	said.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	block.add_child(who)
+	block.add_child(said)
+	return block
+
+
+func _hint(text: String) -> Label:
+	var hint := Label.new()
+	hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hint.text = text
+	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	hint.add_theme_font_size_override("font_size", 20)
+	hint.add_theme_color_override("font_color", T.MUTED)
+	hint.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	return hint
 
 
 func _set_typing(active: bool) -> void:
@@ -230,3 +461,28 @@ func _is_toggle_key(event: InputEvent) -> bool:
 func _menu_open() -> bool:
 	var world := get_tree().get_first_node_in_group("world")
 	return world != null and world.has_method("is_bus_menu_open") and bool(world.call("is_bus_menu_open"))
+
+
+## Navy speech bubble, drawn so the closed-chat button does not depend on an imported icon.
+class _ChatGlyph:
+	extends Control
+
+	func _init() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func _ready() -> void:
+		set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+
+	func _draw() -> void:
+		var navy := Color("#15274D")
+		var body := Rect2(size.x * 0.22, size.y * 0.28, size.x * 0.56, size.y * 0.36)
+		var bubble := StyleBoxFlat.new()
+		bubble.bg_color = navy
+		bubble.set_corner_radius_all(6)
+		bubble.draw(get_canvas_item(), body)
+		var tail := PackedVector2Array([
+			Vector2(body.position.x + body.size.x * 0.22, body.end.y - 1.0),
+			Vector2(body.position.x + body.size.x * 0.46, body.end.y - 1.0),
+			Vector2(body.position.x + body.size.x * 0.16, body.end.y + size.y * 0.12),
+		])
+		draw_colored_polygon(tail, navy)

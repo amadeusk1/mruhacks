@@ -29,7 +29,7 @@ corner_radius_bottom_right = 11
 corner_radius_bottom_left = 11
 
 [sub_resource type="StyleBoxFlat" id="Style_chat_log"]
-bg_color = Color(0.988235, 0.964706, 0.92549, 0.94)
+bg_color = Color(0.988235, 0.964706, 0.92549, 0.98)
 corner_radius_top_left = 20
 corner_radius_top_right = 20
 corner_radius_bottom_right = 20
@@ -132,8 +132,8 @@ layout_mode = 1
 anchor_top = 1.0
 anchor_bottom = 1.0
 offset_left = 22.0
-offset_top = -222.0
-offset_right = 362.0
+offset_top = -362.0
+offset_right = 422.0
 offset_bottom = -22.0
 grow_vertical = 0
 mouse_filter = 0
@@ -147,17 +147,18 @@ theme_override_styles/panel = SubResource("Style_chat_log")
 
 [node name="Margin" type="MarginContainer" parent="Root/Chat/Log"]
 layout_mode = 2
-theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 12
-theme_override_constants/margin_bottom = 10
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 2
 
 [node name="Lines" type="Label" parent="Root/Chat/Log/Margin"]
 layout_mode = 2
 size_flags_vertical = 3
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.082353, 0.152941, 0.301961, 1)
-theme_override_font_sizes/font_size = 20
+theme_override_constants/line_spacing = 4
+theme_override_font_sizes/font_size = 22
 text = "Chat with friends here."
 autowrap_mode = 3
 vertical_alignment = 2
@@ -168,7 +169,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.082353, 0.152941, 0.301961, 1)
 theme_override_colors/font_placeholder_color = Color(0.545098, 0.560784, 0.607843, 1)
 theme_override_colors/caret_color = Color(0.082353, 0.152941, 0.301961, 1)
-theme_override_font_sizes/font_size = 21
+theme_override_font_sizes/font_size = 22
 theme_override_styles/normal = SubResource("Style_entry")
 theme_override_styles/focus = SubResource("Style_entry_focus")
 placeholder_text = "Say something..."
