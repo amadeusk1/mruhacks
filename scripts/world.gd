@@ -26,9 +26,7 @@ var _puppets: Dictionary = {}
 var _poses: Dictionary = {}
 var _place_sig: Dictionary = {}
 var _rows: VBoxContainer
-var _invite: PanelContainer
-var _invite_text: Label
-var _invite_from := 0
+var _invite_card: UIModal
 
 
 func _ready() -> void:
@@ -50,14 +48,15 @@ func _ready() -> void:
 	Net.connect_failed.connect(_on_connect_failed)
 	Net.host_lost.connect(_on_host_lost)
 	Net.chat_received.connect(_on_chat)
-	Net.home_invite.connect(_on_home_invite)
 	Net.emote_played.connect(_on_emote)
+	Net.invite_received.connect(_on_invite)
+	Net.visit_denied.connect(_on_visit_denied)
 	var arcade := preload("res://scripts/arcade_session.gd").new()
 	arcade.name = "ArcadeSession"
 	add_child(arcade)
-	var roulette := preload("res://scripts/roulette_session.gd").new()
-	roulette.name = "RouletteSession"
-	add_child(roulette)
+	var casino := preload("res://scripts/casino/casino_session.gd").new()
+	casino.name = "CasinoSession"
+	add_child(casino)
 	_apply_launch_args()
 
 
@@ -118,9 +117,9 @@ func travel_to(location_id: String, spawn_name: String = "BusArrival", igloo_id:
 	_clear_room()
 	var packed := load(path) as PackedScene
 	var room := packed.instantiate()
-	_host.add_child(room)
 	_current_id = location_id
-	_igloo_id = igloo
+	_igloo_id = igloo  # before add_child: the room's _ready asks whose home it is
+	_host.add_child(room)
 	if epoch != _epoch:
 		_traveling = false
 		return
@@ -310,6 +309,7 @@ func _on_session_started() -> void:
 	var profile := Net.local_profile()
 	_penguin.apply_identity(str(profile["name"]), int(profile["color"]))
 	DisplayServer.window_set_title("%s — %s" % [Net.role_label(), str(profile["name"])])
+	_share_home()
 	await travel_to(LocationCatalog.MAIN, "BusArrival")
 	if OS.get_cmdline_user_args().has("--dedicated"):
 		Net.hide_presence()
@@ -339,7 +339,7 @@ func _on_host_lost() -> void:
 
 
 func _end_session(message: String) -> void:
-	Music.stop()
+	Music.play_title()
 	_epoch += 1
 	_in_game = false
 	_traveling = false
@@ -349,7 +349,8 @@ func _end_session(message: String) -> void:
 	_clear_room()
 	_current_id = ""
 	_igloo_id = 0
-	_hide_invite()
+	if is_instance_valid(_invite_card):
+		_invite_card.close()
 	_despawn_all()
 	_penguin.set_travel_locked(true)
 	_penguin.visible = false
@@ -376,6 +377,7 @@ func send_chat(message: String) -> void:
 	else:
 		var speaker := str(Net.local_profile()["name"]) if _in_game else "You"
 		_hud.add_line(speaker, text)
+		Net.chat_from.emit(Net.local_id(), speaker, text)  # solo: your own bubble too
 
 
 func _on_chat(speaker: String, message: String) -> void:
@@ -388,6 +390,10 @@ func _on_roster_changed() -> void:
 		_penguin.apply_identity(str(profile["name"]), int(profile["color"]))
 	_sync_puppets()
 	_refresh_presence()
+	if _in_game and _current_id == "home" and Net.is_online() and _igloo_id != Net.local_id() and not _traveling \
+			and not Net.roster().any(func(e): return int(e.get("id", 0)) == _igloo_id):
+		UIWidgets.toast(self, "Your host left, so you're back in town.", "home", 3.5)
+		travel_to(LocationCatalog.MAIN, "BusArrival")
 
 
 func _on_remote_pose(peer_id: int, x: float, y: float, z: float, yaw: float, speed: float, sitting: bool) -> void:
@@ -566,31 +572,59 @@ func _clear_presence() -> void:
 		child.queue_free()
 
 
-func _invite_player(peer_id: int, player_name: String) -> void:
-	Net.invite_home(peer_id)
-	_hud.add_line("You", "Invited %s to your igloo." % player_name)
+## Visitor setting and saved furniture go to the server so visits show the owner's home.
+func _share_home() -> void:
+	var cfg := ConfigFile.new()
+	cfg.load("user://home_choice.cfg")
+	Net.set_visitors(str(cfg.get_value("home", "visitors", "friends")))
+	var path := DecorEditor.path_for("homes/snow_dome_interior")
+	if FileAccess.file_exists(path):
+		Net.publish_home(FileAccess.get_file_as_string(path))
 
 
-func _on_home_invite(from_id: int, from_name: String) -> void:
+func _on_invite(from_id: int, from_name: String, kind: String, ticket: String) -> void:
 	if not _in_game or from_id == Net.local_id():
 		return
-	_invite_from = from_id
-	_invite_text.text = "%s invited you to their igloo." % from_name
-	_invite.visible = true
+	if is_instance_valid(_invite_card):
+		_invite_card.close()  # the newest invite replaces an open one
+	var color := 0
+	for e in Net.roster():
+		if int(e.get("id", 0)) == from_id:
+			color = int(e.get("color", 0))
+	_invite_card = InviteCard.make(from_name, Net.coat_color(color), kind,
+		func() -> void: _accept_invite(from_id, kind, ticket)).open()
 
 
-func _accept_invite() -> void:
-	var host_id := _invite_from
-	_hide_invite()
-	if host_id <= 0:
+func _accept_invite(from_id: int, kind: String, ticket: String) -> void:
+	while _traveling:
+		await get_tree().process_frame
+	if not _in_game:
 		return
-	go_to_homes()
+	UIRouter.close_all()
+	if kind == "home":
+		if not Net.roster().any(func(e): return int(e.get("id", 0)) == from_id):
+			UIWidgets.toast(self, "They left before you could visit.", "home")
+			return
+		travel_to("home", "InsideSpawn", from_id)
+		return
+	if ticket != "" and not CinemaService.client.signed_in:
+		# the inviter's single-use view ticket: watch their screen without the sign-in step
+		var done := [false]
+		CinemaService.client.redeem_ticket(ticket, func(ok: bool, _err: String) -> void:
+			done[0] = true
+			if ok:
+				CinemaService.signed_in_changed.emit(true))
+		var waited := 0.0
+		while not done[0] and waited < 6.0:
+			await get_tree().process_frame
+			waited += get_process_delta_time()
+	travel_to("cinema", "InsideScreen")
 
 
-func _hide_invite() -> void:
-	_invite_from = 0
-	if _invite != null:
-		_invite.visible = false
+func _on_visit_denied(owner_name: String) -> void:
+	UIWidgets.toast(self, "%s's home is invite-only." % (owner_name if owner_name != "" else "That"), "home", 3.5)
+	if _current_id == "home" and _igloo_id != Net.local_id():
+		travel_to(LocationCatalog.MAIN, "BusArrival")
 
 
 func _build_presence() -> void:
@@ -606,48 +640,6 @@ func _build_presence() -> void:
 	_rows.add_theme_constant_override("separation", 6)
 	_rows.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(_rows)
-	_invite = PanelContainer.new()
-	_invite.visible = false
-	_invite.mouse_filter = Control.MOUSE_FILTER_STOP
-	_invite.set_anchors_preset(Control.PRESET_CENTER_TOP)
-	_invite.offset_left = -210
-	_invite.offset_top = 16
-	_invite.offset_right = 210
-	_invite.offset_bottom = 92
-	_invite.add_theme_stylebox_override("panel", _invite_style())
-	root.add_child(_invite)
-	var column := VBoxContainer.new()
-	column.add_theme_constant_override("separation", 8)
-	_invite.add_child(column)
-	_invite_text = Label.new()
-	_invite_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_invite_text.add_theme_color_override("font_color", Color(0.95, 0.97, 1))
-	column.add_child(_invite_text)
-	var actions := HBoxContainer.new()
-	actions.alignment = BoxContainer.ALIGNMENT_CENTER
-	actions.add_theme_constant_override("separation", 8)
-	column.add_child(actions)
-	var visit := Button.new()
-	visit.text = "Visit"
-	visit.pressed.connect(_accept_invite)
-	actions.add_child(visit)
-	var decline := Button.new()
-	decline.text = "Not now"
-	decline.pressed.connect(_hide_invite)
-	actions.add_child(decline)
-
-
-func _invite_style() -> StyleBoxFlat:
-	var box := StyleBoxFlat.new()
-	box.bg_color = Color(0.08, 0.22, 0.4, 0.96)
-	box.border_color = Color(0.86, 0.93, 0.98)
-	box.set_border_width_all(3)
-	box.set_corner_radius_all(14)
-	box.content_margin_left = 14
-	box.content_margin_right = 14
-	box.content_margin_top = 10
-	box.content_margin_bottom = 10
-	return box
 
 
 func _apply_launch_args() -> void:

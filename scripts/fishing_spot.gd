@@ -4,6 +4,7 @@ extends StaticBody3D
 
 const _YAW := PI * 0.5
 
+var reach := 1.2  # rail to standing spot; the town's pier-tip rails sit at the deck edge, 0.45 m out
 var _prompt: Label3D
 
 
@@ -43,7 +44,7 @@ func _ready() -> void:
 
 ## Local +X points from the rail to where the penguin stands (the west pier has no rotation).
 func approach_point() -> Vector3:
-	return global_position + global_basis * Vector3(1.2, -0.58, 0.0)
+	return global_position + global_basis * Vector3(reach, -0.58, 0.0)
 
 
 func stand_point() -> Vector3:

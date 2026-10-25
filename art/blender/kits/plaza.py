@@ -332,6 +332,27 @@ def string_lights():
                                    "glow_roles": [f"bulb_{i}" for i in range(9)]})
 
 
+def string_light_pole():
+    """Iron post that carries a string_lights span: the wire eye collar sits at the strings' 2.4 m anchor
+    height, with a small lantern on top. Place one at each socket_anchor_a/b of the span."""
+    b = Builder("string_light_pole", seed=27)
+    z = 2.4
+    b.box(0.3, 0.3, 0.1, 0, 0, 0, "iron", bevel=0.022)
+    b.box(0.22, 0.22, 0.12, 0, 0, 0.1, "iron_light", bevel=0.018)
+    b.cyl(0.085, 0.14, 0, 0, 0.22, "iron", segs=6, r2=0.055, bevel=0.008)
+    b.cyl(0.045, z + 0.1 - 0.36, 0, 0, 0.36, "iron", segs=6, bevel=0.006)
+    b.cyl(0.068, 0.05, 0, 0, 0.56, "iron_light", segs=6, bevel=0.006)
+    b.cyl(0.062, 0.06, 0, 0, z - 0.03, "iron_light", segs=6, bevel=0.006)      # eye collar the wires tie to
+    for sx in (-1, 1):
+        b.torus(0.03, 0.009, sx * 0.075, 0, z, "iron", segs=8, ring=4, rot=(90, 0, 0))
+    b.cyl(0.06, 0.06, 0, 0, z + 0.1, "iron_light", segs=6, r2=0.09, bevel=0.006)
+    lantern_head(b, 0, 0, z + 0.16, s=0.85)
+    b.socket("anchor", (0, 0, z))
+    b.socket("light", (0, 0, z + 0.3))
+    return b.finish(KIT, "light", {"anchor_height": z, "light_color": "#FFC76B", "light_height": z + 0.3,
+                                   "note": "carries plaza/string_lights: one pole at each anchor, same ground z"})
+
+
 def paving(name, size, seed):
     b = Builder(name, seed=seed)
     rng = random.Random(seed)
@@ -405,7 +426,7 @@ def build():
     round_table(); stool(); bench(); aframe_chalkboard(); lantern_post(); wall_lantern_asset()
     flower_pot(); rect_planter(); bunting_posts()
     fence("low_wood_fence_1m", 1.0); fence("low_wood_fence_2m", 2.0); fence_post()
-    small_fountain(); street_bin(); string_lights()
+    small_fountain(); street_bin(); string_lights(); string_light_pole()
     paving("paving_1x1", 1.0, 61); paving("paving_2x2", 2.0, 62)
     plaza_edge("plaza_edge_1m", 1.0); plaza_edge("plaza_edge_2m", 2.0); plaza_edge("plaza_edge_corner", 1.0, corner=True)
     cafe_umbrella_table()

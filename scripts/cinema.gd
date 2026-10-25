@@ -24,6 +24,13 @@ func _ready() -> void:
 	for n in find_children("cinema_lobby*", "Node3D", true, false):
 		if n.get_parent().name == "PackProps":
 			InteriorMood.paint(n, {"wall": "#F1DCBC"}, PALETTE)
+	if CinemaService.enabled("service_enabled"):  # "Pick a Movie" podium inside the auditorium (before the rebake)
+		for n in find_children("cinema_auditorium*", "Node3D", true, false):
+			if n.get_parent().name == "PackProps":
+				CinemaMovieSpot.place(self, n)
+		for n in find_children("cinema_lobby*", "Node3D", true, false):
+			if n.get_parent().name == "PackProps":
+				CinemaMovieSpot.place_lobby(self, n)
 	# floors, tiers, steps and the stage collide where they're drawn (the dressing only adds a
 	# flat floor at y = 0, so the penguin walked inside the tiers); then rebake the navmesh
 	var nav := get_node_or_null("NavigationRegion3D")

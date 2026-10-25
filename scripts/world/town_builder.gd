@@ -10,6 +10,8 @@ const STUB := "res://scripts/world/town_layout_stub.json"
 const ENV_FORWARD := "res://scenes/env/town_env_forward.tres"
 const ENV_COMPAT := "res://scenes/env/town_env_compat.tres"
 const FOLIAGE := preload("res://scripts/world/foliage_batch.gdshader")
+const WATER := preload("res://scripts/world/water.gdshader")
+const WATER_SHORE := "res://Models/world/water_shore.png"
 const BATCH_MIN := 6  # identical untinted, part-less props batched into one MultiMesh
 const FLOOR_LAYER := 1
 const BLOCK_LAYER := 2
@@ -33,6 +35,7 @@ func _enter_tree() -> void:
 	assert(_layout is Dictionary and _layout.has("placements"), "bad town layout: " + path)
 	var nav := get_node("NavigationRegion3D")
 	_build_terrain(nav)
+	_build_water()
 	_build_placements(nav)
 	_build_markers(nav)
 	for b in _layout.get("nav_blockers", []):
@@ -154,6 +157,9 @@ func _build_terrain(nav: Node) -> void:
 	terrain.name = "Terrain"
 	nav.add_child(terrain)
 	Tints.prepare(terrain)
+	for mi in terrain.find_children("water*", "MeshInstance3D", true, false):
+		(mi as MeshInstance3D).material_override = _water_material(String(mi.name) == "water_stream")
+		(mi as MeshInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	for mi in terrain.find_children("*", "MeshInstance3D", true, false):
 		if not String(mi.name).begins_with("water"):  # v2 merges snow/rock/sand into "town_terrain"
 			_trimesh_body(mi, SAMPLE_LAYER)
@@ -164,7 +170,8 @@ func _build_placements(nav: Node) -> void:
 	for p in _layout["placements"]:
 		var id := str(p["id"])
 		var batchable: bool = (p.get("tints", {}) as Dictionary).is_empty() and _sway_only(id) \
-			and not (p.get("tags", []) as Array).has("walkable") and not (p.get("tags", []) as Array).has("blocker")
+			and not (p.get("tags", []) as Array).has("walkable") and not (p.get("tags", []) as Array).has("blocker") \
+			and not AssetRegistry.sockets(id).keys().any(func(k): return String(k).begins_with("socket_seat"))  # seats need real nodes
 		groups.get_or_add(id if batchable else "", []).append(p)
 	for id in groups:
 		if id != "" and groups[id].size() >= BATCH_MIN:
@@ -220,6 +227,8 @@ func _place(nav: Node, p: Dictionary) -> void:
 	_start_ambient(node)
 	if id == "activities/communal_table":  # Sketch Club: sitting here joins the table's game
 		(func(): SeatSpot.from_sockets(nav, node, "sketch", node.global_position, "sketch")).call_deferred()  # needs globals
+	else:  # every other bench, stool and chair (deferred after the Sketch Club seats, which win)
+		(func(): SeatSpot.furnish(nav, node, id, str(AssetRegistry.entry(id).get("category", "")))).call_deferred()
 
 
 ## A solid prop left hovering (its ground was flattened or regraded after it was placed) drops
@@ -227,7 +236,8 @@ func _place(nav: Node, p: Dictionary) -> void:
 func _settle(node: Node3D, space: PhysicsDirectSpaceState3D) -> void:
 	var at := node.global_position
 	var hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(at + Vector3.UP * 0.3, at + Vector3.DOWN * 3.0, FLOOR_LAYER))
-	if hit and at.y - hit.position.y > 0.8:  # stacked crates (0.5 m) stay put
+	var under_water: bool = hit and hit.position.y < float(_layout.get("water_level", -INF))  # boats float
+	if hit and at.y - hit.position.y > 0.8 and not under_water:  # stacked crates (0.5 m) stay put
 		node.global_position.y = hit.position.y
 
 
@@ -315,6 +325,51 @@ func _ledges(nav: Node, space: PhysicsDirectSpaceState3D, h: PackedFloat32Array)
 	print("Town ledges: %d posts" % rail.get_child_count())
 
 
+## Sea and stream share scripts/world/water.gdshader (Art Docs/Water and Stream.md): the sea reads
+## Models/world/water_shore.png for shore foam and depth, the stream ribbon its own UVs for flow and foam.
+func _water_material(stream: bool) -> ShaderMaterial:
+	var m := ShaderMaterial.new()
+	m.shader = WATER
+	m.set_shader_parameter("stream", stream)
+	if not stream and ResourceLoader.exists(WATER_SHORE):
+		m.set_shader_parameter("shore_tex", load(WATER_SHORE))
+	return m
+
+
+## The water line for the fishing tackle (group "water_surface"), and spray plus mist at the foot of
+## every stream fall (AmbientFx dresses the socket_fx_* nodes in _ready).
+func _build_water() -> void:
+	var level := Node3D.new()
+	level.name = "WaterLevel"
+	level.position.y = float(_layout.get("water_level", 0.0))
+	level.add_to_group("water_surface")
+	add_child(level)
+	var k := 0
+	for f in (_layout.get("stream", {}) as Dictionary).get("falls", []):
+		for kind in (["splash", "mist"] if f["kind"] == "falls" else ["splash"]):
+			var n := Node3D.new()
+			n.name = "socket_fx_%s_%d" % [kind, k]
+			n.position = _v(f["base"]) + Vector3.UP * 0.05
+			add_child(n)
+		k += 1
+
+
+## Water level at (x, z): the stream's local level inside its channel (layout "stream" points:
+## [x, level, z, half_width] every 0.5 m), else the sea's.
+func _stream_level(x: float, z: float, sea: float, grid: Dictionary) -> float:
+	var best := INF
+	var level := sea
+	var c := Vector2i(floori(x / 2.0), floori(z / 2.0))
+	for dx in range(-1, 2):
+		for dz in range(-1, 2):
+			for p in grid.get(c + Vector2i(dx, dz), []):
+				var d := Vector2(p[0] - x, p[2] - z).length()
+				if d < best and d < float(p[3]) + 0.3:
+					best = d
+					level = maxf(float(p[1]), sea)
+	return level
+
+
 ## The sea and the stream: a WATER_CELL grid whose corners are sampled for floor. A cell is wet
 ## when its floor at every corner is under the water line (or missing), so no wall covers a deck
 ## or the shore. Physics: a row of overlapping upright cylinders on the wet cells that touch dry
@@ -329,13 +384,17 @@ func _water_edges(nav: Node, space: PhysicsDirectSpaceState3D) -> void:
 	if water == -INF:
 		return
 	var n := int(WATER_HALF * 2.0 / WATER_CELL)
-	var low := {}  # grid corner -> no floor above the water line
+	var grid := {}  # 2 m buckets of stream centreline points
+	for p in (_layout.get("stream", {}) as Dictionary).get("points", []):
+		grid.get_or_add(Vector2i(floori(p[0] / 2.0), floori(p[2] / 2.0)), []).append(p)
+	var low := {}  # grid corner -> no floor above the water line (the stream's own level in its channel)
 	for i in n + 1:
 		for j in n + 1:
 			var x := -WATER_HALF + i * WATER_CELL
 			var z := -WATER_HALF + j * WATER_CELL
+			var line := _stream_level(x, z, water, grid)
 			var hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(Vector3(x, 30, z), Vector3(x, water - 8.0, z), FLOOR_LAYER))
-			if hit.is_empty() or hit.position.y < water - 0.05:
+			if hit.is_empty() or hit.position.y < line - 0.05:
 				low[Vector2i(i, j)] = true
 	var wet := {}
 	for i in n:
@@ -357,7 +416,9 @@ func _water_edges(nav: Node, space: PhysicsDirectSpaceState3D) -> void:
 			continue
 		var col := CollisionShape3D.new()
 		col.shape = post
-		col.position = Vector3(-WATER_HALF + (cell.x + 0.5) * WATER_CELL, water, -WATER_HALF + (cell.y + 0.5) * WATER_CELL)
+		var cx := -WATER_HALF + (cell.x + 0.5) * WATER_CELL
+		var cz := -WATER_HALF + (cell.y + 0.5) * WATER_CELL
+		col.position = Vector3(cx, _stream_level(cx, cz, water, grid), cz)
 		rail.add_child(col)
 	nav.add_child(rail)
 	var rects := 0
@@ -380,7 +441,7 @@ func _water_edges(nav: Node, space: PhysicsDirectSpaceState3D) -> void:
 		carve.affect_navigation_mesh = true
 		nav.add_child(carve)
 		carve.position = Vector3((lo.x + hi.x) * 0.5, water - 8.0, (lo.y + hi.y) * 0.5)
-		carve.height = 8.0 + Footprint.BLOCK_TOP + 0.5
+		carve.height = 8.0 + Footprint.BLOCK_TOP + 3.5  # reaches the spring pool, 2.75 m above the sea
 		var h := (hi - lo) * 0.5
 		carve.vertices = PackedVector3Array([Vector3(-h.x, 0, -h.y), Vector3(h.x, 0, -h.y), Vector3(h.x, 0, h.y), Vector3(-h.x, 0, h.y)])
 		rects += 1
@@ -507,12 +568,13 @@ func _door(marker: Marker3D, target: String) -> void:
 
 func _activity_anchor(marker: Marker3D, activity: String) -> void:
 	match activity:
-		"fishing":  # the teammate's fishing spot; the rail sits 1.2 m in front of the stand marker
+		"fishing":  # the teammate's fishing spot; its rail post stands on the pier tip, just in front of the marker
 			var spot := StaticBody3D.new()
 			spot.name = marker.name + "Rail"
 			spot.set_script(load("res://scripts/fishing_spot.gd"))
+			spot.set("reach", 0.45)  # markers sit 0.5 m back from the tip edge (fishing_dock_spot socket_fish_*)
 			var facing := -marker.basis.z
-			spot.position = marker.position + facing * 1.2 + Vector3(0, 0.58, 0)
+			spot.position = marker.position + facing * 0.45 + Vector3(0, 0.58, 0)
 			spot.rotation.y = marker.rotation.y - PI * 0.5
 			add_child(spot)
 		"sled":
@@ -551,7 +613,7 @@ func _start_ambient(node: Node) -> void:
 	for mi in node.find_children("*", "MeshInstance3D", true, false):
 		for s in (mi as MeshInstance3D).mesh.get_surface_count():
 			var m := mi.get_active_material(s) as BaseMaterial3D
-			if m and m.emission_enabled and (String(m.resource_name).begins_with("glow") or String(m.resource_name).begins_with("bulb")):
+			if m and m.emission_enabled and (String(m.resource_name).begins_with("glow") or String(m.resource_name).begins_with("bulb") or String(m.resource_name).begins_with("tint_bulb")):
 				var d := m.duplicate() as BaseMaterial3D
 				mi.set_surface_override_material(s, d)
 				_glows.append([d, d.emission_energy_multiplier, randf() * TAU, randf_range(2.5, 4.0)])

@@ -11,10 +11,12 @@ signal seat_denied(bench_key: String)
 signal connect_failed(message: String)
 signal host_lost
 signal chat_received(speaker: String, message: String)
-signal home_invite(from_id: int, from_name: String)
-signal sled_gate(race_id: int, phase: String, seconds: float)
+signal chat_from(peer_id: int, speaker: String, message: String)   ## same message, with who said it (speech bubbles)
+signal typing_changed(peer_id: int, typing: bool)                   ## someone in your room started / stopped typing
+signal invite_received(from_id: int, from_name: String, kind: String, ticket: String)
+signal visit_denied(owner_name: String)
+signal home_layout(owner_id: int, layout: String)
 signal sled_pose(peer_id: int, x: float, y: float, z: float, yaw: float, steer: float, crashed: bool)
-signal arcade_state(state: Dictionary)
 signal emote_played(peer_id: int, clip: String)
 
 const _CourtMatch := preload("res://scripts/court_match.gd")
@@ -58,15 +60,6 @@ var _pose_wait := 0.0
 var _latest_sled: Dictionary = {}
 var _have_sled := false
 var _sled_wait := 0.0
-var _sled_race := 0
-var _sled_phase := ""
-var _sled_left := 0.0
-var _sled_status: Dictionary = {}
-var _sled_notice: Dictionary = {}
-var _arc_cab := ""
-var _arc_solo := false
-var _arc_pad := 0.5
-var _arc: Dictionary = {}
 var _court: RefCounted
 var _court_bodies: Dictionary = {}
 var _court_state: Dictionary = {}
@@ -76,7 +69,7 @@ var _court_box := AABB()
 var _court_on := false
 var _voice_pos: Dictionary = {}     # host: peer -> last pose position (voice proximity)
 var _voice_budget: Dictionary = {}  # host: peer -> bytes allowed this second
-const VOICE_RANGE := 20.0
+const VOICE_RANGE := 15.0  # Voice.FAR (14 m) is silent already; a margin for pose lag
 const VOICE_BYTES_PER_SEC := 24000
 var _snow: RefCounted
 var _snow_state: Dictionary = {}
@@ -87,6 +80,16 @@ var _snow_on := false
 const SNOW_REACH := 3.0
 var _emote_at: Dictionary = {}  # host: peer -> msec of the last emote it relayed
 var _emote_seen: Dictionary = {}  # client: peer -> host stamp of the last emote played
+var _clock_offset := 0.0  # server clock minus ours; the host is the world-time authority
+var _clock_wait := 0.0
+var _clock_skew := 0.0  # debug builds: --clock-skew=SECONDS fakes a wrong local clock (tools/daynight_sync)
+const CLOCK_RESYNC_S := 30.0
+const INVITE_KINDS := ["home", "cinema"]
+const INVITE_COOLDOWN_MS := 4000   # same sender, target and kind: drop repeats inside this window
+const HOME_MAX_BYTES := 32768
+var _invite_sent: Dictionary = {}  # host: "from:target:kind" -> ticks msec of the last delivery
+var _granted: Dictionary = {}      # host: owner id -> {guest id: true} (invited into that home)
+var _homes: Dictionary = {}        # host: owner id -> home layout JSON
 var court_loft := 0.5  # how high the local player aims a shot: 0 flattest, 1 tallest lob
 
 
@@ -94,6 +97,8 @@ func _ready() -> void:
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--net-port="):
 			PORT = int(a.trim_prefix("--net-port="))
+		elif a.begins_with("--clock-skew=") and OS.is_debug_build():
+			_clock_skew = float(a.trim_prefix("--clock-skew="))
 	_court = _CourtMatch.new()
 	_court_state = _court.view()
 	_snow = _SnowMatch.new()
@@ -110,8 +115,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if _closing:
 		return
-	_tick_arcade(delta)
-	_tick_sled(delta)
+	_tick_clock(delta)
 	_tick_court(delta)
 	_tick_snow(delta)
 	if _place_location == "sled_hill":
@@ -135,6 +139,39 @@ func _process(delta: float) -> void:
 			float(_latest_pose["speed"]),
 			bool(_latest_pose["sitting"])
 		)
+
+
+## Shared world clock (unix seconds as the host sees them). Day/night, the dance beat and other
+## time-driven visuals read this so every player sees the same moment.
+func world_time() -> float:
+	return _now() + _clock_offset
+
+
+func _now() -> float:
+	return Time.get_unix_time_from_system() + _clock_skew
+
+
+func _tick_clock(delta: float) -> void:
+	if _mode != Mode.CLIENT or not _session_open:
+		return
+	_clock_wait -= delta
+	if _clock_wait <= 0.0:
+		_clock_wait = CLOCK_RESYNC_S
+		request_clock.rpc_id(1, _now())
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func request_clock(client_sent: float) -> void:
+	if _mode == Mode.HOST:
+		answer_clock.rpc_id(multiplayer.get_remote_sender_id(), client_sent, _now())
+
+
+@rpc("authority", "call_remote", "reliable")
+func answer_clock(client_sent: float, server_now: float) -> void:
+	if _mode != Mode.CLIENT:
+		return
+	var now := _now()
+	_clock_offset = server_now + (now - client_sent) * 0.5 - now  # assume a symmetric trip
 
 
 func is_online() -> bool:
@@ -251,13 +288,40 @@ func arrive(location: String, spawn: String, hidden: bool, igloo: int = 0) -> vo
 	_send_place(location, spawn, hidden, igloo)
 
 
-func invite_home(target_id: int) -> void:
+## kind "home" (your igloo) or "cinema" (ticket: an optional single-use cinema view ticket, so the
+## guest watches without signing in).
+func invite(target_id: int, kind := "home", ticket := "") -> void:
 	if not is_online() or _closing or target_id <= 0 or target_id == local_id():
 		return
 	if _mode == Mode.HOST:
-		_host_invite(local_id(), target_id)
+		_host_invite(local_id(), target_id, kind, ticket)
 	else:
-		request_invite.rpc_id(1, target_id)
+		request_invite.rpc_id(1, target_id, kind, ticket)
+
+
+## Who may walk into your home uninvited: "only_me" | "friends" | "anyone" (Home Visitors screen).
+## There is no friends service yet, so "friends" means players you invited or who invited you.
+func set_visitors(policy: String) -> void:
+	if _mode == Mode.HOST:
+		_host_visitors(local_id(), policy)
+	elif _mode == Mode.CLIENT and not _closing:
+		request_visitors.rpc_id(1, policy)
+
+
+## Share your saved home layout so visitors see your furniture, not theirs.
+func publish_home(layout: String) -> void:
+	if _mode == Mode.HOST:
+		_host_home(local_id(), layout)
+	elif _mode == Mode.CLIENT and not _closing:
+		submit_home.rpc_id(1, layout)
+
+
+## Ask for an owner's layout; answered through home_layout(owner_id, layout) ("" when unknown).
+func fetch_home(owner_id: int) -> void:
+	if _mode == Mode.HOST:
+		home_layout.emit(owner_id, str(_homes.get(owner_id, "")))
+	elif _mode == Mode.CLIENT and not _closing:
+		request_home.rpc_id(1, owner_id)
 
 
 func note_sled(at: Vector3, yaw: float, steer: float, crashed: bool) -> void:
@@ -272,14 +336,6 @@ func note_sled(at: Vector3, yaw: float, steer: float, crashed: bool) -> void:
 		"crashed": crashed,
 	}
 	_have_sled = true
-
-
-func sled_retry() -> void:
-	_sled_mark("ready")
-
-
-func sled_done() -> void:
-	_sled_mark("done")
 
 
 func note_pose(at: Vector3, yaw: float, speed: float, sitting: bool) -> void:
@@ -333,8 +389,31 @@ func _host_say(peer_id: int, message: String) -> void:
 	for other_id in _players:
 		if int(other_id) == local_id():
 			chat_received.emit(speaker, message)
+			chat_from.emit(peer_id, speaker, message)
 		elif multiplayer.get_peers().has(int(other_id)):
-			relay_chat.rpc_id(int(other_id), speaker, message)
+			relay_chat.rpc_id(int(other_id), peer_id, speaker, message)
+
+
+## Typing indicator ("…" bubble) for players in the same room. Cheap: sent only on start / stop.
+func note_typing(typing: bool) -> void:
+	if not is_online() or _closing:
+		return
+	if _mode == Mode.HOST:
+		_host_typing(local_id(), typing)
+	else:
+		request_typing.rpc_id(1, typing)
+
+
+func _host_typing(peer_id: int, typing: bool) -> void:
+	if not _players.has(peer_id):
+		return
+	for other_id in _players:
+		if int(other_id) == peer_id or not _same_room(_players[peer_id], _players[other_id]):
+			continue
+		if int(other_id) == local_id():
+			typing_changed.emit(peer_id, typing)
+		elif multiplayer.get_peers().has(int(other_id)):
+			relay_typing.rpc_id(int(other_id), peer_id, typing)
 
 
 func note_fisher(phase: String) -> void:
@@ -426,6 +505,13 @@ func _send_place(location: String, spawn: String, hidden: bool, igloo: int) -> v
 func _set_place(id: int, location: String, spawn: String, hidden: bool, igloo: int) -> void:
 	if not _players.has(id):
 		return
+	if location == "home" and not hidden and igloo != id and not _may_visit(id, igloo):
+		var owner_name := str(_players[igloo]["name"]) if _players.has(igloo) else ""
+		if id == local_id():
+			visit_denied.emit(owner_name)
+		elif multiplayer.get_peers().has(id):
+			deny_visit.rpc_id(id, owner_name)
+		return
 	var player: Dictionary = _players[id]
 	var changed := str(player["location"]) != location or bool(player["hidden"]) != hidden or int(player.get("igloo", 0)) != igloo
 	player["location"] = location
@@ -438,7 +524,6 @@ func _set_place(id: int, location: String, spawn: String, hidden: bool, igloo: i
 	if location != "town" or hidden:
 		_court_bodies.erase(id)
 	_broadcast()
-	_sync_sled_members()
 
 
 func _host_claim(id: int, key: String) -> bool:
@@ -622,6 +707,7 @@ func _snapshot() -> Array:
 			"anim_loop": bool(player.get("anim_loop", false)),
 			"anim_n": int(player.get("anim_n", 0)),
 			"anim_age": (Time.get_ticks_msec() - int(player.get("anim_at", 0))) / 1000.0,
+			"visitors": str(player.get("visitors", "friends")),
 		})
 	return list
 
@@ -648,19 +734,56 @@ func _same_room(a: Dictionary, b: Dictionary) -> bool:
 	return true
 
 
-func _host_invite(from_id: int, target_id: int) -> void:
-	if from_id <= 0 or target_id <= 0 or from_id == target_id:
+func _host_invite(from_id: int, target_id: int, kind: String, ticket: String) -> void:
+	if from_id <= 0 or target_id <= 0 or from_id == target_id or not INVITE_KINDS.has(kind):
 		return
 	if not _players.has(from_id) or not _players.has(target_id):
 		return
+	if kind != "cinema" or ticket.length() > 64 or not ticket.is_valid_hex_number():
+		ticket = ""  # gateway tickets are hex; anything else is dropped, never relayed
 	var guest: Dictionary = _players[target_id]
-	if str(guest.get("location", "")) == "home" and int(guest.get("igloo", 0)) == from_id and not bool(guest.get("hidden", false)):
+	if kind == "home":
+		if not _granted.has(from_id):
+			_granted[from_id] = {}
+		_granted[from_id][target_id] = true  # an invite always opens the door, whatever the visitor setting
+		if str(guest.get("location", "")) == "home" and int(guest.get("igloo", 0)) == from_id and not bool(guest.get("hidden", false)):
+			return
+	elif str(guest.get("location", "")) == "cinema" and not bool(guest.get("hidden", false)) and ticket == "":
+		return  # already there
+	var key := "%d:%d:%s" % [from_id, target_id, kind]
+	var now := Time.get_ticks_msec()
+	if _invite_sent.has(key) and now - int(_invite_sent[key]) < INVITE_COOLDOWN_MS:
 		return
+	_invite_sent[key] = now
 	var host_name := str(_players[from_id]["name"])
 	if target_id == local_id():
-		home_invite.emit(from_id, host_name)
+		invite_received.emit(from_id, host_name, kind, ticket)
 	elif multiplayer.get_peers().has(target_id):
-		deliver_invite.rpc_id(target_id, from_id, host_name)
+		deliver_invite.rpc_id(target_id, from_id, host_name, kind, ticket)
+
+
+func _may_visit(guest_id: int, owner_id: int) -> bool:
+	if not _players.has(owner_id):
+		return false
+	if _granted.get(owner_id, {}).has(guest_id):
+		return true
+	match str(_players[owner_id].get("visitors", "friends")):
+		"anyone":
+			return true
+		"friends":
+			return _granted.get(guest_id, {}).has(owner_id)  # they invited you before
+	return false
+
+
+func _host_visitors(id: int, policy: String) -> void:
+	if _players.has(id) and policy in ["only_me", "friends", "anyone"]:
+		_players[id]["visitors"] = policy
+		_broadcast()
+
+
+func _host_home(id: int, layout: String) -> void:
+	if _players.has(id) and layout.length() <= HOME_MAX_BYTES:
+		_homes[id] = layout
 
 
 func _take_color() -> int:
@@ -705,15 +828,10 @@ func _force_offline() -> void:
 	_latest_pose.clear()
 	_have_sled = false
 	_latest_sled.clear()
-	_sled_race = 0
-	_sled_phase = ""
-	_sled_left = 0.0
-	_sled_status.clear()
-	_sled_notice.clear()
-	_arc.clear()
-	_arc_cab = ""
-	_arc_solo = false
 	_court_bodies.clear()
+	_invite_sent.clear()
+	_granted.clear()
+	_homes.clear()
 	_court_on = false
 	if _court != null:
 		_court.reset()
@@ -728,6 +846,8 @@ func _force_offline() -> void:
 	_emote_at.clear()
 	_emote_seen.clear()
 	_color_next = 0
+	_clock_offset = 0.0
+	_clock_wait = 0.0
 	_closing = false
 
 
@@ -746,12 +866,13 @@ func _on_peer_disconnected(id: int) -> void:
 		return
 	if _players.has(id):
 		_players.erase(id)
-		_sled_status.erase(id)
-		_sled_notice.erase(id)
 		_court_bodies.erase(id)
 		_emote_at.erase(id)
+		_homes.erase(id)
+		_granted.erase(id)
+		for owner in _granted:
+			_granted[owner].erase(id)
 		_broadcast()
-		_sync_sled_members()
 
 
 func _on_connected_to_server() -> void:
@@ -820,15 +941,43 @@ func request_place(location: String, spawn: String, hidden: bool, igloo: int) ->
 
 
 @rpc("any_peer", "call_remote", "reliable")
-func request_invite(target_id: int) -> void:
+func request_invite(target_id: int, kind: String, ticket: String) -> void:
 	if _mode != Mode.HOST:
 		return
-	_host_invite(multiplayer.get_remote_sender_id(), target_id)
+	_host_invite(multiplayer.get_remote_sender_id(), target_id, kind, ticket)
 
 
 @rpc("authority", "call_remote", "reliable")
-func deliver_invite(from_id: int, from_name: String) -> void:
-	home_invite.emit(from_id, from_name)
+func deliver_invite(from_id: int, from_name: String, kind: String, ticket: String) -> void:
+	invite_received.emit(from_id, from_name, kind, ticket)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func request_visitors(policy: String) -> void:
+	if _mode == Mode.HOST:
+		_host_visitors(multiplayer.get_remote_sender_id(), policy)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func submit_home(layout: String) -> void:
+	if _mode == Mode.HOST:
+		_host_home(multiplayer.get_remote_sender_id(), layout)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func request_home(owner_id: int) -> void:
+	if _mode == Mode.HOST:
+		send_home.rpc_id(multiplayer.get_remote_sender_id(), owner_id, str(_homes.get(owner_id, "")))
+
+
+@rpc("authority", "call_remote", "reliable")
+func send_home(owner_id: int, layout: String) -> void:
+	home_layout.emit(owner_id, layout)
+
+
+@rpc("authority", "call_remote", "reliable")
+func deny_visit(owner_name: String) -> void:
+	visit_denied.emit(owner_name)
 
 
 @rpc("any_peer", "call_remote", "unreliable_ordered")
@@ -861,8 +1010,20 @@ func request_say(message: String) -> void:
 
 
 @rpc("authority", "call_remote", "reliable")
-func relay_chat(speaker: String, message: String) -> void:
+func relay_chat(peer_id: int, speaker: String, message: String) -> void:
 	chat_received.emit(speaker, message)
+	chat_from.emit(peer_id, speaker, message)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func request_typing(typing: bool) -> void:
+	if _mode == Mode.HOST:
+		_host_typing(multiplayer.get_remote_sender_id(), typing)
+
+
+@rpc("authority", "call_remote", "reliable")
+func relay_typing(peer_id: int, typing: bool) -> void:
+	typing_changed.emit(peer_id, typing)
 
 
 @rpc("any_peer", "call_remote", "reliable")
@@ -898,18 +1059,6 @@ func reject_seat(bench_key: String) -> void:
 	seat_denied.emit(bench_key)
 
 
-@rpc("any_peer", "call_remote", "reliable")
-func request_sled_mark(mark: String) -> void:
-	if _mode != Mode.HOST:
-		return
-	_host_sled_mark(multiplayer.get_remote_sender_id(), mark)
-
-
-@rpc("authority", "call_remote", "reliable")
-func deliver_sled_gate(race_id: int, phase: String, seconds: float) -> void:
-	sled_gate.emit(race_id, phase, seconds)
-
-
 @rpc("any_peer", "call_remote", "unreliable_ordered")
 func submit_sled(x: float, y: float, z: float, yaw: float, steer: float, crashed: bool) -> void:
 	if _mode != Mode.HOST:
@@ -932,142 +1081,11 @@ func relay_sled(from_id: int, x: float, y: float, z: float, yaw: float, steer: f
 	sled_pose.emit(from_id, x, y, z, yaw, steer, crashed)
 
 
-func _sled_mark(mark: String) -> void:
-	if not is_online() or _closing:
-		return
-	if _mode == Mode.HOST:
-		_host_sled_mark(local_id(), mark)
-	else:
-		request_sled_mark.rpc_id(1, mark)
-
-
 func _sled_on_hill(id: int) -> bool:
 	if not _players.has(id):
 		return false
 	var player: Dictionary = _players[id]
 	return str(player["location"]) == "sled_hill" and not bool(player["hidden"])
-
-
-func _anyone_sled(state: String) -> bool:
-	for id in _sled_status:
-		if str(_sled_status[id]) == state and _sled_on_hill(int(id)):
-			return true
-	return false
-
-
-func _hill_occupied() -> bool:
-	for id in _players:
-		if _sled_on_hill(int(id)):
-			return true
-	return false
-
-
-func _sync_sled_members() -> void:
-	if _mode != Mode.HOST:
-		return
-	var drop: Array = []
-	for id in _sled_status:
-		if not _sled_on_hill(int(id)):
-			drop.append(int(id))
-	for id in drop:
-		_sled_status.erase(id)
-		_sled_notice.erase(id)
-	for id in _players:
-		if _sled_on_hill(int(id)) and not _sled_status.has(int(id)):
-			_sled_status[int(id)] = "ready"
-			if _sled_phase == "countdown" or _sled_phase == "racing":
-				_notify_sled(int(id))
-	if not _hill_occupied():
-		_sled_phase = ""
-		_sled_left = 0.0
-		_sled_notice.clear()
-		return
-	if _sled_phase == "racing" and not _anyone_sled("racing"):
-		_sled_phase = ""
-	_consider_sled_start()
-
-
-func _consider_sled_start() -> void:
-	if _mode != Mode.HOST or _sled_phase != "":
-		return
-	if not _anyone_sled("ready"):
-		return
-	for id in _sled_status.keys():
-		if _sled_on_hill(int(id)):
-			_sled_status[id] = "ready"
-	_sled_race += 1
-	_sled_phase = "countdown"
-	_sled_left = 3.0
-	_sled_notice.clear()
-	_notify_sled_all()
-
-
-func _tick_sled(delta: float) -> void:
-	if _mode != Mode.HOST or _sled_phase != "countdown":
-		return
-	_sled_left = maxf(0.0, _sled_left - delta)
-	if _sled_left > 0.0:
-		return
-	_sled_phase = "racing"
-	for id in _sled_status.keys():
-		if _sled_on_hill(int(id)) and str(_sled_status[id]) == "ready":
-			_sled_status[id] = "racing"
-	print("Net sled go %s" % _sled_race)
-	_notify_sled_all()
-
-
-func _host_sled_mark(id: int, mark: String) -> void:
-	if _mode != Mode.HOST or not _sled_on_hill(id):
-		return
-	if mark == "ready":
-		if _sled_phase == "countdown":
-			return
-		_sled_status[id] = "ready"
-		if _sled_phase == "racing" and _anyone_sled("racing"):
-			_notify_sled(id)
-			return
-		if _sled_phase == "racing":
-			_sled_phase = ""
-		_consider_sled_start()
-	elif mark == "done":
-		if str(_sled_status.get(id, "")) != "racing":
-			return
-		_sled_status[id] = "done"
-		if not _anyone_sled("racing"):
-			_sled_phase = ""
-			_consider_sled_start()
-
-
-func _sled_message(id: int) -> String:
-	if not _sled_on_hill(id):
-		return ""
-	if _sled_phase == "countdown":
-		return "countdown"
-	if _sled_phase == "racing" and str(_sled_status.get(id, "")) == "ready":
-		return "wait"
-	if _sled_phase == "racing" and str(_sled_status.get(id, "")) == "racing":
-		return "go"
-	return ""
-
-
-func _notify_sled_all() -> void:
-	for id in _players:
-		_notify_sled(int(id))
-
-
-func _notify_sled(id: int) -> void:
-	var phase := _sled_message(id)
-	if phase == "":
-		return
-	var token := "%s|%s" % [_sled_race, phase]
-	if str(_sled_notice.get(id, "")) == token:
-		return
-	_sled_notice[id] = token
-	var seconds := _sled_left if phase == "countdown" else 0.0
-	if id == local_id():
-		sled_gate.emit(_sled_race, phase, seconds)
-	elif multiplayer.get_peers().has(id):
-		deliver_sled_gate.rpc_id(id, _sled_race, phase, seconds)
 
 
 func _tick_sled_pose(delta: float) -> void:
@@ -1094,6 +1112,7 @@ func _tick_sled_pose(delta: float) -> void:
 func _relay_sled(from_id: int, pose: Dictionary) -> void:
 	if not _players.has(from_id) or not _sled_on_hill(from_id):
 		return
+	SledRace.host_pose(from_id, Vector3(float(pose["x"]), float(pose["y"]), float(pose["z"])))
 	for other_id in _players:
 		if int(other_id) == from_id or not _sled_on_hill(int(other_id)):
 			continue
@@ -1125,269 +1144,6 @@ func _roster_has_self() -> bool:
 		if int(entry.get("id", 0)) == local_id():
 			return true
 	return false
-
-
-## Puck Rally on a duo cabinet. The host steps the puck; each penguin only sends its paddle.
-func arcade_watch(cabinet: String) -> void:
-	_arc_cab = cabinet
-	_arc_solo = false
-	_arc_pad = 0.5
-	if _mode == Mode.HOST:
-		_arc_set_solo(local_id(), false)
-	elif _mode == Mode.CLIENT:
-		request_arcade_watch.rpc_id(1)
-
-
-func arcade_solo() -> void:
-	_arc_solo = true
-	if _mode == Mode.HOST:
-		_arc_set_solo(local_id(), true)
-	elif _mode == Mode.CLIENT:
-		request_arcade_solo.rpc_id(1)
-
-
-func arcade_stop() -> void:
-	if _arc_cab == "" and not _arc_solo:
-		_arc_cab = ""
-		return
-	_arc_cab = ""
-	_arc_solo = false
-	if _mode == Mode.HOST:
-		_arc_set_solo(local_id(), false)
-		_arc_clear_player(local_id())
-	elif _mode == Mode.CLIENT:
-		request_arcade_stop.rpc_id(1)
-
-
-func arcade_ready() -> void:
-	if _arc_cab == "" or _arc_solo:
-		return
-	if _mode == Mode.HOST:
-		_arc_mark_ready(local_id())
-	elif _mode == Mode.CLIENT:
-		request_arcade_ready.rpc_id(1)
-
-
-func arcade_paddle(y: float) -> void:
-	_arc_pad = clampf(y, 0.0, 1.0)
-	if _arc_cab == "" or _arc_solo or not is_online():
-		return
-	if _mode == Mode.HOST:
-		_arc_set_pad(local_id(), _arc_pad)
-	elif _mode == Mode.CLIENT:
-		request_arcade_paddle.rpc_id(1, _arc_pad)
-
-
-func _tick_arcade(delta: float) -> void:
-	if _mode != Mode.HOST:
-		return
-	var groups := {}
-	for id in _players.keys():
-		var bench := str(_players[id].get("bench", ""))
-		var cab := _arc_cab_of(bench)
-		if cab == "":
-			continue
-		if not groups.has(cab):
-			groups[cab] = {}
-		groups[cab][_arc_side_of(bench)] = int(id)
-	var drop: Array = []
-	for cab in _arc.keys():
-		var seated: Dictionary = groups.get(cab, {})
-		if seated.size() < 2 or not seated.has(0) or not seated.has(1):
-			if str(_arc[cab].get("phase", "")) == "live":
-				_arc_publish(str(cab), seated, "results")
-			drop.append(cab)
-	for cab in drop:
-		_arc.erase(cab)
-	for cab in groups.keys():
-		var seated: Dictionary = groups[cab]
-		if seated.size() < 2 or not seated.has(0) or not seated.has(1):
-			continue
-		_arc_play(str(cab), seated, delta)
-
-
-func _arc_play(cab: String, seated: Dictionary, delta: float) -> void:
-	var t := _arc_table(cab)
-	var a := int(seated[0])
-	var b := int(seated[1])
-	var solo: Dictionary = t["solo"]
-	if bool(solo.get(a, false)) or bool(solo.get(b, false)):
-		return
-	if str(t["phase"]) != "live":
-		var ready: Dictionary = t["ready"]
-		if not bool(ready.get(a, false)) or not bool(ready.get(b, false)):
-			return
-		var fresh := PuckBoard.new()
-		fresh.start()
-		t["board"] = fresh
-		t["phase"] = "live"
-		t["send"] = 0.0
-		t["sa"] = 0
-		t["sb"] = 0
-		_arc_publish(cab, seated, "live")
-		return
-	var board: PuckBoard = t["board"]
-	if board == null:
-		t["phase"] = "idle"
-		return
-	var pads: Dictionary = t["pads"]
-	board.step_with(delta, float(pads.get(a, 0.5)), float(pads.get(b, 0.5)))
-	var pose := board.pose()
-	var changed := int(pose["sa"]) != int(t["sa"]) or int(pose["sb"]) != int(t["sb"])
-	t["sa"] = int(pose["sa"])
-	t["sb"] = int(pose["sb"])
-	t["send"] = float(t["send"]) - delta
-	var done := not bool(pose["running"])
-	if float(t["send"]) > 0.0 and not changed and not done:
-		return
-	t["send"] = 0.05
-	_arc_publish(cab, seated, "results" if done else "live")
-	if done:
-		t["phase"] = "idle"
-		t["ready"] = {}
-		t["board"] = null
-
-
-func _arc_publish(cab: String, seated: Dictionary, phase: String) -> void:
-	var t: Dictionary = _arc.get(cab, {})
-	var board: PuckBoard = t.get("board")
-	var px := 0.5
-	var py := 0.5
-	var lp := 0.5
-	var rp := 0.5
-	var sa := int(t.get("sa", 0))
-	var sb := int(t.get("sb", 0))
-	if board != null:
-		var pose := board.pose()
-		px = float(pose["px"])
-		py = float(pose["py"])
-		lp = float(pose["lp"])
-		rp = float(pose["rp"])
-		sa = int(pose["sa"])
-		sb = int(pose["sb"])
-	if _arc_cab == cab and not _arc_solo:
-		arcade_state.emit({
-			"cab": cab, "phase": phase,
-			"px": px, "py": py, "lp": lp, "rp": rp, "sa": sa, "sb": sb,
-		})
-	for side in seated.keys():
-		var id := int(seated[side])
-		if id == local_id() or not multiplayer.get_peers().has(id):
-			continue
-		deliver_arcade.rpc_id(id, cab, phase, px, py, lp, rp, sa, sb)
-
-
-func _arc_table(cab: String) -> Dictionary:
-	if cab == "":
-		return {}
-	if not _arc.has(cab):
-		_arc[cab] = {
-			"phase": "idle", "ready": {}, "pads": {}, "solo": {},
-			"board": null, "send": 0.0, "sa": -1, "sb": -1,
-		}
-	return _arc[cab]
-
-
-func _arc_bench(id: int) -> String:
-	if not _players.has(id):
-		return ""
-	return str(_players[id].get("bench", ""))
-
-
-func _arc_cab_of(bench: String) -> String:
-	if bench.ends_with("_player_1"):
-		return bench.trim_suffix("_player_1")
-	if bench.ends_with("_player_2"):
-		return bench.trim_suffix("_player_2")
-	return ""
-
-
-func _arc_side_of(bench: String) -> int:
-	return 1 if bench.ends_with("_player_2") else 0
-
-
-func _arc_set_solo(id: int, on: bool) -> void:
-	var cab := _arc_cab_of(_arc_bench(id))
-	if cab == "":
-		return
-	var t := _arc_table(cab)
-	if on:
-		t["solo"][id] = true
-		(t["ready"] as Dictionary).erase(id)
-	else:
-		(t["solo"] as Dictionary).erase(id)
-
-
-func _arc_clear_player(id: int) -> void:
-	for cab in _arc.keys():
-		var t: Dictionary = _arc[cab]
-		(t["ready"] as Dictionary).erase(id)
-		(t["pads"] as Dictionary).erase(id)
-		(t["solo"] as Dictionary).erase(id)
-
-
-func _arc_mark_ready(id: int) -> void:
-	var cab := _arc_cab_of(_arc_bench(id))
-	if cab == "":
-		return
-	var t := _arc_table(cab)
-	if bool((t["solo"] as Dictionary).get(id, false)):
-		return
-	t["ready"][id] = true
-
-
-func _arc_set_pad(id: int, y: float) -> void:
-	var cab := _arc_cab_of(_arc_bench(id))
-	if cab == "":
-		return
-	_arc_table(cab)["pads"][id] = clampf(y, 0.0, 1.0)
-
-
-@rpc("any_peer", "call_remote", "reliable")
-func request_arcade_watch() -> void:
-	if _mode != Mode.HOST:
-		return
-	_arc_set_solo(multiplayer.get_remote_sender_id(), false)
-
-
-@rpc("any_peer", "call_remote", "reliable")
-func request_arcade_solo() -> void:
-	if _mode != Mode.HOST:
-		return
-	_arc_set_solo(multiplayer.get_remote_sender_id(), true)
-
-
-@rpc("any_peer", "call_remote", "reliable")
-func request_arcade_stop() -> void:
-	if _mode != Mode.HOST:
-		return
-	var id := multiplayer.get_remote_sender_id()
-	_arc_set_solo(id, false)
-	_arc_clear_player(id)
-
-
-@rpc("any_peer", "call_remote", "reliable")
-func request_arcade_ready() -> void:
-	if _mode != Mode.HOST:
-		return
-	_arc_mark_ready(multiplayer.get_remote_sender_id())
-
-
-@rpc("any_peer", "call_remote", "unreliable_ordered")
-func request_arcade_paddle(y: float) -> void:
-	if _mode != Mode.HOST:
-		return
-	_arc_set_pad(multiplayer.get_remote_sender_id(), y)
-
-
-@rpc("authority", "call_remote", "reliable")
-func deliver_arcade(cab: String, phase: String, px: float, py: float, lp: float, rp: float, sa: int, sb: int) -> void:
-	if _mode != Mode.CLIENT or _arc_solo or cab == "" or cab != _arc_cab:
-		return
-	arcade_state.emit({
-		"cab": cab, "phase": phase,
-		"px": px, "py": py, "lp": lp, "rp": rp, "sa": sa, "sb": sb,
-	})
 
 
 func court_view() -> Dictionary:

@@ -9,6 +9,8 @@ mkdir -p builds/web builds/server
 "$GODOT" --headless --path . --export-release 'Linux Server' builds/server/pengloo.x86_64
 mkdir -p builds/web/branding
 cp ui/branding/*.png builds/web/branding/
+mkdir -p builds/web/music
+cp audio/music/*.ogg builds/web/music/  # streamed by scripts/audio/music.gd, kept out of the .pck
 python3 - <<'PY'
 import gzip, shutil
 from pathlib import Path

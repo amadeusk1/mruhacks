@@ -39,6 +39,8 @@ All positions are in **Godot space** (Y-up, metres, −Z = north/"up the map", +
 - **`tints`**: passed straight to `Tints.apply` after `Tints.prepare`.
 - **`markers`**: named `Marker3D`s that gameplay looks up. `kind`: `spawn`, `door` (with `target`), `activity` (with `activity`: fishing, sled, snowballs, basketball, sketch, cinema, arcade, cafe), `bus`, `seat`, `route`.
 - **`nav_blockers`**: extra invisible blockers (water edges, cliff tops) beyond the auto ones.
+- **`stream`**: `points` = `[x, water level, z, half-width]` every 0.5 m along the stream (the water-edge pass uses each point's own level), `falls` = `{kind, base, top, drop, half_width, dir}` per fall/weir (spray and mist), `sea_level`. See [Water and Stream](Water%20and%20Stream.md).
+- **`town_terrain.glb`** also holds `water_stream`, the stream's water ribbon (UV = flow, UV2 = foam/falls), next to the sea plane `water`; `water_shore.png` beside it is the sea shader's foam/depth map.
 - Repeated small props (trees, rocks, lanterns, fence posts) may be batched into `MultiMeshInstance3D` by the loader; the data stays one placement per instance.
 
 ## Coordinates

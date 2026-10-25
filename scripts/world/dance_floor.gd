@@ -36,7 +36,7 @@ var _t := 0.0
 
 
 static func clock() -> float:
-	return clock_override if clock_override >= 0.0 else Time.get_unix_time_from_system()
+	return clock_override if clock_override >= 0.0 else Net.world_time()
 
 
 ## The town layout's "DanceFloor" marker (kept clear of props by the layout check); CENTER otherwise.

@@ -9,11 +9,14 @@ signal intent(action: String, value: Variant)
 
 const A := preload("res://ui/activities/act_style.gd")
 const K := preload("res://ui/activities/casino/casino_kit.gd")
+const Sfx := preload("res://scripts/casino/casino_sfx.gd")
 const SYMBOLS := ["penguin", "star", "bell", "fish", "snowflake"]
 
 var state := {"phase": "idle", "balance": 120, "cost": 5, "result": ["penguin", "star", "bell"], "win": 0}
+var live := false
 var _root: Control
 var _reels: Array = []
+var _note := ""
 var _req := 0
 
 
@@ -34,6 +37,14 @@ func apply_state(s: Dictionary) -> void:
 	elif str(state["phase"]) == "result" and was == "pending":
 		for i in _reels.size():   # staggered stop on the server's symbols
 			_reels[i].stop_on(str(state["result"][i]), 0.45 + i * 0.4)
+
+
+func notice(message: String) -> void:
+	_note = message
+	if str(state.get("phase", "")) == "pending":
+		state["phase"] = "idle"  # refused: stop the reels
+	_build()
+	_note = ""
 
 
 func _build() -> void:
@@ -58,7 +69,7 @@ func _build() -> void:
 		msg = "Spinning..."
 	elif str(state["phase"]) == "result":
 		msg = ("You win %d chips!" % win) if win > 0 else "No match. Try again!"
-	cv.add_child(A.label(msg, 22, Color("#FBE7B5"), true, HORIZONTAL_ALIGNMENT_CENTER))
+	cv.add_child(A.label(_note if _note != "" else msg, 22, Color("#FBE7B5"), true, HORIZONTAL_ALIGNMENT_CENTER))
 	var window := PanelContainer.new()
 	window.add_theme_stylebox_override("panel", A.box(Color("#3A2312"), 18, 0, Color.TRANSPARENT, 10))
 	cv.add_child(window)
@@ -84,18 +95,21 @@ func _build() -> void:
 	leave.pressed.connect(func() -> void: intent.emit("leave", null))
 	acts.add_child(leave)
 	if broke and str(state["phase"]) != "pending":
-		A.pin(_root, K.state_card("insufficient"), Vector4(0.5, 0.5, 0.5, 0.5), Vector4(-230, -160, 230, 160))
+		var card := K.state_card("insufficient", "Your purse is empty. Grab a free refill of play chips.")
+		A.pin(_root, card, Vector4(0.5, 0.5, 0.5, 0.5), Vector4(-230, -170, 230, 170))
+		var refill := K.action("Free refill", "primary", 220)
+		refill.pressed.connect(func() -> void: intent.emit("refill", null))
+		(card.get_child(0) as VBoxContainer).add_child(refill)
 
 
 func _spin() -> void:
 	_req += 1
+	apply_state({"phase": "pending"})  # before the intent: in Solo the result comes back synchronously
 	intent.emit("spin", {"request_id": "%d-%d" % [Time.get_ticks_msec(), _req]})
-	apply_state({"phase": "pending"})
 
 
 func close() -> void:
 	intent.emit("leave", null)
-	queue_free()
 
 
 func preview(s: String) -> void:
@@ -125,6 +139,7 @@ class Reel:
 		if _stop_in >= 0.0:
 			_stop_in -= delta
 			if _stop_in <= 0.0:
+				Sfx.play(self, "reel_stop", -10.0)
 				spinning = false
 				symbol = _target
 				_offset = 0.0

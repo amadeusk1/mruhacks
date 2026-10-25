@@ -33,7 +33,10 @@ static var _icons := {}
 static func title_font() -> Font:
 	if _title_font == null:
 		# The mockups' headings/buttons are heavy; core's variable-font "bold" renders light here, so use the static Bold.
-		_title_font = load("res://fonts/Fredoka-Bold.ttf")
+		# The shared import is MSDF (for Label3D); MSDF notches Fredoka's overlapping contours in 2D.
+		var f := (load("res://fonts/Fredoka-Bold.ttf") as FontFile).duplicate() as FontFile
+		f.multichannel_signed_distance_field = false
+		_title_font = f
 	return _title_font
 
 
