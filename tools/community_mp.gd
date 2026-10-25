@@ -32,13 +32,15 @@ func _ready() -> void:
 		_done(false, "joined a full server")
 		return
 	Net.arrive("town", "BusArrival", false)
+	var seen := 0
 	for i in 12:
+		seen = maxi(seen, Net.roster().size())  # the other client may finish and leave first
 		Net.note_pose(Vector3(i, 0.3, 0), 0, 1, false)
 		Net.say("probe from " + role)
 		await get_tree().create_timer(1.0).timeout
 	var others := Net.roster().filter(func(p) -> bool: return int(p.id) != Net.local_id())
-	var ok := Net.roster().size() >= want and (want < 2 or (chats > 2 and poses > 0))
-	_done(ok, "roster=%d others=%d chats=%d poses=%d" % [Net.roster().size(), others.size(), chats, poses])
+	var ok := seen >= want and (want < 2 or (chats > 2 and poses > 0))
+	_done(ok, "roster=%d (max %d) others=%d chats=%d poses=%d" % [Net.roster().size(), seen, others.size(), chats, poses])
 
 
 var _finished := false

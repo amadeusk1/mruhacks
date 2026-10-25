@@ -6,7 +6,7 @@ services:
     image: debian:12-slim
     restart: unless-stopped
     working_dir: /game
-    entrypoint: ["/game/pengloo.x86_64", "--headless", "--", "--dedicated", "--net-ws", "--public"]
+    entrypoint: ["/game/pengloo.x86_64", "--headless", "--", "--net-host", "--dedicated", "--net-ws", "--public"]
     command: ["--server-name=${SERVER_NAME:-My Penguin Server}", "--max-players=${MAX_PLAYERS:-16}", "${CINEMA_FLAG:-}"]
     volumes:
       - ./:/game:ro

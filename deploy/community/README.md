@@ -12,7 +12,7 @@ Open Pengloo Party, press Play, choose **Host a Server**, give it a name and a p
 2. `docker compose up -d`. The log shows `LOBBY listed as <id>` once you're in the list.
 3. Optional cinema: `cp cinema.env.example cinema.env`, fill it in, `chmod 600 cinema.env`, uncomment `CINEMA_FLAG` in `.env`, then `docker compose --profile cinema up -d`.
 
-Without Docker: `./pengloo.x86_64 --headless -- --dedicated --net-ws --public "--server-name=My Penguin Server" --max-players=16`, adding `--cinema-env=cinema.env` to start the included `pengloo-cinema` helper (install `ffmpeg` first).
+Without Docker: `./pengloo.x86_64 --headless -- --net-host --dedicated --net-ws --public "--server-name=My Penguin Server" --max-players=16`, adding `--cinema-env=cinema.env` to start the included `pengloo-cinema` helper (install `ffmpeg` first).
 
 ## Good to know
 
