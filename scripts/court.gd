@@ -13,6 +13,8 @@ var _score: Label3D
 var _status: Label
 var _line: Label
 var _hint: Label
+var _modes: Array[Button] = []
+var _mode_sig := ""
 var _swish := 0.0
 var _shown_points := -1
 var _marked: Array[Node] = []
@@ -124,24 +126,31 @@ func _paint(state: Dictionary) -> void:
 	var minute := int(clock) / 60
 	var second := int(clock) % 60
 	var alone := bool(state.get("solo", false))
+	var format_name := str(state.get("format", "solo"))
+	var format_label := "Solo" if format_name == "solo" else format_name
 	if _score != null:
 		if alone:
 			_score.text = str(coral)
-		elif phase == "practice":
+		elif phase == "practice" and format_name == "solo":
 			_score.text = "Open"
+		elif phase == "practice":
+			_score.text = format_label
 		else:
 			_score.text = "%d  -  %d" % [coral, teal]
+	_sync_modes(state)
 	if _line != null:
 		if alone:
 			_line.text = "You %d     %d:%02d" % [coral, minute, second]
-		elif phase == "practice":
+		elif phase == "practice" and format_name == "solo":
 			_line.text = "Shoot around"
+		elif phase == "practice" or phase == "lobby":
+			_line.text = str(state.get("text", ""))
 		elif bool(state.get("overtime", false)) and phase == "live":
-			_line.text = "Next basket     Coral %d     Teal %d" % [coral, teal]
+			_line.text = "%s     Next basket     Coral %d     Teal %d" % [format_label, coral, teal]
 		else:
-			_line.text = "Coral %d     %d:%02d     Teal %d" % [coral, minute, second, teal]
+			_line.text = "%s     Coral %d     %d:%02d     Teal %d" % [format_label, coral, minute, second, teal]
 	if _status != null:
-		var note := str(state.get("text", ""))
+		var note := "" if (phase == "practice" or phase == "lobby") and not alone else str(state.get("text", ""))
 		var mine := _my_side(str(state.get("teams", "")))
 		if alone:
 			pass
@@ -399,12 +408,12 @@ func _hud(font: Font) -> void:
 	layer.layer = 2
 	add_child(layer)
 	var root := VBoxContainer.new()
-	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.mouse_filter = Control.MOUSE_FILTER_PASS
 	root.set_anchors_preset(Control.PRESET_CENTER_TOP)
 	root.offset_left = -220.0
 	root.offset_right = 220.0
 	root.offset_top = 18.0
-	root.offset_bottom = 96.0
+	root.offset_bottom = 160.0
 	root.alignment = BoxContainer.ALIGNMENT_CENTER
 	layer.add_child(root)
 	_line = _label(font, 22)
@@ -415,6 +424,59 @@ func _hud(font: Font) -> void:
 	root.add_child(_line)
 	root.add_child(_status)
 	root.add_child(_hint)
+	root.add_child(_mode_row(font))
+
+
+func _mode_row(font: Font) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.name = "Modes"
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 8)
+	row.mouse_filter = Control.MOUSE_FILTER_PASS
+	for key in ["solo", "1v1", "3v3", "5v5"]:
+		var b := Button.new()
+		b.text = "Solo" if key == "solo" else key
+		b.set_meta("format", key)
+		b.focus_mode = Control.FOCUS_NONE
+		b.custom_minimum_size = Vector2(76, 34)
+		b.mouse_filter = Control.MOUSE_FILTER_STOP
+		b.add_theme_font_size_override("font_size", 16)
+		for color_name in ["font_color", "font_hover_color", "font_pressed_color", "font_disabled_color"]:
+			b.add_theme_color_override(color_name, Color(0.97, 0.98, 1.0))
+		if font != null:
+			b.add_theme_font_override("font", font)
+		b.pressed.connect(_pick_mode.bind(key))
+		row.add_child(b)
+		_modes.append(b)
+	return row
+
+
+func _pick_mode(key: String) -> void:
+	Net.court_action("mode:%s" % key)
+
+
+func _sync_modes(state: Dictionary) -> void:
+	var current := str(state.get("format", "solo"))
+	var locked := str(state.get("phase", "")) == "live"
+	var sig := "%s|%s" % [current, locked]
+	if sig == _mode_sig:
+		return
+	_mode_sig = sig
+	for b in _modes:
+		var on := str(b.get_meta("format")) == current
+		b.disabled = locked
+		var fill := Color(0.2, 0.68, 0.72, 0.95) if on else Color(0.08, 0.16, 0.24, 0.72)
+		for st in ["normal", "hover", "pressed", "disabled", "focus"]:
+			var sb := StyleBoxFlat.new()
+			sb.bg_color = fill if st == "normal" or st == "disabled" else fill.lightened(0.08)
+			sb.set_corner_radius_all(14)
+			sb.set_border_width_all(2)
+			sb.border_color = Color(0.97, 0.98, 1.0, 0.9 if on else 0.35)
+			sb.content_margin_left = 8
+			sb.content_margin_right = 8
+			sb.content_margin_top = 2
+			sb.content_margin_bottom = 2
+			b.add_theme_stylebox_override(st, sb)
 
 
 func _label(font: Font, size: int) -> Label:

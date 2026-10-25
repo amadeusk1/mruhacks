@@ -1401,13 +1401,15 @@ func _publish_court(delta: float) -> void:
 	_court_state = _court.view()
 	if _mode != Mode.HOST or multiplayer.multiplayer_peer == null:
 		return
-	var sig := "%s|%s|%s|%s|%s|%s" % [
+	var sig := "%s|%s|%s|%s|%s|%s|%s|%s" % [
 		str(_court_state["phase"]),
 		str(_court_state["coral"]),
 		str(_court_state["teal"]),
 		str(_court_state["poss"]),
 		str(_court_state["mode"]),
 		str(_court_state["text"]),
+		str(_court_state.get("teams", "")),
+		str(_court_state.get("format", "")),
 	]
 	_court_send -= delta
 	if sig == _court_sig and _court_send > 0.0:
