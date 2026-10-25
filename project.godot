@@ -26,7 +26,7 @@ config/features=PackedStringArray("4.7", "Forward Plus")
 [audio]
 
 driver/enable_input=true
-driver/output_latency.web=100
+driver/output_latency.web=150
 
 [autoload]
 

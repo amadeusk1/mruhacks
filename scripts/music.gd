@@ -338,8 +338,8 @@ func _play(song: String) -> void:
 	_b = _a
 	_a = old
 	_a.stream = _cache[song]
-	# songs packed in the game play as Web Audio samples (smooth on web); runtime downloads need Stream
-	_a.playback_type = AudioServer.PLAYBACK_TYPE_DEFAULT if _a.stream.resource_path != "" else AudioServer.PLAYBACK_TYPE_STREAM
+	# web Sample playback reaches the speakers silent for the runtime-created Music bus; Stream works
+	_a.playback_type = AudioServer.PLAYBACK_TYPE_STREAM
 	_a.play()
 	# Nothing was playing yet: come in now. A real handoff still fades over FADE_S.
 	_fade = 0.0 if _b.stream != null else 1.0
