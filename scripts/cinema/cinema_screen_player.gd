@@ -81,6 +81,9 @@ func apply_state(st: Dictionary) -> void:
 	if on != playing:
 		playing = on
 		playing_changed.emit(on)
+		var music := get_node_or_null("/root/Music")
+		if music and music.has_method("set_ducked"):
+			music.set_ducked(on)
 
 
 func position() -> float:
@@ -92,6 +95,9 @@ func stop() -> void:
 	_has_film = false
 	_audio.stop()
 	_segs.clear()
+	var music := get_node_or_null("/root/Music")
+	if music and music.has_method("set_ducked"):
+		music.set_ducked(false)
 
 
 func _process(_d: float) -> void:

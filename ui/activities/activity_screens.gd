@@ -58,6 +58,17 @@ func open(screen: String) -> Control:
 	var arena := get_tree().get_first_node_in_group("snow_arena")
 	if screen == "snowballs" and arena != null:
 		arena.call("wire_lobby", c)  # live pad queues; Ready walks you to a pad
+	var music_kind := ""
+	match screen:
+		"snowballs":
+			music_kind = "snow"
+		"basketball":
+			music_kind = "basketball"
+		"sketch":
+			music_kind = "sketch"
+	if music_kind != "":
+		var token := Music.play_activity(music_kind)
+		c.tree_exiting.connect(func() -> void: Music.resume(token))
 	if c.has_signal("intent"):
 		c.connect("intent", func(action: String, _v = null) -> void:
 			if action in ["leave", "close", "leave_seat"] and is_instance_valid(c):
