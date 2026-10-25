@@ -164,7 +164,8 @@ func _build_placements(nav: Node) -> void:
 	for p in _layout["placements"]:
 		var id := str(p["id"])
 		var batchable: bool = (p.get("tints", {}) as Dictionary).is_empty() and _sway_only(id) \
-			and not (p.get("tags", []) as Array).has("walkable") and not (p.get("tags", []) as Array).has("blocker")
+			and not (p.get("tags", []) as Array).has("walkable") and not (p.get("tags", []) as Array).has("blocker") \
+			and not AssetRegistry.sockets(id).keys().any(func(k): return String(k).begins_with("socket_seat"))  # seats need real nodes
 		groups.get_or_add(id if batchable else "", []).append(p)
 	for id in groups:
 		if id != "" and groups[id].size() >= BATCH_MIN:
@@ -220,6 +221,8 @@ func _place(nav: Node, p: Dictionary) -> void:
 	_start_ambient(node)
 	if id == "activities/communal_table":  # Sketch Club: sitting here joins the table's game
 		(func(): SeatSpot.from_sockets(nav, node, "sketch", node.global_position, "sketch")).call_deferred()  # needs globals
+	else:  # every other bench, stool and chair (deferred after the Sketch Club seats, which win)
+		(func(): SeatSpot.furnish(nav, node, id, str(AssetRegistry.entry(id).get("category", "")))).call_deferred()
 
 
 ## A solid prop left hovering (its ground was flattened or regraded after it was placed) drops
@@ -551,7 +554,7 @@ func _start_ambient(node: Node) -> void:
 	for mi in node.find_children("*", "MeshInstance3D", true, false):
 		for s in (mi as MeshInstance3D).mesh.get_surface_count():
 			var m := mi.get_active_material(s) as BaseMaterial3D
-			if m and m.emission_enabled and (String(m.resource_name).begins_with("glow") or String(m.resource_name).begins_with("bulb")):
+			if m and m.emission_enabled and (String(m.resource_name).begins_with("glow") or String(m.resource_name).begins_with("bulb") or String(m.resource_name).begins_with("tint_bulb")):
 				var d := m.duplicate() as BaseMaterial3D
 				mi.set_surface_override_material(s, d)
 				_glows.append([d, d.emission_energy_multiplier, randf() * TAU, randf_range(2.5, 4.0)])

@@ -38,6 +38,9 @@ ActivityScreens="*res://ui/activities/activity_screens.gd"
 Music="*res://scripts/music.gd"
 CinemaService="*res://scripts/cinema/cinema_service.gd"
 Voice="*res://scripts/voice/voice.gd"
+SledRace="*res://scripts/activities/sled_race.gd"
+ArcadeNet="*res://scripts/activities/arcade_net.gd"
+Casino="*res://scripts/casino/casino.gd"
 
 [display]
 

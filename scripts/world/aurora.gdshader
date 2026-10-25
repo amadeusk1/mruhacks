@@ -1,11 +1,12 @@
 shader_type canvas_item;
 render_mode blend_add;
 
-// Northern lights hanging along the top of the screen at night. The gameplay camera looks
+// Northern lights and twinkling stars hanging along the top of the screen at night. The gameplay camera looks
 // steeply down, so the sky itself is never in frame; this is the glimpse of it.
 
 uniform float strength = 0.0;
 uniform float t = 0.0;
+uniform float stars = 0.0;
 
 float hash(vec2 p) {
 	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
@@ -29,5 +30,13 @@ void fragment() {
 	vec3 violet = vec3(0.7, 0.3, 1.0);
 	vec3 col = mix(green, violet, smoothstep(0.06, 0.32, y + 0.1 * sin(x * 3.0 + t * 0.2)));
 	float a = band * rays * strength;
+	// stars: one candidate per 18 px cell, only the brightest few percent lit, fading out down the screen
+	vec2 cell = floor(FRAGCOORD.xy / 18.0);
+	vec2 f = fract(FRAGCOORD.xy / 18.0) - 0.5 - (vec2(hash(cell), hash(cell + 7.3)) - 0.5) * 0.6;
+	float lit = step(0.93, hash(cell + 3.1));
+	float tw = 0.6 + 0.4 * sin(t * (1.5 + 2.0 * hash(cell + 11.0)) + hash(cell) * 40.0);
+	float s = lit * tw * smoothstep(0.09, 0.0, length(f)) * (1.0 - smoothstep(0.08, 0.32, UV.y)) * stars;
+	col = mix(col, vec3(1.0, 0.97, 0.88), s / max(a + s, 1e-4));
+	a += s;
 	COLOR = vec4(col, a);  // additive blending already multiplies the colour by alpha
 }
