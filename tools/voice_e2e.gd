@@ -46,9 +46,9 @@ func _init() -> void:
 						N._voice_pos[1] = N._voice_pos[id]
 						break
 			await create_timer(0.1).timeout
-			if role == "listen" and first < 0.0 and V.rx_packets > 0:
+			if role.begins_with("listen") and first < 0.0 and V.rx_packets > 0:
 				first = Time.get_unix_time_from_system()
 				print("VOICE_RX_FIRST ms=%d" % int(first * 1000.0))
-		if role == "listen" or role == "host":
-			print("VOICE_RX packets=%d" % V.rx_packets)
+		if role.begins_with("listen") or role == "host":
+			print("VOICE_RX packets=%d bytes=%d codec=%s" % [V.rx_packets, V.rx_bytes, V.codec])
 	quit()

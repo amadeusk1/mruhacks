@@ -1,0 +1,16 @@
+; TwoVoIP v6.6 (https://github.com/goatchurchprime/two-voip-godot-4, MIT; Opus BSD-3).
+; Desktop only: the web build uses WebCodecs instead (scripts/voice/voice.gd), and the dedicated
+; Linux server only relays bytes, so web and linux-release libraries are left out on purpose.
+[configuration]
+
+entry_symbol = "two_voip_library_init"
+compatibility_minimum = "4.6.0"
+reloadable = false
+
+[libraries]
+
+macos = "libs/libtwovoip.macos.template_debug.universal.framework"
+windows.x86_64 = "libs/libtwovoip.windows.template_debug.x86_64.dll"
+linux.x86_64 = "libs/libtwovoip.linux.template_debug.x86_64.so"
+macos.template_release = "libs/libtwovoip.macos.template_release.universal.framework"
+windows.template_release.x86_64 = "libs/libtwovoip.windows.template_release.x86_64.dll"

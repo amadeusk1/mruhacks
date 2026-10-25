@@ -67,7 +67,7 @@ var _court_box := AABB()
 var _court_on := false
 var _voice_pos: Dictionary = {}     # host: peer -> last pose position (voice proximity)
 var _voice_budget: Dictionary = {}  # host: peer -> bytes allowed this second
-const VOICE_RANGE := 20.0
+const VOICE_RANGE := 15.0  # Voice.FAR (14 m) is silent already; a margin for pose lag
 const VOICE_BYTES_PER_SEC := 24000
 var _snow: RefCounted
 var _snow_state: Dictionary = {}
