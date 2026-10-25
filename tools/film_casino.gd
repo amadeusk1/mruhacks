@@ -42,12 +42,14 @@ func _ready() -> void:
 			seats += 1
 	table /= float(maxi(seats, 1))
 	print("FILM %s table at %s (%d seats)" % [GAME, table, seats])
-	UIRouter.hide_ui()
+	if not _keep_ui:
+		UIRouter.hide_ui()  # --ui: the poker screen opens over the table, as a player sees it
 	var pilot := preload("res://tools/seat_pilot.gd").new()
 	pilot.kit = "casino"
 	pilot.near = table
 	pilot.active = true
 	add_child(pilot)
+	add_child(preload("res://tools/poker_pilot.gd").new())  # --ui: the hands are played on the poker screen
 	while not bool(me.call("is_sitting")):
 		await get_tree().create_timer(0.3).timeout
 	await get_tree().create_timer(0.5).timeout  # the table game may move the camera; take it back

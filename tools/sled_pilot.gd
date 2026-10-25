@@ -1,58 +1,65 @@
 extends Node
 
-## Steers the local sled on Sled Hill like a player would, for follow bots and film hosts: it
-## presses the same move_left / move_right actions as A and D (with partial strength), carving a
-## slalom around its start lane and swerving around the trees and rocks ahead. When a run ends it
-## asks for the next race, like the Retry button.
+## Rides Sled Hill like a player would, for follow bots and film hosts: at the start card it joins
+## the race lobby (the Race button), and while racing it presses the same move_left / move_right
+## actions as A and D (with partial strength), holding its grid lane with a slalom weave, taking
+## the boost pads near its line and swerving around the trees and rocks ahead (SledCourse).
+## After the podium it joins the next race.
 
-const SWING := 2.2      # metres either side of the lane: wide enough to read on camera
-const LOOK := 12.0      # how far ahead it watches for obstacles
-const CLEAR := 1.7      # obstacle half-width plus the sled's
-const EDGE := 7.0       # stay inside the treelines at +-9.7
-const RETRY_AFTER := 1.5
+const SWING := 1.3      # metres either side of the lane: wide enough to read on camera
+const LOOK := 14.0      # metres of course it watches ahead
+const CLEAR := 1.8      # hazard half-width plus the sled's
+const PAD_REACH := 2.4  # leaves its lane for a boost pad this close to it
+const EDGE := 3.9       # stay off the banks (the groomed track is +-5)
+const JOIN_AFTER := 1.5
 
 var period := 1.6       # seconds per swing; give each pilot its own
 var phase := 0.0        # radians; so pilots don't swing in step
 
-var _lane_x := 0.0
+var _lane := 0.0
 var _t := 0.0
-var _over_for := 0.0
+var _idle_for := 0.0
+var _last_lat := 0.0
 
 
 func _physics_process(delta: float) -> void:
 	var room := get_tree().get_first_node_in_group("activity")
-	if room == null or room.get("sled") == null:
+	if room == null or room.get("sled") == null or room.get("_state") == null:
 		_steer(0.0)
 		return
 	var sled: Node3D = room.get("sled")
-	if bool(room.get("_over")):
+	var state := str(room.get("_state"))
+	if state in ["menu", "results"]:
 		_steer(0.0)
-		_over_for += delta
-		if _over_for >= RETRY_AFTER and Net.is_online():
-			_over_for = -INF  # once per run
-			Net.sled_retry()
+		_idle_for += delta
+		if _idle_for >= JOIN_AFTER:
+			_idle_for = -2.0  # ask again later if the lobby didn't take us
+			SledRace.join_race()
 		return
-	_over_for = 0.0
-	var x := sled.global_position.x
-	if not bool(sled.get("running")):
+	_idle_for = 0.0
+	var at := SledCourse.locate(sled.global_position, float(sled.get("course_s")))
+	if state != "running" or not bool(sled.get("running")):
 		_steer(0.0)
-		_lane_x = x
+		_lane = at.y
+		_last_lat = at.y
 		_t = 0.0
 		return
 	_t += delta
-	var target := clampf(_lane_x + SWING * sin(_t * TAU / period + phase), -EDGE, EDGE)
-	var obstacles := room.get_node_or_null("Obstacles")
-	if obstacles != null:
-		for o in obstacles.get_children():
-			var at := (o as Node3D).global_position
-			var ahead := sled.global_position.z - at.z
-			if ahead > 0.0 and ahead < LOOK and absf(at.x - target) < CLEAR:
-				# pass on the roomier side; flip if that side runs into the treeline
-				var side := -1.0 if at.x > 0.0 else 1.0
-				target = at.x + side * (CLEAR + 0.4)
-				if absf(target) > EDGE:
-					target = at.x - side * (CLEAR + 0.4)
-	_steer(clampf((target - x) / 1.2, -1.0, 1.0))
+	var target := _lane + SWING * sin(_t * TAU / period + phase)
+	for f in SledCourse.FEATURES:
+		var ahead := float(f[0]) - at.x
+		if ahead < 0.0 or ahead > LOOK:
+			continue
+		var lat := float(f[1])
+		if f[2] == "boost" and absf(lat - _lane) < PAD_REACH:
+			target = lat
+		elif f[2] in ["tree", "rock"] and absf(lat - target) < CLEAR:
+			target = lat + (CLEAR + 0.4) * (-1.0 if lat > 0.0 else 1.0)  # pass on the roomier side
+	target = clampf(target, -EDGE, EDGE)
+	# steer on the lateral error, damped by how fast it is already drifting across
+	var drift := (at.y - _last_lat) / maxf(delta, 0.001)
+	_last_lat = at.y
+	_steer(clampf((target - at.y) * 0.7 - drift * 0.3, -1.0, 1.0))
 
 
 func _steer(amount: float) -> void:

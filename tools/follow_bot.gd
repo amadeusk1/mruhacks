@@ -16,6 +16,7 @@ extends Node
 const RADIUS := 1.6
 const RETARGET := 0.5   # re-path only when the goal has moved this far
 const NEAR := 0.7       # close enough: stand still
+const DOORS := {"cafe": "Inside", "arcade": "Inside", "casino": "Inside", "cinema": "InsideScreen"}  # rooms without a BusArrival
 
 var _w: Node
 var _name := "Bot"
@@ -26,6 +27,7 @@ var _joined := false
 var _fisher: Node
 var _snow: Node
 var _seat: Node
+var _arrived := ""
 
 
 func _ready() -> void:
@@ -72,6 +74,7 @@ func _ready() -> void:
 	add_child(_snow)
 	_seat = preload("res://tools/seat_pilot.gd").new()  # sits beside a leader in the cinema or casino
 	add_child(_seat)
+	add_child(preload("res://tools/poker_pilot.gd").new())  # plays its hands once seated at the poker table
 
 
 func _follow() -> void:
@@ -83,18 +86,25 @@ func _follow() -> void:
 	var place := str(entry.get("location", ""))
 	if place != "" and place != "home" and place != _w.call("current_location_id"):
 		_goal = Vector3.INF
-		_w.call("travel_to", place)
+		_w.call("travel_to", place, DOORS.get(place, "BusArrival"))
 		return
 	_fisher.active = str(entry.get("fisher", "")) != ""
 	if _fisher.active:
 		return
 	var lead: Node3D = (_w.get("_puppets") as Dictionary).get(int(entry["id"]))
 	var me: Node3D = _w.get_node("Penguin")
+	var map := (me.get("agent") as NavigationAgent3D).get_navigation_map()
+	if _arrived != str(_w.call("current_location_id")):
+		# every bot lands on the same door spot; stacked penguins shove one through the floor
+		_arrived = str(_w.call("current_location_id"))
+		var step := TAU * float(_slot) / 8.0
+		me.global_position = NavigationServer3D.map_get_closest_point(map, me.global_position + Vector3(cos(step), 0.0, sin(step)) * 0.9) + Vector3(0, 0.1, 0)
 	if lead == null or not is_instance_valid(lead) or not lead.visible:
 		return
 	var here := str(_w.call("current_location_id"))
-	_seat.kit = here
-	_seat.active = here == "casino"
+	_seat.kit = "*" if here == "cafe" else here
+	if here in ["casino", "cafe"]:  # a walk-in keeps walking; sit once the leader does
+		_seat.active = lead.has_method("is_sitting") and bool(lead.call("is_sitting"))
 	if here == "cinema":
 		var room: Node = _w.get_node("LocationHost").get_child(0)
 		_seat.active = lead.global_position.distance_to(room.get_meta("hall_center", Vector3(240, 0, 50))) < 14.0
@@ -108,6 +118,9 @@ func _follow() -> void:
 		return
 	var angle := TAU * float(_slot) / 8.0 + PI * 0.125
 	var spot := lead.global_position + Vector3(cos(angle), 0.0, sin(angle)) * RADIUS
+	# indoors a ring spot can fall behind a wall; stand on the nearest floor instead (a bot that
+	# never moves never sends a pose, so the host would never see it)
+	spot = NavigationServer3D.map_get_closest_point(map, spot)
 	if me.global_position.distance_to(spot) < NEAR:
 		return
 	if _goal == Vector3.INF or _goal.distance_to(spot) > RETARGET:
