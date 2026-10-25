@@ -96,6 +96,66 @@ func is_traveling() -> bool:
 	return _traveling
 
 
+var _loading: CanvasLayer
+var _loading_label: Label
+
+
+func _show_loading(location_id: String) -> void:
+	if _loading == null:
+		_loading = CanvasLayer.new()
+		_loading.layer = 40
+		add_child(_loading)
+		var dim := ColorRect.new()
+		dim.color = Color("#09213b")
+		dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+		dim.mouse_filter = Control.MOUSE_FILTER_STOP
+		_loading.add_child(dim)
+		var center := CenterContainer.new()
+		center.set_anchors_preset(Control.PRESET_FULL_RECT)
+		_loading.add_child(center)
+		var card := UIKit.card()
+		card.custom_minimum_size = Vector2(520, 220)
+		center.add_child(card)
+		var col := UIKit.vbox(12)
+		col.alignment = BoxContainer.ALIGNMENT_CENTER
+		card.add_child(col)
+		var logo := TextureRect.new()
+		logo.texture = load("res://ui/branding/pengloo-party-logo.png") as Texture2D
+		logo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		logo.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		logo.custom_minimum_size = Vector2(360, 90)
+		col.add_child(logo)
+		_loading_label = UIKit.label("", "Heading", HORIZONTAL_ALIGNMENT_CENTER)
+		_loading_label.add_theme_font_size_override("font_size", 36)
+		col.add_child(_loading_label)
+		col.add_child(Spinner.new())
+	var place := LocationCatalog.title_of(location_id) if LocationCatalog.has_location(location_id) else "the island"
+	_loading_label.text = "Heading to %s…" % place
+	_loading.visible = true
+
+
+func _hide_loading() -> void:
+	if _loading:
+		_loading.visible = false
+
+
+func _load_packed(path: String) -> PackedScene:
+	if ResourceLoader.has_cached(path):
+		return load(path) as PackedScene
+	var err := ResourceLoader.load_threaded_request(path)
+	if err != OK and err != ERR_BUSY:
+		return load(path) as PackedScene
+	while true:
+		match ResourceLoader.load_threaded_get_status(path):
+			ResourceLoader.THREAD_LOAD_LOADED:
+				return ResourceLoader.load_threaded_get(path) as PackedScene
+			ResourceLoader.THREAD_LOAD_FAILED, ResourceLoader.THREAD_LOAD_INVALID_RESOURCE:
+				return load(path) as PackedScene
+			_:
+				await get_tree().process_frame
+	return load(path) as PackedScene
+
+
 func travel_to(location_id: String, spawn_name: String = "BusArrival", igloo_id: int = -1) -> void:
 	var igloo := 0
 	if location_id == "home":
@@ -118,18 +178,31 @@ func travel_to(location_id: String, spawn_name: String = "BusArrival", igloo_id:
 	_despawn_all()
 	if _current_id != "":
 		Net.hide_presence()
+	_show_loading(location_id)
+	await get_tree().process_frame
+	if epoch != _epoch:
+		_hide_loading()
+		_traveling = false
+		return
 	_clear_room()
-	var packed := load(path) as PackedScene
+	var packed := await _load_packed(path) as PackedScene
+	if packed == null:
+		_hide_loading()
+		_traveling = false
+		push_error("Couldn't load %s" % path)
+		return
 	var room := packed.instantiate()
 	_current_id = location_id
 	_igloo_id = igloo  # before add_child: the room's _ready asks whose home it is
 	_host.add_child(room)
 	if epoch != _epoch:
+		_hide_loading()
 		_traveling = false
 		return
 	if room.is_in_group("activity"):
 		_enter_activity()
 		Net.arrive(location_id, "", false, 0)
+		_hide_loading()
 		_traveling = false
 		_sync_puppets()
 		_refresh_presence()
@@ -137,15 +210,18 @@ func travel_to(location_id: String, spawn_name: String = "BusArrival", igloo_id:
 	_leave_activity()
 	await get_tree().physics_frame
 	if epoch != _epoch:
+		_hide_loading()
 		_traveling = false
 		return
 	_place_penguin(room, spawn_name)
 	await get_tree().physics_frame
 	if epoch != _epoch:
+		_hide_loading()
 		_traveling = false
 		return
 	_penguin.set_travel_locked(false)
 	Net.arrive(location_id, spawn_name, false, _igloo_id)
+	_hide_loading()
 	_traveling = false
 	_sync_puppets()
 	_refresh_presence()
@@ -277,11 +353,24 @@ func _on_menu_dismissed() -> void:
 
 func _on_host_pressed() -> void:
 	_lobby.set_busy(true)
-	_lobby.set_status("Opening 127.0.0.1:7777…")
+	if Net.host_cinema_env != "":
+		_lobby.set_join_message("Opening your server…", "Starting the cinema. The first time can take a minute.")
+		var cinema_error: String = await _lobby.prepare_cinema()
+		if cinema_error != "":
+			Net.public_listing = false
+			Net.host_cinema = ""
+			Net.local_cinema_url = ""
+			_lobby.show_host_problem(cinema_error)
+			return
+	_lobby.set_join_message("Opening your server…" if Net.public_listing else "Opening your world…", "Finding your iceberg…")
 	var error := Net.host_game(_lobby.player_name())
 	if error != "":
 		_lobby.set_busy(false)
-		_lobby.set_status(error)
+		if Net.public_listing:
+			Net.public_listing = false
+			_lobby.show_host_problem(error)
+		else:
+			_lobby.set_status(error)
 
 
 func _on_join_pressed() -> void:
@@ -347,6 +436,7 @@ func _end_session(message: String) -> void:
 	_epoch += 1
 	_in_game = false
 	_traveling = false
+	_hide_loading()
 	Net.shutdown()
 	_leave_activity()
 	_menu.dismiss()

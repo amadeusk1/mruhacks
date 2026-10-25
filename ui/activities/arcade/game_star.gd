@@ -68,7 +68,7 @@ func _process(delta: float) -> void:
 	_safe = maxf(0.0, _safe - delta)
 	_double = maxf(0.0, _double - delta)
 	_x = clampf(_x + Input.get_axis("move_left", "move_right") * 0.75 * delta, 0.05, 0.95)
-	if (Input.is_physical_key_pressed(KEY_SPACE) or Input.is_action_pressed("move_forward")) and _cool <= 0.0:
+	if (Input.is_physical_key_pressed(KEY_SPACE) or Input.is_action_pressed("jump") or Input.is_action_pressed("move_forward")) and _cool <= 0.0:
 		_cool = 0.26
 		if _double > 0.0:
 			_shots.append(Vector2(_x - 0.018, 0.86))

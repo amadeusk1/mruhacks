@@ -28,7 +28,9 @@ var listed_id := ""
 
 func _ready() -> void:
 	if Net.host_cinema == "" and Net.host_cinema_env != "":
-		_start_cinema_helper()
+		var err := launch_helper()
+		if err != "":
+			push_warning("LOBBY " + err)
 	if not Net.dedicated:  # a listen-host plays on its own community server
 		Net.community = true
 		Net.community_cinema = Net.host_cinema != ""
@@ -37,6 +39,7 @@ func _ready() -> void:
 
 func _exit_tree() -> void:
 	_drop_all()
+	_adopt_helper_pid()
 	if _cinema_pid > 0:
 		OS.kill(_cinema_pid)  # the helper only serves this hosting session
 
@@ -54,18 +57,154 @@ static func helper_path() -> String:
 	return ""
 
 
-func _start_cinema_helper() -> void:
+## Start the host's cinema gateway without waiting for it. A long-running helper must not
+## block host_game: on Windows, waiting on that process left the menu on "Opening your server…".
+## Returns "" when a gateway is already up or a new one was launched, otherwise a player-facing reason.
+static func launch_helper() -> String:
+	if Net.host_cinema_env == "":
+		return ""
+	var env_path := ProjectSettings.globalize_path(Net.host_cinema_env)
+	var vars := read_env_file(env_path)
+	var missing: PackedStringArray = []
+	for key in ["EMBY_URL", "EMBY_API_KEY", "EMBY_USER_ID", "CINEMA_HOST_CODE", "CINEMA_VIEWER_CODE", "CINEMA_ORIGIN", "CINEMA_LISTEN"]:
+		if str(vars.get(key, "")).strip_edges() == "":
+			missing.append(key)
+	if not missing.is_empty():
+		return "The cinema config is missing %s." % ", ".join(missing)
+	if str(vars["CINEMA_HOST_CODE"]) == str(vars["CINEMA_VIEWER_CODE"]):
+		return "The cinema host code and viewer code have to be different."
+	var listen := str(vars["CINEMA_LISTEN"]).strip_edges()
+	var origin := str(vars["CINEMA_ORIGIN"]).strip_edges().trim_suffix("/")
+	Net.local_cinema_url = origin + "/cinema/"
+	Net.host_cinema = listen
+	if _port_open(listen):
+		print("LOBBY cinema already listening on %s" % listen)
+		return ""
 	var bin := helper_path()
+	var go := _go_bin()
+	if bin == "" and go == "":
+		Net.host_cinema = ""
+		Net.local_cinema_url = ""
+		return "Couldn't start the cinema. pengloo-cinema isn't next to the game, and Go isn't installed. Clear the cinema fields to host without movies."
+	var log_path := ProjectSettings.globalize_path("user://cinema_helper.log")
+	var pid_path := ProjectSettings.globalize_path("user://cinema_helper.pid")
+	DirAccess.remove_absolute(log_path)
+	DirAccess.remove_absolute(pid_path)
+	var script := ProjectSettings.globalize_path("user://start_cinema.ps1")
+	var ps: String
 	if bin == "":
-		push_warning("LOBBY cinema helper not found; this server lists without a cinema")
-		return
-	# the env file is the host's own (EMBY_*, CINEMA_*_CODE); listen address and origin are ours
-	OS.set_environment("CINEMA_LISTEN", "127.0.0.1:%d" % HELPER_PORT)  # set vars beat the file's
-	OS.set_environment("CINEMA_ORIGIN", Net.lobby_base())  # players' browsers are on pengloo.party
-	_cinema_pid = OS.create_process(bin, ["--env", ProjectSettings.globalize_path(Net.host_cinema_env)])
-	if _cinema_pid > 0:
-		Net.host_cinema = "127.0.0.1:%d" % HELPER_PORT
-		print("LOBBY cinema helper started (pid %d)" % _cinema_pid)
+		ps = "$p = Start-Process -FilePath %s -ArgumentList @('run','.','--env',%s) -WorkingDirectory %s -WindowStyle Hidden -RedirectStandardError %s -PassThru\r\n" % [_psq(go), _ps_arg(env_path), _psq(ProjectSettings.globalize_path("res://services/cinema")), _psq(log_path)]
+	else:
+		ps = "$p = Start-Process -FilePath %s -ArgumentList @('--env',%s) -WindowStyle Hidden -RedirectStandardError %s -PassThru\r\n" % [_psq(bin), _ps_arg(env_path), _psq(log_path)]
+	ps += "Set-Content -LiteralPath %s -Value $p.Id -NoNewline\r\n" % _psq(pid_path)
+	var file := FileAccess.open(script, FileAccess.WRITE)
+	if file == null:
+		Net.host_cinema = ""
+		Net.local_cinema_url = ""
+		return "Couldn't write the cinema start script (%s)." % error_string(FileAccess.get_open_error())
+	file.store_string(ps)
+	file.close()
+	# Start-Process returns as soon as the helper is running. Waiting on the helper itself never returns.
+	var shell := "C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe"
+	var pid := OS.create_process(shell, ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", script])
+	if pid <= 0:
+		Net.host_cinema = ""
+		Net.local_cinema_url = ""
+		return "Couldn't launch the cinema helper."
+	print("LOBBY cinema helper launching on %s" % listen)
+	return ""
+
+
+static func _psq(text: String) -> String:
+	return "'" + text.replace("'", "''") + "'"
+
+
+# Start-Process joins ArgumentList and the helper parses that command line again, so a path
+# with spaces has to carry its own quotes or the helper only sees the first word.
+static func _ps_arg(text: String) -> String:
+	return _psq('"' + text.replace('"', "") + '"')
+
+
+static func read_env_file(path: String) -> Dictionary:
+	var out := {}
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return out
+	while not file.eof_reached():
+		var line := file.get_line().strip_edges()
+		if line == "" or line.begins_with("#") or not line.contains("="):
+			continue
+		var key := line.substr(0, line.find("=")).strip_edges()
+		var value := line.substr(line.find("=") + 1).strip_edges()
+		if key != "":
+			out[key] = value
+	return out
+
+
+static func helper_log_message() -> String:
+	var text := FileAccess.get_file_as_string(ProjectSettings.globalize_path("user://cinema_helper.log"))
+	var last := ""
+	for line in text.split("\n"):
+		var s := line.strip_edges()
+		if s == "" or s.contains("API_KEY") or s.contains("TOKEN") or s.contains("PASSWORD"):
+			continue
+		last = s
+	if last == "":
+		return "The cinema helper quit before it could listen."
+	if last.length() > 180:
+		last = last.substr(0, 180)
+	if last.contains("Cinema listening"):
+		return ""
+	if last == "Cinema listener failed":
+		return "The cinema couldn't listen. Something else is already using that address, or the config's CINEMA_LISTEN is wrong."
+	if last.begins_with("Set ") or last == "Cannot read private configuration" or last == "invalid EMBY_URL" or last == "Host and viewer codes must differ":
+		return "Cinema didn't start: %s" % last
+	return "Cinema didn't start: %s" % last
+
+
+static func helper_is_listening() -> bool:
+	var text := FileAccess.get_file_as_string(ProjectSettings.globalize_path("user://cinema_helper.log"))
+	return text.contains("Cinema listening")
+
+
+## A real startup failure already written to the log. Empty while the helper is still starting.
+static func helper_fatal() -> String:
+	if helper_is_listening():
+		return ""
+	var text := FileAccess.get_file_as_string(ProjectSettings.globalize_path("user://cinema_helper.log")).strip_edges()
+	if text == "":
+		return ""
+	var msg := helper_log_message()
+	if msg == "The cinema helper quit before it could listen.":
+		return ""
+	return msg
+
+
+static func _port_open(listen: String) -> bool:
+	var parts := listen.rsplit(":", true, 1)
+	if parts.size() != 2:
+		return false
+	var tcp := StreamPeerTCP.new()
+	if tcp.connect_to_host(parts[0], int(parts[1])) != OK:
+		return false
+	var until := Time.get_ticks_msec() + 80
+	while Time.get_ticks_msec() < until:
+		tcp.poll()
+		if tcp.get_status() == StreamPeerTCP.STATUS_CONNECTED:
+			tcp.disconnect_from_host()
+			return true
+		if tcp.get_status() == StreamPeerTCP.STATUS_ERROR:
+			return false
+		OS.delay_msec(20)
+	tcp.disconnect_from_host()
+	return false
+
+
+static func _go_bin() -> String:
+	for candidate in ["C:/Program Files/Go/bin/go.exe", OS.get_environment("ProgramFiles").path_join("Go/bin/go.exe")]:
+		if candidate != "" and FileAccess.file_exists(candidate):
+			return candidate
+	return ""
 
 
 func _connect() -> void:
@@ -80,6 +219,7 @@ func _connect() -> void:
 
 
 func _process(delta: float) -> void:
+	_adopt_helper_pid()
 	if _retry_in > 0.0:
 		_retry_in -= delta
 		if _retry_in <= 0.0:
@@ -259,6 +399,14 @@ func _schedule_retry(why: String) -> void:
 	_retry_in = _backoff
 	push_warning("LOBBY %s; retrying in %d s" % [why, int(_backoff)])
 	_backoff = minf(_backoff * 2.0, 60.0)
+
+
+func _adopt_helper_pid() -> void:
+	if _cinema_pid > 0:
+		return
+	var raw := FileAccess.get_file_as_string("user://cinema_helper.pid").strip_edges()
+	if raw.is_valid_int():
+		_cinema_pid = int(raw)
 
 
 func _name() -> String:

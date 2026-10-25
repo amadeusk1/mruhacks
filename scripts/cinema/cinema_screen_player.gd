@@ -27,6 +27,9 @@ var _has_film := false
 var _shown := Vector2i(-1, -1)
 var _audio: AudioStreamPlayer
 var _audio_seg := -1
+var _film := ""
+var _generation := -1
+var _revision := -1
 var _views := {}            ## nodes currently showing this player (screen, overlay, watch UI)
 
 
@@ -68,6 +71,24 @@ func _ready() -> void:
 
 ## Feed the gateway state (from /api/state polls).
 func apply_state(st: Dictionary) -> void:
+	var rev := int(st.get("revision", 0))
+	var film := str(st.get("media", {}).get("id", ""))
+	var gen := int(st.get("generation", 0))
+	# A slow poll of the previous movie or episode can arrive after the new one. Generation only
+	# moves forward for a running server, so an older generation is a leftover and is ignored.
+	if _generation >= 0 and gen < _generation:
+		return
+	if gen == _generation and rev < _revision:
+		return
+	_revision = rev
+	if film != _film or gen != _generation:
+		# A new screening must not keep the previous film's frames, picture, or audio.
+		_film = film
+		_generation = gen
+		_segs.clear()
+		_loading.clear()
+		_retry_at.clear()
+		_blank()
 	var on := bool(st.get("playing", false))
 	var pos := float(st.get("position", 0.0))
 	if on:
@@ -94,11 +115,28 @@ func position() -> float:
 func stop() -> void:
 	playing = false
 	_has_film = false
-	_audio.stop()
+	_film = ""
+	_generation = -1
+	_revision = -1
 	_segs.clear()
+	_loading.clear()
+	_retry_at.clear()
+	_blank()
 	var music := get_node_or_null("/root/Music")
 	if music and music.has_method("set_ducked"):
 		music.set_ducked(false)
+
+
+func _blank() -> void:
+	_shown = Vector2i(-1, -1)
+	_audio_seg = -1
+	if _audio:
+		_audio.stop()
+		_audio.stream = null
+	var img := Image.create(2, 2, false, Image.FORMAT_RGB8)
+	img.fill(Color.BLACK)
+	texture = ImageTexture.create_from_image(img)
+	texture_changed.emit(texture)
 
 
 func _process(_d: float) -> void:
@@ -124,8 +162,9 @@ func _fetch(i: int) -> void:
 				or (_segs.has(i) and _segs[i].has("frames" if kind == "video" else "audio")):
 			continue
 		_loading[key] = true
+		var gen := _generation
 		# bound methods, not lambdas: the client drops the callback if this player is freed meanwhile
-		client.segment(kind, i * SEG, SEG, _on_segment.bind(i, kind, key))
+		client.segment(kind, i * SEG, SEG, _on_segment.bind(i, kind, key, gen))
 
 
 func _on_state(st: Variant) -> void:
@@ -134,7 +173,9 @@ func _on_state(st: Variant) -> void:
 		state_changed.emit(st)
 
 
-func _on_segment(b: PackedByteArray, i: int, kind: String, key: String) -> void:
+func _on_segment(b: PackedByteArray, i: int, kind: String, key: String, gen: int) -> void:
+	if gen != _generation:
+		return
 	_loading.erase(key)
 	if b.is_empty():
 		_retry_at[key] = Time.get_ticks_msec() + 2000  # busy/failed: back off, don't hammer

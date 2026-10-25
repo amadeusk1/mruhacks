@@ -28,12 +28,26 @@ func setup(title: String, subtitle := "", width := 520.0, closable := true, back
 	dim.color = T.DIM
 	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(dim)
-	var center := CenterContainer.new()
-	center.set_anchors_preset(Control.PRESET_FULL_RECT)
-	add_child(center)
+	var holder: Control
 	card = UIKit.card()
-	card.custom_minimum_size.x = width
-	center.add_child(card)
+	if Mobile.active():
+		var margin := MarginContainer.new()
+		margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+		margin.add_theme_constant_override("margin_left", 12)
+		margin.add_theme_constant_override("margin_right", 12)
+		margin.add_theme_constant_override("margin_top", 12)
+		margin.add_theme_constant_override("margin_bottom", 12)
+		holder = margin
+		card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		card.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		card.custom_minimum_size = Vector2.ZERO
+	else:
+		var center := CenterContainer.new()
+		center.set_anchors_preset(Control.PRESET_FULL_RECT)
+		holder = center
+		card.custom_minimum_size.x = width
+	add_child(holder)
+	holder.add_child(card)
 	var col := UIKit.vbox(14)
 	card.add_child(col)
 	var head := Control.new()
@@ -69,7 +83,17 @@ func setup(title: String, subtitle := "", width := 520.0, closable := true, back
 	subtitle_label.visible = subtitle != ""
 	col.add_child(subtitle_label)
 	body = UIKit.vbox(12)
-	col.add_child(body)
+	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	if Mobile.active():
+		var scroll := ScrollContainer.new()
+		scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+		body.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		scroll.add_child(body)
+		col.add_child(scroll)
+	else:
+		col.add_child(body)
 
 
 ## Show on the router's overlay layer.

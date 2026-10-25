@@ -19,6 +19,7 @@ var settings := {
 	"music": 70.0, "effects": 80.0, "voice": 60.0, "movie": 50.0,
 	"mic": false, "push_to_talk": false, "text_size": 1, "reduce_motion": false,
 	"high_contrast": false, "ui_scale": 100.0, "fullscreen": false, "chat_minimized": false,
+	"mic_device": "Default",
 }
 const SETTINGS_PATH := "user://settings.cfg"
 const TEXT_SCALES := [0.9, 1.0, 1.15]
@@ -28,7 +29,12 @@ func _ready() -> void:
 	layer = 50
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_load_settings()
+	_apply_audio()
+	get_tree().node_added.connect(_on_node_added)
+	get_tree().root.size_changed.connect(_apply_ui_scale)
+	call_deferred("_apply_ui_scale")
 	call_deferred("_apply_fullscreen")
+	call_deferred("_apply_contrast")
 	get_viewport().gui_focus_changed.connect(func(_c: Control) -> void: _refresh_lock())
 
 
@@ -49,7 +55,6 @@ func push(c: Control) -> void:
 	if c.get_parent() == null:
 		add_child(c)
 	_stack.append(c)
-	_apply_scale(c)
 	stack_changed.emit()
 	_refresh_lock()
 	var first := _first_focusable(c)
@@ -181,37 +186,85 @@ func set_setting(key: String, value) -> void:
 	settings[key] = value
 	_save_settings()
 	if key in ["text_size", "ui_scale"]:
-		for c in _stack:
-			_apply_scale(c)
+		_apply_ui_scale()
 	if key in ["music", "effects", "voice", "movie"]:
 		_apply_bus(key)
 	if key == "fullscreen":
 		_apply_fullscreen()
+	if key == "high_contrast":
+		_apply_contrast()
+	if key == "mic_device":
+		var voice := get_node_or_null("/root/Voice")
+		if voice and voice.has_method("apply_input_device"):
+			voice.call("apply_input_device")
 
 
 func text_scale() -> float:
 	return TEXT_SCALES[clampi(int(settings["text_size"]), 0, 2)] * float(settings["ui_scale"]) / 100.0
 
 
-func _apply_scale(c: Control) -> void:
-	# shortcut: scales whole panels around their centre; real per-font scaling needs a theme rebuild
-	var s := text_scale()
-	c.pivot_offset = c.get_viewport_rect().size * 0.5 if c.is_inside_tree() else Vector2(640, 360)
-	c.scale = Vector2(s, s)
+func _apply_ui_scale() -> void:
+	var window := get_window()
+	if window:
+		Mobile.apply(window, text_scale())
+
+
+func _ensure_bus(bus_name: String) -> int:
+	var idx := AudioServer.get_bus_index(bus_name)
+	if idx >= 0:
+		return idx
+	AudioServer.add_bus()
+	idx = AudioServer.bus_count - 1
+	AudioServer.set_bus_name(idx, bus_name)
+	AudioServer.set_bus_send(idx, "Master")
+	return idx
+
+
+func _apply_audio() -> void:
+	for key in ["music", "effects", "voice", "movie"]:
+		_apply_bus(key)
+
+
+func _apply_contrast() -> void:
+	var root := get_tree().root
+	if root == null:
+		return
+	for n in root.find_children("*", "WorldEnvironment", true, false):
+		_style_environment(n as WorldEnvironment)
+
+
+func _style_environment(world: WorldEnvironment) -> void:
+	var on := bool(settings.get("high_contrast", false))
+	var env := world.environment
+	if not on:
+		if world.has_meta("contrast_base") and env != null:
+			var base: Array = world.get_meta("contrast_base")
+			env.adjustment_enabled = bool(base[0])
+			env.adjustment_contrast = float(base[1])
+			env.adjustment_brightness = float(base[2])
+		return
+	if env == null:
+		return
+	if not world.has_meta("contrast_ready"):
+		world.environment = env.duplicate(true)
+		env = world.environment
+		world.set_meta("contrast_base", [env.adjustment_enabled, env.adjustment_contrast, env.adjustment_brightness])
+		world.set_meta("contrast_ready", true)
+	env.adjustment_enabled = true
+	env.adjustment_contrast = 1.35
+	env.adjustment_brightness = 1.06
+
+
+func _on_node_added(n: Node) -> void:
+	if n is WorldEnvironment:
+		_style_environment(n)
 
 
 func _apply_bus(key: String) -> void:
-	if key == "music":
-		var music := get_node_or_null("/root/Music")
-		if music and music.has_method("apply_volume"):
-			music.apply_volume()
-			return
-	var bus := AudioServer.get_bus_index({"music": "Music", "effects": "SFX", "voice": "Voice", "movie": "Movie"}[key])
+	var names := {"music": "Music", "effects": "SFX", "voice": "Voice", "movie": "Movie"}
+	var bus := _ensure_bus(names[key])
 	var lin := float(settings[key]) / 100.0
-	if bus >= 0:
-		AudioServer.set_bus_volume_db(bus, linear_to_db(maxf(lin, 0.0001)))
-	elif key == "music":  # single-bus project: music drives Master
-		AudioServer.set_bus_volume_db(0, linear_to_db(maxf(lin, 0.0001)))
+	AudioServer.set_bus_volume_db(bus, linear_to_db(maxf(lin, 0.0001)))
 
 
 func _apply_fullscreen() -> void:

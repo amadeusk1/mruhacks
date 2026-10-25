@@ -36,6 +36,8 @@ var _fall := 0.0
 var _lock := 0.0
 var _lines := 0
 var _bag: Array = []
+var _repeat := 0.0
+var _repeat_dir := 0
 
 
 func _ready() -> void:
@@ -63,22 +65,37 @@ func reset() -> void:
 func _process(delta: float) -> void:
 	if over:
 		return
-	if Input.is_action_just_pressed("move_left"):
-		_try(Vector2i.LEFT, _cells)
-	elif Input.is_action_just_pressed("move_right"):
-		_try(Vector2i.RIGHT, _cells)
+	# Held keys and the touch stick both need to repeat. A single just-pressed
+	# would move the piece once and then freeze until the stick returned to center.
+	var dir := 0
+	if Input.is_action_pressed("move_left"):
+		dir -= 1
+	if Input.is_action_pressed("move_right"):
+		dir += 1
+	if dir == 0 or absi(dir) == 2:
+		_repeat = 0.0
+		_repeat_dir = 0
+	elif dir != _repeat_dir:
+		_repeat_dir = dir
+		_repeat = -0.18
+		_try(Vector2i.LEFT if dir < 0 else Vector2i.RIGHT, _cells)
+	else:
+		_repeat += delta
+		if _repeat >= 0.13:
+			_repeat = 0.0
+			_try(Vector2i.LEFT if dir < 0 else Vector2i.RIGHT, _cells)
 	if Input.is_action_just_pressed("move_forward") and _kind != 1:
 		var spun := _spin(_cells)
 		if not _try(Vector2i.ZERO, spun):
 			if not _try(Vector2i.LEFT, spun):
 				_try(Vector2i.RIGHT, spun)
 	var drop := Input.is_action_pressed("move_back")
-	if Input.is_physical_key_pressed(KEY_SPACE) and not _was_space:
+	if (Input.is_action_just_pressed("jump") or Input.is_physical_key_pressed(KEY_SPACE)) and not _was_space:
 		_was_space = true
 		_slam()
 		queue_redraw()
 		return
-	_was_space = Input.is_physical_key_pressed(KEY_SPACE)
+	_was_space = Input.is_action_pressed("jump") or Input.is_physical_key_pressed(KEY_SPACE)
 	_fall += delta
 	var every := maxf(0.12, 0.72 - float(_lines) * 0.04)
 	if drop:

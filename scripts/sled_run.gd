@@ -154,7 +154,7 @@ func _begin_countdown(mode: String, spot: Transform3D, left: float) -> void:
 	hud.hide_cards()
 	hud.reset_clock()
 	hud.show_run_hud(true, mode == "race")
-	hud.set_hint("A and D to steer")
+	hud.set_hint("Drag the stick to steer" if Mobile.active() else "A and D to steer")
 	track.set_lamps(0, false)
 	_park(spot)
 

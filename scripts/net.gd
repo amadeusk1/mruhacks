@@ -104,6 +104,7 @@ var community := false ## client: joined (or joining) a community server
 var community_cinema := false ## client: that server runs its own cinema (reached at <server_url>/cinema/)
 var host_cinema := ""      ## host: address of our own cinema gateway (--cinema=HOST:PORT), relayed to players
 var host_cinema_env := ""  ## host: private env file for the bundled gateway LobbyLink starts (--cinema-env=FILE)
+var local_cinema_url := "" ## host: this machine's gateway (http://127.0.0.1:8095/cinema/), empty for everyone else
 var admin_code := ""       ## client: lets its holder past a full server (the server's PENGLOO_ADMIN_CODE)
 
 
@@ -919,6 +920,7 @@ func _force_offline() -> void:
 		public_listing = false
 		host_cinema = ""
 		host_cinema_env = ""
+		local_cinema_url = ""
 	var peer := multiplayer.multiplayer_peer
 	if peer != null:
 		peer.close()
@@ -1442,7 +1444,12 @@ func deliver_court(state: Dictionary) -> void:
 
 
 func public_client() -> bool:
-	return OS.has_feature("web") or OS.has_feature("desktop_online")
+	return OS.has_feature("web") or _desktop_online()
+
+
+## Desktop downloads set the desktop_online export feature. --online does the same for an editor run.
+func _desktop_online() -> bool:
+	return OS.has_feature("desktop_online") or OS.get_cmdline_user_args().has("--online")
 
 
 func use_websocket() -> bool:
@@ -1456,7 +1463,7 @@ func websocket_url() -> String:
 	var configured := OS.get_environment("PENGLOO_WS_URL")
 	if not configured.is_empty():
 		return configured
-	return "wss://pengloo.party/multiplayer" if OS.has_feature("desktop_online") else "ws://127.0.0.1:%s" % PORT
+	return "wss://pengloo.party/multiplayer" if _desktop_online() else "ws://127.0.0.1:%s" % PORT
 
 
 ## Where the community-server lobby lives: the page's own origin on the web, else pengloo.party.

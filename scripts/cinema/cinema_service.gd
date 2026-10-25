@@ -67,6 +67,8 @@ func open_sign_in() -> Control:
 
 
 static func service_url() -> String:
+	if Net.local_cinema_url != "":
+		return Net.local_cinema_url
 	var env := OS.get_environment("PENGLOO_CINEMA_URL")
 	if env != "":
 		return env

@@ -14,6 +14,13 @@ const _GAMES := {
 	"fish": ["res://ui/activities/arcade/game_fish.gd", "Fish Frenzy", "WASD or arrows swim  ·  eat smaller fish"],
 	"star": ["res://ui/activities/arcade/game_star.gd", "Star Patrol", "A/D move  ·  Space fires"],
 }
+const MOBILE_HINTS := {
+	"pac": "Stick steers",
+	"tetris": "Stick moves · up rotates · down drops · Jump slams",
+	"dino": "Jump hops · stick down ducks",
+	"fish": "Stick swims",
+	"star": "Stick moves · Jump shoots",
+}
 
 var blocks_world := true
 var game_id := "pac"
@@ -36,6 +43,7 @@ var _start_left := 3.0
 
 
 func _ready() -> void:
+	add_to_group("touch_play")
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	theme = UIKit.THEME
@@ -113,6 +121,13 @@ func _build() -> void:
 	_panel.offset_top = -320
 	_panel.offset_right = 490
 	_panel.offset_bottom = 320
+	if Mobile.active():
+		_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		_panel.offset_left = 10
+		_panel.offset_top = 10
+		_panel.offset_right = -10
+		_panel.offset_bottom = -(Mobile.pad() + 8.0)
+		_panel.custom_minimum_size = Vector2.ZERO
 	add_child(_panel)
 	var column := A.vbox(10)
 	_panel.add_child(column)
@@ -126,8 +141,9 @@ func _build() -> void:
 	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	column.add_child(body)
 	var frame := Control.new()
-	frame.custom_minimum_size = Vector2(700, 470)
+	frame.custom_minimum_size = Vector2(0, 220) if Mobile.active() else Vector2(700, 470)
 	frame.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	frame.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	frame.clip_contents = true
 	body.add_child(frame)
 	var screen := SubViewportContainer.new()
@@ -136,7 +152,6 @@ func _build() -> void:
 	screen.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	frame.add_child(screen)
 	_screen = screen
-	body.add_child(_side_panel())
 	var viewport := SubViewport.new()
 	viewport.size = Vector2i(700, 470)
 	viewport.transparent_bg = false
@@ -147,6 +162,11 @@ func _build() -> void:
 	_game.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_game.process_mode = Node.PROCESS_MODE_DISABLED  # until the 3-2-1
 	viewport.add_child(_game)
+	if Mobile.active():
+		_best = A.label("Best %d" % ArcadeNet.best_of(game_id), 18, A.TEAL_DARK, true)
+		head.add_child(_best)
+	else:
+		body.add_child(_side_panel())
 	_count = A.title("", 120, HORIZONTAL_ALIGNMENT_CENTER)
 	_count.add_theme_color_override("font_color", A.WHITE)
 	_count.add_theme_color_override("font_outline_color", A.NAVY)
@@ -162,7 +182,8 @@ func _build() -> void:
 	leave.pressed.connect(close)
 	foot.add_child(leave)
 	foot.add_child(A.expander())
-	foot.add_child(A.chip(str(info[2]), A.CARD, A.NAVY, "", 16))
+	var hint := str(MOBILE_HINTS.get(game_id, "Stick moves · Jump button")) if Mobile.active() else str(info[2])
+	foot.add_child(A.chip(hint, A.CARD, A.NAVY, "", 16))
 	_banner = Control.new()
 	_banner.visible = false
 	_banner.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)

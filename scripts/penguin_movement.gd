@@ -238,6 +238,11 @@ func _unhandled_input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("click_walk"):
+		var at := get_viewport().get_mouse_position()
+		if event is InputEventMouse:
+			at = (event as InputEventMouse).position
+		if TouchControls.blocks_click(at):
+			return
 		var arena := get_tree().get_first_node_in_group("snow_arena")
 		if arena != null and bool(arena.call("try_throw", self, event)):
 			get_viewport().set_input_as_handled()
@@ -834,6 +839,10 @@ func court_speed() -> float:
 	if _remote_peer != 0:
 		return _net_speed
 	return Vector2(velocity.x, velocity.z).length()
+
+
+func court_shoot() -> void:
+	_court_press("shoot")
 
 
 func _court_press(action: String) -> bool:

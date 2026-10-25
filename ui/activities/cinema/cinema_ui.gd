@@ -18,10 +18,11 @@ const STATUS := {
 	"error": ["Source error\n%s", Color("#D6453C")],
 }
 
-var mode := "library"          ## library | watch
+var mode := "library"          ## library | show | watch
 var source: CinemaSource
 var _sel := ""
 var _query := ""
+var _show := {}
 var _root: Control
 var _seek: HSlider
 var _time: Label
@@ -70,6 +71,8 @@ func _build() -> void:
 	add_child(_root)
 	if mode == "watch":
 		_build_watch()
+	elif mode == "show":
+		_build_show()
 	else:
 		_build_library()
 
@@ -98,18 +101,27 @@ static func poster(t: Dictionary, w: float, h: float) -> Control:
 	r.custom_minimum_size = Vector2(w, h)
 	r.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	r.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var mark := TextureRect.new()
+	mark.texture = A.asset_icon("avatar/avatar_base")
+	mark.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	mark.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	mark.modulate = Color(0.75, 0.82, 1.0, 0.95)
+	A.pin(r, mark, Vector4(0.2, 0.18, 0.8, 0.62))
 	var art := TextureRect.new()
-	art.texture = A.asset_icon("avatar/avatar_base")
+	art.name = "Art"
 	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	art.modulate = Color(0.75, 0.82, 1.0, 0.95)
-	A.pin(r, art, Vector4(0.2, 0.18, 0.8, 0.62))
+	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	art.visible = false
+	A.pin(r, art, Vector4(0, 0, 1, 1))
 	var v := A.vbox(2)
 	v.alignment = BoxContainer.ALIGNMENT_END
 	A.pin(r, v, Vector4(0, 0, 1, 1), Vector4(8, 8, -8, -12))
 	v.add_child(A.label(str(t["title"]), 25, A.WHITE, true, HORIZONTAL_ALIGNMENT_CENTER))
 	var sub := str(t.get("summary", ""))
-	if int(t.get("year", 0)) > 0:
+	if str(t.get("kind", "")) == "series":
+		sub = "Show"
+	elif int(t.get("year", 0)) > 0:
 		sub += "\n%d · %s" % [int(t["year"]), _fmt(float(t.get("duration_s", 0)))]
 	var tag := A.label(sub, 15, Color(1, 1, 1, 0.9), false, HORIZONTAL_ALIGNMENT_CENTER)
 	v.add_child(tag)
@@ -118,7 +130,10 @@ static func poster(t: Dictionary, w: float, h: float) -> Control:
 
 func _build_library() -> void:
 	var p := A.panel(26, 28)
-	A.pin(_root, p, Vector4(0.5, 0.5, 0.5, 0.5), Vector4(-520, -320, 520, 320))
+	if Mobile.active():
+		A.pin(_root, p, Vector4(0, 0, 1, 1), Vector4(12, 12, -12, -12))
+	else:
+		A.pin(_root, p, Vector4(0.5, 0.5, 0.5, 0.5), Vector4(-520, -320, 520, 320))
 	var v := A.vbox(16)
 	p.add_child(v)
 	var head := A.hbox(16)
@@ -137,7 +152,16 @@ func _build_library() -> void:
 	v.add_child(f["root"])
 	var row := A.hbox(22, BoxContainer.ALIGNMENT_CENTER)
 	row.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	v.add_child(row)
+	if Mobile.active():
+		var scroller := ScrollContainer.new()
+		scroller.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		scroller.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+		scroller.custom_minimum_size = Vector2(0, 340)
+		v.add_child(scroller)
+		row.alignment = BoxContainer.ALIGNMENT_BEGIN
+		scroller.add_child(row)
+	else:
+		v.add_child(row)
 	if Net.community and not Net.community_cinema:
 		row.add_child(UIWidgets.state_panel("empty", "No cinema on this server", "Movies are available on the official Pengloo Party server.", []))
 	elif source.status == "signed_out" and source is GatewaySource:
@@ -160,16 +184,21 @@ func _build_library() -> void:
 			b.pressed.connect(func() -> void: _sel = t["id"]; _build())
 			var po := poster(t, 290, 320)
 			po.clip_contents = true
+			_arm_poster(po, t)
 			A.pin(b, po, Vector4(0, 0, 1, 1), Vector4(5, 5, -5, -5))
 			row.add_child(b)
 	var guest: bool = source is GatewaySource and source.status == "connected" and not source.can_host()
-	var play := A.button("Suggest to host" if guest else "Play for Group", "primary", "send" if guest else "play", 30, Vector2(480, 76))
-	play.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	play.disabled = (Net.community and not Net.community_cinema) or _sel == "" or source.items.is_empty() or (not guest and not is_controller() and not (source is GatewaySource and source.can_host()))
-	play.tooltip_text = "Sends your pick to the movie-night chat" if guest else ("" if not play.disabled else "Only the host picks the film")
+	var series := str(_item(_sel).get("kind", "")) == "series"
+	var play := A.button("Seasons & episodes" if series else ("Suggest to host" if guest else "Play for Group"), "primary", "play" if series else ("send" if guest else "play"), 30, Vector2(0, 72) if Mobile.active() else Vector2(480, 76))
+	play.size_flags_horizontal = Control.SIZE_EXPAND_FILL if Mobile.active() else Control.SIZE_SHRINK_CENTER
+	play.disabled = (Net.community and not Net.community_cinema) or _sel == "" or source.items.is_empty() or (not series and not guest and not is_controller() and not (source is GatewaySource and source.can_host()))
+	play.tooltip_text = "Opens the season list" if series else ("Sends your pick to the movie-night chat" if guest else ("" if not play.disabled else "Only the host picks the film"))
 	play.pressed.connect(func() -> void:
-		if guest:
-			_suggest(_item(_sel))
+		var item := _item(_sel)
+		if str(item.get("kind", "")) == "series":
+			_open_show(str(item["id"]), str(item["title"]))
+		elif guest:
+			_suggest(item)
 		else:
 			intent.emit("play_for_group", _sel)
 			source.request_load(_sel))
@@ -181,7 +210,103 @@ func _build_library() -> void:
 		v.add_child(back)
 	var x := A.close_disc(56)
 	x.pressed.connect(close)
-	A.pin(_root, x, Vector4(0.5, 0.5, 0.5, 0.5), Vector4(540, -320, 596, -264))
+	if Mobile.active():
+		A.pin(_root, x, Vector4(1, 0, 1, 0), Vector4(-68, 8, -12, 64))
+	else:
+		A.pin(_root, x, Vector4(0.5, 0.5, 0.5, 0.5), Vector4(540, -320, 596, -264))
+
+
+func _arm_poster(node: Control, t: Dictionary) -> void:
+	if not bool(t.get("poster", false)) or CinemaService.client == null:
+		return
+	var art := node.find_child("Art", true, false) as TextureRect
+	if art == null:
+		return
+	var id := str(t.get("id", ""))
+	CinemaService.client.image(id, func(b: PackedByteArray) -> void:
+		if not is_instance_valid(art) or b.is_empty():
+			return
+		var img := Image.new()
+		var ok := img.load_jpg_from_buffer(b) == OK or img.load_png_from_buffer(b) == OK or img.load_webp_from_buffer(b) == OK
+		if not ok or img.get_width() < 2:
+			return
+		art.texture = ImageTexture.create_from_image(img)
+		art.visible = true)
+
+
+func _open_show(id: String, title: String) -> void:
+	if not source is GatewaySource:
+		return
+	source.fetch_show(id, func(show: Variant) -> void:
+		if not is_instance_valid(self):
+			return
+		if show == null:
+			UIWidgets.toast(self, "Couldn't open that show.", "film")
+			return
+		_show = show
+		_show["title"] = str(show.get("title", title)) if str(show.get("title", "")) != "" else title
+		mode = "show"
+		_build())
+
+
+func _build_show() -> void:
+	var p := A.panel(26, 22)
+	if Mobile.active():
+		A.pin(_root, p, Vector4(0, 0, 1, 1), Vector4(12, 12, -12, -12))
+	else:
+		A.pin(_root, p, Vector4(0.5, 0.5, 0.5, 0.5), Vector4(-520, -320, 520, 320))
+	var v := A.vbox(12)
+	p.add_child(v)
+	var head := A.hbox(12)
+	v.add_child(head)
+	var back := A.button("Library", "secondary", "leave", 18, Vector2(140, 48))
+	back.pressed.connect(func() -> void: mode = "library"; _build())
+	head.add_child(back)
+	var show_title := A.title(str(_show.get("title", "Episodes")), 36)
+	show_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	show_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	head.add_child(show_title)
+	if Mobile.active():
+		var shut := A.close_button(48)
+		shut.pressed.connect(close)
+		head.add_child(shut)
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.custom_minimum_size = Vector2(0, 0 if Mobile.active() else 420)
+	v.add_child(scroll)
+	var list := A.vbox(8)
+	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(list)
+	var seasons: Array = _show.get("seasons", [])
+	if seasons.is_empty():
+		list.add_child(A.label("No episodes in this show.", 20, A.NAVY))
+	var guest: bool = source is GatewaySource and not source.can_host()
+	for season in seasons:
+		list.add_child(A.label(str(season.get("name", "Season")), 26, A.NAVY, true))
+		for ep in season.get("episodes", []):
+			var n := int(ep.get("episode", 0))
+			var label := str(ep.get("title", "Episode"))
+			if n > 0:
+				label = "E%d  %s" % [n, label]
+			var row := A.button(label, "ghost", "play", 18, Vector2(0, 52))
+			row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			var eid := str(ep.get("id", ""))
+			var etitle := str(ep.get("title", "an episode"))
+			row.disabled = eid == "" or (not guest and not is_controller() and not (source is GatewaySource and source.can_host()))
+			row.pressed.connect(_play_title.bind(eid, etitle, guest))
+			list.add_child(row)
+	if not Mobile.active():
+		var x := A.close_disc(56)
+		x.pressed.connect(close)
+		A.pin(_root, x, Vector4(0.5, 0.5, 0.5, 0.5), Vector4(540, -320, 596, -264))
+
+
+func _play_title(id: String, title: String, guest: bool) -> void:
+	if guest:
+		_suggest({"title": title})
+		return
+	intent.emit("play_for_group", id)
+	source.request_load(id)
 
 
 ## Viewers suggest a film to the host through the chat everyone in the cinema sees.

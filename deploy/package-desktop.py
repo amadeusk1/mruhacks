@@ -21,6 +21,7 @@ Windows: unsigned build; extract the ZIP before running the EXE.
 macOS: ad-hoc signed, not Apple-notarized. Move to Applications. If blocked,
 review the app in System Settings > Privacy & Security, or use the browser version.
 Linux: x86_64; allow PenglooParty.x86_64 to execute (chmod +x), then run it.
+Android: install PenglooParty-Android.apk. Allow your browser to install apps if asked.
 
 Game: https://pengloo.party/   Downloads: https://pengloo.party/download/
 Godot engine license and notices: https://godotengine.org/license/
@@ -49,12 +50,18 @@ shutil.copy2('deploy/download/GODOT-LICENSE.txt','builds/desktop/server/GODOT-LI
 server=release/'PenglooParty-Server-Linux-x86_64.tar.gz'
 with tarfile.open(server,'w:gz') as t:t.add('builds/desktop/server',arcname='PenglooParty-Server')
 rows=[]
-for path,name,arch,note in [
- (win,'Windows','64-bit Intel / AMD','Exported preview; Windows runtime testing is still pending.'),
- (mac,'macOS','Apple silicon + Intel','Ad-hoc signed preview; not Apple-notarized.'),
- (linux,'Linux','64-bit Intel / AMD','Preview build; graphical Linux testing is still pending.')]:
+entries=[
+ (win,'Windows','64-bit Intel / AMD','Exported preview; Windows runtime testing is still pending.','ZIP' if win.suffix=='.zip' else 'TAR.GZ'),
+ (mac,'macOS','Apple silicon + Intel','Ad-hoc signed preview; not Apple-notarized.','ZIP'),
+ (linux,'Linux','64-bit Intel / AMD','Preview build; graphical Linux testing is still pending.','TAR.GZ')]
+apk_src=root/'builds/desktop/android/PenglooParty.apk'
+if apk_src.is_file():
+ apk=release/'PenglooParty-Android.apk'
+ shutil.copy2(apk_src,apk)
+ entries.append((apk,'Android','Phones and tablets','Install the APK. Allow your browser to install apps if Android asks.','APK'))
+for path,name,arch,note,fmt in entries:
  digest=hashlib.sha256(path.read_bytes()).hexdigest()
- rows.append(dict(name=name,arch=arch,validation=note,url=version+'/'+path.name,bytes=path.stat().st_size,sha256=digest,format='ZIP' if path.suffix=='.zip' else 'TAR.GZ'))
+ rows.append(dict(name=name,arch=arch,validation=note,url=version+'/'+path.name,bytes=path.stat().st_size,sha256=digest,format=fmt))
 srv=dict(url=version+'/'+server.name,bytes=server.stat().st_size,sha256=hashlib.sha256(server.read_bytes()).hexdigest())
 (release/'SHA256SUMS.txt').write_text(''.join(x['sha256']+'  '+Path(x['url']).name+'\n' for x in rows+[srv]))
 (out/'manifest.json').write_text(json.dumps(dict(version=version,date=datetime.date.today().isoformat(),builds=rows,server=srv,checksums=version+'/SHA256SUMS.txt'),indent=2)+'\n')

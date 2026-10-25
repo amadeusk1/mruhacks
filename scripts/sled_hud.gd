@@ -148,7 +148,7 @@ func _build_menu() -> void:
 	var sv := A.vbox(10)
 	_menu.add_child(sv)
 	sv.add_child(A.title("Sled Hill", 40))
-	sv.add_child(A.label("Bends, boost pads and two big jumps.\nA and D to steer.", 18, A.SUB))
+	sv.add_child(A.label("Bends, boost pads and two big jumps.\n%s" % ("Drag the stick to steer." if Mobile.active() else "A and D to steer."), 18, A.SUB))
 	var best := PanelContainer.new()
 	best.add_theme_stylebox_override("panel", A.box(A.CARD, 14, 0, Color.TRANSPARENT, 12))
 	sv.add_child(best)

@@ -32,6 +32,7 @@ var _shown_points := -1
 
 
 func _ready() -> void:
+	add_to_group("town_court")
 	var halves := _here("town_court_half")
 	_hoops = _here("town_hoop")
 	if halves.is_empty() or _hoops.is_empty():

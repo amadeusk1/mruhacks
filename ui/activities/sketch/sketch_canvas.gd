@@ -21,6 +21,25 @@ var _points := 0
 func _gui_input(event: InputEvent) -> void:
 	if not editable or size.x < 2.0 or size.y < 2.0:
 		return
+	var local := make_input_local(event)
+	if local is InputEventScreenTouch:
+		var touch := local as InputEventScreenTouch
+		if touch.pressed and strokes.size() < MAX_STROKES:
+			_cur = {"c": ("#FFFFFF" if eraser else color.to_html(false)), "w": width * (2.5 if eraser else 1.0) * 1000.0 / maxf(size.x, 1.0), "p": PackedVector2Array()}
+			strokes.append(_cur)
+			_add(touch.position)
+		else:
+			_cur = {}
+			changed.emit()
+		accept_event()
+		return
+	if local is InputEventScreenDrag and not _cur.is_empty():
+		_add((local as InputEventScreenDrag).position)
+		accept_event()
+		return
+	# A finger also synthesizes a mouse event. The screen events above already drew it.
+	if event is InputEventMouse and event.device < 0:
+		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed and strokes.size() < MAX_STROKES:
 			_cur = {"c": ("#FFFFFF" if eraser else color.to_html(false)), "w": width * (2.5 if eraser else 1.0) * 1000.0 / maxf(size.x, 1.0), "p": PackedVector2Array()}

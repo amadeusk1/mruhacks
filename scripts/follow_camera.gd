@@ -67,6 +67,7 @@ func unpin_focus() -> void:
 
 
 func _ready() -> void:
+	add_to_group("follow_camera")
 	_target = get_node(target_path) as Node3D
 	_ground_y = _target.global_position.y if _target else 0.0
 	camera.fov = 35.0
@@ -77,6 +78,12 @@ func _ready() -> void:
 	var light := get_parent().get_node_or_null("DirectionalLight3D") as DirectionalLight3D
 	if light:
 		light.rotation_degrees = Vector3(-52.0, -38.0, 0.0)
+
+
+func add_yaw(delta: float) -> void:
+	if _pin_on:
+		return
+	rotation.y = wrapf(rotation.y + delta, -PI, PI)
 
 
 func _process(delta: float) -> void:

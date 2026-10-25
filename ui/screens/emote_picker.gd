@@ -12,21 +12,22 @@ func _init() -> void:
 	title_label.theme_type_variation = "Heading"
 	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	dim.color = Color(0, 0, 0, 0.0)
-	var cc: Control = card.get_parent()
-	cc.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
-	cc.offset_left = -720
-	cc.offset_top = -560
-	cc.offset_right = -24
-	cc.offset_bottom = -140
+	if not Mobile.active():
+		var cc: Control = card.get_parent()
+		cc.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
+		cc.offset_left = -720
+		cc.offset_top = -560
+		cc.offset_right = -24
+		cc.offset_bottom = -140
 	var grid := GridContainer.new()
-	grid.columns = 4
+	grid.columns = 2 if Mobile.active() else 4
 	grid.add_theme_constant_override("h_separation", 12)
 	grid.add_theme_constant_override("v_separation", 12)
 	body.add_child(grid)
 	for e in EMOTES:
 		var path := "res://ui/emotes/%s.png" % e[1]
 		var tex: Texture2D = load(path) if ResourceLoader.exists(path) else UIKit.icon("smile")
-		var b := UIWidgets.item_card(tex, e[0], _play.bind(e[1]), Vector2(145, 168))
+		var b := UIWidgets.item_card(tex, e[0], _play.bind(e[1]), Vector2(280, 120) if Mobile.active() else Vector2(145, 168))
 		var fx := EmoteFx.new()
 		fx.kind = e[1]
 		fx.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)

@@ -9,6 +9,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"sort"
 	"strings"
 	"time"
 )
@@ -18,6 +19,15 @@ type Title struct {
 	Title    string  `json:"title"`
 	Year     int     `json:"year"`
 	Duration float64 `json:"duration"`
+	Kind     string  `json:"kind"`             // movie, series, or episode
+	Poster   bool    `json:"poster"`           // a Primary image exists; bytes come from /api/image
+	Season   int     `json:"season,omitempty"`
+	Episode  int     `json:"episode,omitempty"`
+}
+type Season struct {
+	Number   int     `json:"number"`
+	Name     string  `json:"name"`
+	Episodes []Title `json:"episodes"`
 }
 type Playback struct {
 	URL       *url.URL
@@ -26,6 +36,8 @@ type Playback struct {
 }
 type Provider interface {
 	Catalog(context.Context, string) ([]Title, error)
+	Show(context.Context, string) ([]Season, error)
+	Poster(context.Context, string) (*http.Response, error)
 	Open(context.Context, string) (Playback, error)
 	Stop(context.Context, string) error
 	Fetch(context.Context, *url.URL, string) (*http.Response, error)
@@ -96,15 +108,32 @@ func (p *Emby) json(ctx context.Context, method, path string, q url.Values, body
 }
 
 type embyItem struct {
-	ID    string `json:"Id"`
-	Name  string `json:"Name"`
-	Year  int    `json:"ProductionYear"`
-	Ticks int64  `json:"RunTimeTicks"`
+	ID        string            `json:"Id"`
+	Name      string            `json:"Name"`
+	Type      string            `json:"Type"`
+	Year      int               `json:"ProductionYear"`
+	Ticks     int64             `json:"RunTimeTicks"`
+	Season    int               `json:"ParentIndexNumber"`
+	Episode   int               `json:"IndexNumber"`
+	ImageTags map[string]string `json:"ImageTags"`
 }
 
-func (i embyItem) title() Title { return Title{i.ID, i.Name, i.Year, float64(i.Ticks) / 1e7} }
+func validMediaID(id string) bool {
+	if id == "" || len(id) > 100 || strings.Contains(id, "/") || strings.Contains(id, "..") {
+		return false
+	}
+	return true
+}
+func (i embyItem) title() Title {
+	kind := strings.ToLower(i.Type)
+	if kind == "" {
+		kind = "movie"
+	}
+	return Title{ID: i.ID, Title: i.Name, Year: i.Year, Duration: float64(i.Ticks) / 1e7, Kind: kind, Poster: i.ImageTags["Primary"] != "", Season: i.Season, Episode: i.Episode}
+}
 func (p *Emby) Catalog(ctx context.Context, search string) ([]Title, error) {
-	q := url.Values{"Recursive": {"true"}, "IncludeItemTypes": {"Movie,Episode"}, "Fields": {"RunTimeTicks"}, "Limit": {"80"}, "SortBy": {"SortName"}, "SortOrder": {"Ascending"}}
+	// Series, not Episode: episodes belong under their show, not loose in the movie row.
+	q := url.Values{"Recursive": {"true"}, "IncludeItemTypes": {"Movie,Series"}, "Fields": {"RunTimeTicks,ImageTags,Type"}, "Limit": {"80"}, "SortBy": {"SortName"}, "SortOrder": {"Ascending"}}
 	if search != "" {
 		q.Set("SearchTerm", search)
 	}
@@ -116,11 +145,61 @@ func (p *Emby) Catalog(ctx context.Context, search string) ([]Title, error) {
 	}
 	return out, e
 }
+
+// Show is one series, grouped into seasons. Episodes stay in order inside each season.
+func (p *Emby) Show(ctx context.Context, id string) ([]Season, error) {
+	if !validMediaID(id) {
+		return nil, errors.New("Invalid show")
+	}
+	var item embyItem
+	if e := p.json(ctx, "GET", "/Users/"+url.PathEscape(p.User)+"/Items/"+url.PathEscape(id), nil, nil, &item); e != nil {
+		return nil, e
+	}
+	if !strings.EqualFold(item.Type, "Series") {
+		return nil, errors.New("That title is not a show")
+	}
+	q := url.Values{"UserId": {p.User}, "Fields": {"RunTimeTicks,ImageTags,Type,ParentIndexNumber,IndexNumber"}}
+	var d struct{ Items []embyItem }
+	if e := p.json(ctx, "GET", "/Shows/"+url.PathEscape(id)+"/Episodes", q, nil, &d); e != nil {
+		return nil, e
+	}
+	order := []int{}
+	by := map[int][]Title{}
+	for _, ep := range d.Items {
+		if _, ok := by[ep.Season]; !ok {
+			order = append(order, ep.Season)
+		}
+		by[ep.Season] = append(by[ep.Season], ep.title())
+	}
+	sort.Ints(order)
+	out := []Season{}
+	for _, n := range order {
+		name := "Specials"
+		if n > 0 {
+			name = fmt.Sprintf("Season %d", n)
+		}
+		eps := by[n]
+		sort.Slice(eps, func(i, j int) bool { return eps[i].Episode < eps[j].Episode })
+		out = append(out, Season{Number: n, Name: name, Episodes: eps})
+	}
+	return out, nil
+}
+
+// Poster is the Emby Primary image. The token stays on this request; callers only see image bytes.
+func (p *Emby) Poster(ctx context.Context, id string) (*http.Response, error) {
+	if !validMediaID(id) {
+		return nil, errors.New("Invalid title")
+	}
+	return p.request(ctx, "GET", p.endpoint("/Items/"+url.PathEscape(id)+"/Images/Primary", url.Values{"maxWidth": {"480"}, "quality": {"80"}}), nil)
+}
 func (p *Emby) Open(ctx context.Context, id string) (Playback, error) {
 	// Fetch through the selected user's library: rejects IDs the cinema user cannot access.
 	var item embyItem
 	if e := p.json(ctx, "GET", "/Users/"+url.PathEscape(p.User)+"/Items/"+url.PathEscape(id), nil, nil, &item); e != nil {
 		return Playback{}, e
+	}
+	if strings.EqualFold(item.Type, "Series") || strings.EqualFold(item.Type, "Season") {
+		return Playback{}, errors.New("Pick an episode from that show")
 	}
 	profile := map[string]any{"Name": "Pengloo browser", "MaxStreamingBitrate": p.Bitrate, "DirectPlayProfiles": []any{}, "TranscodingProfiles": []any{map[string]any{"Type": "Video", "Container": "ts", "Protocol": "hls", "VideoCodec": "h264", "AudioCodec": "aac", "Context": "Streaming", "MaxAudioChannels": "2", "MinSegments": 2, "BreakOnNonKeyFrames": true}}}
 	body := map[string]any{"UserId": p.User, "DeviceProfile": profile, "MaxStreamingBitrate": p.Bitrate, "EnableDirectPlay": false, "EnableDirectStream": false, "EnableTranscoding": true, "AllowVideoStreamCopy": false, "AllowAudioStreamCopy": false, "AutoOpenLiveStream": true, "StartTimeTicks": 0}

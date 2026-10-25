@@ -50,6 +50,7 @@ var _hosting: Control       # Host a Server setup (name, max players, optional o
 var _hf := {}               # hosting field dicts by key
 var _host_max: SpinBox
 var _host_test: Label
+var _host_error: Label
 const HOSTING := "user://hosting.cfg"   # the host's own settings, cinema credentials included: never uploaded
 const HOST_CINEMA_ENV := "user://cinema_host.env"
 
@@ -60,7 +61,7 @@ func _ready() -> void:
 		WORLDS[1] = {"id": "join", "name": "Pengloo Party", "desc": "Join the shared island with friends.", "count": "Online", "action": "Join world", "thumb": "res://ui/screens/world_thumb_1.png"}
 		WORLDS.append({"id": "servers", "name": "Community Servers", "desc": "Islands hosted by other players.", "count": "Browse",
 			"action": "Browse servers", "thumb": "res://ui/screens/world_thumb_2.png"})
-	if OS.has_feature("desktop_online"):  # browsers can't host; the desktop app can, through pengloo.party
+	if not OS.has_feature("web") and not OS.has_feature("mobile"):  # phones install the app; they don't host the island
 		WORLDS.append({"id": "host_public", "name": "Host a Server", "desc": "Your own island, listed on pengloo.party.", "count": "You host",
 			"action": "Set up server", "thumb": "res://ui/screens/world_thumb_0.png"})
 	layer = 20
@@ -80,6 +81,17 @@ func player_name() -> String:
 
 func set_name_text(value: String) -> void:
 	(_name["field"] as LineEdit).text = value
+
+
+func set_join_message(title: String, subtitle: String) -> void:
+	if _join_title:
+		_join_title.text = title
+	if _join_sub:
+		_join_sub.text = subtitle
+
+
+func show_host_problem(message: String) -> void:
+	_show_host_problem(message)
 
 
 func set_status(message: String) -> void:
@@ -146,7 +158,14 @@ func _build() -> void:
 
 func _card(size: Vector2) -> PanelContainer:
 	var c := UIKit.card()
-	_root.add_child(UIKit.pin(c, Vector2(0.5, 0.5), Vector2.ZERO, size))
+	var view := get_viewport().get_visible_rect().size if is_inside_tree() else Vector2(1280, 720)
+	# The host form used to be 760px on a 720px window, so the bottom (and the error under it) sat off screen.
+	if Mobile.active():
+		size = Vector2(view.x - 16.0, view.y - 16.0)
+	var fitted := Vector2(minf(size.x, view.x - 40.0), minf(size.y, view.y - 28.0))
+	var lift := minf(24.0, maxf(0.0, (view.y - fitted.y) * 0.5 - 12.0))
+	_root.add_child(UIKit.pin(c, Vector2(0.5, 0.5), Vector2(0, -lift), fitted))
+	c.clip_contents = true
 	return c
 
 
@@ -155,7 +174,8 @@ func _header(parent: VBoxContainer, title: String, subtitle: String, on_back: Ca
 	head.custom_minimum_size.y = 58
 	parent.add_child(head)
 	var t := UIKit.label(title, "Title", HORIZONTAL_ALIGNMENT_CENTER)
-	t.add_theme_font_size_override("font_size", 58)
+	t.add_theme_font_size_override("font_size", 36 if Mobile.active() else 58)
+	t.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	UIKit.full(t)
 	head.add_child(t)
 	if on_back.is_valid():
@@ -169,15 +189,26 @@ func _header(parent: VBoxContainer, title: String, subtitle: String, on_back: Ca
 func _build_setup() -> Control:
 	var card := _card(Vector2(1000, 560))
 	var col := UIKit.vbox(10)
-	card.add_child(col)
+	if Mobile.active():
+		var scroll := ScrollContainer.new()
+		scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+		card.add_child(scroll)
+		col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		scroll.add_child(col)
+	else:
+		card.add_child(col)
 	_header(col, "Your Penguin", "Choose a look and a name for your penguin.",
 		func() -> void: get_tree().change_scene_to_file("res://ui/screens/main_menu.tscn"))
-	var row := UIKit.hbox(30)
+	var row: BoxContainer = UIKit.vbox(12) if Mobile.active() else UIKit.hbox(30)
 	row.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	col.add_child(row)
 	_preview = PenguinPreview.new(Vector2i(420, 420), Net.coat_color(_color))
 	_preview.bird.rotation.y = deg_to_rad(-28) if _preview.bird else 0.0
-	_preview.custom_minimum_size = Vector2(420, 400)
+	_preview.custom_minimum_size = Vector2(0, 220) if Mobile.active() else Vector2(420, 400)
+	if Mobile.active():
+		_preview.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(_preview)
 	var form := UIKit.vbox(14)
 	form.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -223,6 +254,14 @@ func _build_choose() -> Control:
 	card.add_child(col)
 	_header(col, "Choose a World", "Pick a cozy place to waddle together.", func() -> void: _show(_setup))
 	col.add_child(UIKit.gap(4))
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	var list := UIKit.vbox(10)
+	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(list)
+	col.add_child(scroll)
+	col.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	for i in WORLDS.size():
 		var w: Dictionary = WORLDS[i]
 		var r := UIKit.card("Row")
@@ -245,7 +284,8 @@ func _build_choose() -> Control:
 		txt.alignment = BoxContainer.ALIGNMENT_CENTER
 		txt.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		var n := UIKit.label(w["name"], "Heading")
-		n.add_theme_font_size_override("font_size", 36)
+		n.add_theme_font_size_override("font_size", 28 if Mobile.active() else 36)
+		n.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		txt.add_child(n)
 		txt.add_child(UIKit.label(w["desc"], "Subtitle"))
 		h.add_child(txt)
@@ -260,10 +300,11 @@ func _build_choose() -> Control:
 		for c in r.find_children("*", "Control", true, false):
 			(c as Control).mouse_filter = Control.MOUSE_FILTER_IGNORE
 		_rows.append(r)
-		col.add_child(r)
-	col.add_child(UIKit.spacer(false))
+		list.add_child(r)
 	var bottom := UIKit.hbox(16)
-	var edit := UIKit.button("Edit penguin", "outline", "pencil", Vector2(240, 76))
+	var edit := UIKit.button("Edit penguin", "outline", "pencil", Vector2(0, 64) if Mobile.active() else Vector2(240, 76))
+	if Mobile.active():
+		edit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	for st in ["normal", "hover", "pressed"]:
 		var sb := (UIKit.THEME.get_stylebox(st, "OutlineButton") as StyleBoxFlat).duplicate()
 		sb.set_corner_radius_all(40)
@@ -271,7 +312,9 @@ func _build_choose() -> Control:
 	edit.pressed.connect(func() -> void: _show(_setup))
 	bottom.add_child(edit)
 	bottom.add_child(UIKit.spacer())
-	_go = UIKit.button("Play solo", "primary", "chevron_right", Vector2(360, 80), true)
+	_go = UIKit.button("Play solo", "primary", "chevron_right", Vector2(0, 72) if Mobile.active() else Vector2(360, 80), true)
+	if Mobile.active():
+		_go.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_go.add_theme_font_size_override("font_size", 32)
 	for st in ["normal", "hover", "pressed"]:
 		var sb := (UIKit.THEME.get_stylebox(st, "PrimaryButton") as StyleBoxFlat).duplicate()
@@ -617,12 +660,14 @@ func _join_server() -> void:
 ## codes. Those stay on this machine (user://); the bundled gateway runs here and players reach it
 ## through the pengloo.party relay. Skipping the cinema is fine: the cinema shows "No cinema".
 func _build_hosting() -> Control:
-	var card := _card(Vector2(1090, 760))
+	var card := _card(Vector2(1090, 660))
 	var col := UIKit.vbox(8)
+	col.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	card.add_child(col)
 	_header(col, "Host a Server", "Players find it under Community Servers and join through pengloo.party.", func() -> void: _show(_choose))
 	var cf := ConfigFile.new()
 	cf.load(HOSTING)
+	var saved := _saved_cinema(cf)
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -630,7 +675,7 @@ func _build_hosting() -> Control:
 	form.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(form)
 	col.add_child(scroll)
-	var top := UIKit.hbox(16)
+	var top: BoxContainer = UIKit.vbox(8) if Mobile.active() else UIKit.hbox(16)
 	_hf["name"] = UIKit.field("Server name (3-32 letters)", str(cf.get_value("server", "name", "")), false)
 	(_hf["name"]["root"] as Control).size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top.add_child(_hf["name"]["root"])
@@ -648,7 +693,7 @@ func _build_hosting() -> Control:
 	form.add_child(UIKit.label("Leave all of these empty to host without movies. They're saved only on this computer.", "Subtitle"))
 	for key in [["emby_url", "Emby server URL (e.g. http://192.168.1.10:8096)"], ["emby_key", "Emby API key"],
 			["emby_user", "Emby user ID"], ["host_code", "Host code (picks movies)"], ["viewer_code", "Viewer code (watches)"]]:
-		_hf[key[0]] = UIKit.field(key[1], str(cf.get_value("cinema", key[0], "")), false)
+		_hf[key[0]] = UIKit.field(key[1], str(saved.get(key[0], "")), false)
 		if key[0] in ["emby_key", "host_code", "viewer_code"]:
 			(_hf[key[0]]["field"] as LineEdit).secret = true
 		form.add_child(_hf[key[0]]["root"])
@@ -661,6 +706,10 @@ func _build_hosting() -> Control:
 	_host_test.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	test_row.add_child(_host_test)
 	form.add_child(test_row)
+	_host_error = UIKit.label("", "Muted")
+	_host_error.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_host_error.add_theme_color_override("font_color", Color("#E2534A"))
+	col.add_child(_host_error)
 	var bottom := UIKit.hbox(16)
 	bottom.add_child(UIKit.spacer())
 	var go := UIKit.button("Start hosting", "primary", "chevron_right", Vector2(360, 80), true)
@@ -724,7 +773,7 @@ func _start_hosting() -> void:
 		return
 	var problem := _cinema_problem()
 	if problem != "":
-		_host_test.text = problem
+		_show_host_problem(problem)
 		return
 	var cf := ConfigFile.new()
 	cf.set_value("server", "name", server_name)
@@ -739,17 +788,85 @@ func _start_hosting() -> void:
 	Net.max_players = int(_host_max.value)
 	Net.host_cinema = ""
 	Net.host_cinema_env = ""
+	Net.local_cinema_url = ""
+	_host_error.text = ""
 	if v[0] != "":
-		var env := FileAccess.open(HOST_CINEMA_ENV, FileAccess.WRITE)
-		if env:
-			env.store_string("EMBY_URL=%s\nEMBY_API_KEY=%s\nEMBY_USER_ID=%s\nCINEMA_HOST_CODE=%s\nCINEMA_VIEWER_CODE=%s\n" % v)
-			env.close()
-			Net.host_cinema_env = HOST_CINEMA_ENV
+		var wrote := _write_cinema_env(v)
+		if wrote != "":
+			_show_host_problem(wrote)
+			return
+		Net.host_cinema_env = HOST_CINEMA_ENV
 	_profile["world"] = _selected
 	_save_profile()
 	Net.preferred_color = _color
 	_joining_server = server_name
 	host_requested.emit()
+
+
+func _show_host_problem(message: String) -> void:
+	_busy = false
+	_host_error.text = message
+	_host_test.text = message
+	_show(_hosting)
+
+
+## Pulls empty form fields from the private cinema.env on this computer. Values stay on disk.
+func _saved_cinema(cf: ConfigFile) -> Dictionary:
+	var saved := {}
+	var map := {"emby_url": "EMBY_URL", "emby_key": "EMBY_API_KEY", "emby_user": "EMBY_USER_ID", "host_code": "CINEMA_HOST_CODE", "viewer_code": "CINEMA_VIEWER_CODE"}
+	var on_disk := LINK.read_env_file(_private_cinema_env())
+	for key in map:
+		var from_cfg := str(cf.get_value("cinema", key, "")).strip_edges()
+		saved[key] = from_cfg if from_cfg != "" else str(on_disk.get(map[key], ""))
+	return saved
+
+
+func _private_cinema_env() -> String:
+	var override := OS.get_environment("PENGLOO_CINEMA_SERVER_ENV")
+	if override != "" and FileAccess.file_exists(override):
+		return override
+	var home := OS.get_environment("USERPROFILE") if OS.has_feature("windows") else OS.get_environment("HOME")
+	var path := home.path_join(".config").path_join("pengloo").path_join("cinema.env")
+	return path if FileAccess.file_exists(path) else ""
+
+
+## The gateway refuses to start unless origin and listen are in the file. Process environment
+## does not always reach the helper, which used to kill hosting with no message.
+func _write_cinema_env(v: Array) -> String:
+	var prior := LINK.read_env_file(_private_cinema_env())
+	var listen := str(prior.get("CINEMA_LISTEN", "127.0.0.1:8095")).strip_edges()
+	var origin := str(prior.get("CINEMA_ORIGIN", "http://127.0.0.1:8095")).strip_edges()
+	if not origin.begins_with("http"):
+		return "CINEMA_ORIGIN in the cinema config has to start with http:// or https://."
+	var lines := "EMBY_URL=%s\nEMBY_API_KEY=%s\nEMBY_USER_ID=%s\nCINEMA_HOST_CODE=%s\nCINEMA_VIEWER_CODE=%s\nCINEMA_ORIGIN=%s\nCINEMA_LISTEN=%s\n" % [v[0], v[1], v[2], v[3], v[4], origin, listen]
+	if str(prior.get("CINEMA_GAME_SERVER_KEY", "")) != "":
+		lines += "CINEMA_GAME_SERVER_KEY=%s\n" % str(prior["CINEMA_GAME_SERVER_KEY"])
+	var env := FileAccess.open(HOST_CINEMA_ENV, FileAccess.WRITE)
+	if env == null:
+		return "Couldn't save the cinema config on this computer (%s)." % error_string(FileAccess.get_open_error())
+	env.store_string(lines)
+	env.close()
+	return ""
+
+
+## Wait until the gateway answers, without blocking the window. "" means it's ready.
+func prepare_cinema() -> String:
+	var launched := LINK.launch_helper()
+	if launched != "":
+		return launched
+	var listen := Net.host_cinema
+	var deadline := Time.get_ticks_msec() + 90000
+	while Time.get_ticks_msec() < deadline:
+		# The helper is started by PowerShell, so OS.is_process_running() cannot see it.
+		# A closed port in the first instant used to be reported as "Cinema didn't start"
+		# even after the log said it was listening.
+		if LINK._port_open(listen) or LINK.helper_is_listening():
+			return ""
+		var fatal := LINK.helper_fatal()
+		if fatal != "":
+			return fatal + " Clear the cinema fields to host without movies."
+		await get_tree().create_timer(0.4).timeout
+	return LINK.helper_log_message() + " Clear the cinema fields to host without movies."
 
 
 # ---- profile --------------------------------------------------------------------------------

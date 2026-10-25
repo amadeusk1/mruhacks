@@ -70,6 +70,8 @@ type Server struct {
 	tickets                      map[string]handoff
 	sources                      map[string]string // segment token -> media id (segments.go)
 	segments                     map[string]*cachedSegment
+	segCtx                       context.Context    // cancelled when the screening changes, which stops old ffmpeg
+	segCancel                    context.CancelFunc
 	ffmpeg, selfURL              string
 	ffmpegSlots                  chan struct{}
 }
@@ -89,7 +91,9 @@ func randomID() string {
 	return hex.EncodeToString(b)
 }
 func newServer(p Provider, origin, host, viewer string) *Server {
-	return &Server{provider: p, origin: origin, hostCode: host, viewerCode: viewer, secure: strings.HasPrefix(origin, "https:"), sessions: map[string]*session{}, resources: map[string]mediaURL{}, reverse: map[string]string{}, seenCommands: map[string]bool{}, attempts: map[string][]time.Time{}, tickets: map[string]handoff{}, sources: map[string]string{}, segments: map[string]*cachedSegment{}, ffmpeg: ffmpegPath(), selfURL: "http://127.0.0.1:8095", ffmpegSlots: make(chan struct{}, 4)}
+	s := &Server{provider: p, origin: origin, hostCode: host, viewerCode: viewer, secure: strings.HasPrefix(origin, "https:"), sessions: map[string]*session{}, resources: map[string]mediaURL{}, reverse: map[string]string{}, seenCommands: map[string]bool{}, attempts: map[string][]time.Time{}, tickets: map[string]handoff{}, sources: map[string]string{}, segments: map[string]*cachedSegment{}, ffmpeg: ffmpegPath(), selfURL: "http://127.0.0.1:8095", ffmpegSlots: make(chan struct{}, 4)}
+	s.segCtx, s.segCancel = context.WithCancel(context.Background())
+	return s
 }
 func ffmpegPath() string {
 	p, _ := exec.LookPath("ffmpeg")
@@ -186,6 +190,8 @@ func (s *Server) handler() http.Handler {
 		}
 		jsonOut(w, titles)
 	}))
+	mux.HandleFunc("GET /cinema/api/show/{id}", s.protect(s.show))
+	mux.HandleFunc("GET /cinema/api/image/{id}", s.protect(s.image))
 	mux.HandleFunc("GET /cinema/api/state", s.protect(func(w http.ResponseWriter, r *http.Request, u session) { s.touch(u.ID); jsonOut(w, s.snapshot()) }))
 	mux.HandleFunc("POST /cinema/api/claim", s.protect(s.claim))
 	mux.HandleFunc("GET /cinema/api/segment", s.protect(s.segment))
@@ -384,6 +390,7 @@ func (s *Server) control(w http.ResponseWriter, r *http.Request, u session) {
 		s.reverse = map[string]string{}
 		s.addURLLocked(play.URL, s.state.Generation, "stream")
 		s.mu.Unlock()
+		s.dropSegments() // the previous film's ffmpeg and cached chunks stop before the new one starts
 		if old != "" {
 			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 			_ = s.provider.Stop(ctx, old)
@@ -427,6 +434,51 @@ func (s *Server) control(w http.ResponseWriter, r *http.Request, u session) {
 	s.mu.Unlock()
 	jsonOut(w, s.snapshot())
 }
+
+// dropSegments kills every ffmpeg still working on the previous film and forgets its chunks,
+// so a new movie cannot play over the old one.
+func (s *Server) dropSegments() {
+	s.mu.Lock()
+	cancel := s.segCancel
+	s.segCtx, s.segCancel = context.WithCancel(context.Background())
+	s.segments = map[string]*cachedSegment{}
+	s.mu.Unlock()
+	if cancel != nil {
+		cancel()
+	}
+}
+
+func (s *Server) show(w http.ResponseWriter, r *http.Request, u session) {
+	s.touch(u.ID)
+	seasons, e := s.provider.Show(r.Context(), r.PathValue("id"))
+	if e != nil {
+		fail(w, 502, e.Error())
+		return
+	}
+	jsonOut(w, map[string]any{"seasons": seasons})
+}
+
+func (s *Server) image(w http.ResponseWriter, r *http.Request, u session) {
+	s.touch(u.ID)
+	resp, e := s.provider.Poster(r.Context(), r.PathValue("id"))
+	if e != nil {
+		fail(w, 404, "No poster")
+		return
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		fail(w, 404, "No poster")
+		return
+	}
+	kind := resp.Header.Get("Content-Type")
+	if kind == "" {
+		kind = "image/jpeg"
+	}
+	w.Header().Set("Content-Type", kind)
+	w.Header().Set("Cache-Control", "private, max-age=86400")
+	_, _ = io.Copy(w, io.LimitReader(resp.Body, 2<<20))
+}
+
 func (s *Server) events(w http.ResponseWriter, r *http.Request, u session) {
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-store")
@@ -657,6 +709,7 @@ func (s *Server) stopStreamLocked(ctx context.Context) {
 	s.resources = map[string]mediaURL{}
 	s.reverse = map[string]string{}
 	s.mu.Unlock()
+	s.dropSegments()
 	_ = s.provider.Stop(ctx, id)
 }
 func (s *Server) cleanupIdle() {

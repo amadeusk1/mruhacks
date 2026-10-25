@@ -265,6 +265,7 @@ static func pin(root: Control, child: Control, anchor: Vector4, offsets := Vecto
 	child.offset_top = offsets.y
 	child.offset_right = offsets.z
 	child.offset_bottom = offsets.w
+	Mobile.contain(child)
 	return child
 
 

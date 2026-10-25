@@ -9,6 +9,10 @@ mkdir -p builds/desktop/{windows,macos,linux}
 "$GODOT" --headless --path . --export-release 'Windows Desktop' builds/desktop/windows/PenglooParty.exe
 "$GODOT" --headless --path . --export-release 'macOS Desktop' builds/desktop/macos/PenglooParty.zip
 "$GODOT" --headless --path . --export-release 'Linux Desktop' builds/desktop/linux/PenglooParty.x86_64
+if [ -n "${ANDROID_HOME:-}${ANDROID_SDK_ROOT:-}" ]; then
+  mkdir -p builds/desktop/android
+  "$GODOT" --headless --path . --export-release 'Android' builds/desktop/android/PenglooParty.apk
+fi
 mkdir -p builds/desktop/server
 "$GODOT" --headless --path . --export-release 'Linux Server' builds/desktop/server/pengloo.x86_64
 # the cinema helper hosts run next to the game (services/cinema; their media server, their codes)

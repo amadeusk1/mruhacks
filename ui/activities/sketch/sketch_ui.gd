@@ -232,20 +232,24 @@ func _canvas_board(prompt: String, action_text: String, on_action: Callable, qui
 		var cap := A.label(prompt, 24, A.NAVY, true, HORIZONTAL_ALIGNMENT_CENTER)
 		cap.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		v.add_child(cap)
-	var h := A.hbox(16)
+	var h: BoxContainer = A.vbox(12) if Mobile.active() else A.hbox(16)
 	h.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	v.add_child(h)
-	var tools := A.vbox(12)
-	tools.custom_minimum_size.x = 220
-	h.add_child(tools)
 	_canvas = SketchCanvas.new()
 	_canvas.clip_contents = true
-	_canvas.custom_minimum_size = Vector2(360, 280)
+	_canvas.custom_minimum_size = Vector2(0, 240) if Mobile.active() else Vector2(360, 280)
 	_canvas.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_canvas.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	h.add_child(_canvas)
+	var tools := A.vbox(12)
+	tools.custom_minimum_size.x = 0 if Mobile.active() else 220
+	if Mobile.active():
+		h.add_child(_canvas)
+		h.add_child(tools)
+	else:
+		h.add_child(tools)
+		h.add_child(_canvas)
 	var pal := GridContainer.new()
-	pal.columns = 3
+	pal.columns = 6 if Mobile.active() else 3
 	pal.add_theme_constant_override("h_separation", 10)
 	pal.add_theme_constant_override("v_separation", 10)
 	tools.add_child(pal)

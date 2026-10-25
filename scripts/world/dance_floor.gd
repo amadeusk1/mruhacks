@@ -413,10 +413,11 @@ func _build_hud() -> void:
 	var box := VBoxContainer.new()
 	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	box.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	var lift := 112.0 + Mobile.pad()
 	box.offset_left = -300.0
 	box.offset_right = 300.0
-	box.offset_top = -150.0
-	box.offset_bottom = -112.0
+	box.offset_top = -(lift + 38.0)
+	box.offset_bottom = -lift
 	box.visible = false
 	layer.add_child(box)
 	_hint = Label.new()

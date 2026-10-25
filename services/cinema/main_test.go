@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -16,12 +17,18 @@ import (
 type fakeProvider struct{ opens int }
 
 func (p *fakeProvider) Catalog(context.Context, string) ([]Title, error) {
-	return []Title{{"1", "Test", 2026, 120}}, nil
+	return []Title{{"1", "Test", 2026, 120, "movie", false, 0, 0}}, nil
+}
+func (p *fakeProvider) Show(context.Context, string) ([]Season, error) {
+	return nil, errors.New("not a show")
+}
+func (p *fakeProvider) Poster(context.Context, string) (*http.Response, error) {
+	return &http.Response{StatusCode: 200, Header: http.Header{"Content-Type": []string{"image/jpeg"}}, Body: io.NopCloser(strings.NewReader("jpeg"))}, nil
 }
 func (p *fakeProvider) Open(context.Context, string) (Playback, error) {
 	p.opens++
 	u, _ := url.Parse("https://emby.example/emby/videos/1/master.m3u8?api_key=secret")
-	return Playback{u, "session", Title{"1", "Test", 2026, 120}}, nil
+	return Playback{u, "session", Title{ID: "1", Title: "Test", Year: 2026, Duration: 120, Kind: "movie"}}, nil
 }
 func (p *fakeProvider) Stop(context.Context, string) error { return nil }
 func (p *fakeProvider) Fetch(context.Context, *url.URL, string) (*http.Response, error) {
@@ -273,5 +280,79 @@ func TestClientIP(t *testing.T) {
 		if got := clientIP(req(c.remote, c.real)); got != c.want {
 			t.Errorf("clientIP(%s, %q) = %s, want %s", c.remote, c.real, got, c.want)
 		}
+	}
+}
+
+func TestSwitchDropsOldFilm(t *testing.T) {
+	s := newServer(&fakeProvider{}, "http://localhost", "host", "viewer")
+	host := login(t, s, "host")
+	if w := request(s, "POST", "/cinema/api/control", `{"action":"load","id":"1","generation":0,"requestId":"first"}`, host); w.Code != 200 {
+		t.Fatal(w.Code, w.Body)
+	}
+	s.mu.Lock()
+	old := s.segCtx
+	s.segments["stale"] = &cachedSegment{done: make(chan struct{})}
+	s.mu.Unlock()
+	if w := request(s, "POST", "/cinema/api/control", `{"action":"load","id":"2","generation":1,"requestId":"second"}`, host); w.Code != 200 {
+		t.Fatal(w.Code, w.Body)
+	}
+	select {
+	case <-old.Done():
+	default:
+		t.Fatal("previous film's transcoder was left running")
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if _, ok := s.segments["stale"]; ok {
+		t.Fatal("stale segment kept")
+	}
+}
+
+func TestPosterAndShowRoutes(t *testing.T) {
+	s := newServer(&fakeProvider{}, "http://localhost", "host", "viewer")
+	viewer := login(t, s, "viewer")
+	if w := request(s, "GET", "/cinema/api/image/1", "", viewer); w.Code != 200 || w.Body.String() != "jpeg" {
+		t.Fatal("poster", w.Code, w.Body)
+	}
+	if w := request(s, "GET", "/cinema/api/show/1", "", viewer); w.Code != 502 {
+		t.Fatal("show", w.Code)
+	}
+}
+
+func TestCatalogIsMoviesAndShows(t *testing.T) {
+	var kinds string
+	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		switch {
+		case strings.HasSuffix(r.URL.Path, "/Items"):
+			kinds = r.URL.Query().Get("IncludeItemTypes")
+			io.WriteString(w, `{"Items":[{"Id":"m","Name":"Film","Type":"Movie","ImageTags":{"Primary":"x"}},{"Id":"s","Name":"Show","Type":"Series"}]}`)
+		case strings.HasSuffix(r.URL.Path, "/Items/s"):
+			io.WriteString(w, `{"Id":"s","Name":"Show","Type":"Series"}`)
+		case strings.Contains(r.URL.Path, "/Episodes"):
+			io.WriteString(w, `{"Items":[
+				{"Id":"e2","Name":"Second","Type":"Episode","ParentIndexNumber":1,"IndexNumber":2,"ImageTags":{"Primary":"p"}},
+				{"Id":"e0","Name":"Pilot extra","Type":"Episode","ParentIndexNumber":0,"IndexNumber":1},
+				{"Id":"e1","Name":"Pilot","Type":"Episode","ParentIndexNumber":1,"IndexNumber":1}
+			]}`)
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer upstream.Close()
+	p, e := newEmby(upstream.URL, "key", "user")
+	if e != nil {
+		t.Fatal(e)
+	}
+	titles, e := p.Catalog(context.Background(), "")
+	if e != nil || kinds != "Movie,Series" || len(titles) != 2 || !titles[0].Poster || titles[1].Kind != "series" {
+		t.Fatal(kinds, titles, e)
+	}
+	seasons, e := p.Show(context.Background(), "s")
+	if e != nil || len(seasons) != 2 || seasons[0].Name != "Specials" || seasons[1].Name != "Season 1" || seasons[1].Episodes[0].Title != "Pilot" {
+		t.Fatal(seasons, e)
+	}
+	if _, e := p.Show(context.Background(), "../x"); e == nil {
+		t.Fatal("bad show id accepted")
 	}
 }

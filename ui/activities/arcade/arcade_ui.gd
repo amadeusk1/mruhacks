@@ -131,6 +131,10 @@ func start_solo() -> void:
 
 # --------------------------------------------------------------- building --
 func _build() -> void:
+	if phase == "playing" or phase == "countdown":
+		add_to_group("touch_play")
+	else:
+		remove_from_group("touch_play")
 	if _root:
 		_root.queue_free()
 	_root = A.screen_root()
@@ -190,10 +194,12 @@ func _build_lobby() -> void:
 	var pv := A.vbox(8)
 	pick.add_child(pv)
 	pv.add_child(A.label("Pick a game", 18, A.SUB, true, HORIZONTAL_ALIGNMENT_CENTER))
-	var row := A.hbox(12, BoxContainer.ALIGNMENT_CENTER)
+	var row: BoxContainer = A.vbox(12) if Mobile.active() else A.hbox(12, BoxContainer.ALIGNMENT_CENTER)
 	pv.add_child(row)
 	for g in ["puck", "trails"]:
-		var b := A.button(TITLES[g], "primary" if g == game else "secondary", "gamepad" if g == "puck" else "snowflake", 24, Vector2(290, 64))
+		var b := A.button(TITLES[g], "primary" if g == game else "secondary", "gamepad" if g == "puck" else "snowflake", 24, Vector2(0, 64) if Mobile.active() else Vector2(290, 64))
+		if Mobile.active():
+			b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		b.toggle_mode = true
 		b.button_pressed = g == game
 		b.pressed.connect(func() -> void:
@@ -205,14 +211,21 @@ func _build_lobby() -> void:
 	pv.add_child(A.label("First to 5 goals" if game == "puck" else "First to 3 rounds  ·  don't hit the ice walls",
 		16, A.SUB, false, HORIZONTAL_ALIGNMENT_CENTER))
 	var bar := A.panel(14, 26)
-	A.pin(_root, bar, Vector4(0.5, 1, 0.5, 1), Vector4(-560, -132, 560, -26))
-	var brow := A.hbox(18, BoxContainer.ALIGNMENT_CENTER)
+	if Mobile.active():
+		A.pin(_root, bar, Vector4(0, 1, 1, 1), Vector4(12, -300, -12, -12))
+	else:
+		A.pin(_root, bar, Vector4(0.5, 1, 0.5, 1), Vector4(-560, -132, 560, -26))
+	var brow: BoxContainer = A.vbox(10) if Mobile.active() else A.hbox(18, BoxContainer.ALIGNMENT_CENTER)
 	bar.add_child(brow)
-	var solo := A.button("Solo practice", "secondary", "gamepad", 24, Vector2(300, 74))
+	var solo := A.button("Solo practice", "secondary", "gamepad", 24, Vector2(0, 64) if Mobile.active() else Vector2(300, 74))
+	if Mobile.active():
+		solo.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	solo.pressed.connect(func() -> void: intent.emit("solo"); _begin(true))
 	brow.add_child(solo)
 	var two_here := str(stations[0].get("name", "")) != "" and str(stations[1].get("name", "")) != ""
-	var ready := A.button("Waiting..." if _waiting_ready else "Ready", "primary", "play", 32, Vector2(380, 86))
+	var ready := A.button("Waiting..." if _waiting_ready else "Ready", "primary", "play", 32, Vector2(0, 72) if Mobile.active() else Vector2(380, 86))
+	if Mobile.active():
+		ready.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	ready.disabled = not two_here or _waiting_ready
 	ready.tooltip_text = "" if two_here else "Waiting for a second player at this cabinet"
 	ready.pressed.connect(func() -> void:
@@ -221,7 +234,9 @@ func _build_lobby() -> void:
 		ready.text = "Waiting..."
 		ready.disabled = true)
 	brow.add_child(ready)
-	var leave := A.button("Leave", "danger", "leave", 24, Vector2(260, 74))
+	var leave := A.button("Leave", "danger", "leave", 24, Vector2(0, 64) if Mobile.active() else Vector2(260, 74))
+	if Mobile.active():
+		leave.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	leave.pressed.connect(close)
 	brow.add_child(leave)
 
@@ -254,7 +269,10 @@ func _begin(solo: bool) -> void:
 
 func _build_playing() -> void:
 	var p := A.panel(22, 28)
-	A.pin(_root, p, Vector4(0.5, 0.5, 0.5, 0.5), Vector4(-430, -330, 430, 330))
+	if Mobile.active():
+		A.pin(_root, p, Vector4(0, 0, 1, 1), Vector4(8, 8, -8, -(Mobile.pad() + 8)))
+	else:
+		A.pin(_root, p, Vector4(0.5, 0.5, 0.5, 0.5), Vector4(-430, -330, 430, 330))
 	var v := A.vbox(12)
 	p.add_child(v)
 	v.add_child(A.label("PENGLOO PARTY  ·  LIVE ARCADE", 15, A.MUTED, true, HORIZONTAL_ALIGNMENT_CENTER))
@@ -286,7 +304,8 @@ func _build_playing() -> void:
 	leave.pressed.connect(close)
 	foot.add_child(leave)
 	foot.add_child(A.expander())
-	foot.add_child(A.chip(HINTS.get(game, ""), A.CARD, A.NAVY, "", 17))
+	var hint := "Stick moves" if Mobile.active() else str(HINTS.get(game, ""))
+	foot.add_child(A.chip(hint, A.CARD, A.NAVY, "", 17))
 
 
 func _score_chip(nm: String, val: int, col: Color) -> PanelContainer:
@@ -382,6 +401,7 @@ func close() -> void:
 	if _closing_ui:
 		return
 	_closing_ui = true
+	remove_from_group("touch_play")
 	intent.emit("leave")
 	UIRouter.remove(self)
 	queue_free()

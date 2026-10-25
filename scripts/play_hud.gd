@@ -24,11 +24,15 @@ var _typing_sent := false
 
 
 func _ready() -> void:
+	add_to_group("play_hud")
 	var bubbles := ChatBubbles.new()  # behind the HUD: speech bubbles over penguins
 	bubbles.name = "ChatBubbles"
 	$Root.add_child(bubbles)
 	$Root.move_child($Root.get_child(-1), 0)
 	$Root.add_child(TownHud.new())  # UI core: location chip, mic, dock and contextual action
+	var pad := preload("res://scripts/touch_controls.gd").new()
+	get_tree().root.add_child.call_deferred(pad)
+	tree_exiting.connect(pad.queue_free)
 	_build_chat_chrome()
 	_entry.text_submitted.connect(_on_submitted)
 	_entry.text_changed.connect(_on_text_changed)
@@ -99,6 +103,9 @@ func _build_chat_chrome() -> void:
 	_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	margin.add_child(_scroll)
 	_log.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_log.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	_log.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+	_log.add_theme_font_size_override("font_size", 22)
 	_scroll.add_child(_log)
 	var head := HBoxContainer.new()
 	head.alignment = BoxContainer.ALIGNMENT_END
@@ -123,6 +130,14 @@ func _build_chat_chrome() -> void:
 	_toggle.pressed.connect(toggle_chat)
 	head.add_child(_toggle)
 	_apply_minimized()
+	var bar := _scroll.get_v_scroll_bar()
+	bar.changed.connect(_on_scroll_range)
+	bar.value_changed.connect(_on_scroll_value)
+	get_viewport().size_changed.connect(func() -> void:
+		_fit_log()
+		if _follow_bottom:
+			_snap_bottom()
+	)
 
 
 func minimized() -> bool:
@@ -142,7 +157,8 @@ func _apply_minimized() -> void:
 	_entry.visible = not mini or _entry.has_focus()
 	_refresh_toggle()
 	if not mini:
-		_scroll_to_end.call_deferred()
+		_follow_bottom = true
+		_snap_bottom()
 
 
 func _refresh_toggle() -> void:
@@ -154,9 +170,33 @@ func _refresh_toggle() -> void:
 		_toggle.add_theme_color_override("font_color", T.NAVY)
 
 
-func _scroll_to_end() -> void:
-	if _scroll:
-		_scroll.scroll_vertical = int(_scroll.get_v_scroll_bar().max_value)
+## Stay on the newest line until the player scrolls up to read history.
+var _follow_bottom := true
+var _moving_scroll := false
+
+
+func _on_scroll_range() -> void:
+	if _follow_bottom:
+		_snap_bottom()
+
+
+func _on_scroll_value(value: float) -> void:
+	if _moving_scroll or _scroll == null:
+		return
+	var bar := _scroll.get_v_scroll_bar()
+	_follow_bottom = bar.max_value <= bar.page + 8.0 or value >= bar.max_value - bar.page - 28.0
+
+
+func _snap_bottom() -> void:
+	if _scroll == null or _moving_scroll:
+		return
+	var bar := _scroll.get_v_scroll_bar()
+	var bottom := maxi(0, int(bar.max_value - bar.page))
+	if _scroll.scroll_vertical == bottom:
+		return
+	_moving_scroll = true
+	_scroll.scroll_vertical = bottom
+	_moving_scroll = false
 
 
 func _on_text_changed(text: String) -> void:
@@ -202,11 +242,32 @@ func _refresh_log() -> void:
 	if _lines.is_empty():
 		_log.text = "Chat with friends here."
 		_log.add_theme_color_override("font_color", Color(0.55, 0.56, 0.61, 1))  # UI theme: muted on ivory
+		_fit_log()
 		return
 	_log.text = "\n".join(_lines)
 	_log.add_theme_color_override("font_color", Color(0.08, 0.15, 0.3, 1))  # UI theme: navy on ivory
-	if _scroll and _scroll.scroll_vertical >= int(_scroll.get_v_scroll_bar().max_value - _scroll.size.y - 24):
-		_scroll_to_end.call_deferred()  # follow new lines unless the player scrolled up to read
+	_fit_log()
+	if _follow_bottom:
+		_snap_bottom()
+		_snap_after_layout()
+
+
+func _snap_after_layout() -> void:
+	for _i in 3:
+		await get_tree().process_frame
+		if not _follow_bottom or _scroll == null:
+			return
+		_snap_bottom()
+
+
+func _fit_log() -> void:
+	var width := 280.0
+	if _scroll and _scroll.size.x > 40.0:
+		width = _scroll.size.x - 8.0
+	var font := _log.get_theme_font("font")
+	var size := _log.get_theme_font_size("font_size")
+	var text_size := font.get_multiline_string_size(_log.text, HORIZONTAL_ALIGNMENT_LEFT, width, size)
+	_log.custom_minimum_size = Vector2(width, text_size.y)
 
 
 func _set_typing(active: bool) -> void:

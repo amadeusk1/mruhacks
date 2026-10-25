@@ -21,8 +21,8 @@ const PLACES := {
 }
 const LAYOUT := "res://Models/world/town_layout.json"
 const MARGIN := 22.0
-const CHAT_W := 340.0
-const CHAT_H := 200.0
+const CHAT_W := 520.0
+const CHAT_H := 320.0
 const GUTTER := 16.0
 const DOCK_H := 88.0
 const DOCK_BTN := 112.0
@@ -128,22 +128,47 @@ func _layout() -> void:
 	var coin := get_parent().get_node_or_null("CoinBadge") as Control
 	if coin:
 		_place(coin, vp.x - MARGIN - MIC_SIZE - COIN_GAP - COIN_W, MARGIN, COIN_W, MIC_SIZE)
+	var floor_m := MARGIN + Mobile.pad()
 	var chat := get_parent().get_node_or_null("Chat") as Control
 	if chat:
-		_place(chat, MARGIN, vp.y - MARGIN - CHAT_H, CHAT_W, CHAT_H)
+		var chat_size := _chat_size(vp)
+		var chat_y := vp.y - floor_m - chat_size.y
+		var entry := chat.get_node_or_null("Entry") as LineEdit
+		if entry and entry.has_focus() and Mobile.active():
+			chat_y = MARGIN
+		_place(chat, MARGIN, chat_y, chat_size.x, chat_size.y)
 	var count := 0
 	for c in _dock.get_children():
 		if c.visible:
 			count += 1
-	var dock_w := count * DOCK_BTN + maxi(count - 1, 0) * DOCK_GAP
-	var band_left := MARGIN + CHAT_W + GUTTER
+	var btn := DOCK_BTN
+	var gap := DOCK_GAP
+	if vp.x < 980.0:
+		btn = 78.0
+		gap = 8.0
+		for c in _dock.get_children():
+			if c is Control:
+				(c as Control).custom_minimum_size = Vector2(btn, 72)
+	_dock.add_theme_constant_override("separation", int(gap))
+	var dock_w := count * btn + maxi(count - 1, 0) * gap
+	var chat_size := _chat_size(vp)
+	var band_left := MARGIN + chat_size.x + GUTTER
 	var band_right := vp.x - MARGIN
+	var dock_y := vp.y - floor_m - DOCK_H
+	if band_left + dock_w > band_right:
+		band_left = MARGIN
+		dock_y = vp.y - floor_m - chat_size.y - 16.0 - (72.0 if vp.x < 980.0 else DOCK_H)
 	var dock_x := band_left + maxf(0.0, (band_right - band_left - dock_w) * 0.5)
 	dock_x = minf(dock_x, maxf(band_left, band_right - dock_w))
-	var dock_y := vp.y - MARGIN - DOCK_H
 	_dock_rect = Rect2(dock_x, dock_y, dock_w, DOCK_H)
 	_place(_dock, dock_x, dock_y, dock_w, DOCK_H)
 	_place_action()
+
+
+func _chat_size(vp: Vector2) -> Vector2:
+	if vp.x < 980.0:
+		return Vector2(minf(vp.x - MARGIN * 2.0, 560.0), minf(360.0, vp.y * 0.46))
+	return Vector2(minf(CHAT_W, vp.x * 0.46), minf(CHAT_H, vp.y * 0.46))
 
 
 func _place(c: Control, x: float, y: float, w: float, h: float) -> void:
@@ -171,7 +196,7 @@ func _place_action() -> void:
 	var vp := get_viewport_rect().size
 	var center := _dock_rect.position.x + _dock_rect.size.x * 0.5
 	var x := center - w * 0.5
-	var chat_right := MARGIN + CHAT_W + GUTTER
+	var chat_right := MARGIN + _chat_size(get_viewport_rect().size).x + GUTTER
 	x = clampf(x, chat_right, maxf(chat_right, vp.x - MARGIN - w))
 	var y := _dock_rect.position.y - ACTION_GAP - h
 	_place(_action, x, y, w, h)
@@ -205,7 +230,7 @@ func _style_chat() -> void:
 		log_panel.add_theme_stylebox_override("panel", sb)
 		var lines := log_panel.find_child("Lines", true, false) as Label
 		if lines:
-			lines.add_theme_font_size_override("font_size", 20)
+			lines.add_theme_font_size_override("font_size", 22)
 	var entry := chat.get_node_or_null("Entry") as LineEdit
 	if entry:
 		entry.custom_minimum_size.y = 58
@@ -216,7 +241,10 @@ func _style_chat() -> void:
 			entry.add_theme_stylebox_override(st, e)
 		entry.add_theme_color_override("font_color", T.NAVY)
 		entry.add_theme_color_override("font_placeholder_color", T.MUTED)
-		entry.add_theme_font_size_override("font_size", 21)
+		entry.add_theme_font_size_override("font_size", 22)
+		if not entry.focus_entered.is_connected(_layout):
+			entry.focus_entered.connect(_layout)
+			entry.focus_exited.connect(_layout)
 
 
 func _refresh_mic() -> void:

@@ -6,6 +6,7 @@ extends CinemaSource
 ## The invite code goes straight to the gateway and is not kept.
 
 var client: CinemaServiceClient
+var _revision := -1
 
 
 func _init() -> void:
@@ -56,10 +57,15 @@ func _on_library(films: Variant) -> void:
 	items = []
 	for f in (films if films is Array else []):
 		items.append({"id": str(f.get("id", "")), "title": str(f.get("title", "")), "year": int(f.get("year", 0)),
-			"duration_s": float(f.get("duration", 0.0)), "summary": ""})
+			"duration_s": float(f.get("duration", 0.0)), "summary": "", "kind": str(f.get("kind", "movie")),
+			"poster": bool(f.get("poster", false)), "season": int(f.get("season", 0)), "episode": int(f.get("episode", 0))})
 	if items.is_empty() and status == "connected":
 		_status("empty", "")
 	catalog_changed.emit(items)
+
+
+func fetch_show(id: String, done: Callable) -> void:
+	client.show(id, done)
 
 
 ## Host: take the controller seat if free, load the film, start it for everyone.
@@ -92,6 +98,11 @@ func _on_control(ok: bool, d: Variant) -> void:
 ## Gateway state -> CinemaSource snapshot. Only meaningful changes are emitted (the UI rebuilds on
 ## each one); the position in between is extrapolated by position_now().
 func _on_state(st: Dictionary) -> void:
+	var rev := int(st.get("revision", 0))
+	var gen := int(st.get("generation", 0))
+	if _revision >= 0 and rev < _revision and gen <= int(snapshot.get("stream_generation", 0)):
+		return
+	_revision = rev
 	var media: Dictionary = st.get("media", {}) if st.get("media") is Dictionary else {}
 	var playing := bool(st.get("playing", false))
 	var pos := float(st.get("position", 0.0))

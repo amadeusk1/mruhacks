@@ -24,6 +24,7 @@ var _band_h := 0.38
 var _progress := 0.42
 var _in_band := false
 var _held := false
+var _finger := false
 var _paid := false
 
 # Presentation follows Images/UI - Fishing.png (Ready / Bite / Reel / Result); logic unchanged.
@@ -67,7 +68,12 @@ func _ready() -> void:
 	add_child(root)
 	_panel = A.panel(26, 26)
 	_panel.mouse_filter = Control.MOUSE_FILTER_STOP
-	A.pin(root, _panel, Vector4(1, 0.5, 1, 0.5), Vector4(-470, -300, -40, 300))
+	if Mobile.active():
+		var vp := get_viewport().get_visible_rect().size
+		var bottom := maxf(420.0, vp.y - Mobile.pad() - 12.0) if vp.y > 200.0 else 560.0
+		A.pin(root, _panel, Vector4(0.5, 0, 0.5, 0), Vector4(-210, 12, 210, bottom))
+	else:
+		A.pin(root, _panel, Vector4(1, 0.5, 1, 0.5), Vector4(-470, -300, -40, 300))
 	var stack := Control.new()
 	_panel.add_child(stack)
 	# READY
@@ -109,6 +115,11 @@ func _ready() -> void:
 	reel.add_child(_reel_name)
 	_reel_hint = A.label("Hold to raise  ·  Release to lower", 18, A.SUB, false, HORIZONTAL_ALIGNMENT_CENTER)
 	reel.add_child(_reel_hint)
+	var hold := A.button("Hold", "primary", "", 26, Vector2(0, 72))
+	hold.button_down.connect(func() -> void: _finger = true)
+	hold.button_up.connect(func() -> void: _finger = false)
+	hold.focus_mode = Control.FOCUS_NONE
+	reel.add_child(hold)
 	var row := A.hbox(22)
 	row.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	reel.add_child(row)
@@ -116,7 +127,7 @@ func _ready() -> void:
 	arrow.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(arrow)
 	_track = PanelContainer.new()
-	_track.custom_minimum_size = Vector2(96, 320)
+	_track.custom_minimum_size = Vector2(96, 160 if Mobile.active() else 320)
 	_track.add_theme_stylebox_override("panel", A.box(Color("#E6E2DA"), 30, 2, Color("#D8D2C6")))
 	_track.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(_track)
@@ -233,7 +244,7 @@ func _process(delta: float) -> void:
 		return
 	if not _penguin.has_method("is_fishing") or not bool(_penguin.call("is_fishing")):
 		return
-	var down := Input.is_physical_key_pressed(KEY_SPACE) or Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
+	var down := _finger or Input.is_action_pressed("jump") or Input.is_physical_key_pressed(KEY_SPACE) or Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
 	var pressed := down and not _held
 	_held = down
 	_age += delta
@@ -254,7 +265,7 @@ func _process(delta: float) -> void:
 		"bite":
 			_bite_left -= delta
 			if _bite_clock:
-				_bite_clock.text = "Space, click, or Hook  ·  %.1f" % maxf(_bite_left, 0.0)
+				_bite_clock.text = ("Tap Hook  ·  %.1f" if Mobile.active() else "Space, click, or Hook  ·  %.1f") % maxf(_bite_left, 0.0)
 			if pressed:
 				_begin_reel()
 			elif _bite_left <= 0.0:

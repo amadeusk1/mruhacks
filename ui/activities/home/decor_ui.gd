@@ -370,6 +370,20 @@ func _unhandled_input(event: InputEvent) -> void:
 		if event.is_action_pressed("ui_cancel") and _mode == "home":
 			_close()
 		return
+	if event is InputEventScreenDrag:
+		editor.hover((event as InputEventScreenDrag).position)
+		get_viewport().set_input_as_handled()
+		return
+	if event is InputEventScreenTouch and (event as InputEventScreenTouch).pressed:
+		var at := (event as InputEventScreenTouch).position
+		if editor.has_ghost():
+			editor.place_ghost()
+		else:
+			editor.select(editor.item_at(at))
+		get_viewport().set_input_as_handled()
+		return
+	if event is InputEventMouse and event.device < 0:
+		return
 	if event is InputEventMouseMotion:
 		editor.hover(event.position)
 	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:

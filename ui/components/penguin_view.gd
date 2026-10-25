@@ -123,7 +123,7 @@ func play(anim: String) -> void:
 func _process(delta: float) -> void:
 	if _bird == null:
 		return
-	if turntable and not _drag:
+	if turntable and not _drag and not UIRouter.settings.get("reduce_motion", false):
 		_yaw = lerp_angle(_yaw, sin(Time.get_ticks_msec() * 0.0006) * 0.35, 1.0 - exp(-2.0 * delta))
 	_bird.rotation.y = _yaw
 

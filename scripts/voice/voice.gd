@@ -207,6 +207,9 @@ func _set_mic(on: bool) -> void:
 	if on:
 		# Web: this is the first getUserMedia request, so permission is only asked when enabled.
 		if not _tone:
+			AudioServer.input_device = _chosen_device()
+			if AudioServer.has_method("set_input_device_active"):
+				AudioServer.call("set_input_device_active", true)
 			_mic_player.play()
 		_mic_started_at = Time.get_ticks_msec() / 1000.0
 		_got_mic_frames = false
@@ -214,6 +217,8 @@ func _set_mic(on: bool) -> void:
 		_phase = 0.0
 	else:
 		_mic_player.stop()
+		if AudioServer.has_method("set_input_device_active"):
+			AudioServer.call("set_input_device_active", false)
 		_capture.clear_buffer()
 		_pending.clear()
 		_end_spurt()
@@ -543,6 +548,35 @@ func _setup_buses() -> void:
 	_mic_player.bus = "VoiceMic"
 	add_child(_mic_player)
 	UIRouter.set_setting("voice", UIRouter.settings.get("voice", 60.0))  # bus now exists: apply volume
+	apply_input_device()
+
+
+## Saved in settings as "mic_device". Restarts a live capture so the new device is the one recorded.
+func apply_input_device() -> void:
+	var want := _chosen_device()
+	var restart := _mic_player != null and _mic_player.playing
+	if restart:
+		_mic_player.stop()
+		if AudioServer.has_method("set_input_device_active"):
+			AudioServer.call("set_input_device_active", false)
+	AudioServer.input_device = want
+	if restart:
+		if AudioServer.has_method("set_input_device_active"):
+			AudioServer.call("set_input_device_active", true)
+		if _capture:
+			_capture.clear_buffer()
+		_pending.clear()
+		_mic_player.play()
+
+
+func _chosen_device() -> String:
+	var devs := AudioServer.get_input_device_list()
+	var want := str(UIRouter.settings.get("mic_device", "Default"))
+	if devs.is_empty():
+		return "Default"
+	if devs.has(want):
+		return want
+	return "Default" if devs.has("Default") else str(devs[0])
 
 
 func _load() -> void:

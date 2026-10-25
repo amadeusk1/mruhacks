@@ -21,7 +21,7 @@ func _init() -> void:
 	cc.offset_right = -22
 	cc.offset_top = 22
 	cc.offset_bottom = -22
-	card.custom_minimum_size = Vector2(1220, 670)
+	card.custom_minimum_size = Vector2.ZERO if Mobile.active() else Vector2(1220, 670)
 	var sb := (UIKit.THEME.get_stylebox("panel", "Card") as StyleBoxFlat).duplicate()
 	sb.content_margin_left = 10
 	sb.content_margin_right = 10
@@ -31,13 +31,14 @@ func _init() -> void:
 	body.get_parent().get_child(0).custom_minimum_size.y = 0   # no header row: title floats over the map
 	_view = MapView.new()
 	_view.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_view.custom_minimum_size = Vector2(1200, 650)
+	_view.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_view.custom_minimum_size = Vector2(0, 480) if Mobile.active() else Vector2(1200, 650)
 	body.add_child(_view)
 	var title := UIKit.vbox(0)
 	title.position = Vector2(40, 30)
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	title.add_child(UIKit.label("Pengloo Party", "TitleSmall"))
-	title.add_child(UIKit.label("Click a place to go there.", "Subtitle"))
+	title.add_child(UIKit.label("Tap a place to go there." if Mobile.active() else "Click a place to go there.", "Subtitle"))
 	for child in title.get_children():
 		if child is Control:
 			(child as Control).mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -203,7 +204,7 @@ class MapView extends Control:
 		var player := get_tree().get_first_node_in_group("local_player") as Node3D
 		if player and player.is_visible_in_tree():
 			var at := to_screen(player.global_position)
-			var pulse := 1.0 + 0.25 * sin(_t * 4.0)
+			var pulse := 1.0 if UIRouter.settings.get("reduce_motion", false) else 1.0 + 0.25 * sin(_t * 4.0)
 			draw_circle(at, 18 * pulse, Color(0.1, 0.61, 0.63, 0.25))
 			draw_circle(at, 11, Color.WHITE)
 			draw_circle(at, 8, Color("#1A9CA0"))

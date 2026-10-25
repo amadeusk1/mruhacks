@@ -48,7 +48,7 @@ func (s *Server) segment(w http.ResponseWriter, r *http.Request, u session) {
 	}
 	s.touch(u.ID)
 	s.mu.Lock()
-	id, dur := s.state.Title.ID, s.state.Title.Duration
+	id, dur, gen := s.state.Title.ID, s.state.Title.Duration, s.state.Generation
 	s.mu.Unlock()
 	if id == "" {
 		fail(w, 409, "Choose a film first")
@@ -59,7 +59,12 @@ func (s *Server) segment(w http.ResponseWriter, r *http.Request, u session) {
 		return
 	}
 	s.mu.Lock()
-	key := fmt.Sprintf("%d|%s|%s|%.3f|%.3f", s.state.Generation, id, kind, start, length)
+	if s.state.Generation != gen || s.state.Title.ID != id {
+		s.mu.Unlock()
+		fail(w, 409, "Screening changed")
+		return
+	}
+	key := fmt.Sprintf("%d|%s|%s|%.3f|%.3f", gen, id, kind, start, length)
 	c, hit := s.segments[key]
 	if !hit {
 		c = &cachedSegment{done: make(chan struct{})}
@@ -69,13 +74,17 @@ func (s *Server) segment(w http.ResponseWriter, r *http.Request, u session) {
 	c.used = time.Now()
 	s.mu.Unlock()
 	if !hit {
-		c.bytes = s.transcode(r.Context(), id, kind, start, length)
-		close(c.done)
-		if c.bytes == nil {
-			s.mu.Lock()
-			delete(s.segments, key)
-			s.mu.Unlock()
+		raw := s.transcode(id, kind, start, length, gen)
+		s.mu.Lock()
+		if s.state.Generation != gen || s.state.Title.ID != id {
+			raw = nil
 		}
+		c.bytes = raw
+		if raw == nil {
+			delete(s.segments, key)
+		}
+		s.mu.Unlock()
+		close(c.done)
 	}
 	select {
 	case <-c.done:
@@ -109,7 +118,12 @@ func (s *Server) evictSegmentsLocked() {
 }
 
 // transcode runs one ffmpeg child for a chunk, queueing up to 30 s for a free slot; nil on failure.
-func (s *Server) transcode(parent context.Context, id, kind string, start, length float64) []byte {
+// gen is the screening this chunk belongs to. A switch cancels it, and finished bytes are dropped
+// if that screening is no longer current.
+func (s *Server) transcode(id, kind string, start, length float64, gen int64) []byte {
+	s.mu.Lock()
+	screen := s.segCtx
+	s.mu.Unlock()
 	wait := time.NewTimer(30 * time.Second)
 	defer wait.Stop()
 	select {
@@ -117,13 +131,19 @@ func (s *Server) transcode(parent context.Context, id, kind string, start, lengt
 		defer func() { <-s.ffmpegSlots }()
 	case <-wait.C:
 		return nil
+	case <-screen.Done():
+		return nil
+	}
+	if screen.Err() != nil {
+		return nil
 	}
 	token := randomID()
 	s.mu.Lock()
 	s.sources[token] = id
 	s.mu.Unlock()
 	defer func() { s.mu.Lock(); delete(s.sources, token); s.mu.Unlock() }()
-	ctx, cancel := context.WithTimeout(context.WithoutCancel(parent), 90*time.Second) // shared: one viewer leaving must not cancel it
+	// A viewer disconnecting must not cancel a chunk others are waiting on. Switching films does.
+	ctx, cancel := context.WithTimeout(screen, 90*time.Second)
 	defer cancel()
 	args := []string{"-nostdin", "-loglevel", "error", "-ss", strconv.FormatFloat(start, 'f', 3, 64),
 		"-i", s.selfURL + "/cinema/internal/source/" + token, "-t", strconv.FormatFloat(length, 'f', 3, 64)}
@@ -133,7 +153,13 @@ func (s *Server) transcode(parent context.Context, id, kind string, start, lengt
 		args = append(args, "-vn", "-ac", "2", "-ar", "44100", "-c:a", "libmp3lame", "-b:a", "128k", "-f", "mp3", "pipe:1")
 	}
 	raw, e := exec.CommandContext(ctx, s.ffmpeg, args...).Output()
-	if e != nil || len(raw) == 0 {
+	if e != nil || len(raw) == 0 || screen.Err() != nil {
+		return nil
+	}
+	s.mu.Lock()
+	current := s.state.Generation == gen && s.state.Title.ID == id
+	s.mu.Unlock()
+	if !current {
 		return nil
 	}
 	if kind == "video" {

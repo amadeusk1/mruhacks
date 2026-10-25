@@ -109,6 +109,18 @@ func library(query: String, done: Callable) -> void:
 		done.call(d if c == 200 and d is Array else null))
 
 
+## One show, grouped into seasons. done(show: Dictionary or null)
+func show(id: String, done: Callable) -> void:
+	call_api(HTTPClient.METHOD_GET, "/api/show/" + id.uri_encode(), null, func(c: int, d: Variant, _b: PackedByteArray) -> void:
+		done.call(d if c == 200 and d is Dictionary else null))
+
+
+## Poster JPEG/PNG. done(bytes: PackedByteArray, empty when there is no art)
+func image(id: String, done: Callable) -> void:
+	call_api(HTTPClient.METHOD_GET, "/api/image/" + id.uri_encode(), null, func(c: int, _d: Variant, b: PackedByteArray) -> void:
+		done.call(b if c == 200 else PackedByteArray()))
+
+
 func state(done: Callable) -> void:
 	call_api(HTTPClient.METHOD_GET, "/api/state", null, func(c: int, d: Variant, _b: PackedByteArray) -> void:
 		if done.is_valid():

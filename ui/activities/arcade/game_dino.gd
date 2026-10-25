@@ -86,7 +86,7 @@ func _process(delta: float) -> void:
 	_dist += _speed * delta
 	_speed = minf(0.92, _speed + delta * 0.012)
 	score = int(_time * 10.0)
-	var space := Input.is_physical_key_pressed(KEY_SPACE)
+	var space := Input.is_action_pressed("jump") or Input.is_physical_key_pressed(KEY_SPACE)
 	var jump := Input.is_action_just_pressed("move_forward") or (space and not _space_down)
 	_space_down = space
 	if jump and _y <= 0.001:
