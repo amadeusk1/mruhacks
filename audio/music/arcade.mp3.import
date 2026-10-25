@@ -2,7 +2,7 @@
 
 importer="mp3"
 type="AudioStreamMP3"
-uid="uid://nkkixfcqqmew"
+uid="uid://b7n4k2m8q1c3d"
 path="res://.godot/imported/arcade.mp3-77c452123b68ff6b4ef0e8897c881f2a.mp3str"
 
 [deps]
@@ -12,7 +12,7 @@ dest_files=["res://.godot/imported/arcade.mp3-77c452123b68ff6b4ef0e8897c881f2a.m
 
 [params]
 
-loop=false
+loop=true
 loop_offset=0
 bpm=0
 beat_count=0
