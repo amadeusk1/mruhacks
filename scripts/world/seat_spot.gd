@@ -13,8 +13,18 @@ var face_yaw := 0.0              # world yaw the penguin faces (forward is -Z)
 var stand_point := Vector3.INF   # world: where it stands back up (default: nearest walkable)
 
 
+func _enter_tree() -> void:
+	add_to_group("seats")
+
+
 func approach_point() -> Vector3:
 	return seat_point
+
+
+## Click-walk arrival (penguin_movement._follow_path), same as the teammate's benches.
+func try_sit(_force := false) -> bool:
+	var player := get_tree().get_first_node_in_group("local_player")
+	return player != null and interact(player)
 
 
 func can_interact() -> bool:
@@ -57,8 +67,13 @@ func interact(player: Node) -> bool:
 static func from_sockets(room: Node3D, model: Node3D, seat_kit: String, face_point: Vector3 = Vector3.INF, seat_activity: String = "") -> int:
 	var n := 0
 	for s in model.find_children("socket_seat*", "Node3D", true, false):
+		if _taken_spot(room, (s as Node3D).global_position):
+			continue  # a table's seat socket and the stool placed on it are one seat
 		var seat := SeatSpot.new()
 		seat.name = "%s_%s" % [s.get_parent().name, s.name]
+		if room.has_node(NodePath(seat.name)):  # 14 "bench"es: a position name, identical on every client (it is the claim key)
+			var at := (s as Node3D).global_position
+			seat.name = "%s_%d_%d" % [seat.name, roundi(at.x * 10.0), roundi(at.z * 10.0)]
 		seat.kit = seat_kit
 		seat.activity = seat_activity
 		seat.verb = "Sit"
@@ -74,3 +89,37 @@ static func from_sockets(room: Node3D, model: Node3D, seat_kit: String, face_poi
 			seat.face_yaw = atan2(-to.x, -to.z)
 		n += 1
 	return n
+
+
+## Seats for any placed furniture with socket_seat* (benches, stools, chairs, sofas, the cafe's
+## window bench): new seat props work without code. Tables are skipped (the stools around them
+## are the seats; a bare table socket would sit you on air), and so are vehicles and machines.
+static func furnish(room: Node3D, model: Node3D, id: String, category: String) -> int:
+	if not category in ["furniture", "seating", "seat", "building"] or id.contains("table") or id.contains("machine"):
+		return 0
+	var kit := ""  # the bench "sit"
+	if id.contains("stool"):
+		kit = "stool"
+	elif ["chair", "sofa", "beanbag", "pouf", "cushion", "bed", "window_seat"].any(func(k): return id.contains(k)):
+		kit = "armchair"
+	return from_sockets(room, model, kit)
+
+
+## The seat under the click (or the nearest free one on the same bench/table when that one is
+## taken, so friends fill the slots beside each other). null when none is within `radius`.
+static func pick(tree: SceneTree, at: Vector3, radius := 0.9) -> SeatSpot:
+	var best: SeatSpot = null
+	var best_d := radius
+	for seat in tree.get_nodes_in_group("seats"):
+		var d := Vector2(seat.seat_point.x - at.x, seat.seat_point.z - at.z).length()
+		if d < best_d and not Net.bench_held_by_other(seat.bench_key()):
+			best = seat
+			best_d = d
+	return best
+
+
+static func _taken_spot(room: Node, at: Vector3) -> bool:
+	for c in room.get_tree().get_nodes_in_group("seats"):
+		if not c.is_queued_for_deletion() and c.seat_point.distance_to(at) < 0.3:
+			return true
+	return false
