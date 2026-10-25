@@ -17,7 +17,8 @@ signal invite_received(from_id: int, from_name: String, kind: String, ticket: St
 signal visit_denied(owner_name: String)
 signal home_layout(owner_id: int, layout: String)
 signal sled_pose(peer_id: int, x: float, y: float, z: float, yaw: float, steer: float, crashed: bool)
-signal emote_played(peer_id: int, clip: String)
+signal emote_played(peer_id: int, clip: String)  # clip "" = the emote was cancelled by moving
+signal anim_changed(peer_id: int, clip: String, loop: bool, n: int)
 
 const _CourtMatch := preload("res://scripts/court_match.gd")
 const _SnowMatch := preload("res://scripts/snow_match.gd")
@@ -437,7 +438,8 @@ func note_act(act: String) -> void:
 
 ## The clip the local penguin is playing right now ("" = plain walk/idle), so every player in the
 ## room plays it on this penguin's puppet: seats, fishing, activity clips, throws... It rides on the
-## roster, so late joiners get ongoing loops too, at the right point (anim_age).
+## room as one small event; the roster keeps it too, so late joiners get ongoing loops at the right
+## point (anim_age) without every change resending the whole roster.
 func note_anim(clip: String, loop: bool) -> void:
 	if not is_online() or _closing:
 		return
@@ -457,7 +459,19 @@ func _set_anim(id: int, clip: String, loop: bool) -> void:
 	player["anim_loop"] = loop
 	player["anim_at"] = Time.get_ticks_msec()
 	player["anim_n"] = int(player.get("anim_n", 0)) + 1  # a replayed one-shot is a new start
-	_broadcast()
+	for other_id in _players:
+		if int(other_id) == id or bool(_players[other_id]["hidden"]) or not _same_room(player, _players[other_id]):
+			continue
+		if int(other_id) == local_id():
+			anim_changed.emit(id, clip, loop, int(player["anim_n"]))
+		elif multiplayer.get_peers().has(int(other_id)):
+			deliver_anim.rpc_id(int(other_id), id, clip, loop, int(player["anim_n"]))
+
+
+@rpc("authority", "call_remote", "reliable")
+func deliver_anim(peer_id: int, clip: String, loop: bool, n: int) -> void:
+	if _mode == Mode.CLIENT:
+		anim_changed.emit(peer_id, clip, loop, n)
 
 
 @rpc("any_peer", "call_remote", "reliable")
@@ -1299,12 +1313,13 @@ func note_emote(clip: String) -> void:
 func _host_emote(id: int, clip: String) -> void:
 	if _mode != Mode.HOST or not _players.has(id) or bool(_players[id]["hidden"]):
 		return
-	if clip.length() > 40 or not clip.replace("/", "_").is_valid_identifier():
+	if clip.length() > 40 or (clip != "" and not clip.replace("/", "_").is_valid_identifier()):
 		return
 	var now := Time.get_ticks_msec()
-	if _emote_at.has(id) and now - int(_emote_at[id]) < EMOTE_GAP_MS:
-		return  # rate limit: about one emote per 0.8 s per player
-	_emote_at[id] = now
+	if clip != "":  # a cancel ("") is never rate-limited
+		if _emote_at.has(id) and now - int(_emote_at[id]) < EMOTE_GAP_MS:
+			return  # rate limit: about one emote per 0.8 s per player
+		_emote_at[id] = now
 	var start := now / 1000.0
 	for other_id in _players:
 		if int(other_id) == id or bool(_players[other_id]["hidden"]) or not _same_room(_players[id], _players[other_id]):

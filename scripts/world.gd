@@ -49,6 +49,10 @@ func _ready() -> void:
 	Net.host_lost.connect(_on_host_lost)
 	Net.chat_received.connect(_on_chat)
 	Net.emote_played.connect(_on_emote)
+	Net.anim_changed.connect(func(id: int, clip: String, loop: bool, n: int) -> void:
+		var puppet: Node = _puppets.get(id)
+		if puppet != null and is_instance_valid(puppet) and puppet.has_method("apply_anim"):
+			puppet.apply_anim(clip, loop, 0.0, n))
 	Net.invite_received.connect(_on_invite)
 	Net.visit_denied.connect(_on_visit_denied)
 	var arcade := preload("res://scripts/arcade_session.gd").new()
@@ -412,7 +416,11 @@ func _on_remote_pose(peer_id: int, x: float, y: float, z: float, yaw: float, spe
 
 func _on_emote(peer_id: int, clip: String) -> void:
 	var puppet: Node = _puppets.get(peer_id)
-	if puppet != null and is_instance_valid(puppet) and puppet.has_method("play_emote"):
+	if puppet == null or not is_instance_valid(puppet) or not puppet.has_method("play_emote"):
+		return
+	if clip == "":
+		puppet.stop_emote()
+	else:
 		puppet.play_emote(clip)
 
 

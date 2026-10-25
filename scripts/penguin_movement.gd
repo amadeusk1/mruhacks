@@ -244,6 +244,7 @@ func _physics_process(delta: float) -> void:
 		_step_remote(delta)
 		return
 	_report_anim()
+	_stack_label()
 	var direction := Vector3.ZERO
 	var wish := Vector3.ZERO if _blocks_play() else _camera_wish()
 	if _sitting and wish != Vector3.ZERO:
@@ -583,6 +584,7 @@ func _try_jump() -> void:
 	velocity.y = _JUMP_SPEED
 	_hopping = true
 	_left_ground = false
+	_cancel_emote()
 	_overlay = ""
 	_play_jump()
 
@@ -761,7 +763,22 @@ func _setup_remote() -> void:
 	PenguinAnims.attach(_clips)
 
 
+## Two penguins side by side (one bench, a queue) would print their names on top of each other:
+## each tag rises one row per nearby penguin that ranks before it.
+func _stack_label() -> void:
+	if _name_label == null:
+		return
+	var rank := 0
+	for group in ["local_player", "remote_player"]:
+		for other in get_tree().get_nodes_in_group(group):
+			if other != self and other is Node3D and other.get_instance_id() < get_instance_id() and (other as Node3D).visible \
+					and Vector2(other.global_position.x - global_position.x, other.global_position.z - global_position.z).length() < 0.9:
+				rank += 1
+	_name_label.position.y = 1.4 + 0.22 * rank
+
+
 func _step_remote(delta: float) -> void:
+	_stack_label()
 	if _has_net_pose:
 		var blend := 1.0 - exp(-18.0 * delta)
 		global_position = global_position.lerp(_net_target, blend)
@@ -878,7 +895,7 @@ func _report_anim() -> void:
 
 ## Puppet: play the owner's current clip from where the owner is in it (late joiners included).
 func apply_anim(clip: String, loop: bool, age: float, n: int) -> void:
-	if _remote_peer == 0 or n == _net_anim_n:
+	if _remote_peer == 0 or n <= _net_anim_n:  # an older roster snapshot must not replay a past clip
 		return
 	_net_anim_n = n
 	_net_anim = ""
@@ -894,6 +911,21 @@ func apply_anim(clip: String, loop: bool, age: float, n: int) -> void:
 	_clips.speed_scale = 1.0
 	_clips.play(clip, 0.12)
 	_clips.seek(fposmod(age, anim.length) if loop else age, true)
+
+
+## Local: moving (or jumping) out of an emote tells the room to stop it on this penguin's puppet
+## right away, instead of waiting for the pose stream's speed to cross the threshold.
+func _cancel_emote() -> void:
+	if _remote_peer == 0 and _overlay.begins_with("emotes/") and _clips != null and _clips.current_animation == _overlay:
+		Net.note_emote("")
+
+
+## Puppet: the owner moved out of its emote.
+func stop_emote() -> void:
+	if _overlay.begins_with("emotes/"):
+		_overlay = ""
+		if _clips != null and _clips.has_animation("idle"):
+			_clips.play("idle", 0.15)
 
 
 ## Remote puppets: the seat style the owner chose.
@@ -993,6 +1025,8 @@ func _animate(delta: float, speed: float) -> void:
 		return
 	if _overlay != "" and _clips and speed <= 0.25 and not _sitting and _clips.current_animation == _overlay:
 		return
+	if speed > 0.25:
+		_cancel_emote()
 	_overlay = ""
 	if _fisher_phase != "":
 		var fish_clip := PenguinAnims.fishing_clip(_fisher_phase)

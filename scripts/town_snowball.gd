@@ -161,21 +161,26 @@ func _find_pads(sockets: Dictionary) -> void:
 
 func _cover() -> Array:
 	var boxes: Array = []
-	var body := StaticBody3D.new()  # players can't walk through the blockout's walls either
-	body.name = "ArenaCover"
-	body.collision_layer = BLOCK_LAYER
-	body.collision_mask = 0
-	add_child(body)
-	for c in BLOCKOUT_COVER:
+	# one body per wall/bank (a merged body reads as one big box to tools/walk_test), parented to the
+	# town's NavigationRegion3D so its rebake carves them out of the click-to-walk navmesh
+	var nav: Node = get_parent().get_node_or_null("NavigationRegion3D") if get_parent() else null
+	for i in BLOCKOUT_COVER.size():
+		var c: Array = BLOCKOUT_COVER[i]
 		var center: Vector3 = _arena.global_transform * Vector3(c[0], c[4] * 0.5, -c[1])
 		var size := Vector3(c[2], c[4], c[3])
 		boxes.append(AABB(center - size * 0.5, size))
+		var body := StaticBody3D.new()  # players can't walk through the blockout's walls either
+		body.name = "ArenaCover%d" % i
+		body.collision_layer = BLOCK_LAYER
+		body.collision_mask = 0
+		body.set_meta("blocker_of", "winter/snowball_arena_blockout cover")
 		var shape := CollisionShape3D.new()
 		var box := BoxShape3D.new()
 		box.size = Vector3(size.x, size.y + 0.6, size.z)
 		shape.shape = box
 		body.add_child(shape)
-		shape.global_position = center + Vector3(0, 0.3, 0)
+		(nav if nav != null else self).add_child(body)
+		body.global_position = center + Vector3(0, 0.3, 0)
 	for id in PLACED_COVER:
 		for node in _placed(id):
 			var at := node.global_position

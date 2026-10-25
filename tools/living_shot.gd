@@ -22,7 +22,10 @@ func _ready() -> void:
 	await _w.travel_to("town", "BusArrival")
 	await get_tree().create_timer(3.0).timeout
 	var living: Node = get_tree().root.find_child("LivingTown", true, false)
-	var floor_node: Node3D = get_tree().root.find_child("DanceFloor", true, false)
+	var floor_node: Node3D = null  # the layout also has a "DanceFloor" Marker3D: find the floor by class
+	for n in get_tree().root.find_children("*", "Node3D", true, false):
+		if n is DanceFloor:
+			floor_node = n
 	print("LIVING lamps=%d halos=%d lights=%d" % [living.get("_lamps").size(), living.get("_halos").size(), living.get("_pool").size()])
 	print("LIVING dance floor at %s" % floor_node.global_position)
 	var rect := living.get_node("AuroraLayer").get_child(0) as ColorRect
@@ -33,9 +36,9 @@ func _ready() -> void:
 		print("LIVING hour=%.3f phase=%s aurora=%s" % [t, LivingTown.phase_name(t), (rect.material as ShaderMaterial).get_shader_parameter("strength")])
 		_shot("%s/living_%03d.png" % [out, int(t * 1000)])
 	# dancing: walk onto the floor and stand still
-	_p.global_position = Vector3(floor_node.global_position.x - 4.0, 0.1, floor_node.global_position.z)
+	_p.global_position = Vector3(floor_node.global_position.x - 4.0, floor_node.global_position.y + 0.1, floor_node.global_position.z)
 	await get_tree().create_timer(0.5).timeout
-	_p.global_position = Vector3(floor_node.global_position.x + 0.4, 0.1, floor_node.global_position.z + 0.3)
+	_p.global_position = Vector3(floor_node.global_position.x + 0.4, floor_node.global_position.y + 0.1, floor_node.global_position.z + 0.3)
 	await get_tree().create_timer(1.6).timeout
 	print("LIVING dancing=%s count=%d anim=%s music=%.2f" % [_p.call("is_dancing"), floor_node.call("dancer_count"), _p.get("_clips").current_animation, floor_node.get("_music").progress()])
 	LivingTown.hour_override = 0.0
