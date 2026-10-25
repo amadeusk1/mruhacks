@@ -315,6 +315,24 @@
   .demo h2 .ch { display: inline-block; }
   .demo p { margin-top: 56px; font-size: 44px; color: var(--frost); }
 
+  /* QR to the live site: big on the title, small top-right after; hidden on Now and the trailer */
+  .qr {
+    position: absolute;
+    z-index: 40;
+    top: 40px;
+    right: 40px;
+    width: 220px;
+    padding: 14px;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 14px 30px rgba(6, 30, 45, 0.35);
+  }
+  /* Animate moves only after the first slide is shown, so loading the page doesn't fly it in */
+  .qr.is-ready { transition: top 0.7s ease, right 0.7s ease, width 0.7s ease, padding 0.7s ease, opacity 0.4s ease; }
+  .qr img { display: block; width: 100%; }
+  .qr[data-state="big"] { top: 150px; right: 720px; width: 480px; padding: 30px; } /* centered, clear of the title text */
+  .qr[data-state="hidden"] { opacity: 0; }
+
   /* Progress */
   .progress {
     position: absolute;
@@ -471,6 +489,7 @@
     <div class="band" data-w="60" data-delay="290" data-dur="680" style="width: 60px; background: var(--sea-deep)"></div>
   </div>
 
+  <div class="qr" id="qr"><img src="assets/qr-pengloo.svg" alt="QR code to pengloo.party"></div>
   <div class="progress" id="progress"></div>
   <audio id="song-tail" src="assets/song-tail.m4a" preload="auto" loop></audio>
 </main>
@@ -486,6 +505,8 @@
   const slides = $$(".slide");
   const progress = document.getElementById("progress");
   const trailer = document.getElementById("trailer");
+  const qr = document.getElementById("qr");
+  const QR_HIDDEN = ["s-now", "s-trailer"];
 
   document.querySelectorAll("[data-name]").forEach((el) => { el.textContent = PROJECT_NAME; });
   document.title = PROJECT_NAME + " demo";
@@ -718,6 +739,7 @@
     done = 0;
     slides.forEach((s, i) => s.classList.toggle("is-active", i === current));
     progress.style.width = `${((current + 1) / slides.length) * 100}%`;
+    qr.dataset.state = current === 0 ? "big" : QR_HIDDEN.includes(slides[current].id) ? "hidden" : "small";
     history.replaceState(null, "", `#${current + 1}`);
     // Timeline clips never keep playing behind another slide.
     $$(".clip-video, .feat-video, .revive-video").forEach((v) => { if (!slides[current].contains(v)) v.pause(); });
@@ -826,6 +848,8 @@
   fit();
   const fromHash = parseInt(location.hash.slice(1), 10);
   go(fromHash ? fromHash - 1 : 0, Boolean(fromHash));
+  qr.offsetWidth; // commit the starting position before turning transitions on
+  qr.classList.add("is-ready");
 </script>
 </body>
 </html>
