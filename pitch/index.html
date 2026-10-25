@@ -326,12 +326,18 @@
     border-radius: 18px;
     background: #fff;
     box-shadow: 0 14px 30px rgba(6, 30, 45, 0.35);
+    color: var(--sea-deep);
+    font-size: 26px;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
   }
   /* Animate moves only after the first slide is shown, so loading the page doesn't fly it in */
-  .qr.is-ready { transition: top 0.7s ease, right 0.7s ease, width 0.7s ease, padding 0.7s ease, opacity 0.4s ease; }
+  .qr.is-ready { transition: top 0.7s ease, right 0.7s ease, width 0.7s ease, padding 0.7s ease, font-size 0.7s ease, opacity 0.4s ease; }
   .qr img { display: block; width: 100%; }
-  .qr[data-state="big"] { top: 150px; right: 720px; width: 480px; padding: 30px; } /* centered, clear of the title text */
-  .qr[data-state="hidden"] { opacity: 0; }
+  .qr span { display: block; margin-top: 6px; }
+  .qr[data-state="big"] { top: 150px; right: 760px; width: 400px; padding: 26px; font-size: 40px; } /* centered, clear of the title text */
+  .qr[data-state="hidden"] { opacity: 0; pointer-events: none; }
 
   /* Progress */
   .progress {
@@ -489,7 +495,7 @@
     <div class="band" data-w="60" data-delay="290" data-dur="680" style="width: 60px; background: var(--sea-deep)"></div>
   </div>
 
-  <div class="qr" id="qr"><img src="assets/qr-pengloo.svg" alt="QR code to pengloo.party"></div>
+  <a class="qr" id="qr" href="https://pengloo.party" target="_blank" rel="noopener"><img src="assets/qr-pengloo.svg" alt="QR code to pengloo.party"><span>pengloo.party</span></a>
   <div class="progress" id="progress"></div>
   <audio id="song-tail" src="assets/song-tail.m4a" preload="auto" loop></audio>
 </main>
@@ -805,7 +811,10 @@
       document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
     }
   });
-  addEventListener("click", (e) => (e.clientX > innerWidth / 2 ? next() : previous()));
+  addEventListener("click", (e) => {
+    if (e.target.closest("#qr")) return; // the QR opens the site; it doesn't change slides
+    e.clientX > innerWidth / 2 ? next() : previous();
+  });
   addEventListener("resize", fit);
 
   // ---------- Snow on the cozy slides. Seeded, so it looks the same every run ----------
