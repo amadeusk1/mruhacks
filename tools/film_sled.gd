@@ -30,7 +30,8 @@ func _ready() -> void:
 	_w.call("travel_to", "sled_hill")
 	while _w.call("current_location_id") != "sled_hill" or _w.get("_traveling"):
 		await get_tree().create_timer(0.2).timeout
-	UIRouter.hide_ui()
+	if not _keep_ui:
+		UIRouter.hide_ui()
 	var room: Node = _w.get_node("LocationHost").get_child(0)
 	var styler := Timer.new()
 	styler.wait_time = 0.5

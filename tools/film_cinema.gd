@@ -9,6 +9,8 @@ extends "res://tools/film_host.gd"
 
 const CAM_HEIGHT := 4.6
 const CAM_DISTANCE := 4.2  # the screen wall is ~5.5 m in front of the middle seats
+const UI_ZOOM := 1.3  # --ui: back off and slide the audience clear of the chat box, buttons and name labels
+const UI_SHIFT := Vector3(0.8, 0.0, -0.2)  # world offset of the focus: +x is screen left here, -z is down the hall toward the camera
 const LENGTH := 10.0
 
 var _bots := 4
@@ -34,7 +36,8 @@ func _ready() -> void:
 	var room: Node = _w.get_node("LocationHost").get_child(0)
 	var hall: Vector3 = room.get_meta("hall_center", Vector3(240, 0, 50))
 	var me: CharacterBody3D = _w.get_node("Penguin")
-	me.get("agent").debug_enabled = false  # the orange path preview: real, but noisy on film
+	if not _keep_ui:
+		me.get("agent").debug_enabled = false  # the orange path preview: real, but noisy on film
 	var pilot := preload("res://tools/seat_pilot.gd").new()
 	pilot.near = hall
 	pilot.active = true
@@ -46,8 +49,12 @@ func _ready() -> void:
 	var rig: Node3D = _w.get("_camera_rig")
 	if screen != null and screen.global_position.z < me.global_position.z:
 		rig.rotation.y = PI
-	rig.call("pin_focus", me.global_position, CAM_HEIGHT, CAM_DISTANCE, 0.6)
-	UIRouter.hide_ui()
+	if _keep_ui:
+		rig.call("pin_focus", me.global_position + UI_SHIFT, CAM_HEIGHT * UI_ZOOM, CAM_DISTANCE * UI_ZOOM, 0.6)
+	else:
+		rig.call("pin_focus", me.global_position, CAM_HEIGHT, CAM_DISTANCE, 0.6)
+	if not _keep_ui:
+		UIRouter.hide_ui()
 	print("FILM host seated at %s, screen at %s" % [me.global_position, screen.global_position if screen else "?"])
 	if _shots != "":
 		_shoot()

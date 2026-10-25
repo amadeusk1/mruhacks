@@ -31,21 +31,24 @@ func _ready() -> void:
 	print("FILM host at %s in %s" % [me.global_position, _w.call("current_location_id")])
 	me.global_position = START + Vector3(0, 0.1, 0)
 	me.call("halt")
-	me.get("agent").debug_enabled = false  # the orange path preview: real, but noisy on film
+	if not _keep_ui:
+		me.get("agent").debug_enabled = false  # the orange path preview: real, but noisy on film
 	var rig: Node3D = _w.get("_camera_rig")
 	rig.global_position = me.global_position  # set_frame aims once, from where the rig is now
 	rig.call("set_frame", Vector3.ZERO, 100.0, 100.0, CAM_HEIGHT, CAM_DISTANCE)
 	while _bots_here() < _bots:
 		await get_tree().create_timer(0.5).timeout
-	UIRouter.hide_ui()
+	if not _keep_ui:
+		UIRouter.hide_ui()
 	await get_tree().create_timer(5.0).timeout  # bots walk to their places beside the host
 	print("FILM READY")
 	if _shots != "":
 		_shoot()
-	await get_tree().create_timer(HOLD).timeout
+	await get_tree().create_timer(HOLD + (2.0 if _keep_ui else 0.0)).timeout  # --ui: the recorder starts about a second late, keep the standing beat
 	for point in ROUTE:
 		me.call("command_walk_to", point)
-		me.get("marker").visible = false
+		if not _keep_ui:
+			me.get("marker").visible = false
 		var left := 10.0
 		while left > 0.0 and Vector2(me.global_position.x - point.x, me.global_position.z - point.z).length() > ARRIVE:
 			await get_tree().create_timer(0.1).timeout

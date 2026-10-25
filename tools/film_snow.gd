@@ -8,6 +8,9 @@ extends "res://tools/film_host.gd"
 
 const CAM_HEIGHT := 9.0
 const CAM_DISTANCE := 9.0
+const UI_CAM_HEIGHT := 11.5  # --ui: back off a little so the scoreboard and the buttons leave the far lane and the gate lane clear
+const UI_CAM_DISTANCE := 11.5
+const UI_FOCUS_SHIFT := 0.5  # metres up-field, so the far lane clears the scoreboard
 const LENGTH := 14.0
 
 var _bots := 4
@@ -28,7 +31,8 @@ func _ready() -> void:
 		arena = get_tree().get_first_node_in_group("snow_arena")
 		await get_tree().create_timer(0.5).timeout
 	var me: CharacterBody3D = _w.get_node("Penguin")
-	me.get("agent").debug_enabled = false  # the orange path preview: real, but noisy on film
+	if not _keep_ui:
+		me.get("agent").debug_enabled = false  # the orange path preview: real, but noisy on film
 	var field: Rect2 = arena.get("_field")
 	var floor_y := float(arena.get("_floor"))
 	var pads: Dictionary = arena.get("_pads")
@@ -36,7 +40,7 @@ func _ready() -> void:
 	me.global_position = Vector3(gate.x, floor_y + 0.1, gate.y + 2.2)
 	me.call("halt")
 	var middle := field.get_center()
-	_w.get("_camera_rig").call("pin_focus", Vector3(middle.x, floor_y, middle.y), CAM_HEIGHT, CAM_DISTANCE, 0.4)
+	_w.get("_camera_rig").call("pin_focus", Vector3(middle.x, floor_y, middle.y - (UI_FOCUS_SHIFT if _keep_ui else 0.0)), UI_CAM_HEIGHT if _keep_ui else CAM_HEIGHT, UI_CAM_DISTANCE if _keep_ui else CAM_DISTANCE, 0.4)
 	print("FILM field %s pads %s" % [field, pads])
 	while _bots_here() < _bots:
 		await get_tree().create_timer(0.5).timeout
@@ -44,10 +48,12 @@ func _ready() -> void:
 	pilot.team = "coral"
 	pilot.active = true
 	add_child(pilot)
-	UIRouter.hide_ui()
+	if not _keep_ui:
+		UIRouter.hide_ui()
 	if _shots != "":
 		_shoot()
-	while str(Net.snow_view().get("phase", "")) != "live":
+	# --ui: the host's own scoreboard only shows when it plays, so wait for a match with the host in it
+	while str(Net.snow_view().get("phase", "")) != "live" or (_keep_ui and Net.snow_team() == ""):
 		await get_tree().create_timer(0.2).timeout
 	print("FILM READY")
 	await get_tree().create_timer(LENGTH).timeout

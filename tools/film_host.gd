@@ -17,9 +17,11 @@ const LOOKS := {
 const SOCKETS := ["head", "face", "neck", "back"]  # not the hand: rods and props live there
 
 var _w: Node
+var _keep_ui := false  # --ui: film with the HUD and the walk-path preview showing, as a player sees it
 
 
 func _ready() -> void:
+	_keep_ui = OS.get_cmdline_user_args().has("--ui")
 	_w = load("res://scenes/world.tscn").instantiate()  # reads --net-host / --net-name itself
 	get_tree().root.add_child.call_deferred(_w)
 	var tick := Timer.new()

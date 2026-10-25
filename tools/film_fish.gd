@@ -10,6 +10,9 @@ extends "res://tools/film_host.gd"
 const CAM_HEIGHT := 5.0
 const CAM_DISTANCE := 6.5
 const LENGTH := 12.0
+const UI_ZOOM := 1.35  # --ui: back off and slide the pier left, out from behind the fishing panel on the right
+const UI_SHIFT := 2.3  # metres of world east (screen right) that the frame is moved
+const UI_LENGTH := 26.0  # with the HUD on show a cast, bite, reel and catch takes ~8 s
 
 var _bots := 4
 var _shots := ""
@@ -25,7 +28,8 @@ func _ready() -> void:
 	while not _w.is_inside_tree() or not _w.get("_in_game") or _w.get("_traveling"):
 		await get_tree().create_timer(0.5).timeout
 	var me: CharacterBody3D = _w.get_node("Penguin")
-	me.get("agent").debug_enabled = false  # the orange path preview: real, but noisy on film
+	if not _keep_ui:
+		me.get("agent").debug_enabled = false  # the orange path preview: real, but noisy on film
 	var spots := get_tree().get_nodes_in_group("fish_spot")
 	# the host takes the spot with the most neighbours: the four-spot pier, framed whole
 	var first: Node3D = null
@@ -41,20 +45,25 @@ func _ready() -> void:
 	pier /= float(group.size())
 	print("FILM pier at %s (%d spots)" % [pier, group.size()])
 	me.global_position = first.call("stand_point")
-	_w.get("_camera_rig").call("pin_focus", pier, CAM_HEIGHT, CAM_DISTANCE, 0.6)
+	if _keep_ui:
+		_w.get("_camera_rig").call("pin_focus", pier + Vector3(UI_SHIFT, 0, 0), CAM_HEIGHT * UI_ZOOM, CAM_DISTANCE * UI_ZOOM, 0.6)
+	else:
+		_w.get("_camera_rig").call("pin_focus", pier, CAM_HEIGHT, CAM_DISTANCE, 0.6)
 	while _bots_here() < _bots:
 		await get_tree().create_timer(0.5).timeout
 	var pilot := preload("res://tools/fish_pilot.gd").new()
 	pilot.active = true
+	pilot.drive_hud = _keep_ui  # the host's fishing screen is on show: play it for real
 	add_child(pilot)
 	while _fishing_bots() < mini(_bots, group.size() - 1):
 		await get_tree().create_timer(0.5).timeout
-	UIRouter.hide_ui()
+	if not _keep_ui:
+		UIRouter.hide_ui()
 	await get_tree().create_timer(2.0).timeout  # everyone settles into a cast
 	print("FILM READY host fishing=%s" % me.call("is_fishing"))
 	if _shots != "":
 		_shoot()
-	await get_tree().create_timer(LENGTH).timeout
+	await get_tree().create_timer(UI_LENGTH if _keep_ui else LENGTH).timeout
 	print("FILM DONE")
 
 
