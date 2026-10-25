@@ -382,6 +382,8 @@ func _load(song: String) -> void:
 func _decode(song: String, body: PackedByteArray) -> AudioStream:
 	if song.get_extension().to_lower() == "mp3":
 		return AudioStreamMP3.load_from_buffer(body)
+	if song.get_extension().to_lower() == "wav":
+		return AudioStreamWAV.load_from_buffer(body)
 	return AudioStreamOggVorbis.load_from_buffer(body)
 
 
@@ -409,6 +411,7 @@ func _on_node_added(n: Node) -> void:
 func _new_player() -> AudioStreamPlayer:
 	var p := AudioStreamPlayer.new()
 	p.bus = "Music"
+	p.playback_type = AudioServer.PLAYBACK_TYPE_STREAM  # web Sample mode is silent for songs downloaded at runtime
 	p.volume_db = -60.0
 	add_child(p)
 	return p
