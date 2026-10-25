@@ -201,6 +201,8 @@ func _place(nav: Node, p: Dictionary) -> void:
 		node.add_to_group("town_hoop")
 	elif id == "activities/scoreboard":
 		node.add_to_group("town_scoreboard")
+	elif id == "activities/sketch_pavilion":
+		node.add_to_group("sketch_pavilion")
 	if not (p.get("tints", {}) as Dictionary).is_empty():
 		var colors := {}
 		for role in p["tints"]:
