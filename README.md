@@ -1,5 +1,4 @@
-# Waddle World
-
+# Pengloo Party
 Working title for a cozy multiplayer penguin town built in Godot.
 
 - [Developer handoff](docs/Dev%20Handoff%20-%20Start%20Here.md) — requirements, current-code observations, server architecture, persistence, activity specifications, deployment and test plan.
