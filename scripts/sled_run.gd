@@ -235,16 +235,15 @@ func _sync_ghosts() -> void:
 		if str(entry.get("location", "")) != "sled_hill" or bool(entry.get("hidden", false)):
 			continue
 		live[id] = true
-		if _ghosts.has(id) and is_instance_valid(_ghosts[id]):
-			continue
-		var ghost := sled.duplicate(Node.DUPLICATE_GROUPS | Node.DUPLICATE_SCRIPTS) as CharacterBody3D
-		ghost.name = "Guest%s" % id
-		ghost.set_meta("remote_peer", id)
-		add_child(ghost)
-		var spot := _trial_spot()
-		ghost.reset_run(spot.origin + Vector3(2.0 * float(_ghosts.size() + 1), 0, 2.0), spot.basis.get_euler().y)
-		ghost.apply_identity(str(entry.get("name", "Penguin")), int(entry.get("color", 0)))
-		_ghosts[id] = ghost
+		if not _ghosts.has(id) or not is_instance_valid(_ghosts[id]):
+			var ghost := sled.duplicate(Node.DUPLICATE_GROUPS | Node.DUPLICATE_SCRIPTS) as CharacterBody3D
+			ghost.name = "Guest%s" % id
+			ghost.set_meta("remote_peer", id)
+			add_child(ghost)
+			var spot := _trial_spot()
+			ghost.reset_run(spot.origin + Vector3(2.0 * float(_ghosts.size() + 1), 0, 2.0), spot.basis.get_euler().y)
+			_ghosts[id] = ghost
+		_ghosts[id].apply_identity(str(entry.get("name", "Penguin")), int(entry.get("color", 0)), entry.get("outfit", {}))
 	var stale: Array = []
 	for id in _ghosts.keys():
 		if not live.has(int(id)):

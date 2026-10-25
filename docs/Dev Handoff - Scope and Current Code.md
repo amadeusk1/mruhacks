@@ -17,14 +17,14 @@
 | Basketball | Play basketball in the world | Proposed practice/shooting contest; full possession game remains open |
 | Drawing telephone | Integrated prompt/draw/guess/reveal | Complete multi-round session, private assignments and synchronized reveal |
 | Housing | Player decoration on a grid | Placement, rotation, validation, save/load and owner permissions |
-| UI | Simple original menus, placeholder title Waddle World | Full lifecycle and error states, not only happy-path screens |
+| UI | Simple original menus titled Pengloo Party | Full lifecycle and error states, not only happy-path screens |
 | Online backend | Play from separate machines/networks | Dedicated authoritative session server, identity and persistent saves |
 
 ## Observed repository baseline
 
 Static inspection on 2026-10-24 after pulling game commit `533da1f` (subsequent documentation commits do not change this observation):
 
-- `project.godot` requests Godot 4.7/Forward Plus, 1280×720, loads `scenes/main_menu.tscn`, and still calls the project Club Penguin Movement. Waddle World is confirmed as placeholder naming for the new UI, not yet changed in runtime configuration.
+- `project.godot` requests Godot 4.7/Forward Plus, 1280×720, boots through `scenes/startup.tscn`, and names the project Pengloo Party. The playable title screen is `ui/screens/main_menu.tscn`.
 - `scripts/net.gd` implements solo/host/client ENet, port 7777, hardcoded `127.0.0.1`, roster, room presence, chat and bench occupancy. `create_server(PORT, 8)` is a prototype argument, not an approved production world capacity.
 - The prototype relays client-produced poses every 0.05 seconds and uses host-owned roster/bench state. This is not proof of server-authoritative movement, identity authentication, persistent saves or internet hosting.
 - `scripts/lobby.gd` provides Host/Join/Solo and name input. The world-list mockup is a proposed future flow, not implemented matchmaking.

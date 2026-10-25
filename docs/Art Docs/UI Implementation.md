@@ -1,6 +1,6 @@
 # UI Implementation
 
-The Pengloo Party core UI in Godot, built as real Control scenes to match the mockup boards ([Waddle World - UI Mockups](../Waddle%20World%20-%20UI%20Mockups.md), behaviour in [Waddle World - UI System and Flows](../Waddle%20World%20-%20UI%20System%20and%20Flows.md)). Branch `ui/core` in the game repo. Engine-side brief: [Engine Spec - UI](../Engine%20Specs/Engine%20Spec%20-%20UI.md). Hub: [Art Pipeline](../Art%20Pipeline.md).
+The Pengloo Party core UI in Godot, built as real Control scenes to match the mockup boards ([Pengloo Party - UI Mockups](../Pengloo%20Party%20-%20UI%20Mockups.md), behaviour in [Pengloo Party - UI System and Flows](../Pengloo%20Party%20-%20UI%20System%20and%20Flows.md)). Branch `ui/core` in the game repo. Engine-side brief: [Engine Spec - UI](../Engine%20Specs/Engine%20Spec%20-%20UI.md). Hub: [Art Pipeline](../Art%20Pipeline.md).
 
 Screenshots of every screen are in `Renders/UI/`. Side-by-side comparisons with the mockup panel are in `art/_wip/ui_cmp_<screen>.png`.
 
@@ -89,7 +89,7 @@ Other UI branches register screens with `UIScreens.register("wardrobe", callable
 - **Coins:** fishing awards coins but nothing spends them yet; the badge is kept as a themed chip because it's real gameplay.
 - **Social and voice:** the friend list, voice, block and report need backend services.
 - **Media library:** connection states belong to the cinema UI (activities branch).
-- **Joining colour:** a joining client still gets the host's coat colour, so Net needs to send the preferred colour in `hello()`.
+- **Joining colour:** `hello()` carries the worn look, and the host stores that coat instead of assigning one.
 - **Settings layout:** the "No items here yet" card on the Settings board belongs in inventory, per the note, so it isn't on Settings.
 
 ## Activity, wardrobe, home and casino screens (branch `ui/activities`)
@@ -98,7 +98,7 @@ Built on the core theme, tokens and components. Each screen is a Control script 
 
 | Screens | Script | Wired to real gameplay? |
 | --- | --- | --- |
-| Wardrobe, Color, Outfit Slots, Inventory | `wardrobe/wardrobe.gd`, `wardrobe/inventory.gd`, `outfit.gd`, `components/penguin_view.gd` | Yes. A live rigged preview; Done saves to `user://outfit.cfg` and re-dresses the local penguin. Remote players still see the default outfit until Net carries appearance |
+| Wardrobe, Color, Outfit Slots, Inventory | `wardrobe/wardrobe.gd`, `wardrobe/inventory.gd`, `outfit.gd`, `components/penguin_view.gd` | Yes. Done saves `user://outfit.cfg`, re-dresses the local penguin, and publishes the look. The host keeps it on the roster so other players dress their copy. |
 | Make It Home (home, decorate, blocked, selected and save) | `home/decor_ui.gd` + `home/decor_editor.gd` | Yes. A grid built from the shell's `cells` and `blocked_cells`; quarter turns rotate footprints; move/rotate/colour/remove (back to inventory); undo; Saving/Saved/Save failed. The layout is saved locally in `user://home_<shell>.json`, and validation runs on the client only |
 | Choose Home, Home Visitors | `home/home_select.gd`, `components/model_thumb.gd` | Saved locally. Who-can-decorate is locked to Only me (no server enforcement yet) |
 | Fishing Ready, Bite, Reel, Result | `scripts/fishing_hud.gd` (teammate's logic, restyled) | Yes. Cast and Cast again are now explicit buttons; the escape inset is shown on its own |

@@ -130,10 +130,10 @@ All animation sheets: [Animation Mockups - Gallery](Animation%20Mockups%20-%20Ga
 - [World Kit - Interior Finishing Details](World%20Kit%20-%20Interior%20Finishing%20Details.md)
 - [World Assembly - Completion Checklist](World%20Assembly%20-%20Completion%20Checklist.md)
 
-## Waddle World UI
+## Pengloo Party UI
 
-- [Waddle World - UI Mockups](Waddle%20World%20-%20UI%20Mockups.md)
-- [Waddle World - UI System and Flows](Waddle%20World%20-%20UI%20System%20and%20Flows.md)
+- [Pengloo Party - UI Mockups](Pengloo%20Party%20-%20UI%20Mockups.md)
+- [Pengloo Party - UI System and Flows](Pengloo%20Party%20-%20UI%20System%20and%20Flows.md)
 
 ## Developer implementation guide
 

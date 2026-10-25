@@ -477,7 +477,7 @@ func _ensure_puppet(entry: Dictionary) -> void:
 		_puppets[id] = puppet
 		puppet.visible = false
 		print("Net avatar %s (%s) entered %s" % [str(entry.get("name", "")), id, str(entry.get("location", ""))])
-	puppet.apply_identity(str(entry.get("name", "Penguin")), int(entry.get("color", 0)))
+	puppet.apply_identity(str(entry.get("name", "Penguin")), int(entry.get("color", 0)), entry.get("outfit", {}))
 	if puppet.has_method("apply_fisher"):
 		puppet.apply_fisher(str(entry.get("fisher", "")))
 	if puppet.has_method("apply_act"):

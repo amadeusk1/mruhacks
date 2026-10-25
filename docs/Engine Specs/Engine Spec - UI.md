@@ -1,6 +1,6 @@
 # Engine Spec: UI
 
-**Built in Godot with real Control nodes and editable text. Never ship the raster mockups as menus.** Sources: [Waddle World - UI System and Flows](../Waddle%20World%20-%20UI%20System%20and%20Flows.md), [Waddle World - UI Mockups](../Waddle%20World%20-%20UI%20Mockups.md) and the twelve `UI - …` notes. Those notes already define behaviour, states and known mockup mistakes. This spec adds what the **art pack supplies** for each screen and the hookups the engine must make. Index: [Engine Specs - Index](Engine%20Specs%20-%20Index.md).
+**Built in Godot with real Control nodes and editable text. Never ship the raster mockups as menus.** Sources: [Pengloo Party - UI System and Flows](../Pengloo%20Party%20-%20UI%20System%20and%20Flows.md), [Pengloo Party - UI Mockups](../Pengloo%20Party%20-%20UI%20Mockups.md) and the twelve `UI - …` notes. Those notes already define behaviour, states and known mockup mistakes. This spec adds what the **art pack supplies** for each screen and the hookups the engine must make. Index: [Engine Specs - Index](Engine%20Specs%20-%20Index.md).
 
 ## What the art pack provides for UI
 
@@ -47,4 +47,4 @@ Button (primary teal, secondary, quiet), tab bar, text field with inline error, 
 
 - Every screen in the twelve boards exists as Godot scenes using the shared components.
 - Item cards show the real `icon` thumbnails, and previews use the live penguin.
-- The state and accessibility checklist in [Waddle World - UI System and Flows](../Waddle%20World%20-%20UI%20System%20and%20Flows.md) passes at the real resolution and at enlarged text size.
+- The state and accessibility checklist in [Pengloo Party - UI System and Flows](../Pengloo%20Party%20-%20UI%20System%20and%20Flows.md) passes at the real resolution and at enlarged text size.

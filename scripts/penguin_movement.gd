@@ -56,6 +56,7 @@ var _net_sitting := false
 var _has_net_pose := false
 var _name_label: Label3D
 var _tint_applied := -1
+var _look_sig := ""
 var _overlay := ""  # emote/activity clip playing until the penguin moves
 var _sent_anim := ""  # local: the clip last reported to Net.note_anim
 var _sent_pos := 0.0
@@ -731,7 +732,7 @@ func present_remote(target: Vector3, yaw: float, speed: float, sitting: bool) ->
 	_has_net_pose = true
 
 
-func apply_identity(player_name: String, color_index: int) -> void:
+func apply_identity(player_name: String, color_index: int, outfit: Dictionary = {}) -> void:
 	if _name_label == null:
 		_name_label = Label3D.new()
 		_name_label.name = "NameLabel"
@@ -745,10 +746,19 @@ func apply_identity(player_name: String, color_index: int) -> void:
 		_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		add_child(_name_label)
 	_name_label.text = player_name
-	if _tint_applied == color_index:
+	var look := Outfit.load_look() if _remote_peer == 0 else Outfit.sanitize(outfit)
+	if _remote_peer != 0:
+		look["color"] = posmod(color_index, maxi(Net.COATS.size(), 1))
+	var sig := Outfit.signature(look)
+	if sig == _look_sig:
 		return
-	_tint_applied = color_index
-	var coat := Net.coat_color(color_index) if _remote_peer != 0 else Outfit.coat(Outfit.load_look())
+	_look_sig = sig
+	_tint_applied = int(look["color"])
+	var bird := visual.get_node_or_null("PackAvatar") as Node3D
+	if bird != null:
+		Outfit.dress(bird, look)
+		return
+	var coat := Outfit.coat(look)
 	if AssetPack.recolor_body(visual, coat):
 		return
 	_tint(visual.get_node("Body") as MeshInstance3D, coat)
@@ -1146,12 +1156,10 @@ func _tackle_node() -> Node:
 
 
 func _mount_pack(body: Color) -> void:
-	if _remote_peer != 0:
-		AssetPack.mount_bird(visual, body, "hoodie", "red_beanie", "head")
-		return
-	# Local look comes from the wardrobe (ui/activities/outfit.gd).
+	# Clothes come from apply_identity, which has the replicated look for remotes.
 	AssetPack.mount_bird(visual, body)
-	Outfit.dress(visual.get_node_or_null("PackAvatar") as Node3D, Outfit.load_look())
+	if _remote_peer == 0:
+		Outfit.dress(visual.get_node_or_null("PackAvatar") as Node3D, Outfit.load_look())
 
 
 func _pose_placeholder() -> void:

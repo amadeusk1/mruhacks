@@ -241,6 +241,8 @@ func _tab_for(slot: String) -> String:
 func _done() -> void:
 	Outfit.save_look(_look)
 	Outfit.apply_to_local_player(get_tree(), _look)
+	Net.preferred_color = int(_look.get("color", 0))
+	Net.publish_outfit(_look)
 	closed.emit(true)
 	queue_free()
 

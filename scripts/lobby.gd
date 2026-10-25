@@ -767,12 +767,17 @@ func _load_profile() -> void:
 			if cf.has_section_key("penguin", k):
 				_profile[k] = cf.get_value("penguin", k)
 	_color = int(_profile.get("color", 0))
+	if FileAccess.file_exists(Outfit.PATH):
+		_color = int(Outfit.load_look().get("color", _color))
 	Net.admin_code = str(_profile.get("admin", ""))
 
 
 func _save_profile() -> void:
 	_profile["name"] = player_name()
 	_profile["color"] = _color
+	var look := Outfit.load_look()
+	look["color"] = _color
+	Outfit.save_look(look)
 	var cf := ConfigFile.new()
 	for k in _profile:
 		cf.set_value("penguin", k, _profile[k])

@@ -1,6 +1,6 @@
 # Client, UI, Housing and Assets
 
-[Dev Handoff - Start Here](Dev%20Handoff%20-%20Start%20Here.md) · [Waddle World - UI System and Flows](Waddle%20World%20-%20UI%20System%20and%20Flows.md) · [Waddle World - UI Mockups](Waddle%20World%20-%20UI%20Mockups.md)
+[Dev Handoff - Start Here](Dev%20Handoff%20-%20Start%20Here.md) · [Pengloo Party - UI System and Flows](Pengloo%20Party%20-%20UI%20System%20and%20Flows.md) · [Pengloo Party - UI Mockups](Pengloo%20Party%20-%20UI%20Mockups.md)
 
 ## Client modules — proposed responsibilities
 

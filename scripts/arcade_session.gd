@@ -109,14 +109,14 @@ func _paint() -> void:
 				"name": str(entry.get("name", "")),
 				"status": "At the cabinet",
 				"body": int(entry.get("color", 0)),
-				"outfit": {},
+				"outfit": entry.get("outfit", {}),
 			}
 	var profile := Net.local_profile()
 	rows[clampi(int(_ui.station), 0, 1)] = {
 		"name": str(profile.get("name", "You")),
 		"status": "Ready to play!",
 		"body": int(profile.get("color", 0)),
-		"outfit": {},
+		"outfit": profile.get("outfit", {}),
 	}
 	for i in 2:
 		if str(rows[i].get("name", "")) == "":

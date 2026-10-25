@@ -1,8 +1,8 @@
-# Waddle World - UI Mockups
+# Pengloo Party - UI Mockups
 
-**Waddle World** is the placeholder game name. Simple original UI inspired by the accessibility of classic social worlds: readable controls, restrained panels and a visible world.
+**Pengloo Party** is the game name. Simple original UI inspired by the accessibility of classic social worlds: readable controls, restrained panels and a visible world.
 
-Twelve boards cover 48 primary screen mockups, plus small alternative-state insets. See [Waddle World - UI System and Flows](Waddle%20World%20-%20UI%20System%20and%20Flows.md) for behavior, limitations and shared rules.
+Twelve boards cover 48 primary screen mockups, plus small alternative-state insets. See [Pengloo Party - UI System and Flows](Pengloo%20Party%20-%20UI%20System%20and%20Flows.md) for behavior, limitations and shared rules.
 
 ## Main Menu and Entry
 
