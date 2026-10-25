@@ -894,6 +894,961 @@
   "finish_index": 47,
   "length_m": 34.58
  },
+ "stream": {
+  "points": [
+   [
+    15.4,
+    2.25,
+    -33.15,
+    0.843
+   ],
+   [
+    15.432,
+    0.85,
+    -32.651,
+    1.063
+   ],
+   [
+    15.462,
+    0.85,
+    -32.152,
+    1.318
+   ],
+   [
+    15.489,
+    0.85,
+    -31.653,
+    1.416
+   ],
+   [
+    15.513,
+    0.85,
+    -31.153,
+    1.444
+   ],
+   [
+    15.537,
+    0.85,
+    -30.654,
+    1.413
+   ],
+   [
+    15.559,
+    0.85,
+    -30.154,
+    1.329
+   ],
+   [
+    15.58,
+    0.85,
+    -29.655,
+    1.034
+   ],
+   [
+    15.601,
+    -0.2,
+    -29.155,
+    1.049
+   ],
+   [
+    15.622,
+    -0.2,
+    -28.656,
+    1.288
+   ],
+   [
+    15.643,
+    -0.2,
+    -28.156,
+    1.365
+   ],
+   [
+    15.665,
+    -0.2,
+    -27.657,
+    1.372
+   ],
+   [
+    15.688,
+    -0.2,
+    -27.157,
+    1.314
+   ],
+   [
+    15.712,
+    -0.2,
+    -26.658,
+    1.205
+   ],
+   [
+    15.737,
+    -0.2,
+    -26.158,
+    1.064
+   ],
+   [
+    15.765,
+    -0.2,
+    -25.659,
+    0.877
+   ],
+   [
+    15.796,
+    -0.2,
+    -25.16,
+    0.891
+   ],
+   [
+    15.829,
+    -0.2,
+    -24.661,
+    0.919
+   ],
+   [
+    15.867,
+    -0.2,
+    -24.163,
+    0.947
+   ],
+   [
+    15.91,
+    -0.2,
+    -23.664,
+    0.964
+   ],
+   [
+    15.959,
+    -0.2,
+    -23.167,
+    0.963
+   ],
+   [
+    16.015,
+    -0.2,
+    -22.67,
+    0.949
+   ],
+   [
+    16.081,
+    -0.2,
+    -22.174,
+    0.933
+   ],
+   [
+    16.159,
+    -0.2,
+    -21.68,
+    0.926
+   ],
+   [
+    16.257,
+    -0.2,
+    -21.19,
+    0.939
+   ],
+   [
+    16.389,
+    -0.2,
+    -20.708,
+    0.97
+   ],
+   [
+    16.565,
+    -0.2,
+    -20.241,
+    1.011
+   ],
+   [
+    16.784,
+    -0.2,
+    -19.791,
+    1.047
+   ],
+   [
+    17.042,
+    -0.2,
+    -19.364,
+    1.066
+   ],
+   [
+    17.333,
+    -0.2,
+    -18.957,
+    1.06
+   ],
+   [
+    17.641,
+    -0.2,
+    -18.563,
+    1.032
+   ],
+   [
+    17.944,
+    -0.2,
+    -18.165,
+    0.994
+   ],
+   [
+    18.217,
+    -0.2,
+    -17.747,
+    0.959
+   ],
+   [
+    18.429,
+    -0.2,
+    -17.295,
+    0.939
+   ],
+   [
+    18.557,
+    -0.2,
+    -16.812,
+    0.939
+   ],
+   [
+    18.598,
+    -0.2,
+    -16.314,
+    0.952
+   ],
+   [
+    18.577,
+    -0.2,
+    -15.815,
+    0.968
+   ],
+   [
+    18.509,
+    -0.2,
+    -15.32,
+    0.973
+   ],
+   [
+    18.409,
+    -0.2,
+    -14.83,
+    0.961
+   ],
+   [
+    18.284,
+    -0.2,
+    -14.346,
+    0.933
+   ],
+   [
+    18.14,
+    -0.2,
+    -13.867,
+    0.901
+   ],
+   [
+    17.981,
+    -0.2,
+    -13.393,
+    0.877
+   ],
+   [
+    17.812,
+    -0.2,
+    -12.922,
+    0.873
+   ],
+   [
+    17.636,
+    -0.2,
+    -12.455,
+    0.894
+   ],
+   [
+    17.454,
+    -0.2,
+    -11.989,
+    0.933
+   ],
+   [
+    17.268,
+    -0.2,
+    -11.525,
+    0.978
+   ],
+   [
+    17.082,
+    -0.2,
+    -11.061,
+    1.013
+   ],
+   [
+    16.896,
+    -0.2,
+    -10.597,
+    1.029
+   ],
+   [
+    16.712,
+    -0.2,
+    -10.132,
+    1.024
+   ],
+   [
+    16.532,
+    -0.2,
+    -9.665,
+    1.005
+   ],
+   [
+    16.358,
+    -0.2,
+    -9.197,
+    0.984
+   ],
+   [
+    16.192,
+    -0.2,
+    -8.725,
+    0.975
+   ],
+   [
+    16.035,
+    -0.2,
+    -8.25,
+    0.982
+   ],
+   [
+    15.877,
+    -0.2,
+    -7.776,
+    1.003
+   ],
+   [
+    15.715,
+    -0.2,
+    -7.303,
+    1.025
+   ],
+   [
+    15.552,
+    -0.2,
+    -6.83,
+    1.037
+   ],
+   [
+    15.387,
+    -0.2,
+    -6.358,
+    1.028
+   ],
+   [
+    15.22,
+    -0.2,
+    -5.887,
+    0.997
+   ],
+   [
+    15.054,
+    -0.2,
+    -5.415,
+    0.953
+   ],
+   [
+    14.887,
+    -0.2,
+    -4.944,
+    0.844
+   ],
+   [
+    14.721,
+    -0.34,
+    -4.472,
+    0.826
+   ],
+   [
+    14.557,
+    -0.34,
+    -4.0,
+    0.877
+   ],
+   [
+    14.394,
+    -0.34,
+    -3.527,
+    0.894
+   ],
+   [
+    14.234,
+    -0.34,
+    -3.053,
+    0.923
+   ],
+   [
+    14.077,
+    -0.34,
+    -2.579,
+    0.951
+   ],
+   [
+    13.924,
+    -0.34,
+    -2.103,
+    0.966
+   ],
+   [
+    13.776,
+    -0.34,
+    -1.625,
+    0.964
+   ],
+   [
+    13.633,
+    -0.34,
+    -1.146,
+    0.949
+   ],
+   [
+    13.496,
+    -0.34,
+    -0.665,
+    0.933
+   ],
+   [
+    13.367,
+    -0.34,
+    -0.182,
+    0.929
+   ],
+   [
+    13.248,
+    -0.34,
+    0.304,
+    0.944
+   ],
+   [
+    13.146,
+    -0.34,
+    0.793,
+    0.977
+   ],
+   [
+    13.059,
+    -0.34,
+    1.285,
+    1.018
+   ],
+   [
+    12.985,
+    -0.34,
+    1.78,
+    1.052
+   ],
+   [
+    12.921,
+    -0.34,
+    2.276,
+    1.067
+   ],
+   [
+    12.865,
+    -0.34,
+    2.773,
+    1.057
+   ],
+   [
+    12.814,
+    -0.34,
+    3.27,
+    1.026
+   ],
+   [
+    12.765,
+    -0.34,
+    3.768,
+    0.987
+   ],
+   [
+    12.715,
+    -0.34,
+    4.265,
+    0.953
+   ],
+   [
+    12.661,
+    -0.34,
+    4.762,
+    0.936
+   ],
+   [
+    12.599,
+    -0.34,
+    5.258,
+    0.938
+   ],
+   [
+    12.527,
+    -0.34,
+    5.753,
+    0.952
+   ],
+   [
+    12.44,
+    -0.34,
+    6.245,
+    0.967
+   ],
+   [
+    12.335,
+    -0.34,
+    6.734,
+    0.971
+   ],
+   [
+    12.208,
+    -0.34,
+    7.218,
+    0.956
+   ],
+   [
+    12.057,
+    -0.34,
+    7.694,
+    0.928
+   ],
+   [
+    11.875,
+    -0.34,
+    8.16,
+    0.897
+   ],
+   [
+    11.662,
+    -0.34,
+    8.612,
+    0.876
+   ],
+   [
+    11.421,
+    -0.34,
+    9.05,
+    0.876
+   ],
+   [
+    11.158,
+    -0.34,
+    9.475,
+    0.9
+   ],
+   [
+    10.879,
+    -0.34,
+    9.89,
+    0.942
+   ],
+   [
+    10.589,
+    -0.34,
+    10.297,
+    0.986
+   ],
+   [
+    10.292,
+    -0.34,
+    10.7,
+    1.019
+   ],
+   [
+    9.992,
+    -0.34,
+    11.1,
+    1.032
+   ],
+   [
+    9.694,
+    -0.34,
+    11.501,
+    1.024
+   ],
+   [
+    9.401,
+    -0.34,
+    11.906,
+    1.003
+   ],
+   [
+    9.118,
+    -0.34,
+    12.318,
+    0.983
+   ],
+   [
+    8.85,
+    -0.34,
+    12.74,
+    0.975
+   ],
+   [
+    8.603,
+    -0.34,
+    13.175,
+    0.984
+   ],
+   [
+    8.381,
+    -0.34,
+    13.623,
+    1.005
+   ],
+   [
+    8.193,
+    -0.34,
+    14.086,
+    1.026
+   ],
+   [
+    8.04,
+    -0.34,
+    14.562,
+    0.969
+   ],
+   [
+    7.911,
+    -0.46,
+    15.045,
+    0.967
+   ],
+   [
+    7.801,
+    -0.46,
+    15.533,
+    0.989
+   ],
+   [
+    7.711,
+    -0.46,
+    16.025,
+    0.945
+   ],
+   [
+    7.638,
+    -0.46,
+    16.519,
+    0.903
+   ],
+   [
+    7.581,
+    -0.46,
+    17.016,
+    0.878
+   ],
+   [
+    7.539,
+    -0.46,
+    17.514,
+    0.877
+   ],
+   [
+    7.508,
+    -0.46,
+    18.013,
+    0.897
+   ],
+   [
+    7.487,
+    -0.46,
+    18.513,
+    0.928
+   ],
+   [
+    7.474,
+    -0.46,
+    19.013,
+    0.955
+   ],
+   [
+    7.467,
+    -0.46,
+    19.513,
+    0.968
+   ],
+   [
+    7.465,
+    -0.46,
+    20.013,
+    0.964
+   ],
+   [
+    7.465,
+    -0.46,
+    20.513,
+    0.949
+   ],
+   [
+    7.467,
+    -0.46,
+    21.013,
+    0.935
+   ],
+   [
+    7.469,
+    -0.46,
+    21.513,
+    0.933
+   ],
+   [
+    7.47,
+    -0.46,
+    22.013,
+    0.95
+   ],
+   [
+    7.473,
+    -0.46,
+    22.513,
+    0.985
+   ],
+   [
+    7.483,
+    -0.46,
+    23.012,
+    1.025
+   ],
+   [
+    7.498,
+    -0.46,
+    23.512,
+    1.056
+   ],
+   [
+    7.518,
+    -0.46,
+    24.012,
+    1.067
+   ],
+   [
+    7.542,
+    -0.46,
+    24.511,
+    1.053
+   ],
+   [
+    7.569,
+    -0.46,
+    25.01,
+    1.02
+   ],
+   [
+    7.599,
+    -0.46,
+    25.51,
+    0.98
+   ],
+   [
+    7.63,
+    -0.46,
+    26.009,
+    0.947
+   ],
+   [
+    7.664,
+    -0.46,
+    26.507,
+    0.933
+   ],
+   [
+    7.7,
+    -0.46,
+    27.006,
+    0.937
+   ],
+   [
+    7.736,
+    -0.46,
+    27.505,
+    0.952
+   ],
+   [
+    7.774,
+    -0.46,
+    28.003,
+    0.966
+   ],
+   [
+    7.813,
+    -0.46,
+    28.502,
+    0.968
+   ],
+   [
+    7.853,
+    -0.46,
+    29.0,
+    0.952
+   ],
+   [
+    7.892,
+    -0.46,
+    29.499,
+    0.923
+   ],
+   [
+    7.932,
+    -0.46,
+    29.997,
+    0.893
+   ],
+   [
+    7.972,
+    -0.46,
+    30.496,
+    0.875
+   ],
+   [
+    8.011,
+    -0.46,
+    30.994,
+    0.889
+   ],
+   [
+    8.049,
+    -0.46,
+    31.493,
+    0.953
+   ],
+   [
+    8.086,
+    -0.46,
+    31.991,
+    1.053
+   ],
+   [
+    8.119,
+    -0.46,
+    32.49,
+    1.17
+   ],
+   [
+    8.151,
+    -0.46,
+    32.989,
+    1.281
+   ],
+   [
+    8.183,
+    -0.46,
+    33.488,
+    1.373
+   ],
+   [
+    8.215,
+    -0.46,
+    33.987,
+    1.439
+   ],
+   [
+    8.247,
+    -0.46,
+    34.486,
+    1.482
+   ],
+   [
+    8.279,
+    -0.46,
+    34.985,
+    1.51
+   ],
+   [
+    8.312,
+    -0.46,
+    35.484,
+    1.526
+   ],
+   [
+    8.344,
+    -0.46,
+    35.983,
+    1.538
+   ],
+   [
+    8.377,
+    -0.46,
+    36.482,
+    1.559
+   ],
+   [
+    8.41,
+    -0.46,
+    36.981,
+    1.578
+   ],
+   [
+    8.442,
+    -0.46,
+    37.48,
+    1.584
+   ]
+  ],
+  "falls": [
+   {
+    "kind": "falls",
+    "base": [
+     15.45,
+     0.85,
+     -32.354
+    ],
+    "top": 2.25,
+    "drop": 1.4,
+    "half_width": 0.863,
+    "dir": [
+     0.0569,
+     0.9984
+    ]
+   },
+   {
+    "kind": "falls",
+    "base": [
+     15.611,
+     -0.2,
+     -28.919
+    ],
+    "top": 0.85,
+    "drop": 1.05,
+    "half_width": 0.906,
+    "dir": [
+     0.0417,
+     0.9991
+    ]
+   },
+   {
+    "kind": "weir",
+    "base": [
+     14.622,
+     -0.34,
+     -4.189
+    ],
+    "top": -0.2,
+    "drop": 0.14,
+    "half_width": 0.763,
+    "dir": [
+     -0.3289,
+     0.9444
+    ]
+   },
+   {
+    "kind": "weir",
+    "base": [
+     7.843,
+     -0.46,
+     15.337
+    ],
+    "top": -0.34,
+    "drop": 0.12,
+    "half_width": 0.893,
+    "dir": [
+     -0.2149,
+     0.9766
+    ]
+   }
+  ],
+  "sea_level": -0.5
+ },
  "placements": [
   {
    "id": "plaza/small_fountain",
@@ -1517,7 +2472,7 @@
    "id": "plaza/string_lights",
    "pos": [
     -10.1,
-    2.4,
+    0.0,
     -0.0
    ],
    "rot_y_deg": 90.0,
@@ -1525,6 +2480,38 @@
    "tints": {},
    "tags": [
     "light"
+   ],
+   "zone": "plaza"
+  },
+  {
+   "id": "plaza/string_light_pole",
+   "pos": [
+    -10.1,
+    0.0,
+    2.0
+   ],
+   "rot_y_deg": 90.0,
+   "scale": 1.0,
+   "tints": {},
+   "tags": [
+    "light",
+    "blocker"
+   ],
+   "zone": "plaza"
+  },
+  {
+   "id": "plaza/string_light_pole",
+   "pos": [
+    -10.1,
+    0.0,
+    -2.0
+   ],
+   "rot_y_deg": 90.0,
+   "scale": 1.0,
+   "tints": {},
+   "tags": [
+    "light",
+    "blocker"
    ],
    "zone": "plaza"
   },
@@ -1532,7 +2519,7 @@
    "id": "plaza/string_lights",
    "pos": [
     10.1,
-    2.4,
+    0.0,
     -0.0
    ],
    "rot_y_deg": 90.0,
@@ -1544,10 +2531,42 @@
    "zone": "plaza"
   },
   {
+   "id": "plaza/string_light_pole",
+   "pos": [
+    10.1,
+    0.0,
+    2.0
+   ],
+   "rot_y_deg": 90.0,
+   "scale": 1.0,
+   "tints": {},
+   "tags": [
+    "light",
+    "blocker"
+   ],
+   "zone": "plaza"
+  },
+  {
+   "id": "plaza/string_light_pole",
+   "pos": [
+    10.1,
+    0.0,
+    -2.0
+   ],
+   "rot_y_deg": 90.0,
+   "scale": 1.0,
+   "tints": {},
+   "tags": [
+    "light",
+    "blocker"
+   ],
+   "zone": "plaza"
+  },
+  {
    "id": "plaza/string_lights",
    "pos": [
     0.0,
-    2.4,
+    0.0,
     10.1
    ],
    "rot_y_deg": 0.0,
@@ -1555,6 +2574,38 @@
    "tints": {},
    "tags": [
     "light"
+   ],
+   "zone": "plaza"
+  },
+  {
+   "id": "plaza/string_light_pole",
+   "pos": [
+    -2.0,
+    0.0,
+    10.1
+   ],
+   "rot_y_deg": 0.0,
+   "scale": 1.0,
+   "tints": {},
+   "tags": [
+    "light",
+    "blocker"
+   ],
+   "zone": "plaza"
+  },
+  {
+   "id": "plaza/string_light_pole",
+   "pos": [
+    2.0,
+    0.0,
+    10.1
+   ],
+   "rot_y_deg": 0.0,
+   "scale": 1.0,
+   "tints": {},
+   "tags": [
+    "light",
+    "blocker"
    ],
    "zone": "plaza"
   },
@@ -1958,8 +3009,8 @@
   {
    "id": "plaza/string_lights",
    "pos": [
-    -2.2,
-    2.4,
+    0.0,
+    0.0,
     -19.3
    ],
    "rot_y_deg": 0.0,
@@ -1971,17 +3022,34 @@
    "zone": "cinema"
   },
   {
-   "id": "plaza/string_lights",
+   "id": "plaza/string_light_pole",
    "pos": [
-    2.2,
-    2.4,
+    -2.0,
+    0.0,
     -19.3
    ],
    "rot_y_deg": 0.0,
    "scale": 1.0,
    "tints": {},
    "tags": [
-    "light"
+    "light",
+    "blocker"
+   ],
+   "zone": "cinema"
+  },
+  {
+   "id": "plaza/string_light_pole",
+   "pos": [
+    2.0,
+    0.0,
+    -19.3
+   ],
+   "rot_y_deg": 0.0,
+   "scale": 1.0,
+   "tints": {},
+   "tags": [
+    "light",
+    "blocker"
    ],
    "zone": "cinema"
   },
@@ -3684,43 +4752,251 @@
    "zone": "homes"
   },
   {
-   "id": "world_misc/waterfall_step",
+   "id": "winter/rock_cluster_snow_large",
    "pos": [
-    15.4,
-    0.15,
-    -30.55
+    15.35,
+    2.362,
+    -34.45
    ],
-   "rot_y_deg": 0.0,
-   "scale": 1.0,
+   "rot_y_deg": -160.0,
+   "scale": 1.15,
    "tints": {},
    "tags": [
-    "prop"
+    "rock",
+    "coast",
+    "blocker"
    ],
    "zone": "stream"
   },
   {
-   "id": "world_misc/waterfall_step",
+   "id": "nature_dock/rock_cluster_snow",
    "pos": [
-    7.775,
-    -0.6,
-    26.6
+    13.75,
+    2.5,
+    -34.1
    ],
-   "rot_y_deg": 0.0,
-   "scale": 1.0,
+   "rot_y_deg": 70.0,
+   "scale": 0.95,
    "tints": {},
    "tags": [
-    "prop"
+    "rock",
+    "coast",
+    "blocker"
    ],
    "zone": "stream"
   },
   {
-   "id": "town_connections/stream_end",
+   "id": "winter/rock_cluster_snow_small",
    "pos": [
-    15.4,
-    0.0,
-    -33.75
+    17.15,
+    2.6,
+    -34.25
    ],
-   "rot_y_deg": 0.0,
+   "rot_y_deg": 140.0,
+   "scale": 1.0,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "town_connections/cliff_straight_2m",
+   "pos": [
+    13.544,
+    0.5,
+    -32.976
+   ],
+   "rot_y_deg": 7.61,
+   "scale": 1.0,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "town_connections/snow_overlay_cliff_straight",
+   "pos": [
+    13.544,
+    2.6,
+    -32.976
+   ],
+   "rot_y_deg": 7.61,
+   "scale": 1.0,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "town_connections/cliff_straight_2m",
+   "pos": [
+    17.263,
+    0.5,
+    -33.224
+   ],
+   "rot_y_deg": -0.39,
+   "scale": 1.0,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "town_connections/snow_overlay_cliff_straight",
+   "pos": [
+    17.263,
+    2.6,
+    -33.224
+   ],
+   "rot_y_deg": -0.39,
+   "scale": 1.0,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "nature_dock/rock_small_b_snow",
+   "pos": [
+    16.987,
+    0.856,
+    -32.035
+   ],
+   "rot_y_deg": 33.12,
+   "scale": 0.9,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "nature_dock/rock_cluster_snow",
+   "pos": [
+    13.761,
+    0.949,
+    -30.673
+   ],
+   "rot_y_deg": 162.59,
+   "scale": 0.8,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "winter/rock_cluster_snow_small",
+   "pos": [
+    17.012,
+    0.814,
+    -30.117
+   ],
+   "rot_y_deg": -107.52,
+   "scale": 1.0,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "town_connections/cliff_straight_1m",
+   "pos": [
+    13.68,
+    -0.5,
+    -29.475
+   ],
+   "rot_y_deg": 6.39,
+   "scale": 1.0,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "town_connections/cliff_straight_1m",
+   "pos": [
+    17.489,
+    -0.5,
+    -29.635
+   ],
+   "rot_y_deg": -1.61,
+   "scale": 1.0,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "nature_dock/rock_cluster_snow",
+   "pos": [
+    13.98,
+    -0.142,
+    -28.085
+   ],
+   "rot_y_deg": 42.45,
+   "scale": 0.9,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "nature_dock/rock_small_a_snow",
+   "pos": [
+    17.121,
+    -0.193,
+    -27.024
+   ],
+   "rot_y_deg": 122.7,
+   "scale": 1.0,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "nature_dock/pebble_cluster_snow",
+   "pos": [
+    14.54,
+    -0.219,
+    -26.195
+   ],
+   "rot_y_deg": -156.97,
    "scale": 1.0,
    "tints": {},
    "tags": [
@@ -3730,11 +5006,721 @@
    "zone": "stream"
   },
   {
+   "id": "winter/snowbank_small",
+   "pos": [
+    17.546,
+    -0.05,
+    -25.662
+   ],
+   "rot_y_deg": 93.32,
+   "scale": 1.0,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "nature_dock/rock_small_b_snow",
+   "pos": [
+    15.651,
+    -0.175,
+    -19.274
+   ],
+   "rot_y_deg": 49.14,
+   "scale": 0.9,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "nature_dock/rock_cluster_snow",
+   "pos": [
+    16.672,
+    -0.174,
+    -17.801
+   ],
+   "rot_y_deg": 148.19,
+   "scale": 0.85,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "nature_dock/rock_small_a_snow",
+   "pos": [
+    17.372,
+    -0.173,
+    -16.869
+   ],
+   "rot_y_deg": -43.1,
+   "scale": 1.0,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "winter/rock_cluster_snow_small",
+   "pos": [
+    17.38,
+    -0.174,
+    -15.685
+   ],
+   "rot_y_deg": 36.76,
+   "scale": 1.0,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "nature_dock/rock_cluster",
+   "pos": [
+    18.656,
+    -0.12,
+    -12.061
+   ],
+   "rot_y_deg": -6.12,
+   "scale": 0.8,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "nature_dock/rock_small_b",
+   "pos": [
+    15.956,
+    -0.166,
+    -11.514
+   ],
+   "rot_y_deg": 178.06,
+   "scale": 0.8,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "nature_dock/pebble_cluster_snow",
+   "pos": [
+    17.619,
+    -0.174,
+    -9.148
+   ],
+   "rot_y_deg": 59.33,
+   "scale": 1.0,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "nature_dock/rock_cluster_snow",
+   "pos": [
+    14.736,
+    -0.12,
+    -8.159
+   ],
+   "rot_y_deg": -118.56,
+   "scale": 0.8,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "nature_dock/rock_small_a",
+   "pos": [
+    16.43,
+    -0.174,
+    -5.672
+   ],
+   "rot_y_deg": 120.59,
+   "scale": 0.9,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "winter/snowbank_medium",
+   "pos": [
+    15.199,
+    -0.05,
+    -12.461
+   ],
+   "rot_y_deg": 68.18,
+   "scale": 1.0,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "winter/snow_puff",
+   "pos": [
+    18.125,
+    -0.03,
+    -8.268
+   ],
+   "rot_y_deg": -19.07,
+   "scale": 1.0,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "nature_dock/rock_small_b",
+   "pos": [
+    15.387,
+    -0.54,
+    -4.186
+   ],
+   "rot_y_deg": -19.3,
+   "scale": 0.8,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "nature_dock/rock_small_a",
+   "pos": [
+    14.96,
+    -0.54,
+    -4.335
+   ],
+   "rot_y_deg": 50.7,
+   "scale": 0.65,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "nature_dock/rock_small_b",
+   "pos": [
+    14.517,
+    -0.54,
+    -4.49
+   ],
+   "rot_y_deg": 120.7,
+   "scale": 0.7,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "nature_dock/rock_small_a",
+   "pos": [
+    14.074,
+    -0.54,
+    -4.646
+   ],
+   "rot_y_deg": -169.3,
+   "scale": 0.85,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "nature_dock/rock_cluster",
+   "pos": [
+    13.834,
+    -0.145,
+    -5.209
+   ],
+   "rot_y_deg": 10.58,
+   "scale": 0.85,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "nature_dock/rock_cluster_snow",
+   "pos": [
+    15.833,
+    -0.144,
+    -4.399
+   ],
+   "rot_y_deg": -179.37,
+   "scale": 0.8,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "nature_dock/rock_small_b",
+   "pos": [
+    11.582,
+    -0.314,
+    3.752
+   ],
+   "rot_y_deg": 54.38,
+   "scale": 0.8,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "nature_dock/rock_small_a_snow",
+   "pos": [
+    13.878,
+    -0.314,
+    4.285
+   ],
+   "rot_y_deg": -145.93,
+   "scale": 0.8,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "nature_dock/rock_cluster_snow",
+   "pos": [
+    13.651,
+    -0.313,
+    6.036
+   ],
+   "rot_y_deg": 0.83,
+   "scale": 0.75,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "nature_dock/pebble_cluster_snow",
+   "pos": [
+    11.074,
+    -0.313,
+    6.995
+   ],
+   "rot_y_deg": 113.94,
+   "scale": 1.0,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "nature_dock/rock_small_b",
+   "pos": [
+    8.719,
+    -0.66,
+    15.291
+   ],
+   "rot_y_deg": -13.52,
+   "scale": 0.8,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "nature_dock/rock_small_a",
+   "pos": [
+    8.207,
+    -0.66,
+    15.168
+   ],
+   "rot_y_deg": 56.48,
+   "scale": 0.65,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "nature_dock/rock_small_b",
+   "pos": [
+    7.673,
+    -0.66,
+    15.039
+   ],
+   "rot_y_deg": 126.48,
+   "scale": 0.7,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "nature_dock/rock_small_a",
+   "pos": [
+    7.14,
+    -0.66,
+    14.911
+   ],
+   "rot_y_deg": -163.52,
+   "scale": 0.85,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "nature_dock/rock_cluster",
+   "pos": [
+    6.847,
+    -0.295,
+    14.327
+   ],
+   "rot_y_deg": -75.84,
+   "scale": 0.8,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "nature_dock/rock_small_b_snow",
+   "pos": [
+    9.165,
+    -0.314,
+    14.881
+   ],
+   "rot_y_deg": 24.16,
+   "scale": 0.9,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "nature_dock/rock_cluster_snow",
+   "pos": [
+    8.654,
+    -0.433,
+    17.124
+   ],
+   "rot_y_deg": 14.24,
+   "scale": 0.85,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "nature_dock/rock_small_a",
+   "pos": [
+    6.299,
+    -0.434,
+    19.502
+   ],
+   "rot_y_deg": 99.46,
+   "scale": 0.9,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "nature_dock/rock_small_b_snow",
+   "pos": [
+    8.599,
+    -0.433,
+    21.208
+   ],
+   "rot_y_deg": -109.76,
+   "scale": 0.9,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "nature_dock/rock_cluster_snow",
+   "pos": [
+    6.258,
+    -0.434,
+    23.041
+   ],
+   "rot_y_deg": 171.34,
+   "scale": 0.8,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "nature_dock/pebble_cluster_snow",
+   "pos": [
+    8.787,
+    -0.434,
+    24.942
+   ],
+   "rot_y_deg": 63.23,
+   "scale": 1.0,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "nature_dock/rock_small_b",
+   "pos": [
+    6.566,
+    -0.433,
+    27.088
+   ],
+   "rot_y_deg": -45.88,
+   "scale": 0.8,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "nature_dock/rock_cluster",
+   "pos": [
+    9.001,
+    -0.433,
+    28.909
+   ],
+   "rot_y_deg": 144.56,
+   "scale": 0.85,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "nature_dock/rock_small_a_snow",
+   "pos": [
+    6.926,
+    -0.433,
+    31.079
+   ],
+   "rot_y_deg": 24.47,
+   "scale": 0.9,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "winter/snowbank_small",
+   "pos": [
+    9.617,
+    -0.05,
+    20.407
+   ],
+   "rot_y_deg": 90.16,
+   "scale": 1.0,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "winter/snowbank_medium",
+   "pos": [
+    5.288,
+    -0.05,
+    26.164
+   ],
+   "rot_y_deg": 93.8,
+   "scale": 1.0,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "winter/rock_cluster_snow_large",
+   "pos": [
+    6.405,
+    -0.8,
+    33.702
+   ],
+   "rot_y_deg": 55.2,
+   "scale": 1.3,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "nature_dock/rock_cluster_snow",
+   "pos": [
+    10.166,
+    -0.8,
+    33.962
+   ],
+   "rot_y_deg": 73.7,
+   "scale": 1.45,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "winter/rock_cluster_snow_large",
+   "pos": [
+    6.578,
+    -0.8,
+    35.296
+   ],
+   "rot_y_deg": 114.4,
+   "scale": 1.6,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "nature_dock/rock_cluster_snow",
+   "pos": [
+    9.993,
+    -0.8,
+    35.474
+   ],
+   "rot_y_deg": 129.2,
+   "scale": 1.5,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
    "id": "world_misc/footbridge",
    "pos": [
-    13.288,
+    13.267,
     -0.23,
-    0.22
+    0.219
    ],
    "rot_y_deg": -3.01,
    "scale": 1.0,
@@ -3749,9 +5735,9 @@
   {
    "id": "world_misc/footbridge",
    "pos": [
-    10.426,
+    10.452,
     -0.23,
-    10.465
+    10.485
    ],
    "rot_y_deg": -37.69,
    "scale": 1.0,
@@ -3766,7 +5752,7 @@
   {
    "id": "world_misc/footbridge",
    "pos": [
-    16.111,
+    16.006,
     -0.23,
     -22.75
    ],
@@ -3781,1015 +5767,13 @@
    "name": "Bridge"
   },
   {
-   "id": "nature_dock/rock_cluster_snow",
-   "pos": [
-    13.8,
-    0.994,
-    -34.4
-   ],
-   "rot_y_deg": 20.0,
-   "scale": 0.8,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_small_a_snow",
-   "pos": [
-    17.1,
-    0.7,
-    -33.2
-   ],
-   "rot_y_deg": 140.0,
-   "scale": 1.0,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_small_b_snow",
-   "pos": [
-    14.65,
-    -0.549,
-    -25.0
-   ],
-   "rot_y_deg": 60.0,
-   "scale": 0.9,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_small_a_snow",
-   "pos": [
-    17.55,
-    -0.263,
-    -24.9
-   ],
-   "rot_y_deg": -160.0,
-   "scale": 0.9,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_small_b_snow",
-   "pos": [
-    14.85,
-    -0.237,
-    -20.4
-   ],
-   "rot_y_deg": -60.0,
-   "scale": 0.8,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "winter/rock_cluster_snow_small",
-   "pos": [
-    17.75,
-    -0.829,
-    -20.5
-   ],
-   "rot_y_deg": 10.0,
-   "scale": 1.0,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_cluster_snow",
-   "pos": [
-    20.15,
-    -0.331,
-    -16.5
-   ],
-   "rot_y_deg": 110.0,
-   "scale": 0.85,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_small_a_snow",
-   "pos": [
-    19.8,
-    -0.221,
-    -17.7
-   ],
-   "rot_y_deg": 30.0,
-   "scale": 0.9,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_small_b_snow",
-   "pos": [
-    20.0,
-    -0.231,
-    -15.1
-   ],
-   "rot_y_deg": -110.0,
-   "scale": 0.8,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "winter/rock_cluster_snow_small",
-   "pos": [
-    14.5,
-    -0.12,
-    -8.9
-   ],
-   "rot_y_deg": 70.0,
-   "scale": 1.0,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_small_a_snow",
-   "pos": [
-    14.65,
-    -0.12,
-    -7.7
-   ],
-   "rot_y_deg": -170.0,
-   "scale": 0.8,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/pebble_cluster_snow",
-   "pos": [
-    14.9,
-    -1.17,
-    -6.6
-   ],
-   "rot_y_deg": 160.0,
-   "scale": 0.9,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_small_a_snow",
-   "pos": [
-    12.65,
-    -0.557,
-    -2.3
-   ],
-   "rot_y_deg": 30.0,
-   "scale": 0.8,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_small_b_snow",
-   "pos": [
-    15.45,
-    -0.495,
-    -2.0
-   ],
-   "rot_y_deg": 160.0,
-   "scale": 0.8,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "winter/rock_cluster_snow_small",
-   "pos": [
-    11.5,
-    -0.566,
-    2.7
-   ],
-   "rot_y_deg": -140.0,
-   "scale": 0.9,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_small_b_snow",
-   "pos": [
-    14.35,
-    -0.345,
-    2.4
-   ],
-   "rot_y_deg": 80.0,
-   "scale": 0.8,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_small_a_snow",
-   "pos": [
-    12.92,
-    -0.509,
-    9.04
-   ],
-   "rot_y_deg": 120.0,
-   "scale": 0.8,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_small_b_snow",
-   "pos": [
-    10.52,
-    -0.317,
-    7.6
-   ],
-   "rot_y_deg": 10.0,
-   "scale": 0.8,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "winter/rock_cluster_snow_small",
-   "pos": [
-    10.34,
-    -0.312,
-    13.32
-   ],
-   "rot_y_deg": -60.0,
-   "scale": 1.0,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_small_a_snow",
-   "pos": [
-    7.94,
-    -0.511,
-    11.88
-   ],
-   "rot_y_deg": 75.0,
-   "scale": 0.8,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_cluster_snow",
-   "pos": [
-    6.3,
-    -0.277,
-    16.6
-   ],
-   "rot_y_deg": 40.0,
-   "scale": 0.8,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_small_b_snow",
-   "pos": [
-    6.0,
-    -0.12,
-    15.4
-   ],
-   "rot_y_deg": -180.0,
-   "scale": 0.8,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_cluster",
-   "pos": [
-    13.96,
-    0.439,
-    -32.25
-   ],
-   "rot_y_deg": 0.0,
-   "scale": 0.9,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_small_b",
-   "pos": [
-    17.07,
-    0.314,
-    -30.76
-   ],
-   "rot_y_deg": 47.0,
-   "scale": 0.7,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_small_a",
-   "pos": [
-    14.07,
-    0.449,
-    -30.55
-   ],
-   "rot_y_deg": 47.0,
-   "scale": 0.7,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_cluster",
-   "pos": [
-    17.18,
-    0.065,
-    -29.06
-   ],
-   "rot_y_deg": 94.0,
-   "scale": 0.8,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_small_b",
-   "pos": [
-    14.19,
-    0.24,
-    -28.86
-   ],
-   "rot_y_deg": 94.0,
-   "scale": 0.8,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_small_a",
-   "pos": [
-    17.3,
-    -0.277,
-    -27.37
-   ],
-   "rot_y_deg": 141.0,
-   "scale": 0.9,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_cluster",
-   "pos": [
-    14.31,
-    -0.181,
-    -27.16
-   ],
-   "rot_y_deg": 141.0,
-   "scale": 0.9,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_small_b",
-   "pos": [
-    18.61,
-    -0.432,
-    -19.81
-   ],
-   "rot_y_deg": 47.0,
-   "scale": 0.7,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_small_a",
-   "pos": [
-    15.89,
-    -0.436,
-    -18.55
-   ],
-   "rot_y_deg": 47.0,
-   "scale": 0.7,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_small_b",
-   "pos": [
-    16.6,
-    -0.436,
-    -17.01
-   ],
-   "rot_y_deg": 94.0,
-   "scale": 0.8,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_cluster",
-   "pos": [
-    16.93,
-    -0.434,
-    -15.95
-   ],
-   "rot_y_deg": 0.0,
-   "scale": 0.9,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_small_b",
-   "pos": [
-    19.27,
-    -0.401,
-    -13.41
-   ],
-   "rot_y_deg": 47.0,
-   "scale": 0.7,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_small_a",
-   "pos": [
-    16.41,
-    -0.433,
-    -14.33
-   ],
-   "rot_y_deg": 47.0,
-   "scale": 0.7,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_cluster",
-   "pos": [
-    18.75,
-    -0.15,
-    -11.79
-   ],
-   "rot_y_deg": 94.0,
-   "scale": 0.8,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_small_b",
-   "pos": [
-    15.89,
-    -0.368,
-    -12.71
-   ],
-   "rot_y_deg": 94.0,
-   "scale": 0.8,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_small_a",
-   "pos": [
-    18.23,
-    -0.236,
-    -10.17
-   ],
-   "rot_y_deg": 141.0,
-   "scale": 0.9,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_cluster",
-   "pos": [
-    15.37,
-    -0.172,
-    -11.09
-   ],
-   "rot_y_deg": 141.0,
-   "scale": 0.9,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_small_b",
-   "pos": [
-    17.71,
-    -0.421,
-    -8.55
-   ],
-   "rot_y_deg": -172.0,
-   "scale": 0.7,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_small_a",
-   "pos": [
-    17.28,
-    -0.428,
-    -7.22
-   ],
-   "rot_y_deg": 0.0,
-   "scale": 0.9,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_small_b",
-   "pos": [
-    16.75,
-    -0.429,
-    -5.61
-   ],
-   "rot_y_deg": 47.0,
-   "scale": 0.7,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_cluster",
-   "pos": [
-    10.88,
-    -0.437,
-    5.57
-   ],
-   "rot_y_deg": 141.0,
-   "scale": 0.9,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_small_a",
-   "pos": [
-    9.55,
-    -0.437,
-    15.22
-   ],
-   "rot_y_deg": 0.0,
-   "scale": 0.9,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_small_b",
-   "pos": [
-    9.41,
-    -0.435,
-    16.92
-   ],
-   "rot_y_deg": 47.0,
-   "scale": 0.7,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_cluster",
-   "pos": [
-    9.27,
-    -0.434,
-    18.61
-   ],
-   "rot_y_deg": 94.0,
-   "scale": 0.8,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_small_b",
-   "pos": [
-    6.28,
-    -0.431,
-    18.36
-   ],
-   "rot_y_deg": 94.0,
-   "scale": 0.8,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_small_a",
-   "pos": [
-    9.13,
-    -0.433,
-    20.3
-   ],
-   "rot_y_deg": 141.0,
-   "scale": 0.9,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_cluster",
-   "pos": [
-    6.14,
-    -0.433,
-    20.06
-   ],
-   "rot_y_deg": 141.0,
-   "scale": 0.9,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_small_a",
-   "pos": [
-    9.02,
-    -0.435,
-    22.8
-   ],
-   "rot_y_deg": 0.0,
-   "scale": 0.9,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_cluster",
-   "pos": [
-    6.03,
-    -0.435,
-    22.99
-   ],
-   "rot_y_deg": 0.0,
-   "scale": 0.9,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_small_b",
-   "pos": [
-    9.13,
-    -0.431,
-    24.5
-   ],
-   "rot_y_deg": 47.0,
-   "scale": 0.7,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_small_a",
-   "pos": [
-    6.13,
-    -0.429,
-    24.69
-   ],
-   "rot_y_deg": 47.0,
-   "scale": 0.7,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_cluster",
-   "pos": [
-    9.23,
-    -0.437,
-    26.2
-   ],
-   "rot_y_deg": 94.0,
-   "scale": 0.8,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_small_b",
-   "pos": [
-    6.24,
-    -0.433,
-    26.39
-   ],
-   "rot_y_deg": 94.0,
-   "scale": 0.8,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_small_a",
-   "pos": [
-    9.34,
-    -0.433,
-    27.89
-   ],
-   "rot_y_deg": 141.0,
-   "scale": 0.9,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_small_b",
-   "pos": [
-    9.45,
-    -0.429,
-    29.59
-   ],
-   "rot_y_deg": -172.0,
-   "scale": 0.7,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_cluster",
-   "pos": [
-    9.55,
-    -0.435,
-    31.29
-   ],
-   "rot_y_deg": -125.0,
-   "scale": 0.8,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "nature_dock/rock_small_b",
-   "pos": [
-    6.56,
-    -0.435,
-    31.48
-   ],
-   "rot_y_deg": -125.0,
-   "scale": 0.8,
-   "tints": {},
-   "tags": [
-    "rock",
-    "coast",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
    "id": "town_connections/rail_segment",
    "pos": [
-    13.142,
+    13.008,
     0.0,
-    -7.433
+    -5.167
    ],
-   "rot_y_deg": -107.69,
+   "rot_y_deg": -109.0,
    "scale": 1.0,
    "tints": {},
    "tags": [
@@ -4801,27 +5785,11 @@
   {
    "id": "town_connections/rail_segment",
    "pos": [
-    12.525,
+    12.411,
     0.0,
-    -5.5
+    -3.434
    ],
-   "rot_y_deg": -107.69,
-   "scale": 1.0,
-   "tints": {},
-   "tags": [
-    "prop",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "town_connections/rail_segment",
-   "pos": [
-    11.908,
-    0.0,
-    -3.567
-   ],
-   "rot_y_deg": -107.69,
+   "rot_y_deg": -109.0,
    "scale": 1.0,
    "tints": {},
    "tags": [
@@ -4833,9 +5801,9 @@
   {
    "id": "town_connections/rail_end_post",
    "pos": [
-    13.45,
+    13.306,
     0.0,
-    -8.4
+    -6.033
    ],
    "rot_y_deg": 0.0,
    "scale": 1.0,
@@ -4849,9 +5817,9 @@
   {
    "id": "town_connections/rail_end_post",
    "pos": [
-    11.6,
+    12.113,
     0.0,
-    -2.6
+    -2.568
    ],
    "rot_y_deg": 0.0,
    "scale": 1.0,
@@ -4865,11 +5833,27 @@
   {
    "id": "town_connections/rail_segment",
    "pos": [
-    17.125,
+    16.519,
     0.0,
-    -3.55
+    -3.96
    ],
-   "rot_y_deg": -101.51,
+   "rot_y_deg": -108.57,
+   "scale": 1.0,
+   "tints": {},
+   "tags": [
+    "prop",
+    "blocker"
+   ],
+   "zone": "stream"
+  },
+  {
+   "id": "town_connections/rail_segment",
+   "pos": [
+    15.956,
+    0.0,
+    -2.284
+   ],
+   "rot_y_deg": -108.57,
    "scale": 1.0,
    "tints": {},
    "tags": [
@@ -4881,9 +5865,9 @@
   {
    "id": "town_connections/rail_end_post",
    "pos": [
-    17.4,
+    16.801,
     0.0,
-    -4.9
+    -4.797
    ],
    "rot_y_deg": 0.0,
    "scale": 1.0,
@@ -4897,9 +5881,9 @@
   {
    "id": "town_connections/rail_end_post",
    "pos": [
-    16.85,
+    15.675,
     0.0,
-    -2.2
+    -1.447
    ],
    "rot_y_deg": 0.0,
    "scale": 1.0,
@@ -4913,11 +5897,11 @@
   {
    "id": "town_connections/rail_segment",
    "pos": [
-    9.9,
+    10.842,
     0.0,
-    4.25
+    3.77
    ],
-   "rot_y_deg": -98.43,
+   "rot_y_deg": -93.77,
    "scale": 1.0,
    "tints": {},
    "tags": [
@@ -4929,9 +5913,9 @@
   {
    "id": "town_connections/rail_end_post",
    "pos": [
-    10.1,
+    10.935,
     0.0,
-    2.9
+    2.352
    ],
    "rot_y_deg": 0.0,
    "scale": 1.0,
@@ -4945,9 +5929,9 @@
   {
    "id": "town_connections/rail_end_post",
    "pos": [
-    9.7,
+    10.749,
     0.0,
-    5.6
+    5.188
    ],
    "rot_y_deg": 0.0,
    "scale": 1.0,
@@ -4961,27 +5945,11 @@
   {
    "id": "town_connections/rail_segment",
    "pos": [
-    15.287,
+    14.616,
     0.0,
-    4.1
+    4.26
    ],
-   "rot_y_deg": -98.0,
-   "scale": 1.0,
-   "tints": {},
-   "tags": [
-    "prop",
-    "blocker"
-   ],
-   "zone": "stream"
-  },
-  {
-   "id": "town_connections/rail_segment",
-   "pos": [
-    15.062,
-    0.0,
-    5.7
-   ],
-   "rot_y_deg": -98.0,
+   "rot_y_deg": -98.61,
    "scale": 1.0,
    "tints": {},
    "tags": [
@@ -4993,9 +5961,9 @@
   {
    "id": "town_connections/rail_end_post",
    "pos": [
-    15.4,
+    14.838,
     0.0,
-    3.3
+    2.795
    ],
    "rot_y_deg": 0.0,
    "scale": 1.0,
@@ -5009,9 +5977,9 @@
   {
    "id": "town_connections/rail_end_post",
    "pos": [
-    14.95,
+    14.395,
     0.0,
-    6.5
+    5.725
    ],
    "rot_y_deg": 0.0,
    "scale": 1.0,
@@ -5467,7 +6435,7 @@
     0.07,
     22.5
    ],
-   "rot_y_deg": 90.0,
+   "rot_y_deg": -90.0,
    "scale": 1.0,
    "tints": {},
    "tags": [
@@ -5670,7 +6638,7 @@
    "id": "fishing/rowboat",
    "pos": [
     -18.6,
-    -0.5,
+    0.0,
     17.6
    ],
    "rot_y_deg": 5.0,
@@ -5902,11 +6870,11 @@
   {
    "id": "homes/houseboat_exterior",
    "pos": [
-    -14.5,
-    -0.48,
-    27.4
+    -19.0,
+    0.0,
+    30.4
    ],
-   "rot_y_deg": -180.0,
+   "rot_y_deg": -164.0,
    "scale": 1.0,
    "tints": {},
    "tags": [
@@ -5917,27 +6885,10 @@
    "name": "Houseboat"
   },
   {
-   "id": "nature_dock/dock_straight",
-   "pos": [
-    -14.0,
-    0.07,
-    24.0
-   ],
-   "rot_y_deg": 0.0,
-   "scale": 1.0,
-   "tints": {},
-   "tags": [
-    "prop",
-    "walkable"
-   ],
-   "zone": "dock",
-   "name": "Gangway"
-  },
-  {
    "id": "fishing/rowboat",
    "pos": [
     -9.4,
-    -0.5,
+    0.0,
     20.4
    ],
    "rot_y_deg": 75.0,
@@ -5951,9 +6902,9 @@
   {
    "id": "fishing/rowboat",
    "pos": [
-    -21.0,
-    -0.5,
-    24.0
+    -25.6,
+    0.0,
+    25.2
    ],
    "rot_y_deg": -20.0,
    "scale": 1.0,
@@ -5996,9 +6947,9 @@
   {
    "id": "fishing/bobber",
    "pos": [
-    -19.0,
+    -15.5,
     -0.5,
-    28.0
+    26.0
    ],
    "rot_y_deg": 0.0,
    "scale": 1.0,
@@ -6011,9 +6962,9 @@
   {
    "id": "fishing/ripple",
    "pos": [
-    -19.0,
+    -15.5,
     -0.49,
-    28.0
+    26.0
    ],
    "rot_y_deg": 0.0,
    "scale": 1.0,
@@ -6087,7 +7038,7 @@
    "id": "fishing/ice_floe_b",
    "pos": [
     -17.0,
-    -0.56,
+    0.0,
     20.0
    ],
    "rot_y_deg": 30.0,
@@ -6102,7 +7053,7 @@
    "id": "fishing/ice_floe_b",
    "pos": [
     -20.5,
-    -0.56,
+    0.0,
     23.0
    ],
    "rot_y_deg": 140.0,
@@ -6117,7 +7068,7 @@
    "id": "fishing/ice_floe_b",
    "pos": [
     -9.6,
-    -0.56,
+    0.0,
     23.5
    ],
    "rot_y_deg": -110.0,
@@ -6163,7 +7114,7 @@
    "pos": [
     -14.8,
     0.13,
-    24.85
+    23.3
    ],
    "rot_y_deg": 0.0,
    "scale": 1.0,
@@ -6178,7 +7129,7 @@
    "pos": [
     -13.2,
     0.13,
-    24.85
+    23.3
    ],
    "rot_y_deg": 0.0,
    "scale": 1.0,
@@ -6267,7 +7218,7 @@
    "id": "nature_dock/foam_edge_strip",
    "pos": [
     -6.52,
-    -0.5,
+    0.012,
     27.73
    ],
    "rot_y_deg": -135.0,
@@ -6282,7 +7233,7 @@
    "id": "nature_dock/foam_edge_strip",
    "pos": [
     -4.98,
-    -0.5,
+    0.012,
     25.72
    ],
    "rot_y_deg": -120.0,
@@ -6297,7 +7248,7 @@
    "id": "nature_dock/foam_edge_strip",
    "pos": [
     -4.09,
-    -0.5,
+    0.012,
     23.3
    ],
    "rot_y_deg": -100.0,
@@ -6312,7 +7263,7 @@
    "id": "nature_dock/foam_edge_strip",
    "pos": [
     -4.09,
-    -0.5,
+    0.012,
     20.7
    ],
    "rot_y_deg": -80.0,
@@ -6327,40 +7278,10 @@
    "id": "nature_dock/foam_edge_strip",
    "pos": [
     -4.98,
-    -0.5,
+    0.012,
     18.29
    ],
    "rot_y_deg": -60.0,
-   "scale": 1.0,
-   "tints": {},
-   "tags": [
-    "decor"
-   ],
-   "zone": "dock"
-  },
-  {
-   "id": "nature_dock/shallow_water_patch",
-   "pos": [
-    -5.6,
-    -0.8,
-    22.6
-   ],
-   "rot_y_deg": 20.0,
-   "scale": 1.0,
-   "tints": {},
-   "tags": [
-    "decor"
-   ],
-   "zone": "dock"
-  },
-  {
-   "id": "nature_dock/shallow_water_patch",
-   "pos": [
-    -6.6,
-    -0.8,
-    25.4
-   ],
-   "rot_y_deg": 70.0,
    "scale": 1.0,
    "tints": {},
    "tags": [
@@ -6769,11 +7690,11 @@
   {
    "id": "plaza/plaza_edge_1m",
    "pos": [
-    7.3,
-    -1.93,
-    29.6
+    6.75,
+    -0.88,
+    29.1
    ],
-   "rot_y_deg": 0.0,
+   "rot_y_deg": 90.0,
    "scale": 1.0,
    "tints": {},
    "tags": [
@@ -13093,6 +14014,37 @@
    ]
   },
   {
+   "id": "town_connections/cliff_straight_2m",
+   "pos": [
+    17.751,
+    0.6,
+    -36.138
+   ],
+   "rot_y_deg": -173.22,
+   "scale": 1.0,
+   "tints": {},
+   "tags": [
+    "rock",
+    "blocker",
+    "coast"
+   ]
+  },
+  {
+   "id": "town_connections/cliff_cap",
+   "pos": [
+    17.751,
+    2.67,
+    -36.138
+   ],
+   "rot_y_deg": -173.22,
+   "scale": 1.0,
+   "tints": {},
+   "tags": [
+    "rock",
+    "blocker"
+   ]
+  },
+  {
    "id": "winter/rock_cluster_snow_large",
    "pos": [
     17.667,
@@ -13112,7 +14064,7 @@
    "id": "town_connections/cliff_straight_2m",
    "pos": [
     13.506,
-    -0.995,
+    0.65,
     -35.586
    ],
    "rot_y_deg": -177.47,
@@ -13125,18 +14077,17 @@
    ]
   },
   {
-   "id": "town_connections/cliff_cap",
+   "id": "town_connections/snow_overlay_cliff_straight",
    "pos": [
     13.506,
-    1.075,
+    2.72,
     -35.586
    ],
    "rot_y_deg": -177.47,
    "scale": 1.0,
    "tints": {},
    "tags": [
-    "rock",
-    "blocker"
+    "decor"
    ]
   },
   {
@@ -13218,7 +14169,7 @@
    ]
   },
   {
-   "id": "town_connections/snow_overlay_cliff_straight",
+   "id": "town_connections/cliff_cap",
    "pos": [
     9.214,
     1.19,
@@ -13228,7 +14179,8 @@
    "scale": 1.0,
    "tints": {},
    "tags": [
-    "decor"
+    "rock",
+    "blocker"
    ]
   },
   {
@@ -13264,7 +14216,7 @@
    ]
   },
   {
-   "id": "town_connections/cliff_cap",
+   "id": "town_connections/snow_overlay_cliff_straight",
    "pos": [
     6.998,
     1.19,
@@ -13274,8 +14226,7 @@
    "scale": 1.0,
    "tints": {},
    "tags": [
-    "rock",
-    "blocker"
+    "decor"
    ]
   },
   {
@@ -13357,7 +14308,7 @@
    ]
   },
   {
-   "id": "town_connections/snow_overlay_cliff_straight",
+   "id": "town_connections/cliff_cap",
    "pos": [
     2.695,
     1.103,
@@ -13367,7 +14318,8 @@
    "scale": 1.0,
    "tints": {},
    "tags": [
-    "decor"
+    "rock",
+    "blocker"
    ]
   },
   {
@@ -13403,7 +14355,7 @@
    ]
   },
   {
-   "id": "town_connections/cliff_cap",
+   "id": "town_connections/snow_overlay_cliff_straight",
    "pos": [
     0.591,
     1.04,
@@ -13413,8 +14365,7 @@
    "scale": 1.0,
    "tints": {},
    "tags": [
-    "rock",
-    "blocker"
+    "decor"
    ]
   },
   {
@@ -13496,7 +14447,7 @@
    ]
   },
   {
-   "id": "town_connections/snow_overlay_cliff_straight",
+   "id": "town_connections/cliff_cap",
    "pos": [
     -3.486,
     0.679,
@@ -13506,7 +14457,8 @@
    "scale": 1.0,
    "tints": {},
    "tags": [
-    "decor"
+    "rock",
+    "blocker"
    ]
   },
   {
@@ -13558,7 +14510,7 @@
    ]
   },
   {
-   "id": "town_connections/cliff_cap",
+   "id": "town_connections/snow_overlay_cliff_straight",
    "pos": [
     -7.783,
     6.001,
@@ -13568,8 +14520,7 @@
    "scale": 1.0,
    "tints": {},
    "tags": [
-    "rock",
-    "blocker"
+    "decor"
    ]
   },
   {
@@ -13651,7 +14602,7 @@
    ]
   },
   {
-   "id": "town_connections/snow_overlay_cliff_straight",
+   "id": "town_connections/cliff_cap",
    "pos": [
     -11.693,
     2.572,
@@ -13661,7 +14612,8 @@
    "scale": 1.0,
    "tints": {},
    "tags": [
-    "decor"
+    "rock",
+    "blocker"
    ]
   },
   {
@@ -13697,7 +14649,7 @@
    ]
   },
   {
-   "id": "town_connections/cliff_cap",
+   "id": "town_connections/snow_overlay_cliff_straight",
    "pos": [
     -13.964,
     1.151,
@@ -13707,8 +14659,7 @@
    "scale": 1.0,
    "tints": {},
    "tags": [
-    "rock",
-    "blocker"
+    "decor"
    ]
   },
   {
@@ -13822,7 +14773,7 @@
    ]
   },
   {
-   "id": "town_connections/snow_overlay_cliff_straight",
+   "id": "town_connections/cliff_cap",
    "pos": [
     -22.486,
     1.802,
@@ -13832,7 +14783,8 @@
    "scale": 1.0,
    "tints": {},
    "tags": [
-    "decor"
+    "rock",
+    "blocker"
    ]
   },
   {
@@ -13868,7 +14820,7 @@
    ]
   },
   {
-   "id": "town_connections/cliff_cap",
+   "id": "town_connections/snow_overlay_cliff_straight",
    "pos": [
     -24.593,
     3.904,
@@ -13878,8 +14830,7 @@
    "scale": 1.0,
    "tints": {},
    "tags": [
-    "rock",
-    "blocker"
+    "decor"
    ]
   },
   {
@@ -13961,7 +14912,7 @@
    ]
   },
   {
-   "id": "town_connections/snow_overlay_cliff_straight",
+   "id": "town_connections/cliff_cap",
    "pos": [
     -28.393,
     4.279,
@@ -13971,7 +14922,8 @@
    "scale": 1.0,
    "tints": {},
    "tags": [
-    "decor"
+    "rock",
+    "blocker"
    ]
   },
   {
@@ -14007,7 +14959,7 @@
    ]
   },
   {
-   "id": "town_connections/cliff_cap",
+   "id": "town_connections/snow_overlay_cliff_straight",
    "pos": [
     -30.384,
     3.715,
@@ -14017,8 +14969,7 @@
    "scale": 1.0,
    "tints": {},
    "tags": [
-    "rock",
-    "blocker"
+    "decor"
    ]
   },
   {
@@ -14100,7 +15051,7 @@
    ]
   },
   {
-   "id": "town_connections/snow_overlay_cliff_straight",
+   "id": "town_connections/cliff_cap",
    "pos": [
     -33.836,
     2.888,
@@ -14110,7 +15061,8 @@
    "scale": 1.0,
    "tints": {},
    "tags": [
-    "decor"
+    "rock",
+    "blocker"
    ]
   },
   {
@@ -14146,7 +15098,7 @@
    ]
   },
   {
-   "id": "town_connections/cliff_cap",
+   "id": "town_connections/snow_overlay_cliff_straight",
    "pos": [
     -35.048,
     2.402,
@@ -14156,8 +15108,7 @@
    "scale": 1.0,
    "tints": {},
    "tags": [
-    "rock",
-    "blocker"
+    "decor"
    ]
   },
   {
@@ -14721,9 +15672,9 @@
   {
    "id": "winter/rock_cluster_snow_large",
    "pos": [
-    11.211,
+    13.221,
     -0.95,
-    34.073
+    33.107
    ],
    "rot_y_deg": 79.05,
    "scale": 2.357,
@@ -14737,9 +15688,9 @@
   {
    "id": "winter/rock_cluster_snow_large",
    "pos": [
-    13.301,
+    15.269,
     -0.95,
-    33.3
+    32.469
    ],
    "rot_y_deg": 58.61,
    "scale": 2.101,
@@ -14753,9 +15704,9 @@
   {
    "id": "nature_dock/rock_cluster_snow",
    "pos": [
-    15.231,
+    17.103,
     -0.95,
-    32.334
+    31.959
    ],
    "rot_y_deg": 155.35,
    "scale": 1.964,
@@ -14769,9 +15720,9 @@
   {
    "id": "nature_dock/rock_cluster_snow",
    "pos": [
-    17.117,
+    19.257,
     -0.95,
-    32.05
+    31.982
    ],
    "rot_y_deg": 128.38,
    "scale": 1.583,
@@ -14785,12 +15736,12 @@
   {
    "id": "winter/rock_cluster_snow_large",
    "pos": [
-    19.258,
+    25.608,
     -0.95,
-    32.004
+    31.615
    ],
-   "rot_y_deg": -160.54,
-   "scale": 1.896,
+   "rot_y_deg": 119.34,
+   "scale": 2.062,
    "tints": {},
    "tags": [
     "rock",
@@ -14801,12 +15752,28 @@
   {
    "id": "nature_dock/rock_cluster_snow",
    "pos": [
-    25.58,
+    27.6,
     -0.95,
-    31.465
+    30.712
    ],
-   "rot_y_deg": 40.63,
-   "scale": 2.327,
+   "rot_y_deg": -10.19,
+   "scale": 1.594,
+   "tints": {},
+   "tags": [
+    "rock",
+    "blocker",
+    "coast"
+   ]
+  },
+  {
+   "id": "nature_dock/rock_cluster_snow",
+   "pos": [
+    33.323,
+    -0.95,
+    26.606
+   ],
+   "rot_y_deg": -64.88,
+   "scale": 2.265,
    "tints": {},
    "tags": [
     "rock",
@@ -14817,60 +15784,12 @@
   {
    "id": "winter/rock_cluster_snow_large",
    "pos": [
-    29.831,
+    34.841,
     -0.95,
-    29.746
+    24.799
    ],
-   "rot_y_deg": 14.25,
-   "scale": 2.201,
-   "tints": {},
-   "tags": [
-    "rock",
-    "blocker",
-    "coast"
-   ]
-  },
-  {
-   "id": "nature_dock/rock_cluster_snow",
-   "pos": [
-    34.665,
-    -0.95,
-    24.7
-   ],
-   "rot_y_deg": -65.17,
-   "scale": 1.733,
-   "tints": {},
-   "tags": [
-    "rock",
-    "blocker",
-    "coast"
-   ]
-  },
-  {
-   "id": "nature_dock/rock_cluster_snow",
-   "pos": [
-    35.574,
-    -0.95,
-    22.615
-   ],
-   "rot_y_deg": -154.59,
-   "scale": 2.13,
-   "tints": {},
-   "tags": [
-    "rock",
-    "blocker",
-    "coast"
-   ]
-  },
-  {
-   "id": "nature_dock/rock_cluster_snow",
-   "pos": [
-    36.509,
-    -0.95,
-    20.593
-   ],
-   "rot_y_deg": -72.15,
-   "scale": 1.665,
+   "rot_y_deg": 146.14,
+   "scale": 1.983,
    "tints": {},
    "tags": [
     "rock",
@@ -14881,12 +15800,12 @@
   {
    "id": "winter/rock_cluster_snow_large",
    "pos": [
-    37.949,
+    35.835,
     -0.95,
-    18.849
+    22.746
    ],
-   "rot_y_deg": -22.19,
-   "scale": 2.071,
+   "rot_y_deg": -107.85,
+   "scale": 1.581,
    "tints": {},
    "tags": [
     "rock",
@@ -14897,12 +15816,12 @@
   {
    "id": "nature_dock/rock_cluster_snow",
    "pos": [
-    38.873,
+    36.486,
     -0.95,
-    16.827
+    20.582
    ],
-   "rot_y_deg": -141.06,
-   "scale": 1.7,
+   "rot_y_deg": 66.0,
+   "scale": 2.306,
    "tints": {},
    "tags": [
     "rock",
@@ -14913,12 +15832,28 @@
   {
    "id": "nature_dock/rock_cluster_snow",
    "pos": [
-    39.377,
+    37.501,
     -0.95,
-    14.588
+    18.624
    ],
-   "rot_y_deg": 163.36,
-   "scale": 1.805,
+   "rot_y_deg": -131.6,
+   "scale": 2.221,
+   "tints": {},
+   "tags": [
+    "rock",
+    "blocker",
+    "coast"
+   ]
+  },
+  {
+   "id": "nature_dock/rock_cluster_snow",
+   "pos": [
+    38.352,
+    -0.95,
+    16.584
+   ],
+   "rot_y_deg": 23.98,
+   "scale": 2.276,
    "tints": {},
    "tags": [
     "rock",
@@ -14929,12 +15864,12 @@
   {
    "id": "winter/rock_cluster_snow_large",
    "pos": [
-    40.393,
+    39.519,
     -0.95,
-    12.504
+    14.641
    ],
-   "rot_y_deg": -136.19,
-   "scale": 1.539,
+   "rot_y_deg": -2.05,
+   "scale": 1.876,
    "tints": {},
    "tags": [
     "rock",
@@ -14945,9 +15880,25 @@
   {
    "id": "nature_dock/rock_cluster_snow",
    "pos": [
-    40.715,
+    40.676,
     -0.95,
-    10.141
+    12.565
+   ],
+   "rot_y_deg": 46.52,
+   "scale": 1.974,
+   "tints": {},
+   "tags": [
+    "rock",
+    "blocker",
+    "coast"
+   ]
+  },
+  {
+   "id": "nature_dock/rock_cluster_snow",
+   "pos": [
+    40.338,
+    -0.95,
+    10.124
    ],
    "rot_y_deg": -11.08,
    "scale": 1.736,
@@ -15054,14 +16005,14 @@
    ]
   },
   {
-   "id": "winter/fir_tree_large",
+   "id": "nature_dock/small_tree_snow",
    "pos": [
-    5.551,
-    0.0,
-    33.218
+    8.808,
+    1.2,
+    -30.339
    ],
-   "rot_y_deg": 90.65,
-   "scale": 1.073,
+   "rot_y_deg": -28.11,
+   "scale": 0.914,
    "tints": {},
    "tags": [
     "tree",
@@ -15069,14 +16020,14 @@
    ]
   },
   {
-   "id": "winter/fir_tree_large",
+   "id": "winter/fir_tree_medium",
    "pos": [
-    19.783,
-    0.633,
-    -30.493
+    -6.385,
+    0.167,
+    -29.503
    ],
-   "rot_y_deg": 15.69,
-   "scale": 1.111,
+   "rot_y_deg": -64.08,
+   "scale": 1.001,
    "tints": {},
    "tags": [
     "tree",
@@ -15086,11 +16037,86 @@
   {
    "id": "winter/fir_tree_small",
    "pos": [
-    24.453,
-    0.041,
-    -34.04
+    20.452,
+    0.631,
+    -31.818
    ],
-   "rot_y_deg": 171.07,
+   "rot_y_deg": -62.63,
+   "scale": 0.888,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_small",
+   "pos": [
+    5.829,
+    1.2,
+    -32.615
+   ],
+   "rot_y_deg": -172.38,
+   "scale": 1.174,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_large",
+   "pos": [
+    -31.577,
+    0.0,
+    18.81
+   ],
+   "rot_y_deg": -26.94,
+   "scale": 1.18,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_large",
+   "pos": [
+    25.219,
+    0.025,
+    -33.433
+   ],
+   "rot_y_deg": -83.95,
+   "scale": 1.022,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_small",
+   "pos": [
+    13.698,
+    0.0,
+    27.343
+   ],
+   "rot_y_deg": 170.37,
+   "scale": 1.045,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_small",
+   "pos": [
+    11.187,
+    1.2,
+    -32.239
+   ],
+   "rot_y_deg": -129.37,
    "scale": 1.185,
    "tints": {},
    "tags": [
@@ -15101,42 +16127,12 @@
   {
    "id": "winter/fir_tree_small",
    "pos": [
-    -2.142,
+    35.15,
     0.0,
-    28.076
+    -14.09
    ],
-   "rot_y_deg": -71.18,
-   "scale": 1.027,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_medium",
-   "pos": [
-    1.103,
-    1.187,
-    -33.019
-   ],
-   "rot_y_deg": 98.77,
-   "scale": 0.99,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_medium",
-   "pos": [
-    19.318,
-    0.692,
-    -33.555
-   ],
-   "rot_y_deg": 166.36,
-   "scale": 0.908,
+   "rot_y_deg": 169.46,
+   "scale": 0.98,
    "tints": {},
    "tags": [
     "tree",
@@ -15146,42 +16142,12 @@
   {
    "id": "winter/fir_tree_small",
    "pos": [
-    -34.24,
-    0.0,
-    14.319
+    23.165,
+    0.159,
+    -33.83
    ],
-   "rot_y_deg": 66.84,
-   "scale": 1.008,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_large",
-   "pos": [
-    34.08,
-    0.0,
-    -7.393
-   ],
-   "rot_y_deg": -69.63,
-   "scale": 1.12,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_large",
-   "pos": [
-    26.081,
-    0.001,
-    -33.381
-   ],
-   "rot_y_deg": -170.78,
-   "scale": 0.988,
+   "rot_y_deg": -31.69,
+   "scale": 0.926,
    "tints": {},
    "tags": [
     "tree",
@@ -15191,12 +16157,27 @@
   {
    "id": "winter/fir_tree_medium",
    "pos": [
-    3.38,
-    1.2,
-    -32.404
+    -1.871,
+    0.0,
+    -28.529
    ],
-   "rot_y_deg": 85.19,
-   "scale": 0.864,
+   "rot_y_deg": 13.2,
+   "scale": 1.096,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_medium",
+   "pos": [
+    7.22,
+    1.2,
+    -32.963
+   ],
+   "rot_y_deg": -152.16,
+   "scale": 0.946,
    "tints": {},
    "tags": [
     "tree",
@@ -15279,89 +16260,14 @@
    ]
   },
   {
-   "id": "winter/fir_tree_large",
-   "pos": [
-    11.191,
-    1.2,
-    -32.294
-   ],
-   "rot_y_deg": 175.08,
-   "scale": 1.063,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
    "id": "winter/fir_tree_medium",
    "pos": [
-    36.154,
+    29.454,
     0.0,
-    16.227
-   ],
-   "rot_y_deg": -164.17,
-   "scale": 1.042,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_medium",
-   "pos": [
-    6.296,
-    1.2,
-    -32.436
-   ],
-   "rot_y_deg": 22.81,
-   "scale": 0.921,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_medium",
-   "pos": [
-    -35.975,
-    0.0,
-    19.441
-   ],
-   "rot_y_deg": -113.07,
-   "scale": 0.904,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/rock_cluster_snow_small",
-   "pos": [
-    -35.349,
-    0.0,
-    20.907
+    -32.365
    ],
    "rot_y_deg": 105.71,
-   "scale": 0.916,
-   "tints": {},
-   "tags": [
-    "rock",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_large",
-   "pos": [
-    0.144,
-    0.365,
-    -29.905
-   ],
-   "rot_y_deg": -154.65,
-   "scale": 1.091,
+   "scale": 0.931,
    "tints": {},
    "tags": [
     "tree",
@@ -15399,44 +16305,14 @@
    ]
   },
   {
-   "id": "winter/fir_tree_medium",
-   "pos": [
-    -31.156,
-    0.0,
-    19.389
-   ],
-   "rot_y_deg": -168.95,
-   "scale": 0.931,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
    "id": "winter/fir_tree_large",
    "pos": [
-    12.506,
-    1.2,
-    -33.376
-   ],
-   "rot_y_deg": 157.23,
-   "scale": 1.106,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_medium",
-   "pos": [
-    -4.83,
+    -6.087,
     0.0,
-    31.001
+    31.334
    ],
-   "rot_y_deg": 60.83,
-   "scale": 1.078,
+   "rot_y_deg": 40.46,
+   "scale": 0.987,
    "tints": {},
    "tags": [
     "tree",
@@ -15489,14 +16365,29 @@
    ]
   },
   {
-   "id": "nature_dock/small_tree_snow",
+   "id": "winter/fir_tree_large",
    "pos": [
-    5.358,
+    3.421,
     1.2,
-    -31.474
+    -32.643
    ],
-   "rot_y_deg": -88.26,
-   "scale": 1.103,
+   "rot_y_deg": 12.56,
+   "scale": 1.057,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_large",
+   "pos": [
+    10.408,
+    0.0,
+    27.687
+   ],
+   "rot_y_deg": 128.85,
+   "scale": 1.179,
    "tints": {},
    "tags": [
     "tree",
@@ -15506,117 +16397,12 @@
   {
    "id": "winter/fir_tree_small",
    "pos": [
-    -33.201,
+    -33.56,
     0.0,
-    21.709
+    14.466
    ],
-   "rot_y_deg": 150.35,
-   "scale": 1.144,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_large",
-   "pos": [
-    22.238,
-    0.302,
-    -33.425
-   ],
-   "rot_y_deg": 71.2,
-   "scale": 1.185,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_medium",
-   "pos": [
-    -31.943,
-    0.0,
-    21.706
-   ],
-   "rot_y_deg": 17.73,
-   "scale": 0.999,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_large",
-   "pos": [
-    28.427,
-    0.0,
-    -31.286
-   ],
-   "rot_y_deg": -42.46,
-   "scale": 0.892,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_large",
-   "pos": [
-    -34.602,
-    0.0,
-    23.087
-   ],
-   "rot_y_deg": 49.02,
-   "scale": 1.065,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_medium",
-   "pos": [
-    -32.452,
-    0.0,
-    15.579
-   ],
-   "rot_y_deg": -146.42,
-   "scale": 1.145,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_large",
-   "pos": [
-    36.645,
-    0.0,
-    6.987
-   ],
-   "rot_y_deg": -93.44,
-   "scale": 1.078,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_large",
-   "pos": [
-    -0.555,
-    1.06,
-    -33.292
-   ],
-   "rot_y_deg": -114.63,
-   "scale": 1.111,
+   "rot_y_deg": -127.72,
+   "scale": 1.115,
    "tints": {},
    "tags": [
     "tree",
@@ -15626,12 +16412,132 @@
   {
    "id": "winter/fir_tree_small",
    "pos": [
-    21.009,
-    0.396,
-    -33.989
+    -1.543,
+    1.001,
+    -32.787
    ],
-   "rot_y_deg": -145.5,
-   "scale": 1.079,
+   "rot_y_deg": 129.72,
+   "scale": 1.062,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "nature_dock/broad_tree_snow",
+   "pos": [
+    0.247,
+    1.169,
+    -32.35
+   ],
+   "rot_y_deg": -81.37,
+   "scale": 1.089,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_medium",
+   "pos": [
+    -30.881,
+    0.0,
+    14.522
+   ],
+   "rot_y_deg": 128.8,
+   "scale": 0.967,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_small",
+   "pos": [
+    -1.605,
+    0.0,
+    31.172
+   ],
+   "rot_y_deg": 90.89,
+   "scale": 1.134,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_small",
+   "pos": [
+    -33.429,
+    0.0,
+    20.76
+   ],
+   "rot_y_deg": 136.77,
+   "scale": 0.854,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_medium",
+   "pos": [
+    21.925,
+    0.361,
+    -33.227
+   ],
+   "rot_y_deg": 18.87,
+   "scale": 0.893,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_medium",
+   "pos": [
+    3.343,
+    0.0,
+    33.008
+   ],
+   "rot_y_deg": -177.37,
+   "scale": 0.9,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_medium",
+   "pos": [
+    13.422,
+    0.0,
+    29.824
+   ],
+   "rot_y_deg": -134.69,
+   "scale": 0.891,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_medium",
+   "pos": [
+    -2.435,
+    0.126,
+    -29.771
+   ],
+   "rot_y_deg": -120.38,
+   "scale": 1.117,
    "tints": {},
    "tags": [
     "tree",
@@ -15656,87 +16562,12 @@
   {
    "id": "winter/fir_tree_small",
    "pos": [
-    -0.093,
-    1.146,
-    -31.502
-   ],
-   "rot_y_deg": -26.81,
-   "scale": 1.16,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_small",
-   "pos": [
-    34.609,
+    -35.712,
     0.0,
-    -9.628
+    11.604
    ],
-   "rot_y_deg": -178.79,
-   "scale": 1.101,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_small",
-   "pos": [
-    20.326,
-    0.63,
-    -32.698
-   ],
-   "rot_y_deg": 56.25,
-   "scale": 1.035,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_small",
-   "pos": [
-    -1.763,
-    0.0,
-    16.922
-   ],
-   "rot_y_deg": -61.08,
-   "scale": 1.094,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_small",
-   "pos": [
-    32.968,
-    0.0,
-    -11.69
-   ],
-   "rot_y_deg": 169.2,
-   "scale": 0.899,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_small",
-   "pos": [
-    -6.116,
-    0.379,
-    -32.481
-   ],
-   "rot_y_deg": 116.46,
-   "scale": 1.078,
+   "rot_y_deg": -158.05,
+   "scale": 0.977,
    "tints": {},
    "tags": [
     "tree",
@@ -15746,12 +16577,12 @@
   {
    "id": "winter/fir_tree_large",
    "pos": [
-    3.236,
+    4.838,
     0.0,
-    17.087
+    23.336
    ],
-   "rot_y_deg": 99.2,
-   "scale": 0.997,
+   "rot_y_deg": 96.29,
+   "scale": 1.169,
    "tints": {},
    "tags": [
     "tree",
@@ -15761,131 +16592,11 @@
   {
    "id": "winter/fir_tree_large",
    "pos": [
-    3.624,
-    0.0,
-    -29.103
+    19.715,
+    0.489,
+    -34.446
    ],
-   "rot_y_deg": 22.2,
-   "scale": 1.085,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_small",
-   "pos": [
-    -33.184,
-    0.0,
-    -19.029
-   ],
-   "rot_y_deg": 101.83,
-   "scale": 1.014,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_small",
-   "pos": [
-    -6.28,
-    0.0,
-    12.641
-   ],
-   "rot_y_deg": -112.72,
-   "scale": 1.174,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_medium",
-   "pos": [
-    -35.494,
-    0.0,
-    12.572
-   ],
-   "rot_y_deg": 47.45,
-   "scale": 1.079,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_large",
-   "pos": [
-    -6.89,
-    0.0,
-    11.199
-   ],
-   "rot_y_deg": 77.59,
-   "scale": 1.088,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_large",
-   "pos": [
-    13.216,
-    0.0,
-    29.281
-   ],
-   "rot_y_deg": 48.65,
-   "scale": 1.002,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_large",
-   "pos": [
-    -1.011,
-    0.0,
-    32.149
-   ],
-   "rot_y_deg": 179.6,
-   "scale": 1.163,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "nature_dock/broad_tree_snow",
-   "pos": [
-    -37.432,
-    0.0,
-    4.494
-   ],
-   "rot_y_deg": -63.81,
-   "scale": 1.11,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "nature_dock/small_tree",
-   "pos": [
-    -3.594,
-    0.0,
-    14.412
-   ],
-   "rot_y_deg": -86.52,
+   "rot_y_deg": -114.56,
    "scale": 0.949,
    "tints": {},
    "tags": [
@@ -15894,14 +16605,14 @@
    ]
   },
   {
-   "id": "winter/fir_tree_medium",
+   "id": "winter/fir_tree_small",
    "pos": [
-    -1.617,
+    -2.89,
     0.0,
-    30.896
+    14.839
    ],
-   "rot_y_deg": -88.87,
-   "scale": 1.106,
+   "rot_y_deg": -130.93,
+   "scale": 1.027,
    "tints": {},
    "tags": [
     "tree",
@@ -15909,14 +16620,29 @@
    ]
   },
   {
-   "id": "winter/fir_tree_medium",
+   "id": "nature_dock/rock_small_a_snow",
    "pos": [
-    37.722,
+    -2.179,
     0.0,
-    12.154
+    13.454
    ],
-   "rot_y_deg": 9.27,
-   "scale": 1.004,
+   "rot_y_deg": 83.15,
+   "scale": 0.985,
+   "tints": {},
+   "tags": [
+    "rock",
+    "blocker"
+   ]
+  },
+  {
+   "id": "nature_dock/broad_tree",
+   "pos": [
+    6.054,
+    1.2,
+    -31.369
+   ],
+   "rot_y_deg": 91.65,
+   "scale": 0.992,
    "tints": {},
    "tags": [
     "tree",
@@ -15926,12 +16652,27 @@
   {
    "id": "winter/fir_tree_large",
    "pos": [
-    34.762,
+    17.056,
     0.0,
-    8.612
+    26.242
    ],
-   "rot_y_deg": -63.2,
-   "scale": 1.136,
+   "rot_y_deg": -42.62,
+   "scale": 0.911,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_small",
+   "pos": [
+    -37.072,
+    0.0,
+    4.058
+   ],
+   "rot_y_deg": -87.96,
+   "scale": 0.97,
    "tints": {},
    "tags": [
     "tree",
@@ -15941,12 +16682,12 @@
   {
    "id": "winter/fir_tree_large",
    "pos": [
-    14.373,
+    37.09,
     0.0,
-    27.056
+    8.312
    ],
-   "rot_y_deg": 139.5,
-   "scale": 1.166,
+   "rot_y_deg": -4.45,
+   "scale": 1.119,
    "tints": {},
    "tags": [
     "tree",
@@ -15954,14 +16695,59 @@
    ]
   },
   {
-   "id": "nature_dock/small_tree",
+   "id": "winter/fir_tree_large",
    "pos": [
-    -6.914,
-    0.211,
-    -33.525
+    -0.283,
+    0.0,
+    32.314
    ],
-   "rot_y_deg": 95.6,
-   "scale": 1.08,
+   "rot_y_deg": 179.04,
+   "scale": 1.061,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_small",
+   "pos": [
+    -33.816,
+    0.0,
+    23.012
+   ],
+   "rot_y_deg": 33.78,
+   "scale": 0.968,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_small",
+   "pos": [
+    34.9,
+    0.0,
+    9.208
+   ],
+   "rot_y_deg": -27.42,
+   "scale": 1.179,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_medium",
+   "pos": [
+    -35.102,
+    0.0,
+    14.876
+   ],
+   "rot_y_deg": -72.42,
+   "scale": 1.129,
    "tints": {},
    "tags": [
     "tree",
@@ -15971,237 +16757,12 @@
   {
    "id": "nature_dock/broad_tree_snow",
    "pos": [
-    37.261,
-    0.0,
-    8.826
-   ],
-   "rot_y_deg": 98.45,
-   "scale": 1.145,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_medium",
-   "pos": [
-    7.982,
-    1.195,
-    -29.33
-   ],
-   "rot_y_deg": -60.67,
-   "scale": 1.039,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_medium",
-   "pos": [
-    -36.422,
-    0.0,
-    15.003
-   ],
-   "rot_y_deg": -174.48,
-   "scale": 1.035,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_medium",
-   "pos": [
-    4.968,
-    0.0,
-    27.935
-   ],
-   "rot_y_deg": 155.24,
-   "scale": 0.908,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_medium",
-   "pos": [
-    23.659,
-    0.161,
-    -33.045
-   ],
-   "rot_y_deg": -49.31,
-   "scale": 1.174,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_small",
-   "pos": [
-    22.525,
-    0.12,
-    -34.792
-   ],
-   "rot_y_deg": -15.06,
-   "scale": 1.04,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_large",
-   "pos": [
-    -1.314,
-    0.011,
-    -29.569
-   ],
-   "rot_y_deg": 58.28,
-   "scale": 1.001,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_small",
-   "pos": [
-    3.443,
-    0.0,
-    33.763
-   ],
-   "rot_y_deg": 66.13,
-   "scale": 1.076,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_large",
-   "pos": [
-    17.975,
-    0.0,
-    30.077
-   ],
-   "rot_y_deg": -17.65,
-   "scale": 0.962,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_large",
-   "pos": [
-    12.767,
-    0.0,
-    27.12
-   ],
-   "rot_y_deg": 28.5,
-   "scale": 1.15,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_medium",
-   "pos": [
-    -6.294,
-    0.0,
-    31.44
-   ],
-   "rot_y_deg": 133.3,
-   "scale": 1.107,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_small",
-   "pos": [
-    -4.187,
-    0.647,
-    -32.754
-   ],
-   "rot_y_deg": -78.78,
-   "scale": 1.104,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_medium",
-   "pos": [
-    -2.319,
-    0.0,
-    15.0
-   ],
-   "rot_y_deg": -160.59,
-   "scale": 0.974,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_small",
-   "pos": [
-    -34.49,
-    0.0,
-    16.754
-   ],
-   "rot_y_deg": 141.41,
-   "scale": 1.139,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_large",
-   "pos": [
-    10.66,
-    0.0,
-    26.817
-   ],
-   "rot_y_deg": 70.74,
-   "scale": 0.859,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_small",
-   "pos": [
-    8.636,
+    11.3,
     1.2,
-    -31.717
+    -33.628
    ],
-   "rot_y_deg": -106.1,
-   "scale": 1.011,
+   "rot_y_deg": 115.05,
+   "scale": 1.13,
    "tints": {},
    "tags": [
     "tree",
@@ -16211,12 +16772,57 @@
   {
    "id": "winter/fir_tree_small",
    "pos": [
-    11.714,
+    -4.609,
     0.0,
-    26.121
+    13.001
    ],
-   "rot_y_deg": -56.93,
-   "scale": 1.121,
+   "rot_y_deg": 144.17,
+   "scale": 0.998,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_medium",
+   "pos": [
+    15.686,
+    0.0,
+    29.809
+   ],
+   "rot_y_deg": 27.72,
+   "scale": 1.08,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_medium",
+   "pos": [
+    34.415,
+    0.0,
+    -9.844
+   ],
+   "rot_y_deg": 18.85,
+   "scale": 0.878,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_medium",
+   "pos": [
+    -35.194,
+    0.0,
+    21.211
+   ],
+   "rot_y_deg": 140.19,
+   "scale": 0.963,
    "tints": {},
    "tags": [
     "tree",
@@ -16226,11 +16832,11 @@
   {
    "id": "winter/fir_tree_large",
    "pos": [
-    10.501,
+    11.656,
     0.0,
-    24.823
+    27.859
    ],
-   "rot_y_deg": -127.06,
+   "rot_y_deg": 150.59,
    "scale": 1.005,
    "tints": {},
    "tags": [
@@ -16241,11 +16847,266 @@
   {
    "id": "winter/fir_tree_large",
    "pos": [
-    23.275,
+    20.439,
     0.0,
-    26.987
+    26.342
    ],
-   "rot_y_deg": 57.26,
+   "rot_y_deg": 162.24,
+   "scale": 1.15,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_large",
+   "pos": [
+    28.09,
+    0.0,
+    -33.653
+   ],
+   "rot_y_deg": 40.0,
+   "scale": 0.987,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_small",
+   "pos": [
+    -34.817,
+    0.0,
+    19.698
+   ],
+   "rot_y_deg": -150.68,
+   "scale": 0.975,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_medium",
+   "pos": [
+    10.434,
+    0.0,
+    31.51
+   ],
+   "rot_y_deg": 28.39,
+   "scale": 0.925,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_large",
+   "pos": [
+    22.172,
+    0.239,
+    -29.909
+   ],
+   "rot_y_deg": -76.85,
+   "scale": 1.16,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_medium",
+   "pos": [
+    0.743,
+    1.167,
+    -30.865
+   ],
+   "rot_y_deg": -150.07,
+   "scale": 0.854,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_small",
+   "pos": [
+    37.52,
+    0.0,
+    12.295
+   ],
+   "rot_y_deg": 72.0,
+   "scale": 0.877,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_small",
+   "pos": [
+    -35.513,
+    0.0,
+    18.616
+   ],
+   "rot_y_deg": 61.69,
+   "scale": 1.177,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_large",
+   "pos": [
+    35.539,
+    0.0,
+    7.713
+   ],
+   "rot_y_deg": -98.23,
+   "scale": 1.04,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "nature_dock/rock_small_a_snow",
+   "pos": [
+    36.789,
+    0.0,
+    6.768
+   ],
+   "rot_y_deg": 66.13,
+   "scale": 1.123,
+   "tints": {},
+   "tags": [
+    "rock",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_small",
+   "pos": [
+    21.826,
+    0.0,
+    27.02
+   ],
+   "rot_y_deg": -14.1,
+   "scale": 0.962,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_medium",
+   "pos": [
+    -4.262,
+    0.0,
+    31.883
+   ],
+   "rot_y_deg": 6.51,
+   "scale": 1.132,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_large",
+   "pos": [
+    4.535,
+    0.0,
+    32.569
+   ],
+   "rot_y_deg": -40.86,
+   "scale": 1.045,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "nature_dock/broad_tree",
+   "pos": [
+    36.264,
+    0.0,
+    15.198
+   ],
+   "rot_y_deg": -141.48,
+   "scale": 0.966,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_medium",
+   "pos": [
+    11.344,
+    1.168,
+    -29.346
+   ],
+   "rot_y_deg": -107.44,
+   "scale": 1.181,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_small",
+   "pos": [
+    36.069,
+    0.0,
+    11.158
+   ],
+   "rot_y_deg": 46.91,
+   "scale": 1.012,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_small",
+   "pos": [
+    26.534,
+    0.0,
+    -34.165
+   ],
+   "rot_y_deg": 75.71,
+   "scale": 0.944,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_large",
+   "pos": [
+    26.798,
+    0.0,
+    -32.086
+   ],
+   "rot_y_deg": -143.5,
    "scale": 0.903,
    "tints": {},
    "tags": [
@@ -16256,57 +17117,12 @@
   {
    "id": "winter/fir_tree_small",
    "pos": [
-    10.842,
-    1.172,
-    -29.295
+    -0.711,
+    0.385,
+    -29.94
    ],
-   "rot_y_deg": -46.54,
-   "scale": 1.044,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_medium",
-   "pos": [
-    -36.559,
-    0.0,
-    13.513
-   ],
-   "rot_y_deg": -24.82,
-   "scale": 1.158,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_small",
-   "pos": [
-    -6.738,
-    0.184,
-    -29.971
-   ],
-   "rot_y_deg": 126.89,
-   "scale": 0.876,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_medium",
-   "pos": [
-    27.11,
-    0.0,
-    -31.767
-   ],
-   "rot_y_deg": -166.22,
-   "scale": 1.172,
+   "rot_y_deg": -53.88,
+   "scale": 0.919,
    "tints": {},
    "tags": [
     "tree",
@@ -16316,12 +17132,12 @@
   {
    "id": "nature_dock/broad_tree",
    "pos": [
-    9.639,
-    1.2,
-    -30.434
+    -6.672,
+    0.265,
+    -33.2
    ],
-   "rot_y_deg": 53.07,
-   "scale": 0.946,
+   "rot_y_deg": -4.6,
+   "scale": 1.122,
    "tints": {},
    "tags": [
     "tree",
@@ -16331,12 +17147,12 @@
   {
    "id": "winter/fir_tree_medium",
    "pos": [
-    36.884,
+    -35.683,
     0.0,
-    15.006
+    16.922
    ],
-   "rot_y_deg": -119.09,
-   "scale": 0.872,
+   "rot_y_deg": -153.3,
+   "scale": 0.883,
    "tints": {},
    "tags": [
     "tree",
@@ -16344,44 +17160,14 @@
    ]
   },
   {
-   "id": "winter/fir_tree_large",
+   "id": "nature_dock/small_tree_snow",
    "pos": [
-    6.196,
-    1.2,
-    -30.203
-   ],
-   "rot_y_deg": -0.87,
-   "scale": 0.954,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_small",
-   "pos": [
-    -4.702,
+    -7.14,
     0.0,
-    13.336
+    11.447
    ],
-   "rot_y_deg": 14.46,
-   "scale": 1.194,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_large",
-   "pos": [
-    19.184,
-    0.0,
-    26.851
-   ],
-   "rot_y_deg": 161.88,
-   "scale": 0.875,
+   "rot_y_deg": 70.31,
+   "scale": 1.119,
    "tints": {},
    "tags": [
     "tree",
@@ -16391,57 +17177,12 @@
   {
    "id": "winter/fir_tree_medium",
    "pos": [
-    -29.267,
+    23.059,
     0.0,
-    -17.877
+    26.816
    ],
-   "rot_y_deg": -152.31,
-   "scale": 1.063,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_medium",
-   "pos": [
-    7.62,
-    1.2,
-    -33.804
-   ],
-   "rot_y_deg": -11.64,
-   "scale": 0.884,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_large",
-   "pos": [
-    -1.779,
-    0.99,
-    -32.476
-   ],
-   "rot_y_deg": 36.95,
-   "scale": 1.135,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_large",
-   "pos": [
-    1.913,
-    0.995,
-    -30.252
-   ],
-   "rot_y_deg": 120.45,
-   "scale": 0.936,
+   "rot_y_deg": 70.58,
+   "scale": 1.128,
    "tints": {},
    "tags": [
     "tree",
@@ -16464,74 +17205,14 @@
    ]
   },
   {
-   "id": "winter/fir_tree_small",
-   "pos": [
-    12.552,
-    1.192,
-    -29.882
-   ],
-   "rot_y_deg": -166.03,
-   "scale": 1.199,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
    "id": "winter/fir_tree_large",
    "pos": [
-    -4.743,
-    0.58,
-    -31.537
-   ],
-   "rot_y_deg": -113.53,
-   "scale": 0.882,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_large",
-   "pos": [
-    17.137,
+    -32.122,
     0.0,
-    27.007
+    15.891
    ],
-   "rot_y_deg": 36.99,
-   "scale": 1.185,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_medium",
-   "pos": [
-    21.039,
-    0.0,
-    27.195
-   ],
-   "rot_y_deg": -99.86,
-   "scale": 1.055,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_large",
-   "pos": [
-    -31.496,
-    0.0,
-    24.692
-   ],
-   "rot_y_deg": 110.54,
-   "scale": 1.049,
+   "rot_y_deg": -114.91,
+   "scale": 0.954,
    "tints": {},
    "tags": [
     "tree",
@@ -16541,12 +17222,42 @@
   {
    "id": "winter/fir_tree_small",
    "pos": [
-    21.953,
-    0.407,
-    -31.733
+    -5.518,
+    0.473,
+    -32.132
    ],
-   "rot_y_deg": 5.72,
-   "scale": 0.859,
+   "rot_y_deg": -48.47,
+   "scale": 0.855,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "nature_dock/small_tree",
+   "pos": [
+    2.572,
+    0.838,
+    -30.14
+   ],
+   "rot_y_deg": -167.34,
+   "scale": 0.905,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_large",
+   "pos": [
+    -30.481,
+    0.0,
+    24.847
+   ],
+   "rot_y_deg": -149.34,
+   "scale": 0.894,
    "tints": {},
    "tags": [
     "tree",
@@ -16569,29 +17280,14 @@
    ]
   },
   {
-   "id": "nature_dock/small_tree",
-   "pos": [
-    34.843,
-    0.0,
-    -13.575
-   ],
-   "rot_y_deg": 156.25,
-   "scale": 0.998,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
    "id": "winter/fir_tree_small",
    "pos": [
-    20.462,
-    0.287,
-    -28.969
+    -5.7,
+    0.012,
+    -27.65
    ],
-   "rot_y_deg": 35.85,
-   "scale": 1.177,
+   "rot_y_deg": -46.02,
+   "scale": 0.908,
    "tints": {},
    "tags": [
     "tree",
@@ -16599,74 +17295,14 @@
    ]
   },
   {
-   "id": "winter/fir_tree_large",
-   "pos": [
-    -3.608,
-    0.0,
-    -27.895
-   ],
-   "rot_y_deg": -63.91,
-   "scale": 1.119,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_large",
+   "id": "winter/fir_tree_medium",
    "pos": [
     33.812,
     0.0,
-    -4.748
+    -4.458
    ],
-   "rot_y_deg": 115.34,
-   "scale": 1.154,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_large",
-   "pos": [
-    16.761,
-    0.0,
-    29.312
-   ],
-   "rot_y_deg": 168.99,
-   "scale": 1.037,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_large",
-   "pos": [
-    -33.946,
-    0.0,
-    20.46
-   ],
-   "rot_y_deg": -130.38,
-   "scale": 1.067,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "nature_dock/broad_tree",
-   "pos": [
-    -5.813,
-    0.138,
-    -28.877
-   ],
-   "rot_y_deg": -5.95,
-   "scale": 1.053,
+   "rot_y_deg": -32.25,
+   "scale": 1.08,
    "tints": {},
    "tags": [
     "tree",
@@ -16676,42 +17312,12 @@
   {
    "id": "winter/fir_tree_small",
    "pos": [
-    37.904,
+    33.946,
     0.0,
-    10.499
+    -8.448
    ],
-   "rot_y_deg": 152.41,
-   "scale": 1.149,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_small",
-   "pos": [
-    4.15,
-    0.0,
-    18.341
-   ],
-   "rot_y_deg": 172.34,
-   "scale": 1.094,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_small",
-   "pos": [
-    -3.144,
-    0.454,
-    -30.122
-   ],
-   "rot_y_deg": -94.78,
-   "scale": 0.993,
+   "rot_y_deg": -77.37,
+   "scale": 0.914,
    "tints": {},
    "tags": [
     "tree",
@@ -16721,11 +17327,86 @@
   {
    "id": "winter/fir_tree_large",
    "pos": [
-    -3.501,
+    -7.503,
     0.0,
-    12.72
+    31.996
    ],
-   "rot_y_deg": 110.5,
+   "rot_y_deg": -3.41,
+   "scale": 0.896,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_large",
+   "pos": [
+    -33.344,
+    0.0,
+    17.125
+   ],
+   "rot_y_deg": 127.87,
+   "scale": 0.883,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_large",
+   "pos": [
+    15.907,
+    0.0,
+    26.878
+   ],
+   "rot_y_deg": -170.97,
+   "scale": 0.969,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_medium",
+   "pos": [
+    -33.514,
+    1.726,
+    -21.05
+   ],
+   "rot_y_deg": 154.29,
+   "scale": 1.018,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_small",
+   "pos": [
+    -31.647,
+    0.0,
+    20.406
+   ],
+   "rot_y_deg": -87.61,
+   "scale": 1.106,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_small",
+   "pos": [
+    -35.694,
+    0.0,
+    13.393
+   ],
+   "rot_y_deg": -166.08,
    "scale": 0.987,
    "tints": {},
    "tags": [
@@ -16736,12 +17417,12 @@
   {
    "id": "winter/fir_tree_large",
    "pos": [
-    10.403,
-    1.2,
-    -34.306
+    3.326,
+    0.0,
+    18.456
    ],
-   "rot_y_deg": -42.09,
-   "scale": 1.094,
+   "rot_y_deg": 164.34,
+   "scale": 1.009,
    "tints": {},
    "tags": [
     "tree",
@@ -16751,27 +17432,12 @@
   {
    "id": "winter/fir_tree_small",
    "pos": [
-    -31.128,
+    30.245,
     0.0,
-    16.643
+    -30.811
    ],
-   "rot_y_deg": 120.12,
-   "scale": 0.942,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "nature_dock/small_tree_snow",
-   "pos": [
-    33.585,
-    0.0,
-    -8.612
-   ],
-   "rot_y_deg": -104.12,
-   "scale": 0.946,
+   "rot_y_deg": 141.04,
+   "scale": 1.125,
    "tints": {},
    "tags": [
     "tree",
@@ -16781,12 +17447,87 @@
   {
    "id": "winter/fir_tree_large",
    "pos": [
-    25.032,
-    0.061,
-    -32.119
+    12.926,
+    0.0,
+    28.577
    ],
-   "rot_y_deg": 51.1,
-   "scale": 0.963,
+   "rot_y_deg": 133.39,
+   "scale": 0.899,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_small",
+   "pos": [
+    -34.581,
+    0.0,
+    17.651
+   ],
+   "rot_y_deg": 74.96,
+   "scale": 1.017,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_large",
+   "pos": [
+    38.271,
+    0.0,
+    8.8
+   ],
+   "rot_y_deg": -99.56,
+   "scale": 0.982,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_large",
+   "pos": [
+    3.664,
+    0.0,
+    -29.225
+   ],
+   "rot_y_deg": 150.48,
+   "scale": 0.852,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_small",
+   "pos": [
+    -2.149,
+    0.0,
+    27.405
+   ],
+   "rot_y_deg": -81.29,
+   "scale": 0.949,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_small",
+   "pos": [
+    18.511,
+    0.0,
+    27.261
+   ],
+   "rot_y_deg": -99.22,
+   "scale": 1.136,
    "tints": {},
    "tags": [
     "tree",
@@ -16809,6 +17550,36 @@
    ]
   },
   {
+   "id": "winter/fir_tree_small",
+   "pos": [
+    28.239,
+    0.0,
+    -30.999
+   ],
+   "rot_y_deg": -7.08,
+   "scale": 0.965,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_large",
+   "pos": [
+    9.867,
+    1.2,
+    -31.161
+   ],
+   "rot_y_deg": -99.76,
+   "scale": 1.101,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
    "id": "winter/fir_tree_large",
    "pos": [
     35.426,
@@ -16824,14 +17595,14 @@
    ]
   },
   {
-   "id": "winter/fir_tree_small",
+   "id": "winter/fir_tree_large",
    "pos": [
-    -32.734,
+    -30.942,
     0.0,
-    16.831
+    21.901
    ],
-   "rot_y_deg": -175.42,
-   "scale": 1.082,
+   "rot_y_deg": -42.57,
+   "scale": 1.189,
    "tints": {},
    "tags": [
     "tree",
@@ -16839,44 +17610,29 @@
    ]
   },
   {
-   "id": "winter/fir_tree_medium",
+   "id": "nature_dock/rock_small_a_snow",
    "pos": [
-    13.857,
+    -32.451,
     0.0,
-    30.476
+    21.811
    ],
-   "rot_y_deg": 146.15,
-   "scale": 0.955,
+   "rot_y_deg": -77.7,
+   "scale": 1.012,
    "tints": {},
    "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_small",
-   "pos": [
-    -1.449,
-    0.0,
-    26.851
-   ],
-   "rot_y_deg": -17.85,
-   "scale": 1.148,
-   "tints": {},
-   "tags": [
-    "tree",
+    "rock",
     "blocker"
    ]
   },
   {
    "id": "winter/fir_tree_large",
    "pos": [
-    -34.864,
-    0.0,
-    17.99
+    8.702,
+    1.2,
+    -33.987
    ],
-   "rot_y_deg": 90.0,
-   "scale": 1.069,
+   "rot_y_deg": -160.75,
+   "scale": 1.153,
    "tints": {},
    "tags": [
     "tree",
@@ -16884,29 +17640,14 @@
    ]
   },
   {
-   "id": "winter/fir_tree_large",
+   "id": "nature_dock/broad_tree_snow",
    "pos": [
-    21.958,
-    0.297,
-    -30.188
-   ],
-   "rot_y_deg": -17.34,
-   "scale": 0.96,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_large",
-   "pos": [
-    36.257,
+    -5.645,
     0.0,
-    11.234
+    11.54
    ],
-   "rot_y_deg": 64.18,
-   "scale": 0.89,
+   "rot_y_deg": 122.05,
+   "scale": 1.06,
    "tints": {},
    "tags": [
     "tree",
@@ -16916,12 +17657,12 @@
   {
    "id": "winter/fir_tree_small",
    "pos": [
-    -33.545,
-    1.79,
-    -21.124
+    14.159,
+    0.0,
+    24.31
    ],
-   "rot_y_deg": 10.02,
-   "scale": 1.135,
+   "rot_y_deg": -39.41,
+   "scale": 0.996,
    "tints": {},
    "tags": [
     "tree",
@@ -16944,29 +17685,14 @@
    ]
   },
   {
-   "id": "winter/fir_tree_small",
-   "pos": [
-    4.297,
-    0.0,
-    32.216
-   ],
-   "rot_y_deg": 92.82,
-   "scale": 0.96,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
    "id": "winter/fir_tree_large",
    "pos": [
-    11.785,
-    0.0,
-    28.035
+    20.76,
+    0.469,
+    -33.706
    ],
-   "rot_y_deg": -164.97,
-   "scale": 1.063,
+   "rot_y_deg": -146.07,
+   "scale": 1.136,
    "tints": {},
    "tags": [
     "tree",
@@ -16976,12 +17702,12 @@
   {
    "id": "winter/fir_tree_small",
    "pos": [
-    -31.673,
+    -36.791,
     0.0,
-    14.467
+    10.896
    ],
-   "rot_y_deg": 121.5,
-   "scale": 1.154,
+   "rot_y_deg": 95.87,
+   "scale": 0.918,
    "tints": {},
    "tags": [
     "tree",
@@ -16989,29 +17715,14 @@
    ]
   },
   {
-   "id": "winter/fir_tree_large",
+   "id": "winter/fir_tree_medium",
    "pos": [
-    6.269,
+    6.989,
     1.2,
-    -34.209
+    -30.045
    ],
-   "rot_y_deg": 10.93,
-   "scale": 1.183,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_large",
-   "pos": [
-    -36.534,
-    0.0,
-    11.127
-   ],
-   "rot_y_deg": -17.59,
-   "scale": 1.173,
+   "rot_y_deg": -110.89,
+   "scale": 1.064,
    "tints": {},
    "tags": [
     "tree",
@@ -17021,12 +17732,12 @@
   {
    "id": "winter/fir_tree_small",
    "pos": [
-    -5.157,
+    32.924,
     0.0,
-    11.508
+    -11.577
    ],
-   "rot_y_deg": 151.55,
-   "scale": 1.071,
+   "rot_y_deg": -1.27,
+   "scale": 1.179,
    "tints": {},
    "tags": [
     "tree",
@@ -17036,12 +17747,12 @@
   {
    "id": "winter/fir_tree_small",
    "pos": [
-    -32.875,
-    0.0,
-    19.567
+    19.657,
+    0.653,
+    -30.516
    ],
-   "rot_y_deg": -7.91,
-   "scale": 0.85,
+   "rot_y_deg": 80.09,
+   "scale": 1.138,
    "tints": {},
    "tags": [
     "tree",
@@ -17051,27 +17762,12 @@
   {
    "id": "winter/fir_tree_small",
    "pos": [
-    29.992,
+    31.606,
     0.0,
-    -31.031
+    9.348
    ],
-   "rot_y_deg": 11.12,
-   "scale": 0.895,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_small",
-   "pos": [
-    10.484,
-    0.0,
-    28.77
-   ],
-   "rot_y_deg": 44.71,
-   "scale": 1.049,
+   "rot_y_deg": -167.33,
+   "scale": 1.007,
    "tints": {},
    "tags": [
     "tree",
@@ -17081,72 +17777,12 @@
   {
    "id": "winter/fir_tree_medium",
    "pos": [
-    -35.899,
+    -36.419,
     0.0,
-    16.229
+    15.442
    ],
-   "rot_y_deg": 176.38,
-   "scale": 1.08,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_large",
-   "pos": [
-    -5.109,
-    0.042,
-    -27.763
-   ],
-   "rot_y_deg": 17.27,
-   "scale": 0.913,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_medium",
-   "pos": [
-    27.812,
-    0.0,
-    -33.784
-   ],
-   "rot_y_deg": 77.27,
-   "scale": 1.08,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_large",
-   "pos": [
-    -33.223,
-    0.0,
-    23.942
-   ],
-   "rot_y_deg": 118.28,
-   "scale": 0.949,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_medium",
-   "pos": [
-    -30.31,
-    0.0,
-    14.619
-   ],
-   "rot_y_deg": 74.92,
-   "scale": 0.861,
+   "rot_y_deg": 67.63,
+   "scale": 0.938,
    "tints": {},
    "tags": [
     "tree",
@@ -17156,11 +17792,176 @@
   {
    "id": "winter/fir_tree_small",
    "pos": [
-    10.91,
+    -35.069,
     0.0,
-    31.688
+    22.63
    ],
-   "rot_y_deg": 86.52,
+   "rot_y_deg": -68.43,
+   "scale": 1.05,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_large",
+   "pos": [
+    5.494,
+    0.0,
+    31.295
+   ],
+   "rot_y_deg": 171.51,
+   "scale": 0.92,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_small",
+   "pos": [
+    4.955,
+    0.0,
+    20.983
+   ],
+   "rot_y_deg": -121.34,
+   "scale": 1.133,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_medium",
+   "pos": [
+    0.898,
+    0.013,
+    -29.567
+   ],
+   "rot_y_deg": -60.69,
+   "scale": 0.9,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_small",
+   "pos": [
+    10.57,
+    0.0,
+    25.827
+   ],
+   "rot_y_deg": 112.11,
+   "scale": 1.032,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_small",
+   "pos": [
+    2.87,
+    1.196,
+    -33.837
+   ],
+   "rot_y_deg": -157.78,
+   "scale": 0.897,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_medium",
+   "pos": [
+    17.049,
+    0.0,
+    29.135
+   ],
+   "rot_y_deg": -170.46,
+   "scale": 1.116,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_medium",
+   "pos": [
+    31.641,
+    0.0,
+    12.075
+   ],
+   "rot_y_deg": -106.15,
+   "scale": 1.073,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_small",
+   "pos": [
+    -29.393,
+    0.0,
+    -11.542
+   ],
+   "rot_y_deg": -60.44,
+   "scale": 1.181,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_small",
+   "pos": [
+    4.572,
+    0.0,
+    17.85
+   ],
+   "rot_y_deg": -88.98,
+   "scale": 1.03,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_large",
+   "pos": [
+    1.312,
+    1.167,
+    -33.542
+   ],
+   "rot_y_deg": 173.54,
+   "scale": 1.193,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_small",
+   "pos": [
+    33.41,
+    0.0,
+    9.913
+   ],
+   "rot_y_deg": 44.83,
    "scale": 1.029,
    "tints": {},
    "tags": [
@@ -17171,12 +17972,72 @@
   {
    "id": "winter/fir_tree_small",
    "pos": [
-    0.202,
+    34.556,
     0.0,
-    31.417
+    -3.371
    ],
-   "rot_y_deg": 134.85,
-   "scale": 0.949,
+   "rot_y_deg": -157.17,
+   "scale": 1.028,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "nature_dock/small_tree",
+   "pos": [
+    -37.029,
+    0.0,
+    -1.125
+   ],
+   "rot_y_deg": -66.83,
+   "scale": 0.978,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "nature_dock/small_tree",
+   "pos": [
+    32.042,
+    0.0,
+    -14.331
+   ],
+   "rot_y_deg": 80.52,
+   "scale": 0.996,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_large",
+   "pos": [
+    -29.389,
+    0.0,
+    -18.281
+   ],
+   "rot_y_deg": -88.92,
+   "scale": 1.199,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_medium",
+   "pos": [
+    -1.154,
+    0.0,
+    28.511
+   ],
+   "rot_y_deg": -171.79,
+   "scale": 1.11,
    "tints": {},
    "tags": [
     "tree",
@@ -17186,12 +18047,27 @@
   {
    "id": "winter/fir_tree_small",
    "pos": [
-    29.626,
+    -33.956,
     0.0,
-    -32.339
+    15.717
    ],
-   "rot_y_deg": 30.06,
-   "scale": 0.884,
+   "rot_y_deg": -79.98,
+   "scale": 0.954,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_small",
+   "pos": [
+    8.594,
+    1.2,
+    -31.92
+   ],
+   "rot_y_deg": 49.49,
+   "scale": 0.869,
    "tints": {},
    "tags": [
     "tree",
@@ -17216,6 +18092,36 @@
   {
    "id": "winter/fir_tree_small",
    "pos": [
+    7.333,
+    1.129,
+    -28.842
+   ],
+   "rot_y_deg": 29.43,
+   "scale": 1.168,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_large",
+   "pos": [
+    4.557,
+    0.0,
+    28.352
+   ],
+   "rot_y_deg": -138.19,
+   "scale": 0.963,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_small",
+   "pos": [
     3.028,
     0.0,
     13.972
@@ -17229,14 +18135,14 @@
    ]
   },
   {
-   "id": "winter/fir_tree_small",
+   "id": "winter/fir_tree_large",
    "pos": [
-    17.205,
-    0.792,
-    -34.5
+    38.01,
+    0.0,
+    10.904
    ],
-   "rot_y_deg": -103.53,
-   "scale": 0.968,
+   "rot_y_deg": -75.14,
+   "scale": 0.951,
    "tints": {},
    "tags": [
     "tree",
@@ -17246,12 +18152,42 @@
   {
    "id": "winter/fir_tree_small",
    "pos": [
-    14.931,
+    -32.107,
     0.0,
-    29.732
+    25.221
    ],
-   "rot_y_deg": 97.47,
-   "scale": 1.145,
+   "rot_y_deg": 2.79,
+   "scale": 1.152,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_small",
+   "pos": [
+    -36.856,
+    0.0,
+    12.83
+   ],
+   "rot_y_deg": -165.6,
+   "scale": 0.993,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_large",
+   "pos": [
+    -37.265,
+    0.0,
+    2.783
+   ],
+   "rot_y_deg": 111.48,
+   "scale": 0.992,
    "tints": {},
    "tags": [
     "tree",
@@ -17261,12 +18197,12 @@
   {
    "id": "winter/fir_tree_medium",
    "pos": [
-    37.987,
+    -1.051,
     0.0,
-    6.863
+    26.385
    ],
-   "rot_y_deg": -49.67,
-   "scale": 1.156,
+   "rot_y_deg": -132.59,
+   "scale": 1.126,
    "tints": {},
    "tags": [
     "tree",
@@ -17274,29 +18210,14 @@
    ]
   },
   {
-   "id": "winter/fir_tree_medium",
+   "id": "nature_dock/small_tree",
    "pos": [
-    3.1,
-    1.192,
-    -33.994
+    -7.036,
+    0.244,
+    -31.189
    ],
-   "rot_y_deg": 57.19,
-   "scale": 1.129,
-   "tints": {},
-   "tags": [
-    "tree",
-    "blocker"
-   ]
-  },
-  {
-   "id": "winter/fir_tree_medium",
-   "pos": [
-    5.107,
-    0.0,
-    21.783
-   ],
-   "rot_y_deg": -57.04,
-   "scale": 1.124,
+   "rot_y_deg": -35.36,
+   "scale": 0.996,
    "tints": {},
    "tags": [
     "tree",
@@ -17306,12 +18227,27 @@
   {
    "id": "winter/fir_tree_small",
    "pos": [
-    15.883,
+    -4.821,
     0.0,
-    28.369
+    30.33
    ],
-   "rot_y_deg": -160.52,
-   "scale": 0.969,
+   "rot_y_deg": -10.77,
+   "scale": 1.14,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_large",
+   "pos": [
+    -31.141,
+    0.0,
+    16.688
+   ],
+   "rot_y_deg": -44.1,
+   "scale": 0.853,
    "tints": {},
    "tags": [
     "tree",
@@ -17321,12 +18257,12 @@
   {
    "id": "winter/fir_tree_small",
    "pos": [
-    25.642,
-    0.0,
-    26.207
+    19.529,
+    0.742,
+    -32.766
    ],
-   "rot_y_deg": 19.15,
-   "scale": 0.943,
+   "rot_y_deg": -148.34,
+   "scale": 1.018,
    "tints": {},
    "tags": [
     "tree",
@@ -17334,14 +18270,44 @@
    ]
   },
   {
-   "id": "winter/fir_tree_small",
+   "id": "winter/fir_tree_large",
    "pos": [
-    -5.092,
-    0.0,
-    32.308
+    20.396,
+    0.291,
+    -28.953
    ],
-   "rot_y_deg": -5.03,
-   "scale": 1.155,
+   "rot_y_deg": -87.64,
+   "scale": 0.978,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_large",
+   "pos": [
+    12.601,
+    0.0,
+    26.12
+   ],
+   "rot_y_deg": -96.35,
+   "scale": 1.153,
+   "tints": {},
+   "tags": [
+    "tree",
+    "blocker"
+   ]
+  },
+  {
+   "id": "winter/fir_tree_large",
+   "pos": [
+    -2.045,
+    0.0,
+    15.799
+   ],
+   "rot_y_deg": -53.73,
+   "scale": 0.879,
    "tints": {},
    "tags": [
     "tree",
@@ -17351,12 +18317,12 @@
   {
    "id": "nature_dock/rock_cluster_snow",
    "pos": [
-    -21.607,
+    17.426,
     -0.8,
-    34.875
+    -43.615
    ],
-   "rot_y_deg": 7.2,
-   "scale": 1.754,
+   "rot_y_deg": 12.79,
+   "scale": 1.927,
    "tints": {},
    "tags": [
     "rock",
@@ -17367,12 +18333,12 @@
   {
    "id": "nature_dock/rock_small_b_snow",
    "pos": [
-    -49.323,
+    47.618,
     -0.8,
-    -8.325
+    -6.778
    ],
-   "rot_y_deg": 19.34,
-   "scale": 1.031,
+   "rot_y_deg": 43.7,
+   "scale": 1.339,
    "tints": {},
    "tags": [
     "rock",
@@ -17381,14 +18347,30 @@
    ]
   },
   {
-   "id": "nature_dock/rock_small_a_snow",
+   "id": "nature_dock/rock_small_b_snow",
    "pos": [
-    44.026,
+    -39.93,
     -0.8,
-    7.083
+    28.031
    ],
-   "rot_y_deg": 71.11,
-   "scale": 1.277,
+   "rot_y_deg": 105.27,
+   "scale": 1.848,
+   "tints": {},
+   "tags": [
+    "rock",
+    "coast",
+    "blocker"
+   ]
+  },
+  {
+   "id": "nature_dock/rock_cluster_snow",
+   "pos": [
+    -48.307,
+    -0.8,
+    -21.272
+   ],
+   "rot_y_deg": -149.93,
+   "scale": 1.246,
    "tints": {},
    "tags": [
     "rock",
@@ -18328,7 +19310,7 @@
    "id": "fishing/ice_floe_b",
    "pos": [
     27.588,
-    -0.56,
+    0.0,
     36.695
    ],
    "rot_y_deg": 40.06,
@@ -18342,7 +19324,7 @@
    "id": "fishing/ice_floe_c",
    "pos": [
     10.732,
-    -0.56,
+    0.0,
     41.919
    ],
    "rot_y_deg": 25.86,
@@ -18356,7 +19338,7 @@
    "id": "fishing/ice_floe_a",
    "pos": [
     10.306,
-    -0.56,
+    0.0,
     41.612
    ],
    "rot_y_deg": -94.25,
@@ -18370,7 +19352,7 @@
    "id": "fishing/ice_floe_a",
    "pos": [
     -6.912,
-    -0.56,
+    0.0,
     49.192
    ],
    "rot_y_deg": -101.76,
@@ -18384,7 +19366,7 @@
    "id": "fishing/ice_floe_b",
    "pos": [
     40.507,
-    -0.56,
+    0.0,
     32.929
    ],
    "rot_y_deg": -34.7,
@@ -18398,7 +19380,7 @@
    "id": "fishing/ice_floe_c",
    "pos": [
     37.831,
-    -0.56,
+    0.0,
     -35.066
    ],
    "rot_y_deg": -110.96,
@@ -18412,7 +19394,7 @@
    "id": "fishing/ice_floe_a",
    "pos": [
     21.202,
-    -0.56,
+    0.0,
     -46.243
    ],
    "rot_y_deg": -148.71,
@@ -18426,7 +19408,7 @@
    "id": "fishing/ice_floe_b",
    "pos": [
     -12.779,
-    -0.56,
+    0.0,
     -42.859
    ],
    "rot_y_deg": -12.56,
@@ -18440,7 +19422,7 @@
    "id": "fishing/ice_floe_a",
    "pos": [
     -44.98,
-    -0.56,
+    0.0,
     -27.058
    ],
    "rot_y_deg": -133.94,
@@ -18454,7 +19436,7 @@
    "id": "fishing/ice_floe_b",
    "pos": [
     -52.372,
-    -0.56,
+    0.0,
     -7.85
    ],
    "rot_y_deg": -12.68,
@@ -18468,7 +19450,7 @@
    "id": "fishing/ice_floe_b",
    "pos": [
     -18.549,
-    -0.56,
+    0.0,
     42.358
    ],
    "rot_y_deg": -28.14,
@@ -18482,7 +19464,7 @@
    "id": "fishing/ice_floe_a",
    "pos": [
     17.384,
-    -0.56,
+    0.0,
     36.537
    ],
    "rot_y_deg": 0.05,
@@ -18496,7 +19478,7 @@
    "id": "fishing/ice_floe_b",
    "pos": [
     49.235,
-    -0.56,
+    0.0,
     1.621
    ],
    "rot_y_deg": -98.02,
@@ -18510,7 +19492,7 @@
    "id": "fishing/ice_floe_b",
    "pos": [
     25.734,
-    -0.56,
+    0.0,
     -40.763
    ],
    "rot_y_deg": -20.06,
@@ -18524,7 +19506,7 @@
    "id": "fishing/ice_floe_c",
    "pos": [
     14.363,
-    -0.56,
+    0.0,
     -43.462
    ],
    "rot_y_deg": -64.49,
@@ -18538,7 +19520,7 @@
    "id": "fishing/ice_floe_a",
    "pos": [
     -38.315,
-    -0.56,
+    0.0,
     30.385
    ],
    "rot_y_deg": -74.55,
@@ -18552,7 +19534,7 @@
    "id": "fishing/ice_floe_a",
    "pos": [
     -50.307,
-    -0.56,
+    0.0,
     6.322
    ],
    "rot_y_deg": 86.65,
@@ -18566,7 +19548,7 @@
    "id": "fishing/ice_floe_c",
    "pos": [
     47.407,
-    -0.56,
+    0.0,
     -13.89
    ],
    "rot_y_deg": 57.89,
@@ -18580,7 +19562,7 @@
    "id": "fishing/ice_floe_b",
    "pos": [
     43.847,
-    -0.56,
+    0.0,
     21.968
    ],
    "rot_y_deg": 164.57,
@@ -18594,7 +19576,7 @@
    "id": "fishing/ice_floe_c",
    "pos": [
     -4.477,
-    -0.56,
+    0.0,
     -44.041
    ],
    "rot_y_deg": -60.31,
@@ -18608,7 +19590,7 @@
    "id": "fishing/ice_floe_c",
    "pos": [
     19.802,
-    -0.56,
+    0.0,
     -41.965
    ],
    "rot_y_deg": -92.06,
@@ -18622,7 +19604,7 @@
    "id": "fishing/ice_floe_c",
    "pos": [
     -15.423,
-    -0.56,
+    0.0,
     -49.315
    ],
    "rot_y_deg": 40.42,
@@ -18636,7 +19618,7 @@
    "id": "fishing/ice_floe_c",
    "pos": [
     -12.378,
-    -0.56,
+    0.0,
     37.414
    ],
    "rot_y_deg": 21.02,
@@ -18650,7 +19632,7 @@
    "id": "fishing/ice_floe_b",
    "pos": [
     -53.768,
-    -0.56,
+    0.0,
     10.185
    ],
    "rot_y_deg": -44.5,
@@ -18664,7 +19646,7 @@
    "id": "fishing/ice_floe_c",
    "pos": [
     -27.215,
-    -0.56,
+    0.0,
     34.239
    ],
    "rot_y_deg": -123.58,
@@ -18678,7 +19660,7 @@
    "id": "fishing/ice_floe_c",
    "pos": [
     19.905,
-    -0.56,
+    0.0,
     45.915
    ],
    "rot_y_deg": 19.07,
@@ -18692,7 +19674,7 @@
    "id": "fishing/ice_floe_a",
    "pos": [
     -17.978,
-    -0.56,
+    0.0,
     41.783
    ],
    "rot_y_deg": -135.84,
@@ -18706,7 +19688,7 @@
    "id": "fishing/ice_floe_b",
    "pos": [
     -41.148,
-    -0.56,
+    0.0,
     -19.343
    ],
    "rot_y_deg": 104.65,
@@ -18720,7 +19702,7 @@
    "id": "fishing/ice_floe_b",
    "pos": [
     -9.215,
-    -0.56,
+    0.0,
     47.404
    ],
    "rot_y_deg": 32.47,
@@ -18734,7 +19716,7 @@
    "id": "fishing/ice_floe_a",
    "pos": [
     16.886,
-    -0.56,
+    0.0,
     -43.509
    ],
    "rot_y_deg": -171.31,
@@ -18748,7 +19730,7 @@
    "id": "fishing/ice_floe_a",
    "pos": [
     39.424,
-    -0.56,
+    0.0,
     -31.457
    ],
    "rot_y_deg": 175.53,
@@ -18762,7 +19744,7 @@
    "id": "fishing/ice_floe_b",
    "pos": [
     -23.98,
-    -0.56,
+    0.0,
     40.69
    ],
    "rot_y_deg": 144.46,
@@ -18776,7 +19758,7 @@
    "id": "fishing/ice_floe_b",
    "pos": [
     6.168,
-    -0.56,
+    0.0,
     -45.263
    ],
    "rot_y_deg": -35.54,
@@ -18790,7 +19772,7 @@
    "id": "fishing/ice_floe_b",
    "pos": [
     -49.167,
-    -0.56,
+    0.0,
     -16.115
    ],
    "rot_y_deg": -128.17,
@@ -18804,7 +19786,7 @@
    "id": "fishing/ice_floe_c",
    "pos": [
     -56.131,
-    -0.56,
+    0.0,
     -11.391
    ],
    "rot_y_deg": -127.09,
@@ -18818,7 +19800,7 @@
    "id": "fishing/ice_floe_c",
    "pos": [
     37.101,
-    -0.56,
+    0.0,
     -33.701
    ],
    "rot_y_deg": -27.87,
@@ -18832,7 +19814,7 @@
    "id": "fishing/ice_floe_a",
    "pos": [
     40.749,
-    -0.56,
+    0.0,
     30.635
    ],
    "rot_y_deg": 67.71,
@@ -19054,35 +20036,24 @@
   {
    "name": "FishingSpot4",
    "pos": [
-    -15.5,
+    -16.5,
     0.07,
-    23.38
+    21.62
    ],
-   "rot_y_deg": -90.0,
+   "rot_y_deg": 90.0,
    "kind": "activity",
    "activity": "fishing"
   },
   {
    "name": "FishingSpot5",
    "pos": [
-    -15.5,
+    -16.5,
     0.07,
-    21.62
+    23.38
    ],
-   "rot_y_deg": -90.0,
+   "rot_y_deg": 90.0,
    "kind": "activity",
    "activity": "fishing"
-  },
-  {
-   "name": "HouseboatDoor",
-   "pos": [
-    -14.05,
-    0.07,
-    25.0
-   ],
-   "rot_y_deg": 0.0,
-   "kind": "door",
-   "target": "home"
   },
   {
    "name": "LighthouseDoor",

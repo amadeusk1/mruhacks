@@ -14,6 +14,8 @@ import common
 from common import Builder, mat, tint
 import sled_hill
 import ground
+import stream
+importlib.reload(stream)
 import hand_layout
 importlib.reload(hand_layout)
 
@@ -75,10 +77,8 @@ PATHS = [  # (polyline, width)
 
 PATHS += sled_hill.PATHS
 
-STREAM = [Vector((15.4, 33.15)), Vector((16.2, 21.45)), Vector((18.6, 16.25)), Vector((16.1, 8.45)), C(780, 580),   # NE bends pushed east to clear the arcade
-          C(760, 700), C(700, 800),
-          C(690, 920), C(700, 1080)]
-STREAM_W, STREAM_BED = 1.05, -1.05
+STREAM = stream.CTRL          # the channel, its levels, falls and water ribbon live in stream.py
+STREAM_W = stream.W
 
 def smoothstep(e0, e1, x):
     t = max(0.0, min(1.0, (x - e0) / (e1 - e0)))
@@ -131,7 +131,7 @@ def island_d(p):
 
 
 def stream_d(p):
-    return poly_dist(p, STREAM)
+    return stream.dist(p)[0]
 
 
 def cove_d(p):
@@ -172,10 +172,10 @@ def _height(p):
     sh = sled_hill.height(p, h)
     if sh is not None:
         h = sh
-    # stream: a channel below the water plane with soft snowy banks
-    sd = stream_d(p)
-    if sd < STREAM_W + 0.9:
-        h = min(h, STREAM_BED + (h - STREAM_BED) * smoothstep(STREAM_W * 0.6, STREAM_W + 0.9, sd))
+    # the spring: a snow-capped rock knoll the stream falls out of, steep on its south face
+    h = max(h, 2.7 * (1 - smoothstep(-0.2, 0.55, ellipse_d(p, Vector((15.4, 35.0)), 2.7, 1.85))))
+    # stream: stepped channel with banks just above each reach's water level (stream.py)
+    h = stream.carve(p, h)
     pw, pz = pad_w(p)
     h = h * (1 - pw) + pz * pw
     # coastline: steep drop behind the cliff ring
@@ -224,7 +224,7 @@ def _bridges():
     for pts, w in PATHS:
         for a, b in zip(pts, pts[1:]):
             a, b = Vector(a), Vector(b)
-            for c, d in zip(STREAM, STREAM[1:]):
+            for c, d in zip(stream.PTS, stream.PTS[1:]):
                 r, s2 = b - a, d - c
                 den = r.x * s2.y - r.y * s2.x
                 if abs(den) < 1e-9:
@@ -264,7 +264,7 @@ def build_water():
     for i in range(n + 1):
         for j in range(n + 1):
             idx[i, j] = len(verts)
-            verts.append((-R + i * S + RNG.uniform(-0.6, 0.6), -R + j * S + RNG.uniform(-0.6, 0.6), WATER_Z + RNG.uniform(-0.03, 0.03)))
+            verts.append((-R + i * S + RNG.uniform(-0.6, 0.6), -R + j * S + RNG.uniform(-0.6, 0.6), WATER_Z))  # flat: the stream mouth sits 4 cm above
     for i in range(n):
         for j in range(n):
             a, c, d, e = idx[i, j], idx[i + 1, j], idx[i + 1, j + 1], idx[i, j + 1]
@@ -280,13 +280,13 @@ DOCK_HEADS = []  # (first tile placement, direction away from shore) for the sea
 MARKERS = []
 
 
-EDGE_OK = ("lantern_post", "bench", "signpost", "activity_sign", "world_map_board", "spectator_bench", "notice_board",
+EDGE_OK = ("lantern_post", "string_light_pole", "bench", "signpost", "activity_sign", "world_map_board", "spectator_bench", "notice_board",
            "low_boundary_fence", "court_gate", "rope_posts", "snow_fence", "low_wood_fence", "plaza_edge", "water_edge",
            "rail_", "start_gate", "start_light", "finish", "checkpoint", "stanchion")
-EXEMPT = ("string_lights", "queue_spot", "shooting_spot", "ready_marker", "ripple", "bobber", "ice_floe", "rowboat",
+EXEMPT = ("string_lights", "queue_spot", "shooting_spot", "ready_marker", "ready_pad", "ripple", "bobber", "ice_floe", "rowboat",
           "houseboat", "waterfall", "cliff_", "snow_overlay", "stream_", "fountain", "footbridge", "dock_", "fishing_dock",
           "stairs", "landing", "court_half", "arena_blockout", "lighthouse", "icon_", "court_gate", "shore_", "foam", "porch_canopy", "doorstep", "home_number", "wall_lantern", "fender", "cleat")
-SOLID = ("tree", "rock_", "fence", "planter", "mailbox", "plaque", "stanchion", "rail_", "lantern_post", "bench", "round_table",
+SOLID = ("tree", "rock_", "fence", "planter", "mailbox", "plaque", "stanchion", "rail_", "lantern_post", "string_light_pole", "bench", "round_table",
          "umbrella", "crate", "barrel", "sign", "board", "snow_wall", "snowbank", "snow_bank", "topiary", "shrub", "street_bin",
          "chalkboard", "catch_display", "mooring_post", "rope_posts", "control_deck", "bunting_posts", "team_flag", "easel",
          "sketch_table", "ball_rack", "cliff_", "water_edge", "plaza_edge", "hoop", "scoreboard", "basket")
@@ -689,7 +689,7 @@ def layout():
         q = Vector((math.cos(a) * RNG.uniform(42, 58), 1.3 + math.sin(a) * RNG.uniform(39, 52)))
         if island_d(q) > 2.5 and all((q - Vector(w["pos"][:2])).length > 3.0 for w in walks):
             put(["fishing/ice_floe_a", "fishing/ice_floe_b", "fishing/ice_floe_c"][RNG.randrange(3)], q.x, q.y,
-                RNG.uniform(0, 360), z=WATER_Z - 0.06, tags=("decor",), scale=RNG.uniform(1.0, 2.2))
+                RNG.uniform(0, 360), z=0.0, tags=("decor",), scale=RNG.uniform(1.0, 2.2))   # floes are modelled at the waterline
 
 
 # ----------------------------------------------------------------- export --
@@ -716,6 +716,7 @@ def write_layout(path):
         "paths": [{"name": i, "width": w, "points": [to_godot((q[0], q[1], height(Vector(q)) + 0.07)) for q in pts]}
                   for i, (pts, w) in enumerate(PATHS)],   # PATHS includes sled_hill.PATHS; for tools/walk_test.gd
         "sled_track": sled_hill.layout_data(),
+        "stream": stream.layout_data(to_godot),           # levels/widths for the walk blockers, falls for spray
     }
     for p in data["placements"]:
         if p["name"] is None:
@@ -738,3 +739,34 @@ def build():
         o.parent = t
     t.name = "town_terrain"
     pav.name, w.name, trk.name = "terrain_paths", "water", "terrain_sled_track"
+    stream.selfcheck()
+    st = stream.ribbon_object("water_stream", island_d, common.mat(tint("water", "#1E9FC2")))
+    w.users_collection[0].objects.link(st)
+    st.parent = t
+    stream.bake_shore(t, water_stamps(), os.path.join(common.MODELS, KIT, "water_shore.png"))
+
+
+def water_stamps():
+    """(x, y, radius) of everything standing in the sea, for the shore-foam rings in water_shore.png."""
+    out = []
+    for q in PLACE:
+        x, y, z = q["pos"]
+        a = math.radians(q["yaw"])
+        if any(k in q["id"] for k in ("dock_straight", "dock_corner", "fishing_dock_spot", "dock_end_cap")):
+            for u, v in ((-0.9, -0.9), (0.9, -0.9), (-0.9, 0.9), (0.9, 0.9)):   # piles at the tile corners
+                out.append((x + u * math.cos(a) - v * math.sin(a), y + u * math.sin(a) + v * math.cos(a), 0.14))
+            continue
+        if "houseboat_exterior" in q["id"]:
+            for u in (-2.0, 0.0, 2.0):                                     # hull: 5.6 m long, 2.8 m beam
+                out.append((x + u * math.cos(a), y + u * math.sin(a), 1.15))
+            continue
+        if height(Vector((x, y))) > WATER_Z + 0.05 and "coast" not in q["tags"]:
+            continue
+        if "rowboat" in q["id"]:                                           # 2.5 m long, 1.06 m beam
+            for u in (-0.6, 0.6):
+                out.append((x + u * math.cos(a), y + u * math.sin(a), 0.5))
+            continue
+        if any(k in q["id"] for k in ("rock", "ice_floe")):
+            sz = manifest(q["id"]).get("size_m") or [1, 1, 1]
+            out.append((x, y, max(sz[0], sz[1]) * 0.42 * q["scale"]))
+    return out
