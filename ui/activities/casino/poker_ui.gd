@@ -137,14 +137,14 @@ func _table(table: Control) -> void:
 			slot.add_theme_stylebox_override("panel", A.box(Color(1, 1, 1, 0.08), 8, 2, Color(1, 1, 1, 0.25), 0))
 			board.add_child(slot)
 	var pot := A.chip("Pot  %d" % int(state.get("pot", 0)), Color(0, 0, 0, 0.25), A.WHITE, "", 20, Vector2(16, 6))
-	A.pin(table, pot, Vector4(0.5, 0.24, 0.5, 0.24), Vector4(-70, -20, 70, 20))
+	A.pin(table, pot, Vector4(0.17, 0.42, 0.17, 0.42), Vector4(-70, -20, 70, 20))
 	var hole := A.hbox(6, BoxContainer.ALIGNMENT_CENTER)
 	A.pin(table, hole, Vector4(0.5, 0.78, 0.5, 0.78), Vector4(-80, -54, 80, 54))
 	for c in state.get("hole", []):
 		hole.add_child(K.card(str(c[0]), str(c[1]), true, 64))
 	var seats: Array = state.get("seats", [])
 	# rotated so your seat is always at the bottom, the rest clockwise around the felt
-	var spots := [Vector2(0.5, 0.95), Vector2(0.12, 0.7), Vector2(0.12, 0.25), Vector2(0.5, 0.08), Vector2(0.88, 0.25), Vector2(0.88, 0.7)]
+	var spots := [Vector2(0.5, 0.95), Vector2(0.1, 0.72), Vector2(0.1, 0.16), Vector2(0.5, -0.02), Vector2(0.9, 0.16), Vector2(0.9, 0.72)]
 	for i in seats.size():
 		var st: Dictionary = seats[i] if seats[i] is Dictionary else {}
 		if st.is_empty() or i == int(state.get("my_seat", 0)):

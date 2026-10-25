@@ -9,6 +9,7 @@ signal intent(action: String, value: Variant)
 
 const A := preload("res://ui/activities/act_style.gd")
 const K := preload("res://ui/activities/casino/casino_kit.gd")
+const Sfx := preload("res://scripts/casino/casino_sfx.gd")
 const SYMBOLS := ["penguin", "star", "bell", "fish", "snowflake"]
 
 var state := {"phase": "idle", "balance": 120, "cost": 5, "result": ["penguin", "star", "bell"], "win": 0}
@@ -103,8 +104,8 @@ func _build() -> void:
 
 func _spin() -> void:
 	_req += 1
+	apply_state({"phase": "pending"})  # before the intent: in Solo the result comes back synchronously
 	intent.emit("spin", {"request_id": "%d-%d" % [Time.get_ticks_msec(), _req]})
-	apply_state({"phase": "pending"})
 
 
 func close() -> void:
@@ -138,7 +139,7 @@ class Reel:
 		if _stop_in >= 0.0:
 			_stop_in -= delta
 			if _stop_in <= 0.0:
-				CasinoSfx.play(self, "reel_stop", -10.0)
+				Sfx.play(self, "reel_stop", -10.0)
 				spinning = false
 				symbol = _target
 				_offset = 0.0

@@ -48,13 +48,17 @@ func _on_session() -> void:
 	print("CASINO_MP %s seat race -> %d" % [me, _seat])
 	if _seat < 0:
 		Casino.join("poker", 1 + randi() % 5, "")
-	await get_tree().create_timer(secs * 0.4).timeout
+	await get_tree().create_timer(secs * 0.3).timeout
 	_phase = "blackjack"
 	Casino.join("blackjack", randi() % 5, "")
-	await get_tree().create_timer(secs * 0.25).timeout
-	_phase = "roulette"
-	Casino.join("roulette", randi() % 4, "")
 	await get_tree().create_timer(secs * 0.2).timeout
+	_phase = "roulette"
+	var rs := absi(me.hash()) % 4
+	Casino.join("roulette", rs, "")
+	await get_tree().create_timer(1.5).timeout
+	if not bool(_views.get("roulette", {}).get("seated", false)):
+		Casino.join("roulette", (rs + 1) % 4, "")  # lost the race: next seat
+	await get_tree().create_timer(secs * 0.35).timeout
 	_phase = "slots"
 	var slot := "slot_test_%s" % me
 	Casino.join(slot, 0, "")

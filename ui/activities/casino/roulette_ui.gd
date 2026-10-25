@@ -13,6 +13,7 @@ signal intent(action: String, value: Variant)
 const A := preload("res://ui/activities/act_style.gd")
 const K := preload("res://ui/activities/casino/casino_kit.gd")
 const R := preload("res://scripts/casino/casino_rules.gd")
+const Sfx := preload("res://scripts/casino/casino_sfx.gd")
 
 var blocks_world := true
 var live := false
@@ -52,7 +53,7 @@ func _build() -> void:
 	_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_root)
 	var fr := K.frame()
-	A.pin(_root, fr, Vector4(0.5, 1, 0.5, 1), Vector4(-620, -372, 620, -10))
+	A.pin(_root, fr, Vector4(0.5, 1, 0.5, 1), Vector4(-620, -446, 620, -8))
 	var v := A.vbox(6)
 	fr.add_child(v)
 	var phase := str(state.get("phase", ""))
@@ -115,7 +116,7 @@ func _message(phase: String) -> String:
 
 func _side(phase: String) -> Control:
 	var col := A.vbox(8)
-	col.custom_minimum_size = Vector2(250, 0)
+	col.custom_minimum_size = Vector2(230, 0)
 	col.add_child(A.label("Last results", 16, Color(1, 1, 1, 0.8), true))
 	var hist := A.hbox(4)
 	for p in (state.get("history", []) as Array).slice(0, 7):
@@ -211,7 +212,7 @@ func _cell(spot: String, text: String, sz: Vector2, open: bool) -> Button:
 	b.add_theme_font_size_override("font_size", 18 if spot.begins_with("n") else 16)
 	b.pressed.connect(func() -> void:
 		_pending[spot] = int(_pending.get(spot, 0)) + int(K.CHIP_VALUES[_chip])
-		CasinoSfx.play(self, "chip", -12.0)
+		Sfx.play(self, "chip", -12.0)
 		_build())
 	var mine := int((state.get("bets", {}) as Dictionary).get(spot, 0))
 	var pend := int(_pending.get(spot, 0))

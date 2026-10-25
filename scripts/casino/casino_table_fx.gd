@@ -5,6 +5,7 @@ extends Node3D
 ## reels spinning when someone plays. Added to the casino room by casino_session.gd.
 
 const R := preload("res://scripts/casino/casino_rules.gd")
+const Sfx := preload("res://scripts/casino/casino_sfx.gd")
 const WHEEL_TRACK := 0.33
 const BALL_END := 0.2
 
@@ -89,11 +90,11 @@ func _process(delta: float) -> void:
 		_tick_acc += _omega * delta
 		if k > 0.55 and _tick_acc > 1.2:
 			_tick_acc = 0.0
-			CasinoSfx.play(self, "tick", -14.0)
+			Sfx.play(self, "tick", -14.0)
 		if k >= 1.0:
 			_spin_len = 0.0
 			_mark.visible = true
-			CasinoSfx.play(self, "drop", -8.0)
+			Sfx.play(self, "drop", -8.0)
 	for m in _reels.keys():
 		_reels[m] = float(_reels[m]) - delta
 		var machine: Node3D = m
@@ -174,7 +175,7 @@ func _poker(v: Dictionary) -> void:
 				b.position = at.lerp(Vector3(0, at.y, 0), -0.25) + Vector3(0.12, 0.005, 0)
 	_stack(layer, _sock(sk, "socket_pot"), int(v.get("pot", 0)))
 	if grew:
-		CasinoSfx.play(self, "card", -10.0)
+		Sfx.play(self, "card", -10.0)
 
 
 func _blackjack(v: Dictionary) -> void:
@@ -205,7 +206,7 @@ func _blackjack(v: Dictionary) -> void:
 		for h in hands:
 			bet = maxi(bet, int(h.get("bet", 0)))
 		_stack(layer, _sock(sk, "socket_bet_%d" % s), bet)
-	CasinoSfx.play(self, "card", -12.0)
+	Sfx.play(self, "card", -12.0)
 
 
 func _layer(id: String, table: Node3D) -> Node3D:

@@ -11,6 +11,7 @@ const SCREENS := {
 	"slots": "res://ui/activities/casino/slots_ui.gd",
 }
 const FX := preload("res://scripts/casino/casino_table_fx.gd")
+const Sfx := preload("res://scripts/casino/casino_sfx.gd")
 
 var _ui: Control = null
 var _table := ""
@@ -80,6 +81,7 @@ func _on_requested(activity: String, anchor: Node, _player: Node) -> void:
 	Casino.join(_table, seat, anchor.call("bench_key") if anchor.has_method("bench_key") else "")
 	if activity == "roulette" and anchor.has_meta("table"):
 		_frame(anchor.get_meta("table"))
+	_own_tags(false)
 
 
 func _on_intent(action: String, value = null) -> void:
@@ -94,7 +96,7 @@ func _on_intent(action: String, value = null) -> void:
 			var data: Dictionary = value if value is Dictionary else {"amount": value}
 			Casino.act(_table, action, data)
 			if action in ["bet", "spin", "raise", "call"]:
-				CasinoSfx.play(self, "chip" if action != "spin" else "lever", -8.0)
+				Sfx.play(self, "chip" if action != "spin" else "lever", -8.0)
 
 
 func _close(stand: bool) -> void:
@@ -110,6 +112,7 @@ func _close(stand: bool) -> void:
 	var rig := _rig()
 	if rig != null and rig.has_method("unpin_focus"):
 		rig.call("unpin_focus")
+	_own_tags(true)
 	if stand:
 		var player := get_tree().get_first_node_in_group("local_player")
 		if player != null and player.has_method("stand_up"):
@@ -139,7 +142,7 @@ func _apply(v: Dictionary) -> void:
 			s["phase"] = "result"
 			var win := int(v.get("win", 0))
 			get_tree().create_timer(1.7).timeout.connect(func() -> void:
-				CasinoSfx.play(self, "big_win" if win >= 50 else ("win" if win > 0 else "lose"), -6.0))
+				Sfx.play(self, "big_win" if win >= 50 else ("win" if win > 0 else "lose"), -6.0))
 		else:
 			s.erase("phase")
 	elif _game == "blackjack" and v.get("my_seat", -1) < 0 and str(v.get("phase", "")) != "waiting":
@@ -191,7 +194,16 @@ func _on_gesture(peer: int, clip: String) -> void:
 	if idle != "" and who.has_method("is_sitting") and bool(who.call("is_sitting")):
 		ap.queue(idle)  # back to the seated loop afterwards
 	if clip.ends_with("cheer_seated") and peer == Net.local_id():
-		CasinoSfx.play(self, "win", -6.0)
+		Sfx.play(self, "win", -6.0)
+
+
+## Your own name tag sits between the pinned camera and the table: hide it while you play.
+func _own_tags(show: bool) -> void:
+	var player := get_tree().get_first_node_in_group("local_player")
+	if player == null:
+		return
+	for l in player.find_children("*", "Label3D", true, false):
+		(l as Label3D).visible = show
 
 
 func _frame(table: Node3D) -> void:
