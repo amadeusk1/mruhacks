@@ -162,8 +162,11 @@ func _process(delta: float) -> void:
 	if _fade >= 1.0 and _b.playing:
 		_b.stop()
 	var hold := _held()
-	_a.stream_paused = hold
-	_b.stream_paused = hold
+	# only on change: on web each pause/unpause recreates the Web Audio source (restarted the song every frame)
+	if _a.stream_paused != hold:
+		_a.stream_paused = hold
+	if _b.stream_paused != hold:
+		_b.stream_paused = hold
 	# A looping bed that hit the end anyway (loop flag missed) restarts instead of going silent.
 	if _wanted == "" and _stream_loops(_a.stream) and not hold and not _a.playing and _fade >= 1.0:
 		_a.play()
