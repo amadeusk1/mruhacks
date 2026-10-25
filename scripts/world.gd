@@ -376,6 +376,7 @@ func send_chat(message: String) -> void:
 	else:
 		var speaker := str(Net.local_profile()["name"]) if _in_game else "You"
 		_hud.add_line(speaker, text)
+		Net.chat_from.emit(Net.local_id(), speaker, text)  # solo: your own bubble too
 
 
 func _on_chat(speaker: String, message: String) -> void:

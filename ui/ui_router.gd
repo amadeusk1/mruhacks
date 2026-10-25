@@ -12,7 +12,7 @@ var _locked := false
 var settings := {
 	"music": 70.0, "effects": 80.0, "voice": 60.0, "movie": 50.0,
 	"mic": false, "push_to_talk": false, "text_size": 1, "reduce_motion": false,
-	"high_contrast": false, "ui_scale": 100.0, "fullscreen": false,
+	"high_contrast": false, "ui_scale": 100.0, "fullscreen": false, "chat_minimized": false,
 }
 const SETTINGS_PATH := "user://settings.cfg"
 const TEXT_SCALES := [0.9, 1.0, 1.15]
