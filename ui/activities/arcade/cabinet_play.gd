@@ -190,6 +190,15 @@ func _build() -> void:
 	note.offset_left = -160
 	note.offset_right = 160
 	_banner.add_child(note)
+	var out := A.button("Leave", "secondary", "leave", 22, Vector2(200, 56))  # leave without replaying
+	out.set_anchors_preset(Control.PRESET_CENTER)
+	out.offset_left = -100
+	out.offset_top = 70
+	out.offset_right = 100
+	out.offset_bottom = 126
+	out.focus_mode = Control.FOCUS_NONE
+	out.pressed.connect(close)
+	_banner.add_child(out)
 
 
 func _replay() -> void:
