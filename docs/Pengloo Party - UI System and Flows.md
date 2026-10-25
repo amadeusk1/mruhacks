@@ -1,10 +1,10 @@
-# Waddle World - UI System and Flows
+# Pengloo Party - UI System and Flows
 
-[Waddle World - UI Mockups](Waddle%20World%20-%20UI%20Mockups.md) · [GAME_DESIGN_CONTEXT](GAME_DESIGN_CONTEXT.md) · [Player Housing - Grid Decoration](Player%20Housing%20-%20Grid%20Decoration.md)
+[Pengloo Party - UI Mockups](Pengloo%20Party%20-%20UI%20Mockups.md) · [GAME_DESIGN_CONTEXT](GAME_DESIGN_CONTEXT.md) · [Player Housing - Grid Decoration](Player%20Housing%20-%20Grid%20Decoration.md)
 
 ## Confirmed direction
 
-The user requested simple UI, inspired by Club Penguin's approachable menus, with **Waddle World** as a placeholder title. Use original layouts and assets. This batch creates mockups and specifications only; it does not replace the game's current scenes or rename its project configuration.
+The user requested simple UI, inspired by Club Penguin's approachable menus, titled **Pengloo Party**. Use original layouts and assets. This batch creates mockups and specifications only; it does not replace the game's current scenes.
 
 ## Shared visual language
 

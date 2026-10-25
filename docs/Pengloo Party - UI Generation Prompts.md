@@ -1,6 +1,6 @@
-# Waddle World - UI Generation Prompts
+# Pengloo Party - UI Generation Prompts
 
-Tool: built-in image generation. Twelve new boards saved in `Images/UI - ...png`, linked in [Waddle World - UI Mockups](Waddle%20World%20-%20UI%20Mockups.md). Shared direction: original simple ivory/navy/teal/coral UI, readable rounded controls, low-poly snowy penguin village, no ornate framing or monetization. Per-board prompt directions:
+Tool: built-in image generation. Twelve new boards saved in `Images/UI - ...png`, linked in [Pengloo Party - UI Mockups](Pengloo%20Party%20-%20UI%20Mockups.md). Shared direction: original simple ivory/navy/teal/coral UI, readable rounded controls, low-poly snowy penguin village, no ornate framing or monetization. Per-board prompt directions:
 
 ## UI - Main Menu and Entry
 

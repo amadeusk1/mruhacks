@@ -4,7 +4,7 @@
 
 ## Confirmed
 
-Waddle World is the placeholder title. Simple original UI. Modular penguins, interchangeable gear and engine tinting. Player-decorated homes with grid placement. Cute movement and emotes. Cinema, arcade, fishing, sledding, snowballs, basketball and drawing telephone. Online server/backend support is needed and will run on the team’s own server. An eventual browser release at `https://pengloo.party` is required; the game domain is confirmed; see [Dev Handoff - Self Hosting and Browser Release](Dev%20Handoff%20-%20Self%20Hosting%20and%20Browser%20Release.md). All mockup/reference work goes into Obsidian and GitHub when committed.
+The working title is Pengloo Party. Simple original UI. Modular penguins, interchangeable gear and engine tinting. Player-decorated homes with grid placement. Cute movement and emotes. Cinema, arcade, fishing, sledding, snowballs, basketball and drawing telephone. Online server/backend support is needed and will run on the team’s own server. An eventual browser release at `https://pengloo.party` is required; the game domain is confirmed; see [Dev Handoff - Self Hosting and Browser Release](Dev%20Handoff%20-%20Self%20Hosting%20and%20Browser%20Release.md). All mockup/reference work goes into Obsidian and GitHub when committed.
 
 ## Resolve before their dependent work
 

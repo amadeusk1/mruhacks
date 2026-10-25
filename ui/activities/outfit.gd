@@ -1,28 +1,21 @@
 class_name Outfit
 extends RefCounted
-## The local player's look: coat colour index (Net.COATS) plus one avatar asset per slot.
-## shortcut: saved locally in user://outfit.cfg and applied to the local penguin only; other
-## players still see the default outfit until the profile service/network carries appearance.
 
-const PATH := "user://outfit.cfg"
-const SLOTS := ["head", "torso", "face", "neck", "back", "hand"]
-const DEFAULT := {"color": 0, "head": "red_beanie", "torso": "hoodie", "face": "", "neck": "", "back": "", "hand": ""}
+const WornLook := preload("res://scripts/worn_look.gd")
+## The player's look: coat colour index (Net.COATS) plus one avatar asset per slot.
+## Saved in user://outfit.cfg. Net publishes the same look so other players dress their copy of you.
+
+const PATH := WornLook.PATH
+const SLOTS := WornLook.SLOTS
+const DEFAULT := WornLook.DEFAULT
 
 
 static func load_look() -> Dictionary:
-	var look := DEFAULT.duplicate()
-	var cfg := ConfigFile.new()
-	if cfg.load(PATH) == OK:
-		for k in look:
-			look[k] = cfg.get_value("look", k, look[k])
-	return look
+	return WornLook.load_look()
 
 
 static func save_look(look: Dictionary) -> bool:
-	var cfg := ConfigFile.new()
-	for k in DEFAULT:
-		cfg.set_value("look", k, look.get(k, DEFAULT[k]))
-	return cfg.save(PATH) == OK
+	return WornLook.save_look(look)
 
 
 static func coat(look: Dictionary) -> Color:
@@ -30,10 +23,15 @@ static func coat(look: Dictionary) -> Color:
 
 
 static func pieces(look: Dictionary) -> Dictionary:
-	var out := {}
-	for s in SLOTS:
-		out[s] = str(look.get(s, ""))
-	return out
+	return WornLook.pieces(look)
+
+
+static func sanitize(raw: Dictionary) -> Dictionary:
+	return WornLook.sanitize(raw, Net.COATS.size())
+
+
+static func signature(look: Dictionary) -> String:
+	return WornLook.signature(look, Net.COATS.size())
 
 
 ## Re-dresses a mounted PackAvatar (from AssetPack.mount_bird) to `look`. Idempotent.

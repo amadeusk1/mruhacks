@@ -1,9 +1,8 @@
 extends Node
 
 ## Hosts the normal world, but re-dresses penguins by player name on this screen only, to match
-## the pitch deck's "Revitalizing" slide. Outfits are not networked yet (ui/activities/outfit.gd),
-## so other players see each other in the default beanie and hoodie; this fixes the host's view
-## for filming. Nothing is saved: the local wardrobe in user://outfit.cfg is left alone.
+## the pitch deck's "Revitalizing" slide. Networked outfits still go out on the roster; this
+## override is local to the filming camera. Nothing is saved: user://outfit.cfg is left alone.
 ##   Godot --path . res://tools/film_host.tscn -- --net-host --net-name=Host
 ## Then start the followers: tools/follow_bots.sh 4 (Pip, Mochi, Waddles, Biscuit).
 

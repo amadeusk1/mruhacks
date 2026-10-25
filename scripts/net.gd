@@ -1,5 +1,7 @@
 extends Node
 
+const WornLook := preload("res://scripts/worn_look.gd")
+
 ## Listen server for two windows on this machine.
 ## Each penguin simulates its own walk. The host owns the roster,
 ## which place everyone is in, and who is sitting.
@@ -46,8 +48,7 @@ var dedicated := OS.get_cmdline_user_args().has("--dedicated")
 var _roster: Array = []
 var _local_name := "Penguin"
 var _local_color := 0
-## Coat chosen on the Your Penguin screen (UI core). Used for solo and hosting; a joining client
-## still gets the host's pick. shortcut: send it in hello() when the protocol next changes.
+## Coat chosen on the Your Penguin screen. Folded into the worn look before it is published.
 var preferred_color := -1
 var _color_next := 0
 var _session_open := false
@@ -211,7 +212,7 @@ func local_id() -> int:
 
 
 func local_profile() -> Dictionary:
-	return {"name": _local_name, "color": _local_color}
+	return {"name": _local_name, "color": _local_color, "outfit": WornLook.pieces(WornLook.load_look())}
 
 
 func role_label() -> String:
@@ -244,7 +245,10 @@ func play_solo(player_name: String) -> void:
 		return
 	_mode = Mode.SOLO
 	_local_name = _clean_name(player_name)
-	_local_color = maxi(preferred_color, 0)
+	var look := _local_look()
+	WornLook.save_look(look)
+	_local_color = int(look["color"])
+	preferred_color = _local_color
 	_session_open = true
 	print("Net solo as %s" % _local_name)
 	session_started.emit()
@@ -266,10 +270,14 @@ func host_game(player_name: String) -> String:
 	_mode = Mode.HOST
 	multiplayer.multiplayer_peer = peer
 	_local_name = _clean_name(player_name)
-	_local_color = _take_color() if preferred_color < 0 else preferred_color
+	var look := _local_look()
+	WornLook.save_look(look)
+	_local_color = int(look["color"])
+	preferred_color = _local_color
 	_place_hidden = true
 	if not dedicated:  # a listen-server host plays; a dedicated one never joins its own roster
 		_players[local_id()] = _blank(local_id(), _local_name, _local_color)
+		_remember_outfit(local_id(), look)
 	_session_open = true
 	print("Net hosting on %s:%s as peer %s (%s)" % [ADDRESS, PORT, local_id(), _local_name])
 	if public_listing and not has_node("LobbyLink"):  # dedicated, or a desktop-app player hosting
@@ -763,6 +771,7 @@ func _snapshot() -> Array:
 			"anim_n": int(player.get("anim_n", 0)),
 			"anim_age": (Time.get_ticks_msec() - int(player.get("anim_at", 0))) / 1000.0,
 			"visitors": str(player.get("visitors", "friends")),
+			"outfit": WornLook.pieces(player.get("outfit", {})),
 		})
 	return list
 
@@ -778,7 +787,41 @@ func _blank(peer_id: int, player_name: String, color_index: int) -> Dictionary:
 		"bench": "",
 		"igloo": 0,
 		"fisher": "",
+		"outfit": WornLook.pieces(WornLook.DEFAULT),
 	}
+
+
+## Worn look, with the menu swatch winning over a stale saved coat until the wardrobe saves again.
+func _local_look() -> Dictionary:
+	var look := WornLook.load_look()
+	if preferred_color >= 0:
+		look["color"] = preferred_color
+	return WornLook.sanitize(look, COATS.size())
+
+
+func publish_outfit(explicit: Dictionary = {}) -> void:
+	var clean := WornLook.sanitize(explicit, COATS.size()) if not explicit.is_empty() else _local_look()
+	_local_color = int(clean["color"])
+	preferred_color = _local_color
+	if explicit.is_empty():
+		WornLook.save_look(clean)
+	if _mode == Mode.HOST and _players.has(local_id()):
+		if _remember_outfit(local_id(), clean):
+			_broadcast()
+	elif _mode == Mode.CLIENT and multiplayer.multiplayer_peer != null:
+		submit_outfit.rpc_id(1, clean)
+
+
+func _remember_outfit(id: int, raw: Dictionary) -> bool:
+	if not _players.has(id):
+		return false
+	var clean := WornLook.sanitize(raw, COATS.size())
+	var player: Dictionary = _players[id]
+	if int(player.get("color", -1)) == int(clean["color"]) and WornLook.signature(player.get("outfit", {}), COATS.size()) == WornLook.signature(WornLook.pieces(clean), COATS.size()):
+		return false
+	player["color"] = int(clean["color"])
+	player["outfit"] = WornLook.pieces(clean)
+	return true
 
 
 func _same_room(a: Dictionary, b: Dictionary) -> bool:
@@ -943,7 +986,11 @@ func _on_connected_to_server() -> void:
 	if _mode != Mode.CLIENT:
 		return
 	print("Net joined as peer %s" % local_id())
-	hello.rpc_id(1, _local_name, admin_code)
+	var look := _local_look()
+	WornLook.save_look(look)
+	_local_color = int(look["color"])
+	preferred_color = _local_color
+	hello.rpc_id(1, _local_name, admin_code, look)
 
 
 func _on_connection_failed() -> void:
@@ -969,7 +1016,7 @@ func _on_hello_timeout() -> void:
 
 
 @rpc("any_peer", "call_remote", "reliable")
-func hello(player_name: String, admin: String) -> void:
+func hello(player_name: String, admin: String, outfit: Dictionary = {}) -> void:
 	if _mode != Mode.HOST:
 		return
 	var id := multiplayer.get_remote_sender_id()
@@ -987,8 +1034,21 @@ func hello(player_name: String, admin: String) -> void:
 		_players[id]["name"] = cleaned
 	else:
 		_players[id] = _blank(id, cleaned, _take_color())
+	if not outfit.is_empty():
+		_remember_outfit(id, outfit)
 	print("Net hello from peer %s (%s)" % [id, cleaned])
 	_broadcast()
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func submit_outfit(outfit: Dictionary) -> void:
+	if _mode != Mode.HOST:
+		return
+	var id := multiplayer.get_remote_sender_id()
+	if id <= 0 or not _players.has(id):
+		return
+	if _remember_outfit(id, outfit):
+		_broadcast()
 
 
 ## Server-side admin bypass: PENGLOO_ADMIN_CODE from the server's private env file (16+ chars).

@@ -1,6 +1,6 @@
-# Waddle World — Developer Handoff
+# Pengloo Party — Developer Handoff
 
-**Working title: Waddle World.** The goal is a cozy multiplayer town of customizable penguins, with social activities and player-decorated homes. This handoff consolidates the original design brief and later requests; it is not a claim that the described systems already exist.
+**Working title: Pengloo Party.** The goal is a cozy multiplayer town of customizable penguins, with social activities and player-decorated homes. This handoff consolidates the original design brief and later requests; it is not a claim that the described systems already exist.
 
 ## Read in this order
 
@@ -13,7 +13,7 @@
 7. [Dev Handoff - Delivery and QA](Dev%20Handoff%20-%20Delivery%20and%20QA.md) — implementation order and release gates.
 8. [Dev Handoff - Decisions Register](Dev%20Handoff%20-%20Decisions%20Register.md) — unresolved product and infrastructure choices.
 
-Visual index: [Waddle World - UI Mockups](Waddle%20World%20-%20UI%20Mockups.md). Models and art: [Art Pipeline](Art%20Pipeline.md), [Models](Models.md), [Renders](Renders.md), [Engine Specs - Index](Engine%20Specs/Engine%20Specs%20-%20Index.md). These asset notes may advance independently of a Git snapshot; inspect the committed files and manifests before assuming a resource exists.
+Visual index: [Pengloo Party - UI Mockups](Pengloo%20Party%20-%20UI%20Mockups.md). Models and art: [Art Pipeline](Art%20Pipeline.md), [Models](Models.md), [Renders](Renders.md), [Engine Specs - Index](Engine%20Specs/Engine%20Specs%20-%20Index.md). These asset notes may advance independently of a Git snapshot; inspect the committed files and manifests before assuming a resource exists.
 
 ## Definitions of done
 

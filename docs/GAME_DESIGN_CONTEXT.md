@@ -1,6 +1,6 @@
 # Game Design Context for Codex
 
-**Project:** Working title undecided; a cozy multiplayer social world with customizable bird characters.
+**Project:** Pengloo Party, a cozy multiplayer social world with customizable bird characters.
 
 **Context date:** October 24, 2026.
 
@@ -32,7 +32,7 @@ The user initially considered a Club Penguin-inspired project. The selected visu
 
 | Area | Confirmed request | Details not yet fixed by the owner |
 | --- | --- | --- |
-| Overall game | Club Penguin-inspired multiplayer social world, initially for a 36-hour hackathon | Final name, engine, platform, team size, deployment target |
+| Overall game | Pengloo Party, a Club Penguin-inspired multiplayer social world, initially for a 36-hour hackathon | Engine, platform, team size, deployment target |
 | Visuals | Low-poly diorama style; model concepts that can be recreated later | Exact polygon budgets, camera controls, final palette values |
 | Identity | Customizable items, clothes, and character appearance | Final equipment slots, inventory system, unlock rules |
 | Cinema | Walk into an in-game theatre, browse a connected Plex or Emby-style server, choose a movie with friends, and watch together | First provider, playback authority, public versus private screenings, voting rules |
@@ -834,7 +834,7 @@ These decisions remain open. Infer from the actual repository and owner guidance
 
 | Decision | Current position |
 | --- | --- |
-| Final title and branding | Undecided; working activity names are placeholders |
+| Final title and branding | Working title is Pengloo Party. Activity names such as Sketch Relay remain placeholders |
 | Engine/platform/stack | Not selected in this conversation |
 | Server and account model | Not selected; needs consistent player identity |
 | First media provider | Plex or Emby-style integration requested; choose one actual target first |

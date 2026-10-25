@@ -43,6 +43,7 @@ var _net_crashed := false
 var _has_net := false
 var _name_label: Label3D
 var _tint_applied := -1
+var _outfit_sig := ""
 var _anim: AnimationPlayer
 var _clip := ""
 var _spin := 0.0
@@ -61,6 +62,7 @@ func _ready() -> void:
 		_remote = true
 		_name_label = null
 		_tint_applied = -1
+		_outfit_sig = ""
 		var copied := get_node_or_null("NameLabel")
 		if copied:
 			copied.free()
@@ -120,7 +122,7 @@ func present_remote(at: Vector3, yaw: float, steer: float, crashed_now: bool) ->
 	_has_net = true
 
 
-func apply_identity(player_name: String, color_index: int) -> void:
+func apply_identity(player_name: String, color_index: int, outfit: Dictionary = {}) -> void:
 	if _name_label == null or not is_instance_valid(_name_label):
 		_name_label = Label3D.new()
 		_name_label.name = "NameLabel"
@@ -136,10 +138,18 @@ func apply_identity(player_name: String, color_index: int) -> void:
 		add_child(_name_label)
 	_name_label.text = player_name
 	_name_label.visible = _remote  # your own name over your own head is noise
-	if _tint_applied == color_index:
+	var look := Outfit.load_look() if not _remote else Outfit.sanitize(outfit)
+	if _remote:
+		look["color"] = posmod(color_index, maxi(Net.COATS.size(), 1))
+	if _tint_applied == int(look["color"]) and _outfit_sig == Outfit.signature(look):
 		return
-	_tint_applied = color_index
-	AssetPack.recolor_body(visual, Net.coat_color(color_index))
+	_tint_applied = int(look["color"])
+	_outfit_sig = Outfit.signature(look)
+	var bird := visual.get_node_or_null("PackAvatar") as Node3D
+	if bird != null:
+		Outfit.dress(bird, look)
+	else:
+		AssetPack.recolor_body(visual, Outfit.coat(look))
 
 
 func _physics_process(delta: float) -> void:
