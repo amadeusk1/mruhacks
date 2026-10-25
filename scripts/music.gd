@@ -335,6 +335,8 @@ func _play(song: String) -> void:
 	_b = _a
 	_a = old
 	_a.stream = _cache[song]
+	# songs packed in the game play as Web Audio samples (smooth on web); runtime downloads need Stream
+	_a.playback_type = AudioServer.PLAYBACK_TYPE_DEFAULT if _a.stream.resource_path != "" else AudioServer.PLAYBACK_TYPE_STREAM
 	_a.play()
 	_fade = 0.0
 
@@ -411,7 +413,6 @@ func _on_node_added(n: Node) -> void:
 func _new_player() -> AudioStreamPlayer:
 	var p := AudioStreamPlayer.new()
 	p.bus = "Music"
-	p.playback_type = AudioServer.PLAYBACK_TYPE_STREAM  # web Sample mode is silent for songs downloaded at runtime
 	p.volume_db = -60.0
 	add_child(p)
 	return p
