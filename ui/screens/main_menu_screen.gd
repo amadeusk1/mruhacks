@@ -29,12 +29,17 @@ func _ready() -> void:
 			settings.add_theme_stylebox_override(st, sb)
 	add_child(UIKit.pin(settings, Vector2(0.5, 0.5), Vector2(50, 238), Vector2(260, 72)))
 	settings.pressed.connect(func() -> void: UIRouter.push(SettingsScreen.new()))
-	var quit := UIKit.button("Quit", "quiet", "", Vector2(100, 50))
+	var quit := UIKit.button("Download desktop" if OS.has_feature("web") else "Quit", "quiet", "", Vector2(240, 50))
 	quit.add_theme_font_size_override("font_size", 26)
 	quit.add_theme_color_override("font_color", Color.WHITE)
 	quit.add_theme_color_override("font_hover_color", T.NAVY)
-	UIKit.pin(quit, Vector2(1, 1), Vector2(-80, -52), Vector2(90, 44))
-	quit.pressed.connect(func() -> void: get_tree().quit())
+	UIKit.pin(quit, Vector2(1, 1), Vector2(-155, -52), Vector2(240, 44))
+	quit.pressed.connect(func() -> void:
+		if OS.has_feature("web"):
+			OS.shell_open("https://pengloo.party/download/")
+		else:
+			get_tree().quit()
+	)
 	add_child(quit)
 	play.grab_focus()
 	if OS.has_feature("web"):

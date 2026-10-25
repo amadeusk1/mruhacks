@@ -282,7 +282,7 @@ func _on_host_pressed() -> void:
 
 func _on_join_pressed() -> void:
 	_lobby.set_busy(true)
-	_lobby.set_status("Connecting to 127.0.0.1:7777…")
+	_lobby.set_status("Joining Pengloo Party…" if Net.public_client() else "Connecting to 127.0.0.1:7777…")
 	var error := Net.join_game(_lobby.player_name())
 	if error != "":
 		_lobby.set_busy(false)

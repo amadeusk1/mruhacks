@@ -261,12 +261,12 @@ func join_game(player_name: String) -> String:
 		peer = ENetMultiplayerPeer.new()
 		err = peer.create_client(ADDRESS, PORT)
 	if err != OK:
-		return "Couldn't open a connection to %s:%s." % [ADDRESS, PORT]
+		return "Couldn't connect to Pengloo Party. Please try again." if public_client() else "Couldn't open a connection to %s:%s." % [ADDRESS, PORT]
 	_mode = Mode.CLIENT
 	_local_name = _clean_name(player_name)
 	_place_hidden = true
 	multiplayer.multiplayer_peer = peer
-	print("Net joining %s:%s as %s" % [ADDRESS, PORT, _local_name])
+	print("Net joining %s as %s" % [websocket_url() if use_websocket() else "%s:%s" % [ADDRESS, PORT], _local_name])
 	get_tree().create_timer(6.0).timeout.connect(_on_hello_timeout, CONNECT_ONE_SHOT)
 	return ""
 
@@ -861,7 +861,7 @@ func _on_connection_failed() -> void:
 	if _closing or _mode != Mode.CLIENT:
 		return
 	_force_offline()
-	connect_failed.emit("Couldn't reach a host at %s:%s." % [ADDRESS, PORT])
+	connect_failed.emit("Couldn't reach Pengloo Party. Check your connection and try again." if public_client() else "Couldn't reach a host at %s:%s." % [ADDRESS, PORT])
 
 
 func _on_server_disconnected() -> void:
@@ -1231,14 +1231,20 @@ func deliver_court(state: Dictionary) -> void:
 	_court_state = state
 
 
+func public_client() -> bool:
+	return OS.has_feature("web") or OS.has_feature("desktop_online")
+
+
 func use_websocket() -> bool:
-	return OS.has_feature("web") or OS.get_cmdline_user_args().has("--net-ws") or not OS.get_environment("PENGLOO_WS_URL").is_empty()
+	return public_client() or OS.get_cmdline_user_args().has("--net-ws") or not OS.get_environment("PENGLOO_WS_URL").is_empty()
 
 func websocket_url() -> String:
 	if OS.has_feature("web"):
 		return str(JavaScriptBridge.eval("(location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/multiplayer'"))
 	var configured := OS.get_environment("PENGLOO_WS_URL")
-	return configured if not configured.is_empty() else "ws://127.0.0.1:%s" % PORT
+	if not configured.is_empty():
+		return configured
+	return "wss://pengloo.party/multiplayer" if OS.has_feature("desktop_online") else "ws://127.0.0.1:%s" % PORT
 
 
 # ---- emotes ----------------------------------------------------------------------------

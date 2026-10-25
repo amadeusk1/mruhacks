@@ -37,7 +37,7 @@ var _busy := false
 
 
 func _ready() -> void:
-	if OS.has_feature("web"):
+	if Net.public_client():
 		WORLDS.remove_at(1)
 		WORLDS[1] = {"id": "join", "name": "Pengloo Party", "desc": "Join the shared island with friends.", "count": "Online", "action": "Join world", "thumb": "res://ui/screens/world_thumb_1.png"}
 	layer = 20
@@ -254,7 +254,7 @@ func _build_choose() -> Control:
 	_go.pressed.connect(_go_pressed)
 	bottom.add_child(_go)
 	col.add_child(bottom)
-	_select(int(_profile.get("world", 1 if OS.has_feature("web") else 0)))
+	_select(int(_profile.get("world", 1 if Net.public_client() else 0)))
 	return card
 
 
