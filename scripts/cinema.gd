@@ -20,7 +20,7 @@ func _exit_tree() -> void:
 
 func _ready() -> void:
 	AssetPack.dress_cinema(self)
-	InteriorMood.calm(self)
+	InteriorMood.calm(self, 0.9, ["paving", "paving_b", "stone", "floor_dark", "floor_dark_b"])
 	for n in find_children("cinema_lobby*", "Node3D", true, false):
 		if n.get_parent().name == "PackProps":
 			InteriorMood.paint(n, {"wall": "#F1DCBC"}, PALETTE)

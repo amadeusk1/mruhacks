@@ -270,7 +270,8 @@ func _exit_tree() -> void:
 
 func _ready() -> void:
 	_saved_mood = InteriorMood.apply(get_tree(), _cfg.get("mood", {}))
-	InteriorMood.calm(self)
+	InteriorMood.calm(self, 0.9, ["paving", "paving_b", "stone", "walnut", "walnut_b", "wood_c"])
+	InteriorMood.contact_shadows(get_node("NavigationRegion3D"), _solid.map(func(p): return p[0]), float(_cfg["floor_y"]))
 	AmbientFx.dress(self)  # steam on the coffee station and mugs; no snow indoors
 	_block_props.call_deferred()
 	for ap in find_children("*", "AnimationPlayer", true, false):  # roulette rotor, slot reels
