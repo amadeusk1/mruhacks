@@ -32,7 +32,7 @@ extends Node
 ## The web export omits audio/music and streams these filenames from music/ next to index.html.
 ## Spec: vault "Engine Specs/Voice Codec and Music.md".
 
-const BASE_DB := -20.0      # ambient level under voices (voice plays at 0 dB before its own setting)
+const BASE_DB := -8.0       # under a voice at 0 dB, loud enough to hear on its own
 const DUCK_DB := -6.0       # extra while someone audible is talking
 const ATTACK_DB_S := 40.0   # duck in fast (~0.15 s)...
 const RELEASE_DB_S := 6.0   # ...and come back slowly (~1 s)
@@ -341,7 +341,8 @@ func _play(song: String) -> void:
 	# songs packed in the game play as Web Audio samples (smooth on web); runtime downloads need Stream
 	_a.playback_type = AudioServer.PLAYBACK_TYPE_DEFAULT if _a.stream.resource_path != "" else AudioServer.PLAYBACK_TYPE_STREAM
 	_a.play()
-	_fade = 0.0
+	# Nothing was playing yet: come in now. A real handoff still fades over FADE_S.
+	_fade = 0.0 if _b.stream != null else 1.0
 
 
 func _load(song: String) -> void:
