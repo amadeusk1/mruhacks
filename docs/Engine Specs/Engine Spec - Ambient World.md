@@ -47,7 +47,7 @@
 - **Flowers and leaves:** small sway parts on shrubs where present; otherwise skip them.
 
 **7. Interior decoration**
-- **Effects:** candle flicker (`socket_fx_flame`: tiny flame quad plus light jitter), the star mobile's `part_mobile_sway`, aquarium fish `part_fish_*` sway plus bubbles at `socket_fx_bubbles`, and the wood stove's flame.
+- **Effects:** candle flicker (`socket_fx_flame`: the `fx/flame` mesh plus light jitter), the star mobile's `part_mobile_sway`, aquarium fish `part_fish_*` sway plus bubbles at `socket_fx_bubbles`, and the wood stove's flame.
 - **Pause** all of these when the room isn't active.
 - **Cleanup:** moving or deleting a decorated prop removes its emitter.
 

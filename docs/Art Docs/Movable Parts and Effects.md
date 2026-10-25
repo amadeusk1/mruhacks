@@ -59,7 +59,7 @@ Effects (particles and shaders) attach at sockets named `socket_fx_<kind>`, plac
 | `socket_fx_ripple` | Bobber, fountain basin | Pooled ripple rings |
 | `socket_fx_spray` | Sled runners | Brake snow spray |
 | `socket_fx_sparkle` | Arcade marquee, celebration points | Small sparkles |
-| `socket_fx_flame` | Candles, wood stove firebox | Flicker light and flame quad |
+| `socket_fx_flame` | Candles, wood stove firebox | `fx/flame` (origin at its base) plus light jitter |
 
 **Lights and glow.** Lanterns, windows and screens already use separate emissive materials (`glow*`, `insert_*`). Pulse their emission energy in the engine with randomised phase.
 
