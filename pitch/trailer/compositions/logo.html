@@ -4,35 +4,19 @@
       position: absolute;
       inset: 0;
       overflow: hidden;
+    }
+    #lg-bg {
+      position: absolute;
+      inset: 0;
       background: #0b2a3c;
-      font-family: "Nunito", sans-serif;
     }
-    #lg-zoom {
+    #lg-mark {
       position: absolute;
       inset: 0;
       display: grid;
       place-items: center;
-      transform-origin: 40% 50%;
     }
-    .word {
-      position: absolute;
-      inset: 0;
-    }
-    /* Art shows only inside the logo, like the reference's footage-in-logo shots (frames of the real game) */
-    .fill {
-      background-size: 1920px 1080px;
-      background-position: center;
-      -webkit-mask: url("assets/pengloo-party-logo.png") center / 1300px auto no-repeat;
-      mask: url("assets/pengloo-party-logo.png") center / 1300px auto no-repeat;
-    }
-    #lg-a { background-image: url("assets/game-plaza.jpg"); }
-    #lg-b { background-image: url("assets/game-dance.jpg"); }
-    #lg-c { background-image: url("assets/game-bridge.jpg"); }
-    .solid {
-      display: grid;
-      place-items: center;
-    }
-    .solid img {
+    #lg-mark img {
       width: 1300px;
       height: auto;
       filter: drop-shadow(0 30px 40px rgba(0, 0, 0, 0.5));
@@ -44,19 +28,16 @@
     data-width="1920"
     data-height="1080"
   >
-    <div data-hf-id="hf-0zb1" id="lg-zoom" data-layout-allow-overflow>
-      <div data-hf-id="hf-0wj1" id="lg-a" class="word fill clip" data-start="0" data-duration="0.7" data-track-index="1"></div>
-      <div data-hf-id="hf-0g7l" id="lg-b" class="word fill clip" data-start="0.7" data-duration="0.7" data-track-index="1"></div>
-      <div data-hf-id="hf-7622" id="lg-c" class="word fill clip" data-start="1.4" data-duration="0.7" data-track-index="1"></div>
-      <div data-hf-id="hf-gvlm" id="lg-solid" class="word solid clip" data-start="2.1" data-duration="1.43333" data-track-index="1"><img src="assets/pengloo-party-logo.png" alt="Pengloo Party"></div>
-    </div>
+    <div data-hf-id="hf-0zb1" id="lg-bg" class="clip" data-start="0" data-duration="6.33333" data-track-index="1"></div>
+    <div data-hf-id="hf-gvlm" id="lg-mark" class="clip" data-start="0" data-duration="6.33333" data-track-index="2"><img src="assets/pengloo-party-logo.png" alt="Pengloo Party"></div>
   </div>
   <script>
     const tl = gsap.timeline({ paused: true });
-    // The camera pulls out of the logo while the art inside cuts on each beat.
-    tl.fromTo("#lg-zoom", { scale: 7 }, { scale: 1, duration: 2.1, ease: "power3.out" }, 0);
-    // The solid logo lands slightly large and settles, then holds dead still.
-    tl.fromTo("#lg-solid", { scale: 1.05 }, { scale: 1, duration: 0.35, ease: "expo.out" }, 2.1);
+    // Over the whole cinema shot the logo rises slowly from low in the frame into the middle.
+    tl.fromTo("#lg-mark", { y: 330, scale: 0.55, opacity: 0 }, { y: 0, scale: 1, duration: 2.8, ease: "sine.inOut" }, 0);
+    tl.to("#lg-mark", { opacity: 1, duration: 0.6, ease: "none" }, 0);
+    // The footage gives way to dark as the shot ends; the logo then holds still.
+    tl.fromTo("#lg-bg", { opacity: 0 }, { opacity: 1, duration: 0.7, ease: "power1.inOut" }, 2.45);
     window.__timelines["logo"] = tl;
   </script>
 </template>

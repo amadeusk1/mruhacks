@@ -683,13 +683,12 @@
     }],
   };
 
-  // ---------- Song: after the trailer it keeps playing quietly until the live demo ----------
+  // ---------- Song: after the trailer it keeps playing quietly to the end of the deck ----------
 
   // song-tail.m4a is the full song cut from where the trailer's music stops, so it never seeks.
   const songTail = document.getElementById("song-tail");
   const SONG_VOLUME = 0.25;
   const trailerIndex = slides.indexOf(trailer.closest(".slide"));
-  const demoIndex = slides.findIndex((s) => s.id === "s-play");
 
   function startSong() {
     if (!songTail.paused) return;
@@ -728,7 +727,7 @@
     } else {
       trailer.pause();
     }
-    if (current > trailerIndex && current < demoIndex) startSong();
+    if (current > trailerIndex) startSong();
     else songTail.pause();
     instant = finished;
     if (finished) {
