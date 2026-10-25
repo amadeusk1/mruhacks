@@ -38,11 +38,14 @@ EXCLUDE = {
     "town_connections/landing": "bridges hand over to the paving directly (flush ends, check_seams)",
     "town_connections/footbridge_approach_landing": "bridges hand over to the paving directly (flush ends, check_seams)",
     "town_connections/stream_straight": "the stream is a carved terrain channel",
+    "town_connections/stream_end": "the stream starts at a rock spring and ends over the coast (stream.py)",
+    "world_misc/waterfall_step": "falls and weirs are generated water sheets in stream.py, framed by cliff pieces",
     "town_connections/stream_bend": "the stream is a carved terrain channel",
     "town_connections/stream_bank": "regularly spaced bank modules read as procedural; banks are carved terrain with rock clusters",
     "town_connections/cliff_corner_inner": "no concave cliff corner anywhere on this coastline",
     "town_connections/snow_overlay_cliff_corner_inner": "no concave cliff corner anywhere on this coastline",
     "nature_dock/water_tile_2x2": "water is one generated plane",
+    "nature_dock/shallow_water_patch": "the water shader shades shallows from water_shore.png; a flat patch read as a square",
     "nature_dock/water_edge_2m": "the cove's north quay became the boardwalk joining the piers",
     **{f"nature_dock/{n}": "the cove is a sculpted sand beach with a quay wall; modular shore banks would double that edge"
        for n in ("shore_bank_sloped", "snow_overlay_shore_bank_sloped", "shore_inner_corner", "snow_overlay_shore_inner_corner",
@@ -62,7 +65,7 @@ EXCLUDE = {
                                                   "roof_end_cap", "eave_trim", "chimney_cap", "snow_eave_overlay",
                                                   "wall_sign_bracket")},
 }
-LANDMARKS = [("homes/houseboat_exterior", "moored in the cove south of pier B's T head, gangway tile to the pier"),
+LANDMARKS = [("homes/houseboat_exterior", "at anchor in the outer cove, south-west of pier B, clear of every fishing cast"),
              ("homes/lighthouse_loft_exterior", "rocky point at the end of the south pier, reached along the pier"),
              ("homes/treehouse_exterior", "fir grove on the north street of the homes district"),
              ("homes/aframe_cabin_exterior", "west end of the north street, in its own fir grove"),

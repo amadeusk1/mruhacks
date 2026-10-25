@@ -2,8 +2,8 @@ class_name AmbientFx
 extends RefCounted
 
 ## Ambient world effects from the art pack's fx meshes (Engine Spec - Ambient World):
-## chimney smoke at socket_fx_smoke, fountain/waterfall droplets at socket_fx_splash,
-## steam at socket_fx_steam, and a camera-local snowfall for outdoor rooms.
+## chimney smoke at socket_fx_smoke, fountain/waterfall droplets at socket_fx_splash, waterfall mist at
+## socket_fx_mist, steam at socket_fx_steam, and a camera-local snowfall for outdoor rooms.
 
 static var _meshes := {}
 
@@ -19,6 +19,8 @@ static func dress(root: Node) -> void:
 				n.add_child(_emitter("fx/steam_wisp", 3, 2.0, Vector3(0, 0.12, 0), 0.5, 1.2, 0.4))
 			"splash":
 				n.add_child(_emitter("fx/splash_droplet", 8, 0.7, Vector3(0, 1.4, 0), 0.8, 0.6, 0.9, 6.0))
+			"mist":  # spray drifting off the foot of a waterfall
+				n.add_child(_emitter("fx/steam_wisp", 6, 2.2, Vector3(0, 0.3, 0.1), 1.6, 2.4, 0.3))
 
 
 ## A bounded snow field that follows `follow` (the camera rig). Outdoor rooms only.
