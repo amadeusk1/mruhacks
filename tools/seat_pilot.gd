@@ -6,7 +6,7 @@ extends Node
 
 const GIVE_UP := 8.0  # seconds of walking before stepping over
 
-var kit := "cinema"
+var kit := "cinema"  # "*": any plain seat (benches, stools, chairs), not game seats
 var near := Vector3.ZERO
 var active := false
 
@@ -44,7 +44,9 @@ func _process(delta: float) -> void:
 func _free_seat() -> Node3D:
 	var best: Node3D = null
 	for node in get_tree().get_nodes_in_group("interactables"):
-		if not node is SeatSpot or str(node.get("kit")) != kit or Net.bench_held_by_other(str(node.call("bench_key"))):
+		if not node is SeatSpot or Net.bench_held_by_other(str(node.call("bench_key"))):
+			continue
+		if (kit == "*" and str(node.get("activity")) != "") or (kit != "*" and str(node.get("kit")) != kit):
 			continue
 		var d := (node.get("seat_point") as Vector3).distance_to(near)
 		if best == null or d < (best.get("seat_point") as Vector3).distance_to(near):

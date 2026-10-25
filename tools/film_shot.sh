@@ -4,6 +4,7 @@
 # main screen (ffmpeg ddagrab, native resolution, no cursor) from the host's FILM READY line.
 #   GODOT=/path/to/godot tools/film_shot.sh film_walk renders/walk.mkv 25 --tod=0.70
 # The screen is taken over while it runs. Logs go next to the output.
+# BOTS=N starts N follow bots instead of four (pass the shot --bots=N too).
 cd "$(dirname "$0")/.."
 G="${GODOT:-godot}"
 scene=$1
@@ -20,7 +21,7 @@ trap cleanup EXIT INT TERM
 pids+=($!)
 sleep 8  # the host builds the town before anyone joins
 NAMES=(Pip Mochi Waddles Biscuit)
-for i in 0 1 2 3; do
+for ((i = 0; i < ${BOTS:-4}; i++)); do
 	# headless Godot runs uncapped; capped bots leave the CPU to the host's frame rate
 	"$G" --headless --max-fps 20 --path . res://tools/follow_bot.tscn -- "--net-name=${NAMES[$i]}" "--slot=$((i * 2))" > "${log%.log}-bot$i.log" 2>&1 &
 	pids+=($!)
