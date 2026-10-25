@@ -10,7 +10,7 @@ mkdir -p builds/web builds/server
 mkdir -p builds/web/branding
 cp ui/branding/*.png builds/web/branding/
 mkdir -p builds/web/music
-cp audio/music/*.ogg builds/web/music/  # streamed by scripts/audio/music.gd, kept out of the .pck
+cp audio/music/*.ogg audio/music/*.mp3 audio/music/*.wav builds/web/music/  # streamed by scripts/audio/music.gd, kept out of the .pck
 python3 - <<'PY'
 import gzip, shutil
 from pathlib import Path

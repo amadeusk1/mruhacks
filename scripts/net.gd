@@ -1226,6 +1226,26 @@ func _inside_court(at: Vector3) -> bool:
 		and at.z >= origin.z - pad and at.z <= origin.z + size.z + pad
 
 
+## Presence with a grace period: a player counts as present until unseen for PRESENCE_GRACE_MS.
+## Edge jitter or a tick without a fresh pose used to flip activities (court reset, pad
+## join/leave, lobby/practice) many times a second.
+const PRESENCE_GRACE_MS := 1000
+var _court_seen := {}
+var _snow_seen := {}
+
+func _sticky(present: Array, seen: Dictionary) -> Array:
+	var now := Time.get_ticks_msec()
+	for id in present:
+		seen[id] = now
+	var out: Array = []
+	for id in seen.keys():
+		if now - int(seen[id]) <= PRESENCE_GRACE_MS and (id == local_id() or _players.has(id)):
+			out.append(id)
+		elif now - int(seen[id]) > PRESENCE_GRACE_MS:
+			seen.erase(id)
+	return out
+
+
 func _tick_court(delta: float) -> void:
 	if _court == null or not _court_on or _mode == Mode.CLIENT:
 		return
@@ -1243,6 +1263,7 @@ func _tick_court(delta: float) -> void:
 			continue
 		if not present.has(int(id)):
 			present.append(int(id))
+	present = _sticky(present, _court_seen)
 	if present.is_empty():
 		var busy := str(_court.phase) != "practice" or int(_court.coral_score) != 0 or int(_court.teal_score) != 0 \
 			or str(_court.ball_mode) != "loose"
@@ -1414,6 +1435,7 @@ func _tick_snow(delta: float) -> void:
 		var body: Dictionary = _court_bodies.get(int(id), {})
 		if not body.is_empty() and reach.has_point(Vector2(float(body["x"]), float(body["z"]))):
 			present.append(int(id))
+	present = _sticky(present, _snow_seen)
 	if present.is_empty() and str(_snow.phase) == "lobby":
 		return
 	_snow.tick(delta, present, _court_bodies)

@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://5u6po63cfans"
+path="res://.godot/imported/casino 2.wav-5a0ee616b98dc7cb461c004d98e8c07d.sample"
+
+[deps]
+
+source_file="res://audio/music/casino 2.wav"
+dest_files=["res://.godot/imported/casino 2.wav-5a0ee616b98dc7cb461c004d98e8c07d.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

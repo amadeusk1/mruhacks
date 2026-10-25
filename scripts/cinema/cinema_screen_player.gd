@@ -54,6 +54,7 @@ func has_views() -> bool:
 func _ready() -> void:
 	_audio = AudioStreamPlayer.new()
 	_audio.bus = "Movie" if AudioServer.get_bus_index("Movie") >= 0 else "Master"
+	_audio.playback_type = AudioServer.PLAYBACK_TYPE_STREAM  # runtime MP3 chunks + seeks need Stream; web Sample mode stays silent
 	add_child(_audio)
 	var poll := Timer.new()
 	poll.wait_time = 1.0
@@ -81,6 +82,9 @@ func apply_state(st: Dictionary) -> void:
 	if on != playing:
 		playing = on
 		playing_changed.emit(on)
+		var music := get_node_or_null("/root/Music")
+		if music and music.has_method("set_ducked"):
+			music.set_ducked(on)
 
 
 func position() -> float:
@@ -92,6 +96,9 @@ func stop() -> void:
 	_has_film = false
 	_audio.stop()
 	_segs.clear()
+	var music := get_node_or_null("/root/Music")
+	if music and music.has_method("set_ducked"):
+		music.set_ducked(false)
 
 
 func _process(_d: float) -> void:

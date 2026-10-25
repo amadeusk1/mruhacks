@@ -18,11 +18,32 @@ const DIR := "res://audio/music/"
 const SETS := {
 	"title": ["Pengloo Party"],
 	"town": ["Penguin Chat", "Penguin Chat2", "titlescreen music", "titlescreen music 2"],
-	"games": ["minigame", "minigame song 2"],
+	"games": ["minigame", "minigame song 2", "minigame 3", "minigame 4"],
+	"sled": ["sled race", "sled race 2", "sled", "sled 2"],
+	"arcade": ["arcade 3", "arcade 4", "arcade", "arcade 2"],
+	"basketball": ["basketball 3", "basketball", "basketball 2"],
+	"snow": ["snowball fight", "snowball fught 2"],
+	"fishing": ["fishing", "fishing 2"],
+	"sketch": ["sketch", "sketch 2"],
+	"cinema": ["cinema", "cinema 2"],
+	"casino": ["casino", "casino 2"],
+	"cafe": ["cafe", "cafe 2"],
+	"home": ["home", "home 2"],
+}
+const PLACES := {
+	"sled_hill": "sled",
+	"cinema": "cinema",
+	"casino": "casino",
+	"cafe": "cafe",
+	"home": "home",
 }
 const GAME_PLACES := ["sled", "arcade", "arena", "court", "snowball", "casino"]
+const EXTS := [".ogg", ".mp3", ".wav"]
+const FOLDERS := ["res://audio/music/", "res://audio/"]
 
 var area := ""
+var _activity := ""         # fishing, sketch, or a cabinet, until that session ends
+var _token := 0
 var _on := false            # in a game session
 var _a: AudioStreamPlayer   # current song
 var _b: AudioStreamPlayer   # fading out
@@ -54,6 +75,38 @@ func start() -> void:
 
 func play_title() -> void:
 	_on = false
+	_activity = ""
+
+
+## Activity music. The token lets an older session leave without cutting off a newer one.
+func play_activity(kind: String) -> int:
+	if not SETS.has(kind):
+		return 0
+	_token += 1
+	_activity = kind
+	return _token
+
+
+func resume(token: int) -> void:
+	if token == _token:
+		_activity = ""
+
+
+func play_arcade() -> int:
+	return play_activity("arcade")
+
+
+func leave_arcade(token: int) -> void:
+	resume(token)
+
+
+## The music slider. Player volumes stay on top of this for the ambient bed and voice ducking.
+func apply_volume() -> void:
+	var idx := AudioServer.get_bus_index("Music")
+	if idx < 0:
+		return
+	var lin := float(UIRouter.settings.get("music", 70.0)) / 100.0
+	AudioServer.set_bus_volume_db(idx, linear_to_db(maxf(lin, 0.0001)))
 
 
 func _process(delta: float) -> void:
@@ -78,7 +131,18 @@ func _process(delta: float) -> void:
 func _area() -> String:
 	if not _on:
 		return "title"
+	if _activity != "":
+		return _activity
 	var loc := str(Net.get("_place_location"))
+	var place := str(PLACES.get(loc, ""))
+	if place != "":
+		return place
+	var player := get_tree().get_first_node_in_group("local_player") as Node3D
+	if player != null:
+		if Net.court_here(player.global_position):
+			return "basketball"
+		if Net.snow_here(player.global_position):
+			return "snow"
 	for g in GAME_PLACES:
 		if g in loc:
 			return "games"
@@ -87,10 +151,23 @@ func _area() -> String:
 
 ## A random song from this area's set, never the one that just played.
 func _next_song() -> void:
-	var pool: Array = (SETS[area] as Array).filter(func(s: String) -> bool: return s != _current)
+	var names := _songs_for(area)
+	var pool: Array = names.filter(func(s: String) -> bool: return s != _current)
 	if pool.is_empty():
-		pool = SETS[area]  # a one-song set (the title) loops
+		pool = names
+	if pool.is_empty():
+		return
 	_play(pool[randi() % pool.size()])
+
+
+func _songs_for(which: String) -> Array:
+	var names: Array = []
+	for song in SETS.get(which, []):
+		if _find(str(song)) != "":
+			names.append(song)
+	if not names.is_empty() or which == "title" or which == "town":
+		return names
+	return _songs_for("games" if which in ["sled", "arcade", "basketball", "snow"] else "town")
 
 
 func _play(song: String) -> void:
@@ -109,28 +186,60 @@ func _play(song: String) -> void:
 	_fade = 0.0
 
 
+func _find(song: String) -> String:
+	for folder: String in FOLDERS:
+		for ext: String in EXTS:
+			var path := folder + song + ext
+			if ResourceLoader.exists(path):
+				return path
+	return ""
+
+
 func _load(song: String) -> void:
-	var path := DIR + song + ".ogg"
+	var path := _find(song)
+	if path == "":
+		path = DIR + song + ".ogg"
 	if ResourceLoader.exists(path):
 		_cache[song] = load(path)
 		_play(song)
 		return
 	if not OS.has_feature("web"):
 		return  # native export without the music folder: stay silent
+	_fetch(song, 0)
+
+
+## Web: the songs live next to the page, not in the .pck. Try each extension until one exists.
+func _fetch(song: String, ext_i: int) -> void:
+	if ext_i >= EXTS.size():
+		push_warning("music: %s not found" % song)
+		_wanted = ""
+		return
+	var ext: String = EXTS[ext_i]
 	var req := HTTPRequest.new()
 	add_child(req)
 	req.request_completed.connect(func(result: int, code: int, _h: PackedStringArray, body: PackedByteArray) -> void:
 		req.queue_free()
-		if result != HTTPRequest.RESULT_SUCCESS or code != 200:
+		if result == HTTPRequest.RESULT_SUCCESS and code == 404:
+			_fetch(song, ext_i + 1)
+			return
+		if result != HTTPRequest.RESULT_SUCCESS or code != 200 or body.is_empty():
 			push_warning("music: %s failed (%d/%d)" % [song, result, code])
 			_wanted = ""
 			return
-		_cache[song] = AudioStreamOggVorbis.load_from_buffer(body)
+		var stream: AudioStream
+		match ext:
+			".mp3": stream = AudioStreamMP3.load_from_buffer(body)
+			".wav": stream = AudioStreamWAV.load_from_buffer(body)
+			_: stream = AudioStreamOggVorbis.load_from_buffer(body)
+		if stream == null:
+			_wanted = ""
+			return
+		_cache[song] = stream
 		if _wanted == song:
 			_play(song))
 	# HTTPRequest needs an absolute URL ("music/..." fails with Invalid URL scheme)
 	var origin := str(JavaScriptBridge.eval("location.origin"))
-	if req.request(origin + "/music/" + song.uri_encode() + ".ogg") != OK:
+	if req.request(origin + "/music/" + (song + ext).uri_encode()) != OK:
 		push_warning("music: couldn't request %s" % song)
 		req.queue_free()
 		_wanted = ""
