@@ -42,6 +42,7 @@ var _fishing := false
 var _reel_focus := false
 var _fisher_phase := ""
 var _fish_hud: Node
+var _fish_music := 0
 var _tackle: Node3D
 var _seat_bench: Node
 var _seat_point := Vector3.ZERO
@@ -149,6 +150,10 @@ func plant_fish(spot: Node, stand: Vector3, yaw: float) -> bool:
 		_fish_hud = load("res://scripts/fishing_hud.gd").new()
 		add_child(_fish_hud)
 		_fish_hud.call("open", self)
+	if _remote_peer == 0:
+		if _fish_music != 0:
+			Music.resume(_fish_music)
+		_fish_music = Music.play_activity("fishing")
 	return true
 
 
@@ -1011,6 +1016,9 @@ func _end_fishing() -> void:
 			_tackle.set_phase("")
 		if _remote_peer == 0:
 			Net.note_fisher("")
+	if _remote_peer == 0 and _fish_music != 0:
+		Music.resume(_fish_music)
+		_fish_music = 0
 	if _fish_hud != null and is_instance_valid(_fish_hud):
 		_fish_hud.queue_free()
 	_fish_hud = null

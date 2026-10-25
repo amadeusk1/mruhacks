@@ -56,6 +56,17 @@ func open(screen: String) -> Control:
 			c.set("state", {"mode": "court", "score": 0, "time_left": 60.0, "standings": [[Net.local_profile()["name"], 0]], "power": 0.0, "band": [0.62, 0.78]})
 	if screen == "sketch":
 		_wire_sketch(c)
+	var music_kind := ""
+	match screen:
+		"snowballs":
+			music_kind = "snow"
+		"basketball":
+			music_kind = "basketball"
+		"sketch":
+			music_kind = "sketch"
+	if music_kind != "":
+		var token := Music.play_activity(music_kind)
+		c.tree_exiting.connect(func() -> void: Music.resume(token))
 	if c.has_signal("intent"):
 		c.connect("intent", func(action: String, _v = null) -> void:
 			if action in ["leave", "close", "leave_seat"] and is_instance_valid(c):

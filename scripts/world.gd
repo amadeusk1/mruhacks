@@ -117,6 +117,7 @@ func travel_to(location_id: String, spawn_name: String = "BusArrival", igloo_id:
 	_clear_room()
 	var packed := load(path) as PackedScene
 	var room := packed.instantiate()
+	Music.note_place(location_id)
 	_host.add_child(room)
 	_current_id = location_id
 	_igloo_id = igloo
@@ -335,7 +336,7 @@ func _on_host_lost() -> void:
 
 
 func _end_session(message: String) -> void:
-	Music.stop()
+	Music.play_title()
 	_epoch += 1
 	_in_game = false
 	_traveling = false

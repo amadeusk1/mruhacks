@@ -30,6 +30,7 @@ func _on_requested(activity: String, anchor: Node, _player: Node) -> void:
 	ui.intent.connect(_on_intent)
 	_ui = ui
 	UIRouter.push(ui)
+	_arm_music(ui)
 	Net.arcade_watch(ui.cabinet)
 	_paint()
 
@@ -43,6 +44,12 @@ func _open_cabinet(activity: String, anchor: Node) -> void:
 	ui.intent.connect(_on_intent)
 	_ui = ui
 	UIRouter.push(ui)
+	_arm_music(ui)
+
+
+func _arm_music(ui: Node) -> void:
+	var token := Music.play_arcade()
+	ui.tree_exiting.connect(func() -> void: Music.leave_arcade(token))
 
 
 func _on_intent(action: String) -> void:

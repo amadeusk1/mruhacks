@@ -140,6 +140,11 @@ func _apply_scale(c: Control) -> void:
 
 
 func _apply_bus(key: String) -> void:
+	if key == "music":
+		var music := get_node_or_null("/root/Music")
+		if music and music.has_method("apply_volume"):
+			music.apply_volume()
+			return
 	var bus := AudioServer.get_bus_index({"music": "Music", "effects": "SFX", "voice": "Voice", "movie": "Movie"}[key])
 	var lin := float(settings[key]) / 100.0
 	if bus >= 0:
