@@ -87,7 +87,11 @@ func _emote_test() -> void:
 		await get_tree().create_timer(0.8).timeout
 		_p.global_position += Vector3(0, 0, 0.3)
 		Input.action_press("move_back")  # walk off mid-dance: the dance stops for everyone
-		await get_tree().create_timer(0.6).timeout
+		for i in 40:  # until the local penguin has actually left the emote (sends the cancel)
+			if str(_p.get("_overlay")) == "":
+				break
+			await get_tree().create_timer(0.05).timeout
+		await get_tree().create_timer(0.3).timeout
 		Input.action_release("move_back")
 		await get_tree().create_timer(2.0).timeout
 	else:
@@ -99,6 +103,9 @@ func _emote_test() -> void:
 				seen.append(now)
 			await get_tree().create_timer(0.1).timeout
 		print("SNOW_MP %s emotes=%s puppet_overlays=%s" % [me, _emotes, seen])
+		# walking off cancels the dance with an explicit event, not the pose stream's speed
+		var cancel := _emotes.find("emote_dance") >= 0 and _emotes.rfind("") > _emotes.find("emote_dance")
+		print("SNOW_MP %s EMOTE_CANCEL %s" % [me, "PASS" if cancel and seen[-1] == "" else "FAIL"])
 
 
 func _emoter_puppet() -> Node:
