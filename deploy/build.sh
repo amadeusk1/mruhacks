@@ -12,6 +12,11 @@ mkdir -p builds/web/branding
 cp ui/branding/*.png builds/web/branding/
 mkdir -p builds/web/music
 cp audio/music/*.ogg audio/music/*.mp3 audio/music/*.wav builds/web/music/  # streamed by scripts/music.gd, kept out of the .pck
+# pitch deck at /pitch/ (pitch/index.html as-is, plus everything it references)
+mkdir -p builds/web/pitch builds/web/docs/concepts
+cp pitch/index.html builds/web/pitch/
+cp -r pitch/assets builds/web/pitch/
+cp "docs/concepts/World Map Concept.png" builds/web/docs/concepts/  # deck uses ../docs/concepts/
 python3 - <<'PY'
 import gzip, shutil
 from pathlib import Path
