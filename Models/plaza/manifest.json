@@ -521,6 +521,33 @@
     ]
   },
   {
+    "id": "plaza/string_light_pole",
+    "file": "plaza/string_light_pole.glb",
+    "category": "light",
+    "size_m": [
+      0.3,
+      0.3,
+      2.908
+    ],
+    "sockets": {
+      "socket_anchor": [
+        0.0,
+        0.0,
+        2.4
+      ],
+      "socket_light": [
+        0.0,
+        0.0,
+        2.7
+      ]
+    },
+    "tints": {},
+    "anchor_height": 2.4,
+    "light_color": "#FFC76B",
+    "light_height": 2.6999999999999997,
+    "note": "carries plaza/string_lights: one pole at each anchor, same ground z"
+  },
+  {
     "id": "plaza/paving_1x1",
     "file": "plaza/paving_1x1.glb",
     "category": "modular",

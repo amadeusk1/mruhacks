@@ -11,6 +11,8 @@ signal seat_denied(bench_key: String)
 signal connect_failed(message: String)
 signal host_lost
 signal chat_received(speaker: String, message: String)
+signal chat_from(peer_id: int, speaker: String, message: String)   ## same message, with who said it (speech bubbles)
+signal typing_changed(peer_id: int, typing: bool)                   ## someone in your room started / stopped typing
 signal invite_received(from_id: int, from_name: String, kind: String, ticket: String)
 signal visit_denied(owner_name: String)
 signal home_layout(owner_id: int, layout: String)
@@ -387,8 +389,31 @@ func _host_say(peer_id: int, message: String) -> void:
 	for other_id in _players:
 		if int(other_id) == local_id():
 			chat_received.emit(speaker, message)
+			chat_from.emit(peer_id, speaker, message)
 		elif multiplayer.get_peers().has(int(other_id)):
-			relay_chat.rpc_id(int(other_id), speaker, message)
+			relay_chat.rpc_id(int(other_id), peer_id, speaker, message)
+
+
+## Typing indicator ("…" bubble) for players in the same room. Cheap: sent only on start / stop.
+func note_typing(typing: bool) -> void:
+	if not is_online() or _closing:
+		return
+	if _mode == Mode.HOST:
+		_host_typing(local_id(), typing)
+	else:
+		request_typing.rpc_id(1, typing)
+
+
+func _host_typing(peer_id: int, typing: bool) -> void:
+	if not _players.has(peer_id):
+		return
+	for other_id in _players:
+		if int(other_id) == peer_id or not _same_room(_players[peer_id], _players[other_id]):
+			continue
+		if int(other_id) == local_id():
+			typing_changed.emit(peer_id, typing)
+		elif multiplayer.get_peers().has(int(other_id)):
+			relay_typing.rpc_id(int(other_id), peer_id, typing)
 
 
 func note_fisher(phase: String) -> void:
@@ -985,8 +1010,20 @@ func request_say(message: String) -> void:
 
 
 @rpc("authority", "call_remote", "reliable")
-func relay_chat(speaker: String, message: String) -> void:
+func relay_chat(peer_id: int, speaker: String, message: String) -> void:
 	chat_received.emit(speaker, message)
+	chat_from.emit(peer_id, speaker, message)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func request_typing(typing: bool) -> void:
+	if _mode == Mode.HOST:
+		_host_typing(multiplayer.get_remote_sender_id(), typing)
+
+
+@rpc("authority", "call_remote", "reliable")
+func relay_typing(peer_id: int, typing: bool) -> void:
+	typing_changed.emit(peer_id, typing)
 
 
 @rpc("any_peer", "call_remote", "reliable")

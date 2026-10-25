@@ -81,6 +81,17 @@ def table_set(asset, x, y, yaw, seats=(0, 1, 2, 3), stool="plaza/stool"):
         place(stool, w[0], w[1], yaw + 45 + 90 * k)
 
 
+def lights_span(x, y, yaw, poles=(True, True)):
+    """A string of bulbs hung between two string_light_pole posts. The span's anchors are 2.4 m up in the
+    asset (socket_anchor_a/b), so it sits on the ground like its poles and the wires meet the pole collars."""
+    z = ground(x, y)
+    place("plaza/string_lights", x, y, yaw, z=z, tags=("light",))
+    for sock, want in zip(("socket_anchor_a", "socket_anchor_b"), poles):
+        if want:
+            w = at_socket("plaza/string_lights", sock, x, y, yaw, z)
+            place("plaza/string_light_pole", w[0], w[1], yaw, z=z, tags=LIGHT)
+
+
 def grove(trees, zone="woods"):
     """Hand-placed tree clump: (asset, x, y, yaw, scale)."""
     for asset, x, y, yaw, s in trees:
@@ -119,9 +130,9 @@ def plaza():
     for x, y in [(8.39, 3.39), (-8.33, 3.54), (-8.39, -3.39), (-3.54, -8.33), (8.33, -3.54)]:   # none at 67/112/292 deg: arcade corner, cafe spoke, bus stop
         place("plaza/lantern_post", x, y, 0, tags=LIGHT)
     # string lights across the west, east and south spokes
-    place("plaza/string_lights", -10.1, 0, 90, z=ground(-9.5, 0) + 2.4, tags=("light",))
-    place("plaza/string_lights", 10.1, 0, 90, z=2.4, tags=("light",))
-    place("plaza/string_lights", 0, -10.1, 0, z=2.4, tags=("light",))
+    lights_span(-10.1, 0, 90)
+    lights_span(10.1, 0, 90)
+    lights_span(0, -10.1, 0)
     mark("Spawn", 0, -3.0, 180)
     mark("BusArrival", 2.2, -5.2, 200)
     mark("BusStop", 3.4, -7.3, 200, kind="bus")
@@ -162,8 +173,7 @@ def shops():
     place("cinema/cinema_topiary", 1.93, 21.95, 0, tags=BLOCK)
     place("cinema/poster_frame_a", -4.2, 19.7, 0)
     place("cinema/poster_frame_b", -4.6, 18.4, 0)
-    place("plaza/string_lights", -2.2, 19.3, 0, z=2.4, tags=("light",))
-    place("plaza/string_lights", 2.2, 19.3, 0, z=2.4, tags=("light",))
+    lights_span(0.0, 19.3, 0)                             # one span across the approach, a pole either side
     for k in range(4):
         y = 18.3 - 1.25 * k
         place("cinema_lobby/stanchion", -2.2, y, 0)
@@ -265,74 +275,100 @@ def homes():
 
 # ------------------------------------------------------------------------------------------ stream --
 def stream():
+    """Banks dressed by hand in stream coordinates (s metres from the spring, side +1 = right bank looking
+    downstream; stream.py), so the dressing follows the channel. Anything that lands on a path or a
+    bridge approach is skipped rather than nudged."""
     global ZONE
     ZONE = "stream"
-    # spring and mouth
-    place("world_misc/waterfall_step", 15.4, 30.55, 0, z=0.15)
-    place("world_misc/waterfall_step", 7.775, -26.6, 0, z=-0.6)
-    place("town_connections/stream_end", 15.4, 33.75, 0, z=0.0, tags=BANK)
-    # footbridges at the three path crossings: deck ends flush with the paving (town.check_seams)
-    for c, yaw in T.BRIDGES:                      # where the paths cross the stream (town.BRIDGES)
+    S = T.stream
+
+    def clear(q, r=0.35):
+        return not any(T.poly_dist(q, pts) < w * 0.5 + r for pts, w in T.PATHS) and \
+            all((q - c).length > 2.7 for c, _ in T.BRIDGES)
+
+    def bank(asset, s, side, off=0.25, yaw=0.0, scale=1.0, dz=-0.12):
+        q = S.bank_xy(s, side, off)
+        if clear(q):
+            place(asset, q.x, q.y, S.yaw_at(s) + yaw, z=ground(q.x, q.y) + dz, tags=BANK, scale=scale)
+
+    def across(s, u):
+        """Point u half-widths across the channel at s (u = +1 is the right waterline)."""
+        c, t = S.at(s)
+        return c + Vector((t.y, -t.x)) * u * S.width(s)
+
+    def frame(s, asset, h, z, overlay=None):
+        """Rock walls either side of a falls, faces looking downstream, flush with the lip."""
+        c, t = S.at(s - 0.3)
+        n = Vector((t.y, -t.x))
+        for side in (1, -1):
+            q = c + n * side * (S.width(s) * 0.85 + 1.0)
+            place(asset, q.x, q.y, S.yaw_at(s) + side * 4, z=z, tags=BANK)
+            if overlay:
+                place(overlay, q.x, q.y, S.yaw_at(s) + side * 4, z=z + h, tags=BANK)
+
+    def weir(s, lv):
+        """A broken line of wet stones across the chute, water spilling through the gaps."""
+        for k, (u, asset, sc) in enumerate([(-0.8, "nature_dock/rock_small_b", 0.8), (-0.3, "nature_dock/rock_small_a", 0.65),
+                                            (0.22, "nature_dock/rock_small_b", 0.7), (0.74, "nature_dock/rock_small_a", 0.85)]):
+            q = across(s + 0.05, u)
+            place(asset, q.x, q.y, S.yaw_at(s) + 70 * k, z=lv - 0.2, tags=BANK, scale=sc)
+
+    # the spring: water falls out of a notch in a snow-capped rock knoll into a round pool
+    place("winter/rock_cluster_snow_large", 15.35, 34.45, 200, z=ground(15.35, 34.45) - 0.25, tags=BANK, scale=1.15)
+    place("nature_dock/rock_cluster_snow", 13.75, 34.1, 70, z=ground(13.75, 34.1) - 0.2, tags=BANK, scale=0.95)
+    place("winter/rock_cluster_snow_small", 17.15, 34.25, 140, z=ground(17.15, 34.25) - 0.1, tags=BANK)
+    frame(0.35, "town_connections/cliff_straight_2m", 2.1, S.STEPS[1][1] - 0.35, "town_connections/snow_overlay_cliff_straight")
+    bank("nature_dock/rock_small_b_snow", 1.2, -1, 0.15, 30, 0.9)
+    bank("nature_dock/rock_cluster_snow", 2.4, 1, 0.35, 160, 0.8)
+    bank("winter/rock_cluster_snow_small", 3.1, -1, 0.2, 250)
+    # second fall, off the edge of the woodland rise, into a pool ringed with boulders
+    frame(3.9, "town_connections/cliff_straight_1m", 1.07, S.STEPS[2][1] - 0.3)
+    bank("nature_dock/rock_cluster_snow", 5.0, 1, 0.3, 40, 0.9)
+    bank("nature_dock/rock_small_a_snow", 6.2, -1, 0.15, 120)
+    bank("nature_dock/pebble_cluster_snow", 6.9, 1, 0.1, 200)
+    bank("winter/snowbank_small", 7.6, -1, 0.9, 90, dz=-0.05)
+    # north reach: outer bank of the bend under the arena path, then the quiet run past the casino
+    for s, side, asset, yaw, sc in [(13.4, 1, "nature_dock/rock_small_b_snow", 20, 0.9), (15.0, 1, "nature_dock/rock_cluster_snow", 110, 0.85),
+                                    (16.6, 1, "nature_dock/rock_small_a_snow", 300, 1.0), (18.3, 1, "winter/rock_cluster_snow_small", 45, 1.0),
+                                    (21.5, -1, "nature_dock/rock_cluster", 15, 0.8), (23.0, 1, "nature_dock/rock_small_b", 200, 0.8),
+                                    (24.6, -1, "nature_dock/pebble_cluster_snow", 80, 1.0), (26.5, 1, "nature_dock/rock_cluster_snow", 260, 0.8),
+                                    (28.3, -1, "nature_dock/rock_small_a", 140, 0.9)]:
+        bank(asset, s, side, 0.2, yaw, sc)
+    bank("winter/snowbank_medium", 22.4, 1, 1.3, 90, dz=-0.05)
+    bank("winter/snow_puff", 25.3, -1, 1.0, 0, dz=-0.03)
+    # weir above the plaza bridge: the first thing you see from the east spoke
+    weir(S.STEPS[3][0], S.STEPS[3][1])
+    bank("nature_dock/rock_cluster", 29.6, 1, 0.25, 30, 0.85)
+    bank("nature_dock/rock_cluster_snow", 29.7, -1, 0.25, 200, 0.8)
+    for s, side, asset, yaw, sc in [(38.6, 1, "nature_dock/rock_small_b", 60, 0.8), (38.9, -1, "nature_dock/rock_small_a_snow", 220, 0.8),
+                                    (40.6, -1, "nature_dock/rock_cluster_snow", 10, 0.75), (42.1, 1, "nature_dock/pebble_cluster_snow", 130, 1.0)]:
+        bank(asset, s, side, 0.2, yaw, sc)
+    # weir below the south-east bridge, then the lower run down to the sea
+    weir(S.STEPS[4][0], S.STEPS[4][1])
+    bank("nature_dock/rock_cluster", 50.6, 1, 0.25, 300, 0.8)
+    bank("nature_dock/rock_small_b_snow", 50.5, -1, 0.2, 40, 0.9)
+    for s, side, asset, yaw, sc in [(53.0, -1, "nature_dock/rock_cluster_snow", 20, 0.85), (55.5, 1, "nature_dock/rock_small_a", 100, 0.9),
+                                    (57.2, -1, "nature_dock/rock_small_b_snow", 250, 0.9), (59.0, 1, "nature_dock/rock_cluster_snow", 170, 0.8),
+                                    (61.0, -1, "nature_dock/pebble_cluster_snow", 60, 1.0), (63.0, 1, "nature_dock/rock_small_b", 310, 0.8),
+                                    (65.0, -1, "nature_dock/rock_cluster", 140, 0.85), (67.0, 1, "nature_dock/rock_small_a_snow", 20, 0.9)]:
+        bank(asset, s, side, 0.2, yaw, sc)
+    bank("winter/snowbank_small", 56.4, -1, 1.2, 90, dz=-0.05)
+    bank("winter/snowbank_medium", 62.0, 1, 1.4, 90, dz=-0.05)
+    # the mouth: big wet boulders where the stream spills over the coast into the sea
+    for s, side, off, sc in [(69.6, 1, 0.4, 1.3), (70.1, -1, 0.5, 1.45), (71.2, 1, 0.2, 1.6), (71.6, -1, 0.15, 1.5)]:
+        q = S.bank_xy(s, side, off)
+        place(["nature_dock/rock_cluster_snow", "winter/rock_cluster_snow_large"][side > 0], q.x, q.y, 37 * s,
+              z=T.WATER_Z - 0.3, tags=("rock", "coast"), scale=sc)
+    # footbridges where the paths cross (town.BRIDGES), deck ends flush with the paving (town.check_seams)
+    for c, yaw in T.BRIDGES:
         place("world_misc/footbridge", c.x, c.y, yaw, z=T.BRIDGE_Z, tags=WALK, name="Bridge")
-    # bank rocks: small clusters at the bends and tucked under the bridge abutments, never in the channel
-    for asset, x, y, yaw, s in [
-            ("nature_dock/rock_cluster_snow", 13.8, 34.4, 20, 0.8), ("nature_dock/rock_small_a_snow", 17.1, 33.2, 140, 1.0),   # spring
-            ("nature_dock/rock_small_b_snow", 14.65, 25.0, 60, 0.9), ("nature_dock/rock_small_a_snow", 17.55, 24.9, 200, 0.9),   # N bridge
-            ("nature_dock/rock_small_b_snow", 14.85, 20.4, 300, 0.8), ("winter/rock_cluster_snow_small", 17.75, 20.5, 10, 1.0),
-            ("nature_dock/rock_cluster_snow", 20.15, 16.5, 110, 0.85), ("nature_dock/rock_small_a_snow", 19.8, 17.7, 30, 0.9),  # E bend
-            ("nature_dock/rock_small_b_snow", 20.0, 15.1, 250, 0.8),
-            ("winter/rock_cluster_snow_small", 14.5, 8.9, 70, 1.0), ("nature_dock/rock_small_a_snow", 14.65, 7.7, 190, 0.8), ("nature_dock/pebble_cluster_snow", 14.9, 6.6, 160, 0.9),  # W bend
-            ("nature_dock/rock_small_a_snow", 12.65, 2.3, 30, 0.8), ("nature_dock/rock_small_b_snow", 15.45, 2.0, 160, 0.8),    # E spoke bridge
-            ("winter/rock_cluster_snow_small", 11.5, -2.7, 220, 0.9), ("nature_dock/rock_small_b_snow", 14.35, -2.4, 80, 0.8),
-            ("nature_dock/rock_small_a_snow", 12.92, -9.04, 120, 0.8), ("nature_dock/rock_small_b_snow", 10.52, -7.6, 10, 0.8),  # SE bridge
-            ("winter/rock_cluster_snow_small", 10.34, -13.32, 300, 1.0), ("nature_dock/rock_small_a_snow", 7.94, -11.88, 75, 0.8),
-            ("nature_dock/rock_cluster_snow", 6.3, -16.6, 40, 0.8), ("nature_dock/rock_small_b_snow", 6.0, -15.4, 180, 0.8)]:  # S bend
-        place(asset, x, y, yaw, z=ground(x, y) - 0.12, tags=BANK, scale=s)
-    # grey boulders lining both banks above the waterline (not at the bridges, not on the paths)
-    for asset, x, y, yaw, s in [
-            ('nature_dock/rock_cluster', 13.96, 32.25, 0, 0.9),
-            ('nature_dock/rock_small_b', 17.07, 30.76, 47, 0.7),
-            ('nature_dock/rock_small_a', 14.07, 30.55, 47, 0.7),
-            ('nature_dock/rock_cluster', 17.18, 29.06, 94, 0.8),
-            ('nature_dock/rock_small_b', 14.19, 28.86, 94, 0.8),
-            ('nature_dock/rock_small_a', 17.3, 27.37, 141, 0.9),
-            ('nature_dock/rock_cluster', 14.31, 27.16, 141, 0.9),
-            ('nature_dock/rock_small_b', 18.61, 19.81, 47, 0.7),
-            ('nature_dock/rock_small_a', 15.89, 18.55, 47, 0.7),
-            ('nature_dock/rock_small_b', 16.6, 17.01, 94, 0.8),
-            ('nature_dock/rock_cluster', 16.93, 15.95, 0, 0.9),
-            ('nature_dock/rock_small_b', 19.27, 13.41, 47, 0.7),
-            ('nature_dock/rock_small_a', 16.41, 14.33, 47, 0.7),
-            ('nature_dock/rock_cluster', 18.75, 11.79, 94, 0.8),
-            ('nature_dock/rock_small_b', 15.89, 12.71, 94, 0.8),
-            ('nature_dock/rock_small_a', 18.23, 10.17, 141, 0.9),
-            ('nature_dock/rock_cluster', 15.37, 11.09, 141, 0.9),
-            ('nature_dock/rock_small_b', 17.71, 8.55, 188, 0.7),
-            ('nature_dock/rock_small_a', 17.28, 7.22, 0, 0.9),
-            ('nature_dock/rock_small_b', 16.75, 5.61, 47, 0.7),
-            ('nature_dock/rock_cluster', 10.88, -5.57, 141, 0.9),
-            ('nature_dock/rock_small_a', 9.55, -15.22, 0, 0.9),
-            ('nature_dock/rock_small_b', 9.41, -16.92, 47, 0.7),
-            ('nature_dock/rock_cluster', 9.27, -18.61, 94, 0.8),
-            ('nature_dock/rock_small_b', 6.28, -18.36, 94, 0.8),
-            ('nature_dock/rock_small_a', 9.13, -20.3, 141, 0.9),
-            ('nature_dock/rock_cluster', 6.14, -20.06, 141, 0.9),
-            ('nature_dock/rock_small_a', 9.02, -22.8, 0, 0.9),
-            ('nature_dock/rock_cluster', 6.03, -22.99, 0, 0.9),
-            ('nature_dock/rock_small_b', 9.13, -24.5, 47, 0.7),
-            ('nature_dock/rock_small_a', 6.13, -24.69, 47, 0.7),
-            ('nature_dock/rock_cluster', 9.23, -26.2, 94, 0.8),
-            ('nature_dock/rock_small_b', 6.24, -26.39, 94, 0.8),
-            ('nature_dock/rock_small_a', 9.34, -27.89, 141, 0.9),
-            ('nature_dock/rock_small_b', 9.45, -29.59, 188, 0.7),
-            ('nature_dock/rock_cluster', 9.55, -31.29, 235, 0.8),
-            ('nature_dock/rock_small_b', 6.56, -31.48, 235, 0.8)]:
-        place(asset, x, y, yaw, z=ground(x, y) - 0.15, tags=BANK, scale=s)
-    # railing on both banks beside the plaza stretch, with end posts
-    for a, b in [((13.45, 8.4), (11.6, 2.6)), ((17.4, 4.9), (16.85, 2.2)), ((10.1, -2.9), (9.7, -5.6)), ((15.4, -3.3), (14.95, -6.5))]:
-        run("town_connections/rail_segment", a, b, 2.1, yaw=math.degrees(math.atan2(b[1] - a[1], b[0] - a[0])))
-        for q in (a, b):
-            place("town_connections/rail_end_post", q[0], q[1], 0, tags=BLOCK)
+    # railing where the plaza paths run along the banks, with end posts
+    for s0, s1, side in [(29.0, 32.6, 1), (29.0, 32.6, -1), (37.3, 40.2, 1), (37.3, 40.2, -1)]:
+        pts = [S.bank_xy(s0 + (s1 - s0) * k / 3, side, 0.9) for k in range(4)]
+        if all(clear(q, 0.15) for q in pts):         # a gentle bend: one straight run of rail is close enough
+            run("town_connections/rail_segment", pts[0], pts[-1], 2.1)
+            for q in (pts[0], pts[-1]):
+                place("town_connections/rail_end_post", q.x, q.y, 0, tags=BLOCK)
     # stream picnic on the east bank below the plaza bridge
     ZONE = "picnic"
     table_set("plaza/round_table", 16.8, -5.4, 20, seats=(0, 2))
@@ -377,7 +413,7 @@ def cove():
     pier(-12.0, -14.5, 4, end_spot=False, z=zB)
     place("fishing/fishing_dock_spot", -12.0, -22.5, 0, z=zB, tags=WALK)
     place("nature_dock/dock_straight", -14.0, -22.5, 90, z=zB, tags=WALK)
-    place("fishing/fishing_dock_spot", -16.0, -22.5, 90, z=zB, tags=WALK)
+    place("fishing/fishing_dock_spot", -16.0, -22.5, 270, z=zB, tags=WALK)   # tip (-Y) faces west, out over open water
     T.DOCK_Z.update(A=zA, B=zB)
     n = 0
     for q in [q for q in T.PLACE if q["id"] == "fishing/fishing_dock_spot"]:
@@ -396,7 +432,7 @@ def cove():
         place("nature_dock/mooring_cleat", x, -15.2, 0, z=zA + 0.06, tags=DECOR)
         place("nature_dock/boat_fender", x - 0.9, -15.5, 0, z=zA - 0.3, tags=DECOR)
     place("nature_dock/coiled_rope", -18.3, -15.05, 20, z=zA + 0.06, tags=DECOR)
-    place("fishing/rowboat", -18.6, -17.6, 5, z=T.WATER_Z)
+    place("fishing/rowboat", -18.6, -17.6, 5, z=0.0)          # boats, floes, foam: modelled at the waterline
     # rope rails on the piers' outer edges, a mooring post ashore
     place("nature_dock/rope_posts", -22.95, -16.8, 90, z=zA)
     for y in (-14.5, -16.5, -18.5):
@@ -415,34 +451,31 @@ def cove():
     # pier B: life ring on the rail, a bucket of fish
     place("fishing/life_ring", -11.05, -16.5, 90, z=zB + 0.3)
     place("fishing/bucket_fish", -11.35, -18.0, 0, z=zB + 0.06)
-    # houseboat moored south of pier B's T head with a gangway tile
-    place("homes/houseboat_exterior", -14.5, -27.4, 180, z=T.WATER_Z + 0.02, tags=("building", "blocker"), name="Houseboat")
-    place("nature_dock/dock_straight", -14.0, -24.0, 0, z=zB, tags=WALK, name="Gangway")
-    mark("HouseboatDoor", -14.05, -25.0, 0, kind="door", target="home", z=zB)
+    # houseboat riding at anchor out in the cove, clear of every fishing spot's cast. Its hull is modelled in
+    # world terms (waterline at WATER_Z), so it sits at z=0. No gangway: the boat is scenery (no "home" door).
+    place("homes/houseboat_exterior", -19.0, -30.4, 196, z=0.0, tags=("building", "blocker"), name="Houseboat")
     # boats, bobbers with ripples, a few cove floes
-    place("fishing/rowboat", -9.4, -20.4, 75, z=T.WATER_Z)
-    place("fishing/rowboat", -21.0, -24.0, -20, z=T.WATER_Z)
-    for x, y in [(-11.6, -26.0), (-19.0, -28.0), (-27.0, -26.5), (-8.6, -18.0)]:
+    place("fishing/rowboat", -9.4, -20.4, 75, z=0.0)
+    place("fishing/rowboat", -25.6, -25.2, -20, z=0.0)
+    for x, y in [(-11.6, -26.0), (-15.5, -26.0), (-27.0, -26.5), (-8.6, -18.0)]:
         place("fishing/bobber", x, y, 0, z=T.WATER_Z)
         place("fishing/ripple", x, y, 0, z=T.WATER_Z + 0.01, tags=DECOR)
     for x, y, yaw in [(-17.0, -20.0, 30), (-20.5, -23.0, 140), (-9.6, -23.5, 250)]:
-        place("fishing/ice_floe_b", x, y, yaw, z=T.WATER_Z - 0.06, tags=DECOR)
-    # shoreline kit: fenders on the T head facing the houseboat, cleats on the gangway, rope coil and
-    # lantern brackets on the rails, a ladder off pier B, an end cap where the gangway meets the boat
+        place("fishing/ice_floe_b", x, y, yaw, z=0.0, tags=DECOR)
+    # shoreline kit: fenders and cleats on the T head's south face, rope coil and lantern brackets on the
+    # rails, a ladder off pier B, an end cap on pier A
     for x in (-15.3, -12.7):
         place("nature_dock/boat_fender", x, -23.55, 0, z=zB - 0.3, tags=DECOR)
     for x in (-14.8, -13.2):
-        place("nature_dock/mooring_cleat", x, -24.85, 0, z=zB + 0.06, tags=DECOR)
+        place("nature_dock/mooring_cleat", x, -23.3, 0, z=zB + 0.06, tags=DECOR)
     place("nature_dock/dock_end_cap", -24.0, -21.8, 0, z=zA)            # end of pier A
     place("nature_dock/coiled_rope", -8.2, -14.8, 30, tags=DECOR)
     place("nature_dock/dock_lantern_bracket", -11.05, -20.2, 90, z=zB)
     place("nature_dock/dock_lantern_bracket", -22.95, -18.6, 90, z=zA)
     place("nature_dock/dock_ladder", -10.85, -20.9, 90, z=zB - 1.2, tags=DECOR)
-    # cove beach: foam along the waterline, shallows just offshore, rocks and pebbles on the sand
+    # cove beach: foam along the waterline (the water shader shades the shallows), rocks and pebbles on the sand
     for x, y, yaw in [(-6.52, -27.73, 225), (-4.98, -25.72, 240), (-4.09, -23.3, 260), (-4.09, -20.7, 280), (-4.98, -18.29, 300)]:
-        place("nature_dock/foam_edge_strip", x, y, yaw, z=T.WATER_Z, tags=DECOR)
-    place("nature_dock/shallow_water_patch", -5.6, -22.6, 20, z=T.WATER_Z - 0.3, tags=DECOR)
-    place("nature_dock/shallow_water_patch", -6.6, -25.4, 70, z=T.WATER_Z - 0.3, tags=DECOR)
+        place("nature_dock/foam_edge_strip", x, y, yaw, z=0.012, tags=DECOR)
     place("nature_dock/rock_cluster", -2.9, -21.2, 40, tags=ROCK)
     place("nature_dock/rock_small_b", -2.4, -22.4, 120, tags=ROCK)
     place("nature_dock/pebble_cluster", -3.0, -24.6, 75, tags=ROCK)
@@ -472,7 +505,7 @@ def south_pier():
     for x in (-0.4, -2.4, 3.8, 5.8):
         place("plaza/plaza_edge_2m", x, -29.6, 0, z=ground(x, -29.0) - 0.88, tags=("prop", "blocker", "coast"))
     place("plaza/plaza_edge_corner", -3.8, -29.6, 0, z=ground(-3.8, -29.0) - 0.88, tags=("prop", "coast"))
-    place("plaza/plaza_edge_1m", 7.3, -29.6, 0, z=ground(7.3, -29.0) - 0.88, tags=("prop", "coast"))
+    place("plaza/plaza_edge_1m", 6.75, -29.1, 90, z=ground(6.2, -29.1) - 0.88, tags=("prop", "coast"))   # returns along the stream's west bank
     # sea lookout west of the pier: bench and a lamp facing the open water
     ZONE = "lookout"
     place("plaza/bench", -4.39, -28.88, 0, tags=BLOCK)
@@ -555,7 +588,6 @@ def arena():
     def A(u, v):                                            # blockout-local metres -> world
         return o.x + u * sc, o.y + v * sc
     place("winter/snowball_arena_blockout", o.x, o.y, 0, z=az, tags=("prop",), name="SnowballArena", scale=sc)
-    # inside the gate, past the blockout's spectator bench (socket_spectator_1 at v 18.0) and between the ready pads
     mark("ArenaGate", T.ARENA_GATE_X, 19.0, 0, kind="activity", activity="snowballs", z=az)
     # team ready pads with foot rings, respawn pads, flags, the snowball pile, scoreboard, spectator benches
     for team, col, u in (("coral", "#E86D58", 4.8), ("teal", "#207D85", 7.3)):

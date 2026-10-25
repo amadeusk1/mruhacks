@@ -29,7 +29,7 @@ func _exit_tree() -> void:
 
 func _ready() -> void:
 	AssetPack.dress_home(self)
-	InteriorMood.calm(self)
+	InteriorMood.calm(self, 0.9, ["wood", "wood_b", "wood_c", "wood_deep"])
 	for d in find_children("snow_dome_interior*", "Node3D", true, false):
 		if d.get_parent().name == "PackProps":
 			InteriorMood.paint(d, {"wall": "#F2E2C6"}, {})

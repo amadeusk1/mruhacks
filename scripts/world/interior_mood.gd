@@ -60,18 +60,90 @@ static func apply(tree: SceneTree, mood: Dictionary) -> Dictionary:
 	return saved
 
 
-## Indoor lamps glow, they don't flood: emission on glow, bulb and window materials is clamped.
-static func calm(node: Node, max_energy := 0.9) -> void:
+## Indoor finish for a room, one duplicated material per original:
+##  - emission on glow, bulb and window materials clamped (lamps glow, they don't flood);
+##  - a soft rim on every surface, so flat toon faces read as forms instead of flat or blown out;
+##  - floors (`floors`: material names) get a faint low-frequency noise, triplanar, so big tiled
+##    or planked areas aren't one flat colour.
+static func calm(node: Node, max_energy := 0.9, floors: Array = []) -> void:
+	var done := {}
 	for mi in node.find_children("*", "MeshInstance3D", true, false):
 		var m3 := mi as MeshInstance3D
 		if m3.mesh == null:
 			continue
 		for si in m3.mesh.get_surface_count():
 			var m := m3.get_active_material(si) as BaseMaterial3D
-			if m and m.emission_enabled and m.emission_energy_multiplier > max_energy:
+			if m == null or m.transparency != BaseMaterial3D.TRANSPARENCY_DISABLED:
+				continue
+			if not done.has(m):
 				var d := m.duplicate() as BaseMaterial3D
-				d.emission_energy_multiplier = max_energy
-				m3.set_surface_override_material(si, d)
+				if d.emission_enabled:
+					d.emission_energy_multiplier = minf(d.emission_energy_multiplier, max_energy)
+				d.rim_enabled = true
+				d.rim = 0.18
+				d.rim_tint = 0.65
+				if floors.has(String(m.resource_name)):
+					d.albedo_texture = _floor_noise()
+					d.uv1_triplanar = true
+					d.uv1_scale = Vector3.ONE * 0.35
+				done[m] = d
+			m3.set_surface_override_material(si, done[m])
+
+
+static var _noise: NoiseTexture2D
+
+
+static func _floor_noise() -> NoiseTexture2D:
+	if _noise == null:
+		var n := FastNoiseLite.new()
+		n.frequency = 0.02
+		_noise = NoiseTexture2D.new()
+		_noise.noise = n
+		_noise.seamless = true
+		_noise.width = 256
+		_noise.height = 256
+		var ramp := Gradient.new()  # 0.86..1.0: a faint wash, never a pattern
+		ramp.set_color(0, Color(0.86, 0.86, 0.86))
+		ramp.set_color(1, Color(1, 1, 1))
+		_noise.color_ramp = ramp
+	return _noise
+
+
+## Contact shadows: a soft dark disc on the floor under each piece of furniture, the cheap
+## stand-in for ambient occlusion the web renderer can't do (no SSAO in Compatibility).
+static func contact_shadows(parent: Node3D, props: Array, floor_y: float) -> void:
+	var mat := StandardMaterial3D.new()
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.albedo_color = Color(0.12, 0.07, 0.04, 0.42)
+	var tex := GradientTexture2D.new()
+	tex.fill = GradientTexture2D.FILL_RADIAL
+	tex.fill_from = Vector2(0.5, 0.5)
+	tex.fill_to = Vector2(1.0, 0.5)
+	var g := Gradient.new()
+	g.set_color(0, Color(1, 1, 1, 1))
+	g.set_color(1, Color(1, 1, 1, 0))
+	tex.gradient = g
+	mat.albedo_texture = tex
+	for node in props:
+		if not is_instance_valid(node):
+			continue
+		var box := AABB()
+		var first := true
+		for mi in (node as Node3D).find_children("*", "MeshInstance3D", true, false):
+			var b: AABB = mi.global_transform * mi.get_aabb()
+			box = b if first else box.merge(b)
+			first = false
+		if first or box.position.y > floor_y + 0.3:
+			continue  # wall-mounted
+		var quad := MeshInstance3D.new()
+		var plane := PlaneMesh.new()
+		plane.size = Vector2(box.size.x, box.size.z) * 1.35
+		quad.mesh = plane
+		quad.material_override = mat
+		quad.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		parent.add_child(quad)
+		quad.global_position = Vector3(box.get_center().x, floor_y + 0.012, box.get_center().z)
 
 
 static func restore(tree: SceneTree, saved: Dictionary) -> void:

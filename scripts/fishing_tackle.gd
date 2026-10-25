@@ -51,12 +51,13 @@ func _process(delta: float) -> void:
 	if forward.length_squared() < 0.001:
 		forward = Vector3(-1.0, 0.0, 0.0)
 	forward = forward.normalized()
+	var wy := _water_y()
 	var target := penguin.global_position + forward * 1.8
-	target.y = WATER_Y
+	target.y = wy
 	if _phase == "bite":
-		target.y = WATER_Y - 0.16 - sin(_age * 18.0) * 0.04
+		target.y = wy - 0.16 - sin(_age * 18.0) * 0.04
 	elif _phase == "reel":
-		target.y = WATER_Y - 0.05
+		target.y = wy - 0.05
 	var from := penguin.global_position + Vector3(0.0, 0.85, 0.0)
 	var bob := target
 	if _phase == "cast":
@@ -67,13 +68,19 @@ func _process(delta: float) -> void:
 		_bobber.global_position = bob
 	if _ripple:
 		_ripple.visible = _phase != "catch" and _phase != "cast"
-		_ripple.global_position = Vector3(target.x, WATER_Y + 0.02, target.z)
+		_ripple.global_position = Vector3(target.x, wy + 0.02, target.z)
 		var pulse := 1.15 + sin(_age * 3.0) * 0.12
 		_ripple.scale = Vector3(pulse, 1.0, pulse)
 	_aim_line(bob)
 	if _prize:
 		_prize.global_position = penguin.global_position + forward * 0.55 + Vector3(0.0, 0.85, 0.0)
 		_prize.rotate_y(delta * 1.4)
+
+
+## The room's water line: the town marks it with a "water_surface" node; the old plaza pond is WATER_Y.
+func _water_y() -> float:
+	var level := get_tree().get_first_node_in_group("water_surface") as Node3D
+	return level.global_position.y if level else WATER_Y
 
 
 func _ensure_rod() -> void:
