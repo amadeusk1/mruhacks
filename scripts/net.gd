@@ -106,6 +106,9 @@ func _ready() -> void:
 	if OS.get_cmdline_user_args().has("--snow-1v1"):
 		_snow.team_size = 1
 	_snow_state = _snow.view()
+	# clients only ever talk to the host; relaying peer join/leave notices made the host send to
+	# peers that had just dropped (the engine-side "Unable to send packet on channel 0")
+	(multiplayer as SceneMultiplayer).server_relay = false
 	multiplayer.peer_connected.connect(_on_peer_connected)
 	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
 	multiplayer.connected_to_server.connect(_on_connected_to_server)
@@ -391,7 +394,7 @@ func _host_say(peer_id: int, message: String) -> void:
 		if int(other_id) == local_id():
 			chat_received.emit(speaker, message)
 			chat_from.emit(peer_id, speaker, message)
-		elif multiplayer.get_peers().has(int(other_id)):
+		elif _live_peers().has(int(other_id)):
 			relay_chat.rpc_id(int(other_id), peer_id, speaker, message)
 
 
@@ -413,7 +416,7 @@ func _host_typing(peer_id: int, typing: bool) -> void:
 			continue
 		if int(other_id) == local_id():
 			typing_changed.emit(peer_id, typing)
-		elif multiplayer.get_peers().has(int(other_id)):
+		elif _live_peers().has(int(other_id)):
 			relay_typing.rpc_id(int(other_id), peer_id, typing)
 
 
@@ -464,7 +467,7 @@ func _set_anim(id: int, clip: String, loop: bool) -> void:
 			continue
 		if int(other_id) == local_id():
 			anim_changed.emit(id, clip, loop, int(player["anim_n"]))
-		elif multiplayer.get_peers().has(int(other_id)):
+		elif _live_peers().has(int(other_id)):
 			deliver_anim.rpc_id(int(other_id), id, clip, loop, int(player["anim_n"]))
 
 
@@ -523,7 +526,7 @@ func _set_place(id: int, location: String, spawn: String, hidden: bool, igloo: i
 		var owner_name := str(_players[igloo]["name"]) if _players.has(igloo) else ""
 		if id == local_id():
 			visit_denied.emit(owner_name)
-		elif multiplayer.get_peers().has(id):
+		elif _live_peers().has(id):
 			deny_visit.rpc_id(id, owner_name)
 		return
 	var player: Dictionary = _players[id]
@@ -573,7 +576,7 @@ func _host_release(id: int) -> void:
 func _deny_seat(id: int, key: String) -> void:
 	if _mode != Mode.HOST or id == local_id() or id <= 0:
 		return
-	if not multiplayer.get_peers().has(id):
+	if not _live_peers().has(id):
 		return
 	reject_seat.rpc_id(id, key)
 
@@ -623,7 +626,7 @@ func _relay_pose(from_id: int, pose: Dictionary) -> void:
 				float(pose["speed"]),
 				bool(pose["sitting"])
 			)
-		elif multiplayer.get_peers().has(int(other_id)):
+		elif _live_peers().has(int(other_id)):
 			relay_pose.rpc_id(
 				int(other_id),
 				from_id,
@@ -689,15 +692,27 @@ func _relay_voice(from_id: int, data: PackedByteArray) -> void:
 				continue
 		if oid == local_id():
 			Voice.receive(from_id, data)
-		elif multiplayer.get_peers().has(oid):
+		elif _live_peers().has(oid):
 			relay_voice.rpc_id(oid, from_id, data)
+
+
+## Peers the transport can still reach. Two clients dropping in the same poll: while the first one's
+## disconnect is handled, the second is still in get_peers() but its ENet link is gone, and sending to
+## it fails with "Unable to send packet on channel 0, max channels: 0".
+func _live_peers() -> Array:
+	var enet := multiplayer.multiplayer_peer as ENetMultiplayerPeer
+	var peers := Array(multiplayer.get_peers())
+	if enet == null or _mode != Mode.HOST:
+		return peers
+	return peers.filter(func(id: int) -> bool: return enet.get_peer(id).get_state() == ENetPacketPeer.STATE_CONNECTED)
 
 
 func _broadcast() -> void:
 	_roster = _snapshot()
 	roster_changed.emit()
 	if _mode == Mode.HOST and not _closing and multiplayer.get_peers().size() > 0:
-		apply_roster.rpc(_roster)
+		for id in _live_peers():
+			apply_roster.rpc_id(id, _roster)
 
 
 func _snapshot() -> Array:
@@ -772,7 +787,7 @@ func _host_invite(from_id: int, target_id: int, kind: String, ticket: String) ->
 	var host_name := str(_players[from_id]["name"])
 	if target_id == local_id():
 		invite_received.emit(from_id, host_name, kind, ticket)
-	elif multiplayer.get_peers().has(target_id):
+	elif _live_peers().has(target_id):
 		deliver_invite.rpc_id(target_id, from_id, host_name, kind, ticket)
 
 
@@ -1140,7 +1155,7 @@ func _relay_sled(from_id: int, pose: Dictionary) -> void:
 				float(pose["steer"]),
 				bool(pose["crashed"])
 			)
-		elif multiplayer.get_peers().has(int(other_id)):
+		elif _live_peers().has(int(other_id)):
 			relay_sled.rpc_id(
 				int(other_id),
 				from_id,
@@ -1257,7 +1272,8 @@ func _publish_court(delta: float) -> void:
 	_court_sig = sig
 	_court_send = 0.05
 	if multiplayer.get_peers().size() > 0:
-		deliver_court.rpc(_court_state)
+		for id in _live_peers():
+			deliver_court.rpc_id(id, _court_state)
 
 
 @rpc("any_peer", "call_remote", "reliable")
@@ -1326,7 +1342,7 @@ func _host_emote(id: int, clip: String) -> void:
 			continue
 		if int(other_id) == local_id():
 			emote_played.emit(id, clip)
-		elif multiplayer.get_peers().has(int(other_id)):
+		elif _live_peers().has(int(other_id)):
 			deliver_emote.rpc_id(int(other_id), id, clip, start)
 
 
@@ -1417,7 +1433,8 @@ func _publish_snow(delta: float) -> void:
 	_snow_sig = sig
 	_snow_send = 0.5  # the clock ticks locally between publishes
 	if multiplayer.get_peers().size() > 0:
-		deliver_snow.rpc(_snow_state)
+		for id in _live_peers():
+			deliver_snow.rpc_id(id, _snow_state)
 
 
 func snow_leave() -> void:
