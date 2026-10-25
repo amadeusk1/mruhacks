@@ -22,16 +22,19 @@
   </head>
   <body>
     <!--
-      9.1 s launch trailer of real game footage. Cuts sit on beats of the song (172 BPM),
+      23.1 s launch trailer of real game footage. Cuts sit on beats of the song (172 BPM),
       floored to the frame at 30 fps: the five slide-6 penguins jump out of their cards into the
-      game (Flow, frames-to-video), walk the plaza together (tools/film_walk.gd), then the logo
-      zooms out with game frames inside it and lands on dark. Filmed features join after the walk.
+      game (Flow, frames-to-video), walk the plaza together (tools/film_walk.gd), race down Sled Hill
+      swinging side to side (tools/film_sled.gd), fish off the pier (tools/film_fish.gd),
+      have a 2v2 snowball fight (tools/film_snow.gd), sit
+      round the poker table (tools/film_casino.gd) and at the cinema (tools/film_cinema.gd), then the logo
+      zooms out with game frames inside it and lands on dark. Filmed features join after the cinema.
     -->
     <div data-hf-id="hf-at0g"
       id="root"
       data-composition-id="main"
       data-start="0"
-      data-duration="9.1"
+      data-duration="23.06667"
       data-width="1920"
       data-height="1080"
     >
@@ -55,11 +58,61 @@
         muted
       ></video>
 
+      <video data-hf-id="hf-sled"
+        id="sled"
+        class="clip"
+        src="assets/sled.mp4"
+        data-start="5.56667"
+        data-duration="2.8"
+        data-track-index="1"
+        muted
+      ></video>
+
+      <video data-hf-id="hf-fish"
+        id="fishing"
+        class="clip"
+        src="assets/fishing.mp4"
+        data-start="8.36667"
+        data-duration="2.76667"
+        data-track-index="1"
+        muted
+      ></video>
+
+      <video data-hf-id="hf-snow"
+        id="snowball"
+        class="clip"
+        src="assets/snowball.mp4"
+        data-start="11.13333"
+        data-duration="2.8"
+        data-track-index="1"
+        muted
+      ></video>
+
+      <video data-hf-id="hf-casn"
+        id="casino"
+        class="clip"
+        src="assets/casino.mp4"
+        data-start="13.93333"
+        data-duration="2.8"
+        data-track-index="1"
+        muted
+      ></video>
+
+      <video data-hf-id="hf-cine"
+        id="cinema"
+        class="clip"
+        src="assets/cinema.mp4"
+        data-start="16.73333"
+        data-duration="2.8"
+        data-track-index="1"
+        muted
+      ></video>
+
       <div data-hf-id="hf-guyk"
         id="logo"
         data-composition-id="logo"
         data-composition-src="compositions/logo.html"
-        data-start="5.56667"
+        data-start="19.53333"
         data-duration="3.53333"
         data-track-index="1"
         data-track-kind="graphics"
@@ -72,7 +125,7 @@
         class="clip"
         src="assets/song.m4a"
         data-start="0"
-        data-duration="9.1"
+        data-duration="23.06667"
         data-track-index="2"
         data-volume="1"
       ></audio>

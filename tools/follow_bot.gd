@@ -23,6 +23,9 @@ var _slot := 0
 var _leader := ""
 var _goal := Vector3.INF
 var _joined := false
+var _fisher: Node
+var _snow: Node
+var _seat: Node
 
 
 func _ready() -> void:
@@ -57,6 +60,18 @@ func _ready() -> void:
 	tick.autostart = true
 	tick.timeout.connect(_follow)
 	add_child(tick)
+	var pilot := preload("res://tools/sled_pilot.gd").new()  # races on Sled Hill
+	pilot.period = 1.35 + 0.12 * float(_slot)
+	pilot.phase = float(_slot) * 1.3
+	add_child(pilot)
+	_fisher = preload("res://tools/fish_pilot.gd").new()  # fishes beside a fishing leader
+	_fisher.offset = 0.7 * float(_slot) / 2.0
+	add_child(_fisher)
+	_snow = preload("res://tools/snow_pilot.gd").new()  # plays the snowball fight beside its leader
+	_snow.team = ["coral", "teal", "teal", ""][mini(_slot / 2, 3)]
+	add_child(_snow)
+	_seat = preload("res://tools/seat_pilot.gd").new()  # sits beside a leader in the cinema or casino
+	add_child(_seat)
 
 
 func _follow() -> void:
@@ -70,9 +85,26 @@ func _follow() -> void:
 		_goal = Vector3.INF
 		_w.call("travel_to", place)
 		return
+	_fisher.active = str(entry.get("fisher", "")) != ""
+	if _fisher.active:
+		return
 	var lead: Node3D = (_w.get("_puppets") as Dictionary).get(int(entry["id"]))
 	var me: Node3D = _w.get_node("Penguin")
 	if lead == null or not is_instance_valid(lead) or not lead.visible:
+		return
+	var here := str(_w.call("current_location_id"))
+	_seat.kit = here
+	_seat.active = here == "casino"
+	if here == "cinema":
+		var room: Node = _w.get_node("LocationHost").get_child(0)
+		_seat.active = lead.global_position.distance_to(room.get_meta("hall_center", Vector3(240, 0, 50))) < 14.0
+	if _seat.active:
+		_seat.near = lead.global_position
+		return
+	var arena := get_tree().get_first_node_in_group("snow_arena")
+	_snow.active = _snow.team != "" and arena != null \
+			and (arena.get("_field") as Rect2).grow(4.0).has_point(Vector2(lead.global_position.x, lead.global_position.z))
+	if _snow.active:
 		return
 	var angle := TAU * float(_slot) / 8.0 + PI * 0.125
 	var spot := lead.global_position + Vector3(cos(angle), 0.0, sin(angle)) * RADIUS
