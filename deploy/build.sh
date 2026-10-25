@@ -3,6 +3,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 : "${GODOT:?Set GODOT to the Godot 4.7.2 executable}"
 cp deploy/export_presets.cfg export_presets.cfg
+git rev-parse --short HEAD > build_version.txt  # Net.build_version(): servers and clients must match to join
 mkdir -p builds/web builds/server
 "$GODOT" --headless --path . --import
 "$GODOT" --headless --path . --export-release Web builds/web/index.html

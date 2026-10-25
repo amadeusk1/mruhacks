@@ -19,6 +19,7 @@ signal home_layout(owner_id: int, layout: String)
 signal sled_pose(peer_id: int, x: float, y: float, z: float, yaw: float, steer: float, crashed: bool)
 signal emote_played(peer_id: int, clip: String)  # clip "" = the emote was cancelled by moving
 signal anim_changed(peer_id: int, clip: String, loop: bool, n: int)
+signal join_full(players: int, cap: int)   ## the server refused us: it's at --max-players
 
 const _CourtMatch := preload("res://scripts/court_match.gd")
 const _SnowMatch := preload("res://scripts/snow_match.gd")
@@ -92,12 +93,33 @@ var _invite_sent: Dictionary = {}  # host: "from:target:kind" -> ticks msec of t
 var _granted: Dictionary = {}      # host: owner id -> {guest id: true} (invited into that home)
 var _homes: Dictionary = {}        # host: owner id -> home layout JSON
 var court_loft := 0.5  # how high the local player aims a shot: 0 flattest, 1 tallest lob
+## Community servers (docs/Engine Specs/Community Servers.md): --public lists a dedicated server
+## on pengloo.party through LobbyLink; clients pick one in the Servers list and join its relay URL.
+var max_players := 8
+var public_listing := false
+var server_name := ""
+var server_url := ""   ## client: relay URL of the community server picked ("" = the official island)
+var community := false ## client: joined (or joining) a community server
+var community_cinema := false ## client: that server runs its own cinema (reached at <server_url>/cinema/)
+var host_cinema := ""      ## host: address of our own cinema gateway (--cinema=HOST:PORT), relayed to players
+var host_cinema_env := ""  ## host: private env file for the bundled gateway LobbyLink starts (--cinema-env=FILE)
+var admin_code := ""       ## client: lets its holder past a full server (the server's PENGLOO_ADMIN_CODE)
 
 
 func _ready() -> void:
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--net-port="):
 			PORT = int(a.trim_prefix("--net-port="))
+		elif a.begins_with("--max-players="):
+			max_players = clampi(int(a.trim_prefix("--max-players=")), 1, 32)
+		elif a.begins_with("--server-name="):
+			server_name = a.trim_prefix("--server-name=")
+		elif a == "--public":
+			public_listing = true
+		elif a.begins_with("--cinema="):
+			host_cinema = a.trim_prefix("--cinema=")
+		elif a.begins_with("--cinema-env="):
+			host_cinema_env = a.trim_prefix("--cinema-env=")
 		elif a.begins_with("--clock-skew=") and OS.is_debug_build():
 			_clock_skew = float(a.trim_prefix("--clock-skew="))
 	_court = _CourtMatch.new()
@@ -238,7 +260,7 @@ func host_game(player_name: String) -> String:
 		err = peer.create_server(PORT)
 	else:
 		peer = ENetMultiplayerPeer.new()
-		err = peer.create_server(PORT, 8)
+		err = peer.create_server(PORT, max_players)
 	if err != OK:
 		return "Port %s is already in use." % PORT
 	_mode = Mode.HOST
@@ -250,6 +272,10 @@ func host_game(player_name: String) -> String:
 		_players[local_id()] = _blank(local_id(), _local_name, _local_color)
 	_session_open = true
 	print("Net hosting on %s:%s as peer %s (%s)" % [ADDRESS, PORT, local_id(), _local_name])
+	if public_listing and not has_node("LobbyLink"):  # dedicated, or a desktop-app player hosting
+		var link: Node = preload("res://scripts/lobby_link.gd").new()
+		link.name = "LobbyLink"
+		add_child(link)
 	_broadcast()
 	session_started.emit()
 	return ""
@@ -841,6 +867,15 @@ func _clean_name(raw: String) -> String:
 
 func _force_offline() -> void:
 	_closing = true
+	if has_node("LobbyLink"):
+		get_node("LobbyLink").queue_free()  # stop listing; the lobby drops our players' channels
+	community = false
+	community_cinema = false
+	server_url = ""
+	if not dedicated:  # a desktop listen-host chooses again next time
+		public_listing = false
+		host_cinema = ""
+		host_cinema_env = ""
 	var peer := multiplayer.multiplayer_peer
 	if peer != null:
 		peer.close()
@@ -881,7 +916,7 @@ func _force_offline() -> void:
 
 
 func _on_peer_connected(id: int) -> void:
-	if _mode == Mode.HOST and multiplayer.get_peers().size() > 8:
+	if _mode == Mode.HOST and multiplayer.get_peers().size() > max_players + 8:  # flood guard; the cap with a reason is in hello()
 		multiplayer.multiplayer_peer.disconnect_peer(id)
 		return
 	print("Net peer connected: %s" % id)
@@ -908,7 +943,7 @@ func _on_connected_to_server() -> void:
 	if _mode != Mode.CLIENT:
 		return
 	print("Net joined as peer %s" % local_id())
-	hello.rpc_id(1, _local_name)
+	hello.rpc_id(1, _local_name, admin_code)
 
 
 func _on_connection_failed() -> void:
@@ -934,11 +969,18 @@ func _on_hello_timeout() -> void:
 
 
 @rpc("any_peer", "call_remote", "reliable")
-func hello(player_name: String) -> void:
+func hello(player_name: String, admin: String) -> void:
 	if _mode != Mode.HOST:
 		return
 	var id := multiplayer.get_remote_sender_id()
 	if id <= 0:
+		return
+	if not _players.has(id) and _players.size() >= max_players and not _admin_ok(admin):
+		print("Net refused peer %s: full (%d/%d)" % [id, _players.size(), max_players])
+		join_refused.rpc_id(id, "full", _players.size(), max_players)
+		get_tree().create_timer(1.0).timeout.connect(func() -> void:  # let the reason arrive first
+			if multiplayer.multiplayer_peer and id in multiplayer.get_peers():
+				multiplayer.multiplayer_peer.disconnect_peer(id))
 		return
 	var cleaned := _clean_name(player_name)
 	if _players.has(id):
@@ -947,6 +989,26 @@ func hello(player_name: String) -> void:
 		_players[id] = _blank(id, cleaned, _take_color())
 	print("Net hello from peer %s (%s)" % [id, cleaned])
 	_broadcast()
+
+
+## Server-side admin bypass: PENGLOO_ADMIN_CODE from the server's private env file (16+ chars).
+func _admin_ok(code: String) -> bool:
+	var want := OS.get_environment("PENGLOO_ADMIN_CODE")
+	if want.length() < 16 or code.length() != want.length():
+		return false
+	var diff := 0
+	for i in want.length():  # constant-time compare
+		diff |= want.unicode_at(i) ^ code.unicode_at(i)
+	return diff == 0
+
+
+@rpc("authority", "call_remote", "reliable")
+func join_refused(kind: String, players: int, cap: int) -> void:
+	if _mode != Mode.CLIENT:
+		return
+	print("Net refused: %s (%d/%d)" % [kind, players, cap])
+	_force_offline()
+	join_full.emit(players, cap)
 
 
 @rpc("authority", "call_remote", "reliable")
@@ -1324,15 +1386,35 @@ func public_client() -> bool:
 
 
 func use_websocket() -> bool:
-	return public_client() or OS.get_cmdline_user_args().has("--net-ws") or not OS.get_environment("PENGLOO_WS_URL").is_empty()
+	return public_client() or public_listing or OS.get_cmdline_user_args().has("--net-ws") or not OS.get_environment("PENGLOO_WS_URL").is_empty()
 
 func websocket_url() -> String:
+	if server_url != "":
+		return server_url
 	if OS.has_feature("web"):
 		return str(JavaScriptBridge.eval("(location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/multiplayer'"))
 	var configured := OS.get_environment("PENGLOO_WS_URL")
 	if not configured.is_empty():
 		return configured
 	return "wss://pengloo.party/multiplayer" if OS.has_feature("desktop_online") else "ws://127.0.0.1:%s" % PORT
+
+
+## Where the community-server lobby lives: the page's own origin on the web, else pengloo.party.
+## PENGLOO_LOBBY_BASE (e.g. http://127.0.0.1:8096) points tests at a local lobby.
+func lobby_base() -> String:
+	var configured := OS.get_environment("PENGLOO_LOBBY_BASE")
+	if not configured.is_empty():
+		return configured.trim_suffix("/")
+	if OS.has_feature("web"):
+		return str(JavaScriptBridge.eval("location.origin"))
+	return "https://pengloo.party"
+
+
+## Build id written by deploy/build*.sh (git short sha); "dev" in the editor. Community servers
+## and clients must match, or the RPC checksum fails on join.
+func build_version() -> String:
+	var f := FileAccess.open("res://build_version.txt", FileAccess.READ)
+	return f.get_as_text().strip_edges() if f else "dev"
 
 
 # ---- emotes ----------------------------------------------------------------------------

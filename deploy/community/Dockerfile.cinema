@@ -1,0 +1,5 @@
+FROM alpine:3.23
+RUN apk add --no-cache ca-certificates ffmpeg && adduser -D -u 10001 cinema
+COPY pengloo-cinema /usr/local/bin/pengloo-cinema
+USER cinema
+ENTRYPOINT ["/usr/local/bin/pengloo-cinema"]

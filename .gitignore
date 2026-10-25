@@ -50,3 +50,4 @@ __pycache__/
 *.blend1
 *.blend2
 art/_wip/
+build_version.txt

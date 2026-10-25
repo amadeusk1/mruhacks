@@ -34,15 +34,38 @@ var _join_title: Label
 var _join_sub: Label
 var _join_error: Control
 var _busy := false
+var _servers: Control       # Community Servers list (docs/Engine Specs/Community Servers.md)
+var _server_list: VBoxContainer
+var _server_rows: Array = []  # [{row, listing}]
+var _server_pick := -1
+var _server_join: Button
+var _server_http: HTTPRequest
+var _server_t0 := 0
+var _full_banner: PanelContainer
+var _full_title: Label
+var _admin := {}
+var _joining_server := ""
+var _hosting: Control       # Host a Server setup (name, max players, optional own cinema)
+var _hf := {}               # hosting field dicts by key
+var _host_max: SpinBox
+var _host_test: Label
+const HOSTING := "user://hosting.cfg"   # the host's own settings, cinema credentials included: never uploaded
+const HOST_CINEMA_ENV := "user://cinema_host.env"
 
 
 func _ready() -> void:
 	if Net.public_client():
 		WORLDS.remove_at(1)
 		WORLDS[1] = {"id": "join", "name": "Pengloo Party", "desc": "Join the shared island with friends.", "count": "Online", "action": "Join world", "thumb": "res://ui/screens/world_thumb_1.png"}
+		WORLDS.append({"id": "servers", "name": "Community Servers", "desc": "Islands hosted by other players.", "count": "Browse",
+			"action": "Browse servers", "thumb": "res://ui/screens/world_thumb_2.png"})
+	if OS.has_feature("desktop_online"):  # browsers can't host; the desktop app can, through pengloo.party
+		WORLDS.append({"id": "host_public", "name": "Host a Server", "desc": "Your own island, listed on pengloo.party.", "count": "You host",
+			"action": "Set up server", "thumb": "res://ui/screens/world_thumb_0.png"})
 	layer = 20
 	_load_profile()
 	_build()
+	Net.join_full.connect(_on_full)
 	_show(_choose if _has_profile() else _setup)
 
 
@@ -116,6 +139,8 @@ func _build() -> void:
 	_setup = _build_setup()
 	_choose = _build_choose()
 	_joining = _build_joining()
+	_servers = _build_servers()
+	_hosting = _build_hosting()
 
 
 func _card(size: Vector2) -> PanelContainer:
@@ -314,7 +339,7 @@ func _rounded(pic: TextureRect) -> Control:
 
 # ---- behaviour ---------------------------------------------------------------------------
 func _show(which: Control) -> void:
-	for c in [_setup, _choose, _joining]:
+	for c in [_setup, _choose, _joining, _servers, _hosting]:
 		c.visible = c == which
 	if which == _setup:
 		(_name["field"] as LineEdit).grab_focus.call_deferred()
@@ -358,15 +383,372 @@ func _go_pressed() -> void:
 	match WORLDS[_selected]["id"]:
 		"solo": solo_requested.emit()
 		"host": host_requested.emit()
-		"join": join_requested.emit()
+		"join":
+			Net.server_url = ""
+			Net.community = false
+			Net.community_cinema = false
+			_joining_server = ""
+			join_requested.emit()
+		"servers":
+			_show(_servers)
+			_refresh_servers()
+		"host_public":
+			_show(_hosting)
 
 
 func _open_joining() -> void:
 	var w: Dictionary = WORLDS[_selected]
-	_join_title.text = {"solo": "Waddling to the island…", "host": "Opening your world…", "join": "Joining your friend…"}[w["id"]]
+	_join_title.text = {"solo": "Waddling to the island…", "host": "Opening your world…", "join": "Joining your friend…", "servers": "Joining…",
+		"host_public": "Opening your server…"}[w["id"]]
 	_join_sub.text = "Finding your iceberg…"
+	if _joining_server != "":
+		_join_title.text = "Joining %s…" % _joining_server
+		_join_sub.text = "Community server · not run or moderated by Pengloo Party" if Net.community else "Finding your iceberg…"
 	_join_error.visible = false
 	_show(_joining)
+
+
+# ---- community servers ----------------------------------------------------------------------
+func _build_servers() -> Control:
+	var card := _card(Vector2(1090, 640))
+	var col := UIKit.vbox(10)
+	card.add_child(col)
+	_header(col, "Community Servers", "Islands hosted by other players, played right here through pengloo.party.", func() -> void: _show(_choose))
+	col.add_child(_build_full_banner())
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_server_list = UIKit.vbox(10)
+	_server_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(_server_list)
+	col.add_child(scroll)
+	var bottom := UIKit.hbox(16)
+	var refresh := UIKit.button("Refresh", "outline", "refresh", Vector2(220, 76))
+	refresh.pressed.connect(_refresh_servers)
+	bottom.add_child(refresh)
+	bottom.add_child(UIKit.spacer())
+	_server_join = UIKit.button("Join server", "primary", "chevron_right", Vector2(360, 80), true)
+	_server_join.add_theme_font_size_override("font_size", 32)
+	_server_join.pressed.connect(_join_server)
+	bottom.add_child(_server_join)
+	col.add_child(bottom)
+	_server_http = HTTPRequest.new()
+	_server_http.timeout = 8.0
+	_server_http.request_completed.connect(_on_servers)
+	add_child(_server_http)
+	return card
+
+
+func _refresh_servers() -> void:
+	_server_http.cancel_request()
+	_server_t0 = Time.get_ticks_msec()
+	_fill_servers([], "loading")
+	if _server_http.request(Net.lobby_base() + "/lobby/servers") != OK:
+		_fill_servers([], "error")
+
+
+func _on_servers(result: int, code: int, _h: PackedStringArray, body: PackedByteArray) -> void:
+	var rtt := Time.get_ticks_msec() - _server_t0
+	var data: Variant = JSON.parse_string(body.get_string_from_utf8()) if result == HTTPRequest.RESULT_SUCCESS and code == 200 else null
+	if not (data is Dictionary) or not (data.get("servers") is Array):
+		_fill_servers([], "error")
+		return
+	var out := []
+	for s in data["servers"]:
+		if s is Dictionary:
+			s["ping"] = rtt + int(s.get("host_ms", 0))  # you -> pengloo.party -> the host
+			out.append(s)
+	_fill_servers(out, "ok")
+
+
+## The official island is always first; community servers follow (the lobby sorts by players).
+## Different builds can't talk (the RPC checksum differs), so mismatched versions are greyed out.
+func _fill_servers(list: Array, state: String) -> void:
+	for c in _server_list.get_children():
+		c.queue_free()
+	_server_rows.clear()
+	_server_pick = -1
+	if not list.any(func(x: Dictionary) -> bool: return bool(x.get("official", false))):  # lobby down: still offer it
+		_add_server_row({"name": "Pengloo Party", "official": true, "players": -1, "url": "", "version": Net.build_version()})
+	for s in list:
+		_add_server_row(s)
+	if state != "ok" or list.is_empty():
+		var msg: Array = {"loading": ["loading", "Looking for servers…"], "error": ["error", "Couldn't load community servers. Try Refresh."],
+			"ok": ["empty", "No community servers are online yet. Host one: see pengloo.party/download."]}[state]
+		_server_list.add_child(UIWidgets.state_panel(msg[0], "Community Servers", msg[1], []))
+	_pick_server(0)
+
+
+func _add_server_row(s: Dictionary) -> void:
+	var mine := Net.build_version()
+	var theirs := str(s.get("version", ""))
+	var outdated := theirs != mine and mine != "dev" and theirs != "dev"
+	var full := s.has("max") and int(s.get("players", 0)) >= int(s["max"])
+	var r := UIKit.card("Row")
+	r.custom_minimum_size.y = 96
+	r.mouse_filter = Control.MOUSE_FILTER_STOP
+	var i := _server_rows.size()
+	r.gui_input.connect(func(e: InputEvent) -> void:
+		if e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
+			_pick_server(i)
+			if e.double_click: _join_server())
+	var h := UIKit.hbox(18)
+	r.add_child(h)
+	var txt := UIKit.vbox(4)
+	txt.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	txt.alignment = BoxContainer.ALIGNMENT_CENTER
+	var n := UIKit.label(str(s.get("name", "Server")), "Heading")
+	n.add_theme_font_size_override("font_size", 32)
+	n.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	txt.add_child(n)
+	var tags := UIKit.hbox(10)
+	tags.add_child(UIKit.chip("Official" if s.get("official", false) else "Community", "star" if s.get("official", false) else "users", 16))
+	if outdated:
+		tags.add_child(UIKit.status("Outdated version", Color("#A9ABB2")))
+	elif full:
+		tags.add_child(UIKit.status("Full", Color("#E3A92B")))
+	elif s.has("ping"):
+		tags.add_child(UIKit.status("~%d ms" % int(s["ping"]), Color("#14B28B") if int(s["ping"]) < 120 else Color("#E3A92B")))
+	if str(s.get("region", "")) != "":
+		tags.add_child(UIKit.label(str(s["region"]).to_upper(), "Muted"))
+	txt.add_child(tags)
+	h.add_child(txt)
+	var cnt := UIKit.hbox(10)
+	cnt.add_child(UIKit.glyph("users", 30, T.NAVY_TITLE))
+	var cl := UIKit.label("Online" if int(s.get("players", 0)) < 0 else "%d / %d" % [int(s.get("players", 0)), int(s.get("max", 0))], "Strong")
+	cl.add_theme_font_size_override("font_size", 28)
+	cnt.add_child(cl)
+	cnt.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	cnt.custom_minimum_size.x = 150
+	h.add_child(cnt)
+	for c in r.find_children("*", "Control", true, false):
+		(c as Control).mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if outdated or full:
+		r.modulate.a = 0.5
+	else:  # one click straight in
+		var join := UIKit.button("Join", "primary", "", Vector2(130, 60))
+		join.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		join.pressed.connect(func() -> void: _pick_server(i); _join_server())
+		h.add_child(join)
+	_server_list.add_child(r)
+	_server_rows.append({"row": r, "listing": s, "ok": not (outdated or full)})
+
+
+## Shown when the official island refuses us for being full: try again, pick a community server
+## below, host your own, or use an admin code.
+func _build_full_banner() -> PanelContainer:
+	_full_banner = UIKit.card("Inset")
+	_full_banner.visible = false
+	var v := UIKit.vbox(8)
+	_full_banner.add_child(v)
+	var top := UIKit.hbox(14)
+	_full_title = UIKit.label("", "Heading")
+	_full_title.add_theme_font_size_override("font_size", 30)
+	_full_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	top.add_child(_full_title)
+	var again := UIKit.button("Try again", "primary", "refresh", Vector2(220, 60))
+	again.pressed.connect(_join_official)
+	top.add_child(again)
+	v.add_child(top)
+	var how := UIKit.label("Join a community server below, or host your own: run one from the desktop app or on any computer, and it shows up in everyone's Servers list automatically. You can even add your own cinema.", "Body")
+	how.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	v.add_child(how)
+	var row := UIKit.hbox(12)
+	var host := UIKit.button("Host your own server", "outline", "chevron_right", Vector2(320, 56), true)
+	host.pressed.connect(func() -> void: OS.shell_open(Net.lobby_base() + "/download/#host"))
+	row.add_child(host)
+	row.add_child(UIKit.spacer())
+	_admin = UIKit.field("Admin code", str(_profile.get("admin", "")), false)
+	(_admin["field"] as LineEdit).secret = true
+	(_admin["field"] as LineEdit).custom_minimum_size = Vector2(240, 56)
+	row.add_child(_admin["root"])
+	var use := UIKit.button("Use code", "secondary", "", Vector2(160, 56))
+	use.pressed.connect(func() -> void:
+		_profile["admin"] = (_admin["field"] as LineEdit).text.strip_edges()
+		_save_profile()
+		_join_official())
+	row.add_child(use)
+	v.add_child(row)
+	return _full_banner
+
+
+func _on_full(players: int, cap: int) -> void:
+	_busy = false
+	_full_title.text = "Pengloo Party is full right now (%d/%d)" % [players, cap]
+	_full_banner.visible = true
+	_show(_servers)
+	_refresh_servers()
+
+
+func _join_official() -> void:
+	_full_banner.visible = false
+	Net.server_url = ""
+	Net.community = false
+	Net.community_cinema = false
+	Net.admin_code = str(_profile.get("admin", ""))
+	_joining_server = "Pengloo Party"
+	Net.preferred_color = _color
+	join_requested.emit()
+
+
+func _pick_server(i: int) -> void:
+	_server_pick = i if i >= 0 and i < _server_rows.size() and _server_rows[i]["ok"] else -1
+	for k in _server_rows.size():
+		(_server_rows[k]["row"] as PanelContainer).theme_type_variation = "RowSelected" if k == _server_pick else "Row"
+	_server_join.disabled = _server_pick < 0
+
+
+func _join_server() -> void:
+	if _busy or _server_pick < 0:
+		return
+	var s: Dictionary = _server_rows[_server_pick]["listing"]
+	var url := "" if bool(s.get("official", false)) else str(s.get("url", ""))  # the official island: /multiplayer
+	Net.community = url != ""
+	Net.community_cinema = url != "" and bool(s.get("cinema", false))
+	Net.server_url = "" if url == "" else Net.lobby_base().replace("https://", "wss://").replace("http://", "ws://") + url
+	_joining_server = str(s.get("name", ""))
+	Net.preferred_color = _color
+	join_requested.emit()
+
+
+# ---- hosting setup -------------------------------------------------------------------------
+## Host a Server: name and size, plus an optional cinema with the host's OWN media server and
+## codes. Those stay on this machine (user://); the bundled gateway runs here and players reach it
+## through the pengloo.party relay. Skipping the cinema is fine: the cinema shows "No cinema".
+func _build_hosting() -> Control:
+	var card := _card(Vector2(1090, 760))
+	var col := UIKit.vbox(8)
+	card.add_child(col)
+	_header(col, "Host a Server", "Players find it under Community Servers and join through pengloo.party.", func() -> void: _show(_choose))
+	var cf := ConfigFile.new()
+	cf.load(HOSTING)
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	var form := UIKit.vbox(8)
+	form.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(form)
+	col.add_child(scroll)
+	var top := UIKit.hbox(16)
+	_hf["name"] = UIKit.field("Server name (3-32 letters)", str(cf.get_value("server", "name", "")), false)
+	(_hf["name"]["root"] as Control).size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	top.add_child(_hf["name"]["root"])
+	top.add_child(UIKit.label("Max players", "Strong"))
+	_host_max = SpinBox.new()
+	_host_max.min_value = 2
+	_host_max.max_value = 32
+	_host_max.value = int(cf.get_value("server", "max_players", 16))
+	_host_max.custom_minimum_size = Vector2(140, 64)
+	top.add_child(_host_max)
+	form.add_child(top)
+	var cin := UIKit.label("Cinema (optional): your own media server and codes", "Heading")
+	cin.add_theme_font_size_override("font_size", 28)
+	form.add_child(cin)
+	form.add_child(UIKit.label("Leave all of these empty to host without movies. They're saved only on this computer.", "Subtitle"))
+	for key in [["emby_url", "Emby server URL (e.g. http://192.168.1.10:8096)"], ["emby_key", "Emby API key"],
+			["emby_user", "Emby user ID"], ["host_code", "Host code (picks movies)"], ["viewer_code", "Viewer code (watches)"]]:
+		_hf[key[0]] = UIKit.field(key[1], str(cf.get_value("cinema", key[0], "")), false)
+		if key[0] in ["emby_key", "host_code", "viewer_code"]:
+			(_hf[key[0]]["field"] as LineEdit).secret = true
+		form.add_child(_hf[key[0]]["root"])
+	var test_row := UIKit.hbox(14)
+	var test := UIKit.button("Test connection", "outline", "refresh", Vector2(280, 64))
+	test.pressed.connect(_test_cinema)
+	test_row.add_child(test)
+	_host_test = UIKit.label("", "Muted")
+	_host_test.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_host_test.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	test_row.add_child(_host_test)
+	form.add_child(test_row)
+	var bottom := UIKit.hbox(16)
+	bottom.add_child(UIKit.spacer())
+	var go := UIKit.button("Start hosting", "primary", "chevron_right", Vector2(360, 80), true)
+	go.add_theme_font_size_override("font_size", 32)
+	go.pressed.connect(_start_hosting)
+	bottom.add_child(go)
+	col.add_child(bottom)
+	return card
+
+
+func _hval(key: String) -> String:
+	return (_hf[key]["field"] as LineEdit).text.strip_edges()
+
+
+func _cinema_fields() -> Array:
+	return ["emby_url", "emby_key", "emby_user", "host_code", "viewer_code"].map(_hval)
+
+
+## "" when the cinema section is usable (all empty = no cinema), else what's wrong.
+func _cinema_problem() -> String:
+	var v := _cinema_fields()
+	if v.all(func(x: String) -> bool: return x == ""):
+		return ""
+	if v.any(func(x: String) -> bool: return x == ""):
+		return "Fill in every cinema field, or leave them all empty to host without movies."
+	if not (v[0] as String).begins_with("http"):
+		return "The Emby URL starts with http:// or https://."
+	if (v[3] as String).length() < 4 or (v[4] as String).length() < 4 or v[3] == v[4]:
+		return "Host and viewer codes need 4+ characters and must differ."
+	return ""
+
+
+func _test_cinema() -> void:
+	var problem := _cinema_problem()
+	if problem != "" or _hval("emby_url") == "":
+		_host_test.text = problem if problem != "" else "No cinema set up: this server will show “No cinema on this server”."
+		return
+	_host_test.text = "Testing…"
+	var notes := []
+	if LobbyLink.helper_path() == "":
+		notes.append("The cinema helper (pengloo-cinema) isn't next to the game; reinstall the desktop download.")
+	if OS.execute("ffmpeg", ["-version"]) != 0:
+		notes.append("ffmpeg isn't installed: the big screen in the cinema needs it (ffmpeg.org).")
+	var req := HTTPRequest.new()
+	req.timeout = 8.0
+	add_child(req)
+	req.request_completed.connect(func(result: int, code: int, _h: PackedStringArray, body: PackedByteArray) -> void:
+		req.queue_free()
+		var me: Variant = JSON.parse_string(body.get_string_from_utf8()) if code == 200 else null
+		var head := "Connected to Emby as %s." % str(me.get("Name", "?")) if me is Dictionary else \
+			("Emby rejected the key or user ID (HTTP %d)." % code if result == HTTPRequest.RESULT_SUCCESS else "Couldn't reach that Emby server.")
+		_host_test.text = " ".join([head] + notes))
+	# goes straight from this computer to the host's own media server, never via pengloo.party
+	req.request(_hval("emby_url").trim_suffix("/") + "/Users/" + _hval("emby_user").uri_encode(), ["X-Emby-Token: " + _hval("emby_key")])
+
+
+func _start_hosting() -> void:
+	var server_name := _hval("name")
+	if not RegEx.create_from_string("^[\\p{L}\\p{N} '._!?&-]{3,32}$").search(server_name):
+		UIKit.set_field_error(_hf["name"], "3-32 letters, numbers and simple punctuation.")
+		return
+	var problem := _cinema_problem()
+	if problem != "":
+		_host_test.text = problem
+		return
+	var cf := ConfigFile.new()
+	cf.set_value("server", "name", server_name)
+	cf.set_value("server", "max_players", int(_host_max.value))
+	var v := _cinema_fields()
+	var keys := ["emby_url", "emby_key", "emby_user", "host_code", "viewer_code"]
+	for i in keys.size():
+		cf.set_value("cinema", keys[i], v[i])
+	cf.save(HOSTING)
+	Net.public_listing = true
+	Net.server_name = server_name
+	Net.max_players = int(_host_max.value)
+	Net.host_cinema = ""
+	Net.host_cinema_env = ""
+	if v[0] != "":
+		var env := FileAccess.open(HOST_CINEMA_ENV, FileAccess.WRITE)
+		if env:
+			env.store_string("EMBY_URL=%s\nEMBY_API_KEY=%s\nEMBY_USER_ID=%s\nCINEMA_HOST_CODE=%s\nCINEMA_VIEWER_CODE=%s\n" % v)
+			env.close()
+			Net.host_cinema_env = HOST_CINEMA_ENV
+	_profile["world"] = _selected
+	_save_profile()
+	Net.preferred_color = _color
+	_joining_server = server_name
+	host_requested.emit()
 
 
 # ---- profile --------------------------------------------------------------------------------
@@ -380,10 +762,11 @@ func _has_profile() -> bool:
 func _load_profile() -> void:
 	var cf := ConfigFile.new()
 	if cf.load(PROFILE) == OK:
-		for k in ["name", "color", "world"]:
+		for k in ["name", "color", "world", "admin"]:
 			if cf.has_section_key("penguin", k):
 				_profile[k] = cf.get_value("penguin", k)
 	_color = int(_profile.get("color", 0))
+	Net.admin_code = str(_profile.get("admin", ""))
 
 
 func _save_profile() -> void:

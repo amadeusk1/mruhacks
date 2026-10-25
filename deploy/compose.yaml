@@ -3,12 +3,19 @@ services:
     image: debian:12-slim
     restart: unless-stopped
     working_dir: /game
-    entrypoint: ["/game/pengloo.x86_64", "--headless", "--", "--net-host", "--net-ws", "--net-port=7778", "--net-name=Server", "--dedicated"]
+    # --max-players: the official island's cap (a full server shows the Servers list + "host your own").
+    # --public lists it in the lobby for its player count; players still connect via /multiplayer.
+    entrypoint: ["/game/pengloo.x86_64", "--headless", "--", "--net-host", "--net-ws", "--net-port=7778", "--net-name=Server", "--dedicated",
+      "--max-players=40", "--public", "--server-name=Pengloo Party"]
     volumes:
       - ./server:/game:ro
       - ../../data:/home/game
+    env_file:
+      - path: ../../secrets/game.env   # PENGLOO_HOST_TOKEN (official listing) + PENGLOO_ADMIN_CODE (full-server bypass)
+        required: false
     environment:
       HOME: /home/game
+      PENGLOO_LOBBY_BASE: http://lobby:8096
     user: "1000:1000"
     security_opt: ["no-new-privileges:true"]
     cap_drop: ["ALL"]
@@ -17,7 +24,7 @@ services:
   web:
     image: nginx:1.28-alpine
     restart: unless-stopped
-    depends_on: [game, cinema]
+    depends_on: [game, cinema, lobby]
     ports: ["18085:80"]
     volumes:
       - ./web:/usr/share/nginx/html:ro
@@ -36,3 +43,17 @@ services:
     cap_drop: ["ALL"]
     mem_limit: 1g
     cpus: 2
+  lobby:
+    build: ./lobby             # services/lobby from the same commit (community-server list + relay)
+    image: pengloo-lobby:local
+    restart: unless-stopped
+    env_file:
+      - path: ../../secrets/lobby.env   # LOBBY_OFFICIAL_IDS (and optional LOBBY_BANNED_IDS / caps)
+        required: false
+    environment:
+      LOBBY_LISTEN: 0.0.0.0:8096
+    read_only: true
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: ["ALL"]
+    mem_limit: 256m
+    cpus: 1

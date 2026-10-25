@@ -1,0 +1,35 @@
+# Pengloo Party community server. Run in the folder you extracted:  docker compose up -d
+# (with your own cinema:  docker compose --profile cinema up -d)
+# It dials OUT to pengloo.party: no port forwarding, domain or certificate needed.
+services:
+  server:
+    image: debian:12-slim
+    restart: unless-stopped
+    working_dir: /game
+    entrypoint: ["/game/pengloo.x86_64", "--headless", "--", "--dedicated", "--net-ws", "--public"]
+    command: ["--server-name=${SERVER_NAME:-My Penguin Server}", "--max-players=${MAX_PLAYERS:-16}", "${CINEMA_FLAG:-}"]
+    volumes:
+      - ./:/game:ro
+      - ./data:/home/game          # keeps your server's listing token (same id after restarts)
+    environment:
+      HOME: /home/game
+      PENGLOO_SERVER_REGION: ${PENGLOO_SERVER_REGION:-}
+    user: "1000:1000"
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 2g
+  cinema:                          # optional: your own movies from your own Emby server
+    profiles: ["cinema"]
+    build:
+      context: .
+      dockerfile: Dockerfile.cinema
+    restart: unless-stopped
+    env_file:
+      - path: cinema.env           # EMBY_* + your host/viewer codes: stays on this machine
+        required: false
+    environment:
+      CINEMA_LISTEN: 0.0.0.0:8095
+      CINEMA_ORIGIN: https://pengloo.party
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 1g

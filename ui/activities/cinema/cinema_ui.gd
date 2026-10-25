@@ -138,7 +138,9 @@ func _build_library() -> void:
 	var row := A.hbox(22, BoxContainer.ALIGNMENT_CENTER)
 	row.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	v.add_child(row)
-	if source.status == "signed_out" and source is GatewaySource:
+	if Net.community and not Net.community_cinema:
+		row.add_child(UIWidgets.state_panel("empty", "No cinema on this server", "Movies are available on the official Pengloo Party server.", []))
+	elif source.status == "signed_out" and source is GatewaySource:
 		row.add_child(_sign_in_row())
 	elif source.status in ["signed_out", "offline", "error", "connecting"] or source.items.is_empty():
 		var kind := "loading" if source.status == "connecting" else ("empty" if source.items.is_empty() and source.status in ["connected", "demo", "empty"] else "error")
@@ -163,7 +165,7 @@ func _build_library() -> void:
 	var guest: bool = source is GatewaySource and source.status == "connected" and not source.can_host()
 	var play := A.button("Suggest to host" if guest else "Play for Group", "primary", "send" if guest else "play", 30, Vector2(480, 76))
 	play.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	play.disabled = _sel == "" or source.items.is_empty() or (not guest and not is_controller() and not (source is GatewaySource and source.can_host()))
+	play.disabled = (Net.community and not Net.community_cinema) or _sel == "" or source.items.is_empty() or (not guest and not is_controller() and not (source is GatewaySource and source.can_host()))
 	play.tooltip_text = "Sends your pick to the movie-night chat" if guest else ("" if not play.disabled else "Only the host picks the film")
 	play.pressed.connect(func() -> void:
 		if guest:

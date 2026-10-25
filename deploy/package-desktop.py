@@ -41,8 +41,13 @@ shutil.copy2('builds/desktop/macos/PenglooParty.zip',mac)
 with zipfile.ZipFile(mac,'a',zipfile.ZIP_DEFLATED) as z:
  z.writestr('README.txt',readme);z.writestr('TWO-VOIP-LICENSE.md',license_text)
  z.write('deploy/download/GODOT-LICENSE.txt','GODOT-LICENSE.txt')
+ helper=zipfile.ZipInfo('pengloo-cinema');helper.external_attr=0o755<<16  # beside PenglooParty.app (LobbyLink.helper_path)
+ z.writestr(helper,Path('builds/desktop/macos/pengloo-cinema').read_bytes(),zipfile.ZIP_DEFLATED)
 linux=release/'PenglooParty-Linux-x86_64.tar.gz'
 with tarfile.open(linux,'w:gz') as t:t.add('builds/desktop/linux',arcname='PenglooParty')
+shutil.copy2('deploy/download/GODOT-LICENSE.txt','builds/desktop/server/GODOT-LICENSE.txt')
+server=release/'PenglooParty-Server-Linux-x86_64.tar.gz'
+with tarfile.open(server,'w:gz') as t:t.add('builds/desktop/server',arcname='PenglooParty-Server')
 rows=[]
 for path,name,arch,note in [
  (win,'Windows','64-bit Intel / AMD','Exported preview; Windows runtime testing is still pending.'),
@@ -50,6 +55,7 @@ for path,name,arch,note in [
  (linux,'Linux','64-bit Intel / AMD','Preview build; graphical Linux testing is still pending.')]:
  digest=hashlib.sha256(path.read_bytes()).hexdigest()
  rows.append(dict(name=name,arch=arch,validation=note,url=version+'/'+path.name,bytes=path.stat().st_size,sha256=digest,format='ZIP' if path.suffix=='.zip' else 'TAR.GZ'))
-(release/'SHA256SUMS.txt').write_text(''.join(x['sha256']+'  '+Path(x['url']).name+'\n' for x in rows))
-(out/'manifest.json').write_text(json.dumps(dict(version=version,date=datetime.date.today().isoformat(),builds=rows,checksums=version+'/SHA256SUMS.txt'),indent=2)+'\n')
+srv=dict(url=version+'/'+server.name,bytes=server.stat().st_size,sha256=hashlib.sha256(server.read_bytes()).hexdigest())
+(release/'SHA256SUMS.txt').write_text(''.join(x['sha256']+'  '+Path(x['url']).name+'\n' for x in rows+[srv]))
+(out/'manifest.json').write_text(json.dumps(dict(version=version,date=datetime.date.today().isoformat(),builds=rows,server=srv,checksums=version+'/SHA256SUMS.txt'),indent=2)+'\n')
 print('Packaged',version,[(x['name'],x['bytes']) for x in rows])

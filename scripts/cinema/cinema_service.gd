@@ -25,6 +25,20 @@ func _ready() -> void:
 	add_child(player)
 	if enabled("service_enabled"):
 		client.restore(_on_restore)  # web: the browser may still hold this session's cookie
+	Net.session_started.connect(retarget)
+
+
+## Each server has its own cinema (community servers run their own gateway behind the relay), and a
+## session on one never authorizes another: switching servers starts a fresh client session.
+func retarget() -> void:
+	var url := service_url()
+	if client.base == url.strip_edges().trim_suffix("/"):
+		return
+	player.stop()
+	client.set_service(url)
+	signed_in_changed.emit(false)
+	if enabled("service_enabled"):
+		client.restore(_on_restore)
 
 
 func _on_restore(ok: bool) -> void:
@@ -56,11 +70,20 @@ static func service_url() -> String:
 	var env := OS.get_environment("PENGLOO_CINEMA_URL")
 	if env != "":
 		return env
+	if Net.community:  # this server's own gateway, through the relay: <lobby>/s/<id>/cinema/
+		var base := Net.server_url
+		if base == "" and Net.has_node("LobbyLink"):  # hosting it ourselves
+			var id := str(Net.get_node("LobbyLink").listed_id)
+			base = Net.lobby_base() + "/s/" + id if id != "" else ""
+		if base != "":
+			return base.replace("wss://", "https://").replace("ws://", "http://") + "/cinema/"
 	if OS.has_feature("web"):  # no JavaScript eval: the page CSP may forbid it
 		return str(JavaScriptBridge.get_interface("location").origin) + "/cinema/"
 	return str(ProjectSettings.get_setting("pengloo/cinema/service_url", "https://pengloo.party/cinema/"))
 
 
 static func enabled(flag: String) -> bool:
+	if Net.community and not Net.community_cinema:  # a community server without its own cinema
+		return false
 	return bool(ProjectSettings.get_setting("pengloo/cinema/service_enabled", false)) \
 		and bool(ProjectSettings.get_setting("pengloo/cinema/" + flag, false))
