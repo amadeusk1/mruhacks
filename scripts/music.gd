@@ -18,10 +18,10 @@ const DIR := "res://audio/music/"
 const SETS := {
 	"title": ["Pengloo Party"],
 	"town": ["Penguin Chat", "Penguin Chat2", "titlescreen music", "titlescreen music 2"],
-	"games": ["minigame", "minigame song 2", "Minigame", "Minigame 2"],
-	"sled": ["Sled Race", "Sled Race 2", "sled", "sled 2"],
-	"arcade": ["Arcade", "Arcade 2", "arcade", "arcade 2"],
-	"basketball": ["Basketball", "basketball", "basketball 2"],
+	"games": ["minigame", "minigame song 2", "minigame 3", "minigame 4"],
+	"sled": ["sled race", "sled race 2", "sled", "sled 2"],
+	"arcade": ["arcade 3", "arcade 4", "arcade", "arcade 2"],
+	"basketball": ["basketball 3", "basketball", "basketball 2"],
 	"snow": ["snowball fight", "snowball fught 2"],
 	"fishing": ["fishing", "fishing 2"],
 	"sketch": ["sketch", "sketch 2"],
@@ -187,8 +187,8 @@ func _play(song: String) -> void:
 
 
 func _find(song: String) -> String:
-	for folder in FOLDERS:
-		for ext in EXTS:
+	for folder: String in FOLDERS:
+		for ext: String in EXTS:
 			var path := folder + song + ext
 			if ResourceLoader.exists(path):
 				return path
@@ -205,20 +205,41 @@ func _load(song: String) -> void:
 		return
 	if not OS.has_feature("web"):
 		return  # native export without the music folder: stay silent
+	_fetch(song, 0)
+
+
+## Web: the songs live next to the page, not in the .pck. Try each extension until one exists.
+func _fetch(song: String, ext_i: int) -> void:
+	if ext_i >= EXTS.size():
+		push_warning("music: %s not found" % song)
+		_wanted = ""
+		return
+	var ext: String = EXTS[ext_i]
 	var req := HTTPRequest.new()
 	add_child(req)
 	req.request_completed.connect(func(result: int, code: int, _h: PackedStringArray, body: PackedByteArray) -> void:
 		req.queue_free()
-		if result != HTTPRequest.RESULT_SUCCESS or code != 200:
+		if result == HTTPRequest.RESULT_SUCCESS and code == 404:
+			_fetch(song, ext_i + 1)
+			return
+		if result != HTTPRequest.RESULT_SUCCESS or code != 200 or body.is_empty():
 			push_warning("music: %s failed (%d/%d)" % [song, result, code])
 			_wanted = ""
 			return
-		_cache[song] = AudioStreamOggVorbis.load_from_buffer(body)
+		var stream: AudioStream
+		match ext:
+			".mp3": stream = AudioStreamMP3.load_from_buffer(body)
+			".wav": stream = AudioStreamWAV.load_from_buffer(body)
+			_: stream = AudioStreamOggVorbis.load_from_buffer(body)
+		if stream == null:
+			_wanted = ""
+			return
+		_cache[song] = stream
 		if _wanted == song:
 			_play(song))
 	# HTTPRequest needs an absolute URL ("music/..." fails with Invalid URL scheme)
 	var origin := str(JavaScriptBridge.eval("location.origin"))
-	if req.request(origin + "/music/" + song.uri_encode() + ".ogg") != OK:
+	if req.request(origin + "/music/" + (song + ext).uri_encode()) != OK:
 		push_warning("music: couldn't request %s" % song)
 		req.queue_free()
 		_wanted = ""
