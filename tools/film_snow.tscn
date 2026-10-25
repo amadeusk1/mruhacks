@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://tools/film_snow.gd" id="1"]
+
+[node name="FilmSnow" type="Node"]
+script = ExtResource("1")

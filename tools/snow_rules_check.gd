@@ -14,6 +14,7 @@ func _init() -> void:
 	_rotation()
 	_scoring_and_rules()
 	_ends()
+	_pad_hysteresis()
 	print("SNOW_RULES %s fails=%d" % ["PASS" if fails == 0 else "FAIL", fails])
 	quit(1 if fails > 0 else 0)
 
@@ -174,3 +175,16 @@ func _ends() -> void:
 	tb[3] = _at(8, 1)
 	_run(timed, 5.2, tb.keys(), tb)
 	_check(timed.phase == "result" and timed.text == "Draw", "time runs out: a tie is a draw")
+
+
+func _pad_hysteresis() -> void:
+	var m := _arena()  # coral pad (5, 9.5), teal pad (7, 9.5)
+	var present := [1]
+	m.tick(0.05, present, {1: _at(5.2, 9.5)})
+	_check(m.ready["coral"] == [1], "standing on the coral pad queues you")
+	m.tick(0.05, present, {1: _at(6.4, 9.5)})  # drifted 1.4 m, inside the keep margin, 0.6 m from teal
+	_check(m.ready["coral"] == [1] and m.ready["teal"].is_empty(), "pose jitter near the edge keeps you on coral, never both")
+	m.tick(0.05, present, {})
+	_check(m.ready["coral"] == [1], "a tick without a pose doesn't drop you")
+	m.tick(0.05, present, {1: _at(5.0, 12.0)})
+	_check(m.ready["coral"].is_empty(), "walking clearly off the pad leaves the queue")

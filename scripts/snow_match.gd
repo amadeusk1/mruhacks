@@ -16,6 +16,7 @@ const RELEASE_Y := 0.9  # above the thrower's feet
 const BODY_R := 0.45
 const BODY_H := 1.1
 const PAD_R := 1.0
+const PAD_KEEP_R := 1.9  # hysteresis: once queued you stay until clearly off the pad (pose jitter flickered it)
 const FLIGHT := 2.0  # a ball still airborne after this long is dropped
 const STEP := 0.02
 
@@ -230,19 +231,28 @@ func _track_pads(present: Array, bodies: Dictionary) -> void:
 	for team in TEAMS:
 		var keep: Array = []
 		for id in ready[team]:
-			if _on_pad(id, team, present, bodies):
+			if _on_pad(id, team, present, bodies, PAD_KEEP_R):
 				keep.append(id)
 		for id in present:
-			if not keep.has(id) and _on_pad(id, team, present, bodies):
+			if not keep.has(id) and not _queued_elsewhere(id, team) and _on_pad(id, team, present, bodies):
 				keep.append(id)
 		ready[team] = keep
 
 
-func _on_pad(id: int, team: String, present: Array, bodies: Dictionary) -> bool:
-	if teams.has(id) or not present.has(id) or not bodies.has(id) or not pads.has(team):
+func _queued_elsewhere(id: int, team: String) -> bool:
+	for t in TEAMS:
+		if t != team and (ready[t] as Array).has(id):
+			return true
+	return false
+
+
+func _on_pad(id: int, team: String, present: Array, bodies: Dictionary, r := PAD_R) -> bool:
+	if teams.has(id) or not present.has(id) or not pads.has(team):
 		return false
+	if not bodies.has(id):
+		return r > PAD_R  # no fresh pose this tick: keep a queued player rather than drop them
 	var body: Dictionary = bodies[id]
-	return Vector2(float(body["x"]), float(body["z"])).distance_to(pads[team]) <= PAD_R
+	return Vector2(float(body["x"]), float(body["z"])).distance_to(pads[team]) <= r
 
 
 func _start(n: int) -> void:

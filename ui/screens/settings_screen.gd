@@ -8,7 +8,20 @@ var _pages: Array[Control] = []
 func _init() -> void:
 	setup("Settings", "", 1080, false, true)
 	title_label.theme_type_variation = "Title"
-	body.add_child(UIKit.tab_bar([["Audio", "speaker"], ["Controls", "gamepad"], ["Accessibility", "accessibility"]], _show))
+	var tabs := UIKit.tab_bar([["Audio", "speaker"], ["Controls", "gamepad"], ["Accessibility", "accessibility"]], _show)
+	if UIRouter._in_world():
+		# Hide UI sits beside the tabs: the panel already fills the screen's height.
+		var top := UIKit.hbox(16)
+		tabs.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		top.add_child(tabs)
+		var hide_btn := UIKit.button("Hide UI", "secondary", "eye", Vector2(230, 76))
+		hide_btn.name = "HideUi"
+		hide_btn.tooltip_text = "Clears the screen for screenshots and filming. Press Esc to bring it back."
+		hide_btn.pressed.connect(UIRouter.hide_ui)
+		top.add_child(hide_btn)
+		body.add_child(top)
+	else:
+		body.add_child(tabs)
 	var stack := Control.new()
 	stack.custom_minimum_size = Vector2(0, 500)
 	body.add_child(stack)
