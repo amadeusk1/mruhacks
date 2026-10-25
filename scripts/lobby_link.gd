@@ -1,5 +1,5 @@
-extends Node
 class_name LobbyLink
+extends Node
 ## A community server's link to the pengloo.party lobby (docs/Engine Specs/Community Servers.md).
 ## Dials OUT to <lobby>/host, registers, heartbeats, and bridges every relayed player channel into
 ## a local WebSocket to our own WebSocketMultiplayerPeer, so Net sees ordinary clients and no game

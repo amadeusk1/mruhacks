@@ -9,6 +9,7 @@ signal join_requested
 signal solo_requested
 
 const T := preload("res://ui/theme/ui_tokens.gd")
+const LINK := preload("res://scripts/lobby_link.gd")
 const PROFILE := "user://profile.cfg"
 var WORLDS := [
 	{"id": "solo", "name": "Practice Island", "desc": "Explore the island on your own.", "count": "Just you",
@@ -699,7 +700,7 @@ func _test_cinema() -> void:
 		return
 	_host_test.text = "Testing…"
 	var notes := []
-	if LobbyLink.helper_path() == "":
+	if LINK.helper_path() == "":
 		notes.append("The cinema helper (pengloo-cinema) isn't next to the game; reinstall the desktop download.")
 	if OS.execute("ffmpeg", ["-version"]) != 0:
 		notes.append("ffmpeg isn't installed: the big screen in the cinema needs it (ffmpeg.org).")
