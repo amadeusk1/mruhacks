@@ -4,11 +4,17 @@ extends CanvasLayer
 ## - While anything blocking is open, or a text field has focus, the local penguin ignores
 ##   movement keys and clicks (penguin_movement.set_typing_locked).
 ## - open_pause() is the default Escape action when nothing is open and a world is running.
+## - hide_ui() (Settings > Hide UI) clears the screen for filming; Escape brings it back.
 
 signal stack_changed
 
+const EFFECT_LAYER := 1 << 19  # canvas items that stay drawn while the UI is hidden
+const UI_LABELS := ["NameLabel", "SpeakIcon", "SitPrompt"]
+
 var _stack: Array[Control] = []
 var _locked := false
+var ui_hidden := false
+var _hidden_labels: Array[Label3D] = []
 var settings := {
 	"music": 70.0, "effects": 80.0, "voice": 60.0, "movie": 50.0,
 	"mic": false, "push_to_talk": false, "text_size": 1, "reduce_motion": false,
@@ -79,6 +85,12 @@ func close_all() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not event.is_action_pressed("ui_cancel"):
 		return
+	if ui_hidden:
+		show_ui()
+		if _in_world():
+			open_pause()
+		get_viewport().set_input_as_handled()
+		return
 	var t := top()
 	if t != null:
 		if t.has_method("close"):
@@ -91,6 +103,50 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func open_pause() -> void:
 	push(PauseMenu.new())
+
+
+## Hides every 2D HUD/menu (viewport canvas cull mask) and the floating 3D name tags and prompts
+## (render layers 0). Background canvas effects (CanvasLayer.layer <= 0, e.g. the aurora) stay.
+## Not saved: a restart always shows the UI.
+func hide_ui() -> void:
+	close_all()
+	ui_hidden = true
+	get_viewport().canvas_cull_mask = EFFECT_LAYER
+	_hide_world_ui()
+	var t := Timer.new()  # new name tags, prompts and effects appear as players arrive or travel
+	t.name = "HiddenUiScan"
+	t.wait_time = 0.5
+	t.autostart = true
+	t.timeout.connect(_hide_world_ui)
+	add_child(t)
+
+
+func show_ui() -> void:
+	ui_hidden = false
+	get_viewport().canvas_cull_mask = 0xFFFFF
+	var t := get_node_or_null("HiddenUiScan")
+	if t:
+		t.queue_free()
+	for l in _hidden_labels:
+		if is_instance_valid(l):
+			l.layers = int(l.get_meta("ui_layers", 1))
+	_hidden_labels.clear()
+
+
+func _hide_world_ui() -> void:
+	var root := get_tree().root
+	for n in root.find_children("*", "CanvasLayer", true, false):
+		if (n as CanvasLayer).layer <= 0:
+			for c in n.find_children("*", "CanvasItem", true, false):
+				(c as CanvasItem).visibility_layer |= EFFECT_LAYER
+	for n in root.find_children("*", "Label3D", true, false):
+		var l := n as Label3D
+		var parent := l.get_parent()
+		var is_ui: bool = String(l.name) in UI_LABELS or parent.get("_prompt") == l or parent.get("_label") == l
+		if is_ui and l.layers != 0:
+			l.set_meta("ui_layers", l.layers)
+			l.layers = 0
+			_hidden_labels.append(l)
 
 
 func _in_world() -> bool:
