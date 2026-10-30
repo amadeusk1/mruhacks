@@ -95,8 +95,16 @@ func _on_intent(action: String, value = null) -> void:
 		_:
 			var data: Dictionary = value if value is Dictionary else {"amount": value}
 			Casino.act(_table, action, data)
+			if action in ["bet", "spin", "deal", "hit", "stand", "double", "split", "raise", "call", "check", "fold"]:
+				_pay("casino", 5)
 			if action in ["bet", "spin", "raise", "call"]:
 				Sfx.play(self, "chip" if action != "spin" else "lever", -8.0)
+
+
+func _pay(id: String, coins: int) -> void:
+	var world := get_tree().get_first_node_in_group("world")
+	if world != null and world.has_method("note_activity"):
+		world.call("note_activity", id, coins)
 
 
 func _close(stand: bool) -> void:

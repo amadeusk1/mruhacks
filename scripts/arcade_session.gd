@@ -49,6 +49,12 @@ func _open_cabinet(activity: String, anchor: Node) -> void:
 	_arm_music(ui)
 
 
+func _pay(id: String, coins: int) -> void:
+	var world := get_tree().get_first_node_in_group("world")
+	if world != null and world.has_method("note_activity"):
+		world.call("note_activity", id, coins)
+
+
 func _arm_music(ui: Node) -> void:
 	var token := Music.play_arcade()
 	ui.tree_exiting.connect(func() -> void: Music.leave_arcade(token))
@@ -72,12 +78,15 @@ func _on_intent(action: String) -> void:
 				ArcadeNet.duo_ready()
 			elif _ui.has_method("start_solo"):
 				_ui.start_solo()
+				_pay("arcade", 5)
 
 
 func _on_state(cab: String, state: Dictionary) -> void:
 	if _ui == null or not is_instance_valid(_ui) or not ("cabinet" in _ui) or cab != str(_ui.cabinet):
 		return
 	_ui.apply_state(state)
+	if str(state.get("phase", "")) == "playing":
+		_pay("arcade", 5)
 
 
 func _on_denied(key: String) -> void:

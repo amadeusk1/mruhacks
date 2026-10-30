@@ -33,6 +33,8 @@ var _dressed: Array[Node] = []
 var _center := Vector3.ZERO
 var _swish := 0.0
 var _shown_points := -1
+var _was_on_court := false
+var _practice_score := 0
 
 
 func _ready() -> void:
@@ -260,6 +262,7 @@ func _paint(state: Dictionary) -> void:
 			_score.text = "%d  -  %d" % [coral, teal]
 	_sync_modes(state)
 	_mark_teams(str(state.get("teams", "")))
+	_reward_court(state, phase, format_name, coral, teal, on_court)
 	if not on_court:
 		return
 	if _line != null:
@@ -279,6 +282,42 @@ func _paint(state: Dictionary) -> void:
 		elif mine == "bench":
 			note = "%s   Next game" % note
 		_status.text = note.strip_edges()
+
+
+func _reward_court(state: Dictionary, phase: String, format_name: String, coral: int, teal: int, on_court: bool) -> void:
+	var side := _my_side(str(state.get("teams", "")))
+	var played := false
+	var won := false
+	if on_court and not _was_on_court:
+		_practice_score = coral
+	if (phase == "live" or phase == "result") and (side == "coral" or side == "teal"):
+		played = true
+		if phase == "result":
+			var text := str(state.get("text", ""))
+			if format_name == "solo":
+				won = text.begins_with("You win")
+			else:
+				won = (side == "coral" and coral > teal) or (side == "teal" and teal > coral)
+	elif phase == "practice" and format_name == "solo" and on_court and coral > _practice_score:
+		played = true
+		_practice_score = coral
+	if played:
+		_pay("basketball", 10 if won else 5)
+	if _was_on_court and not on_court:
+		_pay_out("basketball")
+	_was_on_court = on_court
+
+
+func _pay(id: String, coins: int) -> void:
+	var world := get_tree().get_first_node_in_group("world")
+	if world != null and world.has_method("note_activity"):
+		world.call("note_activity", id, coins)
+
+
+func _pay_out(id: String) -> void:
+	var world := get_tree().get_first_node_in_group("world")
+	if world != null and world.has_method("cash_activity"):
+		world.call("cash_activity", id)
 
 
 func _my_side(packed: String) -> String:

@@ -35,6 +35,7 @@ var _hud_sig := ""
 var _hide_result := false
 var _lobby_ui: Control
 var _lobby_sig := ""
+var _was_here := false
 
 
 func _ready() -> void:
@@ -344,6 +345,29 @@ func _burst(at: Vector3, big: bool) -> void:
 		tween.chain().tween_callback(node.queue_free)
 
 
+func _reward_snow(state: Dictionary, phase: String, team: String, here: bool) -> void:
+	if team != "" and phase in ["live", "result"]:
+		var coral := int(state.get("coral", 0))
+		var teal := int(state.get("teal", 0))
+		var won := phase == "result" and ((team == "coral" and coral > teal) or (team == "teal" and teal > coral))
+		_pay("snowball", 10 if won else 5)
+	if _was_here and not here:
+		_pay_out("snowball")
+	_was_here = here
+
+
+func _pay(id: String, coins: int) -> void:
+	var world := get_tree().get_first_node_in_group("world")
+	if world != null and world.has_method("note_activity"):
+		world.call("note_activity", id, coins)
+
+
+func _pay_out(id: String) -> void:
+	var world := get_tree().get_first_node_in_group("world")
+	if world != null and world.has_method("cash_activity"):
+		world.call("cash_activity", id)
+
+
 ## Coral/teal foot ring and badge on everyone in the match (body colour stays the player's own).
 func _mark_teams(state: Dictionary) -> void:
 	var teams: Dictionary = state.get("teams", {}) if str(state.get("phase", "")) in ["live", "result"] else {}
@@ -426,6 +450,7 @@ func _paint(state: Dictionary) -> void:
 	var player := get_tree().get_first_node_in_group("local_player") as Node3D
 	var here := player != null and Net.snow_here(player.global_position)
 	var team := Net.snow_team()
+	_reward_snow(state, phase, team, here)
 	var view := {}
 	if here and phase == "live" and team != "":
 		var mine: Array = (state.get("lives", {}) as Dictionary).get(Net.local_id(), [0.0, 0.0, false, 0, 0, 0])

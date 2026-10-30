@@ -198,6 +198,10 @@ func _start_free() -> void:
 func _stop_free() -> void:
 	if _canvas:
 		_free_strokes = _canvas.strokes.duplicate(true)
+	if not _free_strokes.is_empty():
+		var world := get_tree().get_first_node_in_group("world")
+		if world != null and world.has_method("note_activity"):
+			world.call("note_activity", "sketch", 5)
 	_free = false
 	_seat("sketch")
 	_build()

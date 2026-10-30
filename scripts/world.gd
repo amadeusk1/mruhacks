@@ -27,6 +27,7 @@ var _poses: Dictionary = {}
 var _place_sig: Dictionary = {}
 var _rows: VBoxContainer
 var _invite_card: UIModal
+var _activity_pay := {}
 
 
 func _ready() -> void:
@@ -170,6 +171,7 @@ func travel_to(location_id: String, spawn_name: String = "BusArrival", igloo_id:
 		if location_id != "plaza":
 			await travel_to("plaza")
 		return
+	var leaving := _current_id
 	var epoch := _epoch
 	_traveling = true
 	_menu.dismiss()
@@ -193,6 +195,7 @@ func travel_to(location_id: String, spawn_name: String = "BusArrival", igloo_id:
 		return
 	var room := packed.instantiate()
 	_current_id = location_id
+	_cash_place(leaving)
 	_igloo_id = igloo  # before add_child: the room's _ready asks whose home it is
 	_host.add_child(room)
 	if epoch != _epoch:
@@ -458,6 +461,35 @@ func _end_session(message: String) -> void:
 
 func grant_coins(amount: int) -> void:
 	_hud.add_coins(amount)
+
+
+## One payout per visit. Activities call note_activity while you play, then cash_activity
+## when you leave. A later note only raises the amount (a win replaces the 5-coin visit).
+func note_activity(id: String, coins: int = 5) -> void:
+	var cur: Dictionary = _activity_pay.get(id, {})
+	_activity_pay[id] = {"played": true, "coins": maxi(int(cur.get("coins", 0)), coins)}
+
+
+func cash_activity(id: String) -> void:
+	var cur: Dictionary = _activity_pay.get(id, {})
+	_activity_pay.erase(id)
+	if not bool(cur.get("played", false)):
+		return
+	var n := int(cur.get("coins", 0))
+	if n <= 0:
+		return
+	grant_coins(n)
+	_hud.add_line("You", "+%d coin%s" % [n, "" if n == 1 else "s"])
+
+
+func _cash_place(location_id: String) -> void:
+	var pay := {"sled_hill": "sled", "arcade": "arcade", "casino": "casino"}
+	if pay.has(location_id):
+		cash_activity(str(pay[location_id]))
+	if location_id == LocationCatalog.MAIN:
+		cash_activity("basketball")
+		cash_activity("snowball")
+		cash_activity("sketch")
 
 
 func send_chat(message: String) -> void:

@@ -104,16 +104,33 @@ func _sketch_intent(action: String, v: Variant, player: Node) -> void:
 			SketchClub.ready()
 		"submit_text":
 			SketchClub.submit_text(str(v))
+			if str(v).strip_edges() != "":
+				_pay("sketch", 5)
 		"submit_drawing":
 			SketchClub.submit_drawing(v)
+			if v is Array and not (v as Array).is_empty():
+				_pay("sketch", 5)
 		"next_entry":
 			SketchClub.next_entry()
 		"play_again":
 			SketchClub.play_again()
 		"leave":
+			_pay_out("sketch")
 			SketchClub.leave()
 			if is_instance_valid(player) and player.has_method("stand_up") and bool(player.call("is_sitting")):
 				player.call("stand_up")
+
+
+func _pay(id: String, coins: int) -> void:
+	var world := get_tree().get_first_node_in_group("world")
+	if world != null and world.has_method("note_activity"):
+		world.call("note_activity", id, coins)
+
+
+func _pay_out(id: String) -> void:
+	var world := get_tree().get_first_node_in_group("world")
+	if world != null and world.has_method("cash_activity"):
+		world.call("cash_activity", id)
 
 
 ## Decorate the interior the local player is standing in. Only their own home.

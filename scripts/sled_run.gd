@@ -165,6 +165,7 @@ func _on_finished() -> void:
 	hud.stop_clock(_finish_time)
 	hud.set_hint("")
 	var best: bool = hud.save_best(_finish_time)
+	_pay("sled", 15 if best else 5)
 	if _mode == "race":
 		hud.show_finish("Finished!", _finish_time, "Waiting for the others...", "")
 	else:
@@ -261,6 +262,12 @@ func _clear_ghosts() -> void:
 		if is_instance_valid(node):
 			node.queue_free()
 	_ghosts.clear()
+
+
+func _pay(id: String, coins: int) -> void:
+	var world := get_tree().get_first_node_in_group("world")
+	if world != null and world.has_method("note_activity"):
+		world.call("note_activity", id, coins)
 
 
 func _on_town() -> void:

@@ -40,6 +40,7 @@ var _was_over := false
 var _shake := 0.0
 var _report := 0.0
 var _start_left := 3.0
+var _started := false
 
 
 func _ready() -> void:
@@ -64,6 +65,11 @@ func _process(delta: float) -> void:
 			Sfx.play(self, "count" if n > 0 else "go", -5.0)
 		if _start_left <= 0.0:
 			_game.process_mode = Node.PROCESS_MODE_INHERIT
+			if not _started:
+				_started = true
+				var world := get_tree().get_first_node_in_group("world")
+				if world != null and world.has_method("note_activity"):
+					world.call("note_activity", "arcade", 5)
 			get_tree().create_timer(0.5).timeout.connect(func() -> void: _count.text = "")
 	var score := int(_game.get("score"))
 	_score.text = str(score)
