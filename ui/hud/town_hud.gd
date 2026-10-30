@@ -30,6 +30,7 @@ const DOCK_GAP := 12.0
 const MIC_SIZE := 64.0
 const COIN_W := 156.0
 const COIN_GAP := 12.0
+const CHIP_W := 156.0
 const ACTION_H := 56.0
 const ACTION_GAP := 12.0
 
@@ -79,6 +80,7 @@ func _ready() -> void:
 		UIRouter.push(m))
 	add_child(_mic)
 	_style_coin()
+	_ensure_chip_badge()
 	_style_chat()
 	_dock = UIKit.hbox(int(DOCK_GAP))
 	for it in [["Map", "map", _open_map], ["Outfit", "shirt", _open_outfit], ["Home", "home", _go_home],
@@ -126,8 +128,12 @@ func _layout() -> void:
 	_chip.position = Vector2(MARGIN, 20)
 	_place(_mic, vp.x - MARGIN - MIC_SIZE, MARGIN, MIC_SIZE, MIC_SIZE)
 	var coin := get_parent().get_node_or_null("CoinBadge") as Control
+	var coin_x := vp.x - MARGIN - MIC_SIZE - COIN_GAP - COIN_W
 	if coin:
-		_place(coin, vp.x - MARGIN - MIC_SIZE - COIN_GAP - COIN_W, MARGIN, COIN_W, MIC_SIZE)
+		_place(coin, coin_x, MARGIN, COIN_W, MIC_SIZE)
+	var chips := get_parent().get_node_or_null("ChipBadge") as Control
+	if chips:
+		_place(chips, coin_x - COIN_GAP - CHIP_W, MARGIN, CHIP_W, MIC_SIZE)
 	var floor_m := MARGIN + Mobile.pad()
 	var chat := get_parent().get_node_or_null("Chat") as Control
 	var chat_size := _chat_size(vp)
@@ -206,6 +212,52 @@ func _place_action() -> void:
 ## Closed chat is the say-something field with the icon on its right.
 func _chat_minimized() -> bool:
 	return bool(UIRouter.settings.get("chat_minimized", false))
+
+
+## Same cream pill as the coin count, immediately to its left. The mark is the play chip
+## the casino screens already draw (CasinoKit.chip).
+func _ensure_chip_badge() -> void:
+	var parent := get_parent()
+	if parent == null or parent.get_node_or_null("ChipBadge") != null:
+		return
+	var badge := PanelContainer.new()
+	badge.name = "ChipBadge"
+	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	badge.tooltip_text = "Play chips"
+	badge.add_theme_stylebox_override("panel", UIKit.THEME.get_stylebox("panel", "Chip"))
+	var row := HBoxContainer.new()
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 8)
+	var mark := CasinoKit.chip(1, 28)
+	mark.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	mark.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(mark)
+	var amount := Label.new()
+	amount.name = "Amount"
+	amount.text = str(Casino.chips_shown)
+	amount.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	amount.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	amount.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	amount.theme_type_variation = "Strong"
+	amount.add_theme_font_size_override("font_size", 30)
+	amount.add_theme_color_override("font_color", T.NAVY_TITLE)
+	row.add_child(amount)
+	badge.add_child(row)
+	parent.add_child(badge)
+	parent.move_child(badge, parent.get_node("CoinBadge").get_index())
+	if not Casino.balance.is_connected(_on_chip_balance):
+		Casino.balance.connect(_on_chip_balance)
+	Casino.sync()
+
+
+func _on_chip_balance(n: int) -> void:
+	var badge := get_parent().get_node_or_null("ChipBadge") as Node
+	if badge == null:
+		return
+	var amount := badge.find_child("Amount", true, false) as Label
+	if amount:
+		amount.text = str(n)
 
 
 func _style_coin() -> void:

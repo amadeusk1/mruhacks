@@ -92,6 +92,11 @@
         -1.4,
         0.12
       ],
+      "socket_cash_out": [
+        7.31,
+        1.4,
+        0.12
+      ],
       "socket_entry_zone": [
         0.0,
         -4.5,
@@ -181,7 +186,7 @@
     "floor_z": 0.12,
     "ceiling_child": "casino_interior_shell_ceiling",
     "spacing": "Art Docs/Interior Spacing Standard.md: seats >= 1.15 m apart, 2.0 m main aisle, 2.5 m entry zone, 1.5 m spectator bands, 1.4 m slot standing zones",
-    "layout_sockets": "roulette, poker, blackjack, slots_0..3 (+ slot_stool_0..3), lounge_*, entry_zone",
+    "layout_sockets": "roulette, poker, blackjack, slots_0..3 (+ slot_stool_0..3), lounge_*, entry_zone, cash_out",
     "slot_row": {
       "slots_0": {
         "asset": "casino/slot_machine",
@@ -1383,5 +1388,51 @@
       "clearance_front": 0,
       "recolor": true
     }
+  },
+  {
+    "id": "casino/cash_out_booth",
+    "file": "casino/cash_out_booth.glb",
+    "category": "furniture",
+    "size_m": [
+      1.98,
+      1.44,
+      1.677
+    ],
+    "sockets": {
+      "socket_player_0": [
+        0.15,
+        -0.83,
+        0.0
+      ],
+      "socket_tray": [
+        0.42,
+        -0.47,
+        0.79
+      ]
+    },
+    "tints": {
+      "trim": "#2F7F86",
+      "felt": "#1F6B66"
+    },
+    "game": "cashier",
+    "sign_insert": "insert_sign",
+    "notes": "play-chip window; lettering is a texture on insert_sign; no currency marks",
+    "placement": {
+      "layer": "floor",
+      "cell_m": 0.5,
+      "footprint": [
+        4,
+        3
+      ],
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "clearance_front": 1,
+      "recolor": true
+    },
+    "icon": "casino/icons/cash_out_booth.png"
   }
 ]

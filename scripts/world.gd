@@ -463,6 +463,13 @@ func grant_coins(amount: int) -> void:
 	_hud.add_coins(amount)
 
 
+func spend_coins(amount: int) -> bool:
+	if _hud == null or amount < 1 or _hud.coins < amount:
+		return false
+	_hud.add_coins(-amount)
+	return true
+
+
 ## One payout per visit. Activities call note_activity while you play, then cash_activity
 ## when you leave. A later note only raises the amount (a win replaces the 5-coin visit).
 func note_activity(id: String, coins: int = 5) -> void:

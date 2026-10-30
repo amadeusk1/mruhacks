@@ -3,14 +3,19 @@ extends Node
 ## dedicated server, or this game itself in Solo). Clients only send intents; shuffles, results,
 ## timers, legality, balances and settlement all live here (vault: Casino - Gameplay and UI
 ## Requirements). Private state (hole cards, your own balance) only ever goes to its owner.
-## Play chips only: no purchase, cash-out or redemption exists anywhere.
+## Play chips are the table purse. Town coins buy chips at the chip window, and any chips
+## cash back out there at the same rate.
 ##
-## Client API: watch(on), join(table, seat, bench_key), leave(table), act(table, action, data), refill().
-## Client signals: view(table, state) per table you watch, gesture(peer, clip), balance(chips).
+## Client API: watch(on), join(table, seat, bench_key), leave(table), act(table, action, data),
+## refill(), sync(), buy(coins), cash_out(chips).
+## Client signals: view(table, state) per table you watch, gesture(peer, clip), balance(chips),
+## purse(chips, cashable).
 
 signal view(table: String, state: Dictionary)
 signal gesture(peer_id: int, clip: String)
 signal balance(chips: int)
+signal purse(chips: int, cashable: int)
+signal paid(coins: int)
 signal notice(table: String, message: String)
 
 const LEDGER := "user://casino_ledger.json"
@@ -19,6 +24,7 @@ const START_CHIPS := 500
 const REFILL_TO := 200
 const REFILL_BELOW := 10
 const REFILL_COOLDOWN_S := 600
+const COIN_CHIPS := 10   ## play chips one town coin buys, and the same rate back out
 const SAVE_EVERY := 2.0
 const RouletteTable := preload("res://scripts/casino/roulette_table.gd")
 const BlackjackTable := preload("res://scripts/casino/blackjack_table.gd")
@@ -29,7 +35,9 @@ var rng := RandomNumberGenerator.new()
 var _SLOT_ID := RegEx.create_from_string("^slot_[A-Za-z0-9_]{1,24}$")
 var _token := ""
 var _tables := {}        # host: id -> table
-var _ledger := {}        # host: token -> {chips, refill_at}
+var _ledger := {}        # host: token -> {chips, house, refill_at}
+var chips_shown := 0
+var cashable_shown := 0
 var _tokens := {}        # host: peer -> token
 var _watchers := {}      # host: peer -> true (everyone inside the casino)
 var _seen := {}          # host: token -> recent request ids (retries settle once)
@@ -103,6 +111,21 @@ func refill() -> void:
 	_to_host("c_refill", [_token])
 
 
+## Ask the host for the purse. The HUD does this on spawn, before anyone enters the casino.
+func sync() -> void:
+	_to_host("c_sync", [_token])
+
+
+## Spend town coins (already taken from the local purse) for play chips.
+func buy(coins: int) -> void:
+	_to_host("c_buy", [_token, coins])
+
+
+## Turn play chips back into town coins. The host pays whole coins and keeps the remainder.
+func cash_out(amount: int) -> void:
+	_to_host("c_cash", [_token, amount])
+
+
 # --- host-side helpers the tables call ---------------------------------------------------------
 
 func now_s() -> float:
@@ -113,10 +136,19 @@ func chips(token: String) -> int:
 	return int(_account(token)["chips"])
 
 
+## Chips that make a whole coin at the window. The leftover under one coin stays in the purse.
+func cashable(token: String) -> int:
+	var n := chips(token)
+	return n - (n % COIN_CHIPS)
+
+
 func debit(token: String, amount: int) -> bool:
 	if amount < 0 or chips(token) < amount:
 		return false
-	_account(token)["chips"] = chips(token) - amount
+	var acc := _account(token)
+	acc["chips"] = int(acc["chips"]) - amount
+	if int(acc["chips"]) < int(acc["house"]):
+		acc["house"] = int(acc["chips"])
 	_changed(token)
 	return true
 
@@ -170,6 +202,21 @@ func c_refill(token: String) -> void:
 	_h_refill(_sender(), token)
 
 
+@rpc("any_peer", "call_remote", "reliable")
+func c_sync(token: String) -> void:
+	_h_sync(_sender(), token)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func c_buy(token: String, coins: int) -> void:
+	_h_buy(_sender(), token, coins)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func c_cash(token: String, amount: int) -> void:
+	_h_cash(_sender(), token, amount)
+
+
 # --- RPC: host -> client ---------------------------------------------------------------------
 
 @rpc("authority", "call_remote", "reliable")
@@ -183,8 +230,26 @@ func s_gesture(peer: int, clip: String) -> void:
 
 
 @rpc("authority", "call_remote", "reliable")
-func s_balance(amount: int) -> void:
+func s_balance(amount: int, cashable_n: int) -> void:
+	chips_shown = amount
+	cashable_shown = cashable_n
 	balance.emit(amount)
+	purse.emit(amount, cashable_n)
+
+
+@rpc("authority", "call_remote", "reliable")
+func s_paid(coins: int) -> void:
+	var world := get_tree().get_first_node_in_group("world")
+	if world != null and world.has_method("grant_coins") and coins > 0:
+		world.call("grant_coins", coins)
+	paid.emit(coins)
+
+
+@rpc("authority", "call_remote", "reliable")
+func s_refund(coins: int) -> void:
+	var world := get_tree().get_first_node_in_group("world")
+	if world != null and world.has_method("grant_coins") and coins > 0:
+		world.call("grant_coins", coins)
 
 
 @rpc("authority", "call_remote", "reliable")
@@ -200,7 +265,7 @@ func _h_watch(peer: int, token: String, on: bool) -> void:
 	_tokens[peer] = token
 	if on:
 		_watchers[peer] = true
-		_to_peer(peer, "s_balance", [chips(token)])
+		_send_balance(peer, token)
 		for id in _tables:
 			_to_peer(peer, "s_view", [id, _tables[id].view_for(peer)])
 	else:
@@ -259,6 +324,42 @@ func _h_act(peer: int, table_id: String, action: String, data: Dictionary, rid: 
 	_push(table_id)
 
 
+func _h_sync(peer: int, token: String) -> void:
+	if not _token_ok(token):
+		return
+	_tokens[peer] = token
+	_send_balance(peer, token)
+
+
+func _h_buy(peer: int, token: String, coins: int) -> void:
+	if not _token_ok(token) or coins < 1 or coins > 100:
+		tell(peer, "", "That buy didn't go through.")
+		if coins > 0:
+			_to_peer(peer, "s_refund", [coins])
+		return
+	_tokens[peer] = token
+	credit(token, coins * COIN_CHIPS)
+	tell(peer, "", "Bought %d chips." % (coins * COIN_CHIPS))
+
+
+func _h_cash(peer: int, token: String, amount: int) -> void:
+	if not _token_ok(token):
+		return
+	_tokens[peer] = token
+	var take := mini(maxi(0, amount), chips(token))
+	take -= take % COIN_CHIPS
+	if take < COIN_CHIPS:
+		tell(peer, "", "Need %d chips for a coin." % COIN_CHIPS)
+		_send_balance(peer, token)
+		return
+	if not debit(token, take):
+		tell(peer, "", "Not enough chips.")
+		return
+	var coins_out := int(take / float(COIN_CHIPS))
+	_to_peer(peer, "s_paid", [coins_out])
+	tell(peer, "", "Cashed %d chips for %d coins." % [take, coins_out])
+
+
 func _h_refill(peer: int, token: String) -> void:
 	if not _token_ok(token):
 		return
@@ -275,6 +376,7 @@ func _h_refill(peer: int, token: String) -> void:
 		tell(peer, "", "Next free refill in %d min." % ceili((int(acc["refill_at"]) - now) / 60.0))
 		return
 	acc["chips"] = REFILL_TO
+	acc["house"] = REFILL_TO
 	acc["refill_at"] = now + REFILL_COOLDOWN_S
 	_changed(token)
 	for id in _tables:
@@ -320,9 +422,16 @@ func token_of(peer: int) -> String:
 
 func _account(token: String) -> Dictionary:
 	if not _ledger.has(token):
-		_ledger[token] = {"chips": START_CHIPS, "refill_at": 0}
+		_ledger[token] = {"chips": START_CHIPS, "house": START_CHIPS, "refill_at": 0}
 		_dirty = true
-	return _ledger[token]
+	var acc: Dictionary = _ledger[token]
+	if not acc.has("house"):
+		acc["house"] = mini(int(acc["chips"]), START_CHIPS)
+	return acc
+
+
+func _send_balance(peer: int, token: String) -> void:
+	_to_peer(peer, "s_balance", [chips(token), cashable(token)])
 
 
 func _changed(token: String) -> void:
@@ -331,7 +440,7 @@ func _changed(token: String) -> void:
 		_save_wait = SAVE_EVERY
 	for peer in _tokens:
 		if _tokens[peer] == token:
-			_to_peer(peer, "s_balance", [chips(token)])
+			_send_balance(peer, token)
 
 
 func _token_ok(token: String) -> bool:

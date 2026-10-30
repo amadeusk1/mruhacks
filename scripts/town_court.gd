@@ -35,6 +35,7 @@ var _swish := 0.0
 var _shown_points := -1
 var _was_on_court := false
 var _practice_score := 0
+var _solo_points := 0
 
 
 func _ready() -> void:
@@ -286,25 +287,22 @@ func _paint(state: Dictionary) -> void:
 
 func _reward_court(state: Dictionary, phase: String, format_name: String, coral: int, teal: int, on_court: bool) -> void:
 	var side := _my_side(str(state.get("teams", "")))
-	var played := false
-	var won := false
-	if on_court and not _was_on_court:
-		_practice_score = coral
-	if (phase == "live" or phase == "result") and (side == "coral" or side == "teal"):
-		played = true
-		if phase == "result":
-			var text := str(state.get("text", ""))
-			if format_name == "solo":
-				won = text.begins_with("You win")
-			else:
-				won = (side == "coral" and coral > teal) or (side == "teal" and teal > coral)
-	elif phase == "practice" and format_name == "solo" and on_court and coral > _practice_score:
-		played = true
-		_practice_score = coral
-	if played:
+	if format_name == "solo" and on_court:
+		if not _was_on_court:
+			_practice_score = coral
+		elif coral > _practice_score:
+			_solo_points += coral - _practice_score
+			_practice_score = coral
+		elif coral < _practice_score:
+			_practice_score = coral
+		if _solo_points > 0:
+			_pay("basketball", _solo_points)
+	elif (phase == "live" or phase == "result") and (side == "coral" or side == "teal"):
+		var won := phase == "result" and ((side == "coral" and coral > teal) or (side == "teal" and teal > coral))
 		_pay("basketball", 10 if won else 5)
 	if _was_on_court and not on_court:
 		_pay_out("basketball")
+		_solo_points = 0
 	_was_on_court = on_court
 
 

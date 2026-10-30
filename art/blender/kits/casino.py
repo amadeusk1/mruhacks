@@ -1,6 +1,7 @@
-"""Casino: building (exterior + interior shell), roulette, slots, poker, blackjack, cards, chips and
-shared decor. Concepts: Images/Casino - *.png; requirements: vault note "Casino - Asset and Animation
-Checklist". Front faces -Y, origin at ground centre, 0.9 m penguin scale (seats at 0.42 m).
+"""Casino: building (exterior + interior shell), roulette, slots, poker, blackjack, cards, chips,
+the chip-window booth and shared decor. Concepts: Images/Casino - *.png; requirements: vault note
+"Casino - Asset and Animation Checklist". Front faces -Y, origin at ground centre, 0.9 m penguin
+scale (seats at 0.42 m).
 
 Graphic faces are blank `insert_*` materials with planar (or cylindrical, for slot reels) UVs so the
 engine can map authored textures: generated numerals and logos on the sheets are not final.
@@ -791,7 +792,8 @@ def casino_interior_shell():
             for cx, w, zb, zt in wins:
                 window_unit(b, cx, zb, w=w, h=zt - zb)
             b.box(ID - 2 * T, 0.03, 0.9, 0, -T / 2 - 0.015, 0.0, "walnut", bevel=0.01)          # wainscot
-            for cx in (-4.8, -1.4, 2.0, 5.2):
+            # right wall skips the lantern that would sit inside the chip window (world y = 1.4)
+            for cx in ((-4.8, 1.3, 2.0, 5.2) if side > 0 else (-4.8, -1.4, 2.0, 5.2)):
                 wall_lantern(b, cx, -T / 2, 2.0)
     with b.at((0, ID / 2 - T / 2, SLAB), rotz=180):
         masonry_wall(b, IW, IH, quoins=(True, True), cap=TRIM)
@@ -812,7 +814,8 @@ def casino_interior_shell():
                 b.box(0.17, 0.78, 0.42, ax * 0.35, 0, 0.14, CUSH, bevel=0.06)
         b.cyl(0.23, 0.05, sx * 5.3, -4.9, SLAB + 0.44, "walnut", segs=14, bevel=0.012)
         b.cyl(0.04, 0.44, sx * 5.3, -4.9, SLAB, "walnut", segs=8)
-        for (px, py) in ((sx * (IW / 2 - 0.6), ID / 2 - 0.6), (sx * (IW / 2 - 0.6), 1.0)):
+        # the right-hand planter moves north of the chip window; the left one stays between the tables
+        for (px, py) in ((sx * (IW / 2 - 0.6), ID / 2 - 0.6), (sx * (IW / 2 - 0.6), 4.35 if sx > 0 else 1.0)):
             b.cyl(0.26, 0.38, px, py, SLAB, "stone", segs=8, bevel=0.03)
             b.cyl(0.27, 0.06, px, py, SLAB + 0.17, TRIM, segs=8, bevel=0.01)
             for k in range(6):
@@ -826,7 +829,7 @@ def casino_interior_shell():
         "footprint_m": [IW, ID], "floor_z": SLAB, "ceiling_child": "casino_interior_shell_ceiling",
         "spacing": "Art Docs/Interior Spacing Standard.md: seats >= 1.15 m apart, 2.0 m main aisle, 2.5 m entry zone, "
                    "1.5 m spectator bands, 1.4 m slot standing zones",
-        "layout_sockets": "roulette, poker, blackjack, slots_0..3 (+ slot_stool_0..3), lounge_*, entry_zone",
+        "layout_sockets": "roulette, poker, blackjack, slots_0..3 (+ slot_stool_0..3), lounge_*, entry_zone, cash_out",
         "slot_row": {f"slots_{i}": {"asset": "casino/slot_machine", "tint": {"body": SLOT_VARIANTS[t]},
                                      "stool": f"slot_stool_{i}"} for i, t in enumerate(SLOT_ROW_TINTS)}})
     c = Builder("casino_interior_shell_ceiling", seed=982)
@@ -846,9 +849,105 @@ def casino_interior_shell():
              **{k: (x, y, SLAB) for k, (x, y) in ANCHORS.items()},
              **{f"slots_{i}": (x, sy, SLAB) for i, x in enumerate(SLOT_ROW_X)},
              **{f"slot_stool_{i}": (x, sy - 0.7, SLAB) for i, x in enumerate(SLOT_ROW_X)},
-             "lounge_0": (-6.5, -4.6, SLAB), "lounge_1": (6.5, -4.6, SLAB)}
+             "lounge_0": (-6.5, -4.6, SLAB), "lounge_1": (6.5, -4.6, SLAB),
+             # right wall, between the windows; back face tucks into the wall. Yaw -90 in the room.
+             "cash_out": (7.31, 1.40, SLAB)}
     for nm, p in socks.items():
         add_socket(o, nm, p, 0)                       # slot machines face -Y (into the room) at yaw 0
+    planar_uv(o)
+    return o
+
+
+# ----------------------------------------------------------------- chip window ------
+def cash_out_booth():
+    """Cashier cage for play chips. One solid counter, stone posts and a teller screen, in the
+    same chunky language as the slot cabinets: cream stone, walnut, teal felt, restrained brass.
+    Front faces -Y. The wordmark is insert_sign (authored texture; no modelled letters, no
+    currency marks). A penguin stands at player_0, on the mat."""
+    b = Builder("cash_out_booth", seed=991)
+    W, D = 1.88, 0.82
+    fy, by = -D / 2, D / 2
+    cz = 0.74
+
+    # solid cabinet: plinth, stone body, walnut front with the roulette pennant
+    b.box(W + 0.10, D + 0.08, 0.10, 0, 0.02, 0, "stone_dark", bevel=0.03)
+    b.box(W, D, cz - 0.18, 0, 0.03, 0.10, "stone", bevel=0.04)
+    b.box(W - 0.36, 0.06, cz - 0.32, 0, fy - 0.01, 0.18, "walnut", bevel=0.018)
+    b.box(0.50, 0.03, 0.22, 0, fy - 0.045, 0.38, TRIM, bevel=0.008)
+    b.prism([(-0.16, 0.20), (0.16, 0.20), (0.0, 0.03)], 0.026, 0, fy - 0.065, 0.38, "coral")
+    diamond(b, 0, fy - 0.085, 0.52, 0.04)
+    for s in (-1, 1):
+        b.box(0.08, 0.04, cz - 0.28, s * (W * 0.5 - 0.22), fy - 0.02, 0.16, "walnut_b", bevel=0.012)
+
+    # counter cap. The lip reaches toward the player; the brass rail is tucked under that lip.
+    lip = fy - 0.20
+    b.box(W + 0.08, 0.70, 0.07, 0, lip + 0.28, cz - 0.07, "walnut", bevel=0.02)
+    b.box(W - 0.12, 0.04, 0.04, 0, lip - 0.01, cz - 0.05, BRASS, bevel=0.008)
+    b.box(0.46, 0.22, 0.012, -0.46, lip + 0.16, cz, FELT)
+    b.box(0.18, 0.12, 0.016, -0.62, lip + 0.14, cz + 0.012, "walnut_b", bevel=0.004)
+    b.box(0.14, 0.09, 0.006, -0.62, lip + 0.14, cz + 0.028, "cream", bevel=0.002)
+    b.cyl(0.046, 0.024, -0.22, lip + 0.14, cz + 0.012, BRASS, segs=10, r2=0.028, bevel=0.004)
+    b.sphere(0.012, -0.22, lip + 0.14, cz + 0.058, BRASS, u=6, v=4)
+    b.box(0.46, 0.20, 0.036, 0.42, lip + 0.14, cz, BRASS, bevel=0.008)
+    b.box(0.38, 0.13, 0.010, 0.42, lip + 0.14, cz + 0.034, "felt_dark")
+    for i, col in enumerate(("red", "blue", "green", "cream")):
+        chip_geo(b, 0.26 + i * 0.09, lip + 0.14, cz + 0.044, col)
+    b.box(0.70, 0.08, 0.014, 0, lip + 0.10, cz - 0.09, "glow")
+    rail_y = lip + 0.08
+    b.cyl(0.016, W - 0.70, 0, rail_y, 0.22, BRASS, segs=8, rot=(0, 90, 0), center=True)
+    for s in (-1, 1):
+        b.box(0.045, 0.045, 0.22, s * ((W - 0.70) * 0.5), rail_y, 0.0, BRASS, bevel=0.008)
+        b.box(0.04, 0.05, cz - 0.07 - 0.20, s * ((W - 0.70) * 0.5), rail_y, 0.20, BRASS, bevel=0.006)
+
+    # posts and the teller screen grow out of the counter, so the window is not a floating frame
+    post_h = 0.64
+    for s in (-1, 1):
+        b.box(0.18, 0.20, post_h, s * (W * 0.5 - 0.12), fy + 0.06, cz, "stone", bevel=0.028)
+        b.box(0.22, 0.24, 0.06, s * (W * 0.5 - 0.12), fy + 0.06, cz + post_h - 0.02, "walnut", bevel=0.012)
+    b.box(W - 0.46, 0.12, post_h, 0, fy + 0.05, cz, "walnut", bevel=0.016)
+    for s in (-1, 1):
+        b.box(0.22, 0.03, 0.22, s * 0.52, fy - 0.02, cz + 0.18, "walnut_b", bevel=0.008)
+        diamond(b, s * 0.52, fy - 0.045, cz + 0.29, 0.036)
+
+    ww, wh, wz = 0.58, 0.28, cz + 0.18
+    b.box(ww + 0.10, 0.045, 0.04, 0, fy - 0.02, wz - 0.02, BRASS, bevel=0.008)
+    b.box(ww + 0.10, 0.045, 0.04, 0, fy - 0.02, wz + wh, BRASS, bevel=0.008)
+    for s in (-1, 1):
+        b.box(0.042, 0.045, wh + 0.06, s * (ww * 0.5 + 0.024), fy - 0.02, wz - 0.02, BRASS, bevel=0.006)
+    b.box(ww - 0.02, 0.04, wh, 0, fy + 0.04, wz, "walnut_b")
+    b.box(ww - 0.08, 0.016, wh - 0.06, 0, fy + 0.02, wz + 0.03, "glow")
+    for i, col in enumerate(("red", "blue", "green", "cream")):
+        for k in range(3):
+            chip_geo(b, -0.18 + i * 0.12, fy + 0.01, wz + 0.015 + k * 0.011, col)
+    for sx in (-0.16, 0.16):
+        b.box(0.02, 0.02, wh - 0.05, sx, fy - 0.04, wz + 0.02, BRASS, bevel=0.003)
+
+    # marquee sits on the post caps. Bulbs follow the arch; the medallion stays above the word plate.
+    sign_z = cz + post_h - 0.04
+    arch = [(-0.70, 0.0), (0.70, 0.0), (0.70, 0.10), (0.42, 0.22), (0.14, 0.30),
+            (0.0, 0.34), (-0.14, 0.30), (-0.42, 0.22), (-0.70, 0.10)]
+    b.prism(arch, 0.12, 0, fy + 0.02, sign_z, BRASS, bevel=0.012)
+    b.prism([(x * 0.88, z * 0.76 + 0.03) for x, z in arch], 0.03, 0, fy - 0.04, sign_z, "coral")
+    b.box(0.50, 0.014, 0.10, 0, fy - 0.06, sign_z + 0.045, "insert_sign")
+    b.cyl(0.055, 0.014, 0, fy - 0.065, sign_z + 0.22, "red", segs=14, bevel=0.003, center=True)
+    b.cyl(0.032, 0.006, 0, fy - 0.074, sign_z + 0.226, "cream", segs=12)
+    for x, z in arch:
+        b.sphere(0.018, x * 0.96, fy - 0.05, sign_z + max(z, 0.02) * 0.90, "bulb", u=6, v=4)
+
+    # clerk bay: the cabinet is the counter; a rack sits on the back half
+    b.box(W - 0.28, 0.06, 0.10, 0, by - 0.02, cz - 0.10, "walnut_b", bevel=0.01)
+    with b.at((0.0, 0.16, cz)):
+        chip_rack_geo(b, 5)
+
+    b.box(1.00, 0.40, 0.010, 0, lip - 0.16, 0.0, "carpet_gold", bevel=0.003)
+    b.box(0.86, 0.28, 0.010, 0, lip - 0.16, 0.010, "carpet_red", bevel=0.003)
+
+    b.socket("player_0", (0.15, lip - 0.22, 0), rotz=180)
+    b.socket("tray", (0.42, lip + 0.14, cz + 0.05))
+    o = b.finish(KIT, "furniture", {
+        "game": "cashier", "sign_insert": "insert_sign",
+        "notes": "play-chip window; lettering is a texture on insert_sign; no currency marks",
+        **placement("floor", clearance=1)})
     planar_uv(o)
     return o
 
@@ -868,3 +967,4 @@ def build():
     blackjack_table(); card_shoe(); discard_tray()
     card(); deck_stack(); chip(); chip_stack(); chip_rack()
     lounge_chair(); side_table(); card_suit_plaque(); wall_lamp(); standing_lamp(); casino_planter(); coat_stand(); card_mat()
+    cash_out_booth()

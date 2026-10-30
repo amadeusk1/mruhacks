@@ -73,7 +73,10 @@ const ROOMS := {
 			["casino/standing_lamp", [-7.5, 0.12, -5.5], 0.0],
 			["casino/standing_lamp", [7.5, 0.12, -5.5], 0.0],
 			["casino/casino_planter", [-7.5, 0.12, -0.6], 0.0],
-			["casino/coat_stand", [7.5, 0.12, -1.8], 0.0],
+			# coat stand used to stand where the chip window is; it now sits south of that window
+			["casino/coat_stand", [7.35, 0.12, 2.7], 0.0],
+			# right wall, between the windows, facing into the room. Clear of the aisle, tables and slots.
+			["casino/cash_out_booth", "socket_cash_out", -90.0],
 			# Casino - Building and Interior: warm sconces down both walls, framed suits by the back wall
 			["interior_finishing/wall_sconce", [-8.05, 1.8, -3.0], 90.0],
 			["interior_finishing/wall_sconce", [-8.05, 1.8, 1.5], 90.0],
@@ -180,6 +183,8 @@ func _enter_tree() -> void:
 		var node := _place(nav, p[0], at, p[2])
 		if p[1] is String:
 			placed[p[1]] = [node, p[0], at, p[2]]
+		if p[0] == "casino/cash_out_booth" and node:
+			_chip_window(node)
 		var tints: Dictionary = _cfg.get("tints", {}).get(str(p[1]), {})
 		if node and tints.has("body"):
 			Tints.apply(node, {"body": Color(tints["body"])})
@@ -373,6 +378,15 @@ func _make_seat(seat_name: String, floor_pos: Vector3, yaw: float, seat_h: float
 	seat.seat_point = global_transform * (floor_pos + Vector3(0, seat_h, 0))
 	seat.face_yaw = global_rotation.y + yaw
 	return seat
+
+
+## The chip window is the room's cashier: play chips only, the same free refill the tables offer.
+func _chip_window(booth: Node3D) -> void:
+	var spot := preload("res://scripts/casino/chip_window.gd").new()
+	spot.name = "ChipWindow"
+	add_child(spot)
+	var sock := Sockets.find(booth, "player_0")
+	spot.global_position = sock.global_position if sock else booth.global_position + Vector3(-0.7, 0, 0)
 
 
 func _slot_row(nav: Node, shell_id: String, sockets: Dictionary) -> void:
