@@ -54,6 +54,9 @@ func _catalog() -> void:
 	check(not (Bed.SETS["games"] as Array).has("minigame"), "old ogg name left the games set")
 	check(Bed.SETS["basketball"][0] == "basketball.mp3" and (Bed.SETS["basketball"] as Array).has("basketball_2.mp3"), "both basketball tracks")
 	check(not Bed.SETS.has("home"), "igloo bed is not in yet")
+	check((Bed.SETS["title"] as Array).size() == 7, "six titlescreen songs join the menu")
+	for t in load("res://scripts/world/dance_tracks.gd").TRACKS:
+		check(FileAccess.file_exists(Bed.DIR + str(t["file"])) and (t["beats"] as Array).size() > 100, "dance song %s" % t["file"])
 
 
 func _areas() -> void:
@@ -71,10 +74,11 @@ func _areas() -> void:
 	check(Bed.area_for(true, "town", "basketball") == "basketball", "court zone")
 	check(Bed.area_for(true, "town", "fishing") == "fishing", "fishing zone")
 	check(Bed.area_for(true, "town", "sketch") == "sketch", "sketch zone")
-	check(Bed.area_for(true, "town", "games") == "games", "snowball arena uses the minigame bed")
+	check(Bed.area_for(true, "town", "snowball") == "snowball", "snowball arena has its own bed")
 	check(Bed.area_for(true, "court", "") == "basketball", "a court location")
 	check(Bed.area_for(true, "cafe", "fishing") == "cafe", "a room wins over a town zone")
-	check(Bed.area_for(true, "snowball_arena", "") == "games", "future snowball location")
+	check(Bed.area_for(true, "snowball_arena", "") == "snowball", "future snowball location")
+	check(Bed.area_for(true, "arena", "") == "games", "another minigame place keeps the minigame bed")
 
 
 func _picks() -> void:
@@ -82,7 +86,7 @@ func _picks() -> void:
 	check(Bed.pick_song(both, "", 0) == "sled_race.mp3", "roll 0 is the default")
 	check(Bed.pick_song(both, "", 1) == "sled_race_2.mp3", "roll 1 is the alternate")
 	check(Bed.pick_song(both, "sled_race.mp3", 0) == "sled_race_2.mp3", "does not repeat")
-	check(Bed.pick_song(Bed.SETS["title"], "Pengloo Party.ogg", 4) == "Pengloo Party.ogg", "a one-song set replays")
+	check(Bed.pick_song(["Pengloo Party.ogg"], "Pengloo Party.ogg", 4) == "Pengloo Party.ogg", "a one-song set replays")
 	var seen := {}
 	for i in 8:
 		seen[Bed.pick_song(Bed.SETS["arcade"], "", i)] = true
@@ -96,7 +100,7 @@ func _playback() -> void:
 	# one where the autoload has actually published the title bed.
 	await process_frame
 	check(_music.area == "title", "title before a session, got %s" % _music.area)
-	check(_music._current == "Pengloo Party.ogg" and _music._a.playing, "title track playing (%s)" % _music._current)
+	check((Bed.SETS["title"] as Array).has(_music._current) and _music._a.playing, "title track playing (%s)" % _music._current)
 	_music.start()
 	var player := Node3D.new()
 	player.name = "MusicTestPenguin"
@@ -130,7 +134,7 @@ func _playback() -> void:
 	await _goto("arcade", "")
 	check(str(_music._current).begins_with("arcade") and _looping(), "arcade %s" % _music._current)
 	await _goto("sled_hill", "")
-	check(_music.area == "sled" and str(_music._current).begins_with("sled_race"), "sled %s" % _music._current)
+	check(_music.area == "sled" and str(_music._current).begins_with("sled"), "sled %s" % _music._current)
 	await _goto("home", "")
 	check(_music.area == "town" and str(_music._current).ends_with(".ogg"), "home stays on town (%s)" % _music._current)
 	_net._court_on = true
@@ -171,11 +175,11 @@ func _playback() -> void:
 	_net._snow_on = true
 	_net._snow_area = Rect2(Vector2(-2, 28), Vector2(8, 8))
 	await _frames(2)
-	check(_music.area == "games" and str(_music._current).begins_with("minigame"), "arena %s" % _music._current)
+	check(_music.area == "snowball" and str(_music._current).begins_with("snowball fight new"), "arena %s" % _music._current)
 	_net._snow_on = false
 	_music.play_title()
 	await _frames(2)
-	check(_music.area == "title" and _music._current == "Pengloo Party.ogg", "play_title restores the menu")
+	check(_music.area == "title" and (Bed.SETS["title"] as Array).has(_music._current), "play_title restores the menu")
 
 
 func _goto(location: String, _zone: String) -> void:

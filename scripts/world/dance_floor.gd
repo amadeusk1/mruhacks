@@ -4,7 +4,11 @@ extends Node3D
 ## The plaza dance floor. Stand still on it and your penguin dances; everyone on the floor
 ## dances on the same beat (the beat is derived from the shared wall clock, so it matches on
 ## every client with no extra networking), the floor tiles, stage lights, disco ball and
-## confetti pulse with it, and the town's synthesised dance track fades in.
+## confetti pulse with it, and the dance music fades in.
+## The music is the "dance floor" songs (DanceTracks), played as one playlist looping on the shared
+## clock so everyone hears the same song at the same second; the beat comes from each song's
+## tracked beat times, so it follows the songs' small tempo drifts. Without those files (or with an
+## empty table) it falls back to the synthesised 120 BPM loop in DanceMusic.
 
 const CENTER := Vector3(6.6, 0.0, 0.0)
 const RADIUS := 2.3
@@ -13,9 +17,14 @@ const BEAT_S := DanceMusic.BEAT_S
 const RIG_R := RADIUS + 0.35
 const RIG_H := 3.4
 const HUES := [Color(0.2, 0.9, 1.0), Color(1.0, 0.3, 0.8), Color(1.0, 0.85, 0.2), Color(0.5, 1.0, 0.4)]
+const SONG_DIR := "res://audio/music/"
+const SONG_DB := -8.0   # the songs are mastered like the ambient beds (Music BASE_DB)
+const SYNTH_DB := -5.0
 
 ## Tools can pin the clock (unix seconds) to get repeatable frames.
 static var clock_override := -1.0
+## The dance floor songs are available; false plays the synth loop.
+static var songs_on := false
 
 var _floor_mat: ShaderMaterial
 var _ball_mat: ShaderMaterial
@@ -27,6 +36,7 @@ var _lights: Array = []  # OmniLight3D
 var _confetti: GPUParticles3D
 var _player: AudioStreamPlayer
 var _music: DanceMusic
+var _song := -1         # DanceTracks index loaded in _player
 var _hint: Label
 var _party := 0.0
 var _quiet := 99.0  # seconds since anyone last danced
@@ -49,9 +59,42 @@ func _center() -> Vector3:
 	return CENTER
 
 
-## Shared beat counter, 0..16 and then around again (16 beats = one 8 s loop of the track).
+## Shared beat counter, 0..16 and then around again.
 static func beat() -> float:
-	return fposmod(clock(), DanceMusic.LOOP_S) / BEAT_S
+	if not songs_on:
+		return fposmod(clock(), DanceMusic.LOOP_S) / BEAT_S  # 16 beats = one 8 s synth loop
+	var s := song_at(clock())
+	var beats: Array = DanceTracks.TRACKS[s[0]]["beats"]
+	var i := clampi(beats.bsearch(s[1], false) - 1, 0, beats.size() - 2)  # last beat at or before
+	var a := float(beats[i])
+	var b := float(beats[i + 1])
+	return fposmod(i + (float(s[1]) - a) / (b - a), 16.0)
+
+
+## Seconds per beat right now, averaged over a few beats so the dance speed doesn't jitter.
+static func beat_len() -> float:
+	if not songs_on:
+		return BEAT_S
+	var s := song_at(clock())
+	var beats: Array = DanceTracks.TRACKS[s[0]]["beats"]
+	var i := beats.bsearch(s[1], false)
+	var lo := clampi(i - 3, 0, beats.size() - 1)
+	var hi := clampi(i + 2, 0, beats.size() - 1)
+	return (float(beats[hi]) - float(beats[lo])) / maxi(1, hi - lo) if hi > lo else BEAT_S
+
+
+## Where the dance playlist is: [song index, seconds into it]. It loops on the shared clock.
+static func song_at(now: float) -> Array:
+	var total := 0.0
+	for t in DanceTracks.TRACKS:
+		total += float(t["length"])
+	var at := fposmod(now, total)
+	for i in DanceTracks.TRACKS.size():
+		var length := float(DanceTracks.TRACKS[i]["length"])
+		if at < length:
+			return [i, at]
+		at -= length
+	return [0, 0.0]
 
 
 func _ready() -> void:
@@ -72,7 +115,7 @@ func dancer_count() -> int:
 func _exit_tree() -> void:  # leaving the town must not leave penguins stuck mid-dance
 	for id in _dancing:
 		if is_instance_valid(_dancing[id]):
-			(_dancing[id] as Node).call("set_dancing", -1.0, BEAT_S)
+			(_dancing[id] as Node).call("set_dancing", -1.0, beat_len())
 	_dancing.clear()
 
 
@@ -97,6 +140,7 @@ func _ground(p: Vector3) -> Vector3:
 
 func _scan(delta: float) -> void:
 	var b := beat()
+	var beat_s := beat_len()
 	var here := {}
 	for group in ["local_player", "remote_player"]:
 		for node in get_tree().get_nodes_in_group(group):
@@ -113,10 +157,10 @@ func _scan(delta: float) -> void:
 				_still[id] = 0.0
 			if float(_still[id]) >= STILL_S:
 				here[id] = p
-				p.call("set_dancing", b, BEAT_S)
+				p.call("set_dancing", b, beat_s)
 	for id in _dancing:
 		if not here.has(id) and is_instance_valid(_dancing[id]):
-			(_dancing[id] as Node).call("set_dancing", -1.0, BEAT_S)
+			(_dancing[id] as Node).call("set_dancing", -1.0, beat_s)
 	_dancing = here
 	for id in _still.keys():
 		if instance_from_id(id) == null:
@@ -170,18 +214,35 @@ func _sound(delta: float) -> void:
 		var d := Vector2(me.global_position.x - global_position.x, me.global_position.z - global_position.z).length()
 		near = clampf(1.0 - (d - 4.0) / 26.0, 0.0, 1.0)
 	var want := near * near * clampf(1.0 - (_quiet - 1.0) / 3.0, 0.0, 1.0)  # lingers a moment after the last dancer
-	var target_db := -80.0 if want <= 0.001 else linear_to_db(want) - 5.0
+	var target_db := -80.0 if want <= 0.001 else linear_to_db(want) + (SONG_DB if songs_on else SYNTH_DB)
 	_player.volume_db = move_toward(_player.volume_db, target_db, delta * 60.0)
+	var now := clock() + AudioServer.get_output_latency()
+	var at := fposmod(now, DanceMusic.LOOP_S)
+	var span := DanceMusic.LOOP_S
+	if songs_on:
+		var s := song_at(now)
+		at = s[1]
+		span = float(DanceTracks.TRACKS[s[0]]["length"])
+		if _player.volume_db > -60.0 and s[0] != _song:  # next song (or first time in earshot)
+			_song = s[0]
+			_player.stop()
+			_player.stream = _song_stream(_song)
 	if _player.stream == null:
 		return
 	if _player.volume_db > -60.0:
-		var at := fposmod(clock() + AudioServer.get_output_latency(), DanceMusic.LOOP_S)
 		if not _player.playing:
 			_player.play(at)
-		elif absf(wrapf(_player.get_playback_position() - at, -DanceMusic.LOOP_S * 0.5, DanceMusic.LOOP_S * 0.5)) > 0.2:
+		elif absf(wrapf(_player.get_playback_position() - at, -span * 0.5, span * 0.5)) > 0.2:
 			_player.seek(at)
 	elif _player.playing:
 		_player.stop()
+
+
+func _song_stream(i: int) -> AudioStream:
+	var stream := load(SONG_DIR + str(DanceTracks.TRACKS[i]["file"])) as AudioStream
+	if stream is AudioStreamMP3:
+		(stream as AudioStreamMP3).loop = false  # the playlist moves on; the clock decides what's next
+	return stream
 
 
 func _update_hint(n: int) -> void:
@@ -402,7 +463,11 @@ func _build_audio() -> void:
 	_player.bus = "Music" if AudioServer.get_bus_index("Music") >= 0 else "Master"
 	_player.volume_db = -80.0
 	add_child(_player)
-	_music = DanceMusic.new()
+	songs_on = not DanceTracks.TRACKS.is_empty()
+	for t in DanceTracks.TRACKS:
+		songs_on = songs_on and ResourceLoader.exists(SONG_DIR + str(t["file"]))
+	if not songs_on:
+		_music = DanceMusic.new()
 
 
 func _build_hud() -> void:

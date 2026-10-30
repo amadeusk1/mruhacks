@@ -1,0 +1,4 @@
+walker started
+stops 11 from town
+sketch | walk ok | at (30.5, 4.5) | arrived but prompt hidden | place town | ui - | sitting false
+Cinema | walk ok | at (0.1, -18.8) | interact opened | place cinema | ui - | sitting false

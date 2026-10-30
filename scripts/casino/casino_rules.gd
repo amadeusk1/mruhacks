@@ -239,14 +239,15 @@ static func roulette_return(spot: String, pocket: int) -> int:
 	return 0
 
 
-# --- slots: three independent reels, 15 stops each. RTP 95.6% (tools/casino_rules_test.gd). ----
+# --- slots: three independent reels, 15 stops each. A penguin or three of a kind pays,
+# about 2 spins in 5. Return is 97.8% of the stake (tools/casino_rules_test.gd). ----
 
 const SLOT_SYMBOLS := ["penguin", "star", "bell", "fish", "snowflake"]
-const SLOT_WEIGHTS := [1, 2, 3, 4, 5]
+const SLOT_WEIGHTS := [2, 2, 3, 4, 4]
 const SLOT_COST := 5
 ## Multiplier of the cost: three of a kind, then penguins anywhere.
-const SLOT_TRIPLE := {"penguin": 100, "star": 30, "bell": 15, "fish": 10, "snowflake": 6}
-const SLOT_PENGUINS := {2: 12, 1: 1}
+const SLOT_TRIPLE := {"penguin": 50, "star": 20, "bell": 10, "fish": 8, "snowflake": 5}
+const SLOT_PENGUINS := {2: 4, 1: 1}
 
 
 static func slot_spin(rng: RandomNumberGenerator) -> Array:

@@ -124,7 +124,7 @@ func rules() -> void:
 				n += 1
 	var rtp := float(total) / n
 	print("slots RTP %.4f" % rtp)
-	check(rtp > 0.93 and rtp < 0.97, "slot RTP %.3f" % rtp)
+	check(rtp > 0.96 and rtp < 1.00, "slot RTP %.3f" % rtp)
 
 
 func roulette() -> void:

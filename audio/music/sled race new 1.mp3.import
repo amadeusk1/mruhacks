@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://h8skvs6uv7cv"
+path="res://.godot/imported/sled race new 1.mp3-dfa7a55044ca6ee9115afc4ae6bebc4e.mp3str"
+
+[deps]
+
+source_file="res://audio/music/sled race new 1.mp3"
+dest_files=["res://.godot/imported/sled race new 1.mp3-dfa7a55044ca6ee9115afc4ae6bebc4e.mp3str"]
+
+[params]
+
+loop=true
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

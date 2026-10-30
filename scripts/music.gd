@@ -21,8 +21,10 @@ extends Node
 ##   basketball   on the town court
 ##   fishing      at the fishing rails (or while the cast is active)
 ##   sketch       inside the Sketch Club pavilion, or seated at its table
-##   games        the snowball arena, and any other minigame place without its own set
+##   snowball     the snowball arena in town (or a snowball location), and the snowball screen
+##   games        any other minigame place without its own set
 ##                (minigame.mp3 / minigame_2.mp3, replacing minigame.ogg)
+## The plaza dance floor plays its own songs (dance_floor.gd); this bed pauses while it does.
 ##
 ## Add a place: drop the file in audio/music (mp3 loops, ogg joins the crossfade playlist),
 ## add a SETS row, and match the location id in PLACE_AREAS ahead of MINIGAME_PLACES.
@@ -42,15 +44,17 @@ const FISH_PAD := 4.0       # metres around the fishing rails that still count a
 const SKETCH_PAD := 2.0     # metres outside the pavilion mesh (the door apron)
 const DIR := "res://audio/music/"
 const SETS := {
-	"title": ["Pengloo Party.ogg"],
+	"title": ["Pengloo Party.ogg", "titlescreen music A1.mp3", "titlescreen music A2.mp3", "titlescreen music B1.mp3",
+		"titlescreen music B2.mp3", "titlescreen music C1.mp3", "titlescreen music C2.mp3"],
 	"town": ["Penguin Chat.ogg", "Penguin Chat2.ogg", "titlescreen music.ogg", "titlescreen music 2.ogg"],
 	"games": ["minigame.mp3", "minigame_2.mp3"],
-	"sled": ["sled_race.mp3", "sled_race_2.mp3"],
+	"snowball": ["snowball fight new 1.mp3", "snowball fight new 2.mp3"],
+	"sled": ["sled_race.mp3", "sled_race_2.mp3", "sled race new 1.mp3", "sled race new 2.mp3"],
 	"arcade": ["arcade.mp3", "arcade_2.mp3"],
 	"basketball": ["basketball.mp3", "basketball_2.mp3"],
 	"casino": ["casino.mp3", "casino_2.mp3"],
 	"cinema": ["cinema.mp3", "cinema_2.mp3"],
-	"cafe": ["cafe.mp3", "cafe_2.mp3"],
+	"cafe": ["cafe.mp3", "cafe_2.mp3", "cafe new 1.mp3", "cafe new 2.mp3"],
 	"fishing": ["fishing.mp3", "fishing_2.mp3"],
 	"sketch": ["sketch_club.mp3", "sketch_club_2.mp3"],
 }
@@ -65,9 +69,10 @@ const PLACE_AREAS := [
 	["basketball", "basketball"],
 	["fishing", "fishing"],
 	["sketch", "sketch"],
+	["snowball", "snowball"],
 ]
 ## Places that still use the general minigame bed. Matched after PLACE_AREAS.
-const MINIGAME_PLACES := ["arena", "snowball"]
+const MINIGAME_PLACES := ["arena"]
 
 var area := ""
 var _activity := ""         # fishing, sketch, a cabinet, or the snowball screen, until that session ends
@@ -115,9 +120,9 @@ func play_title() -> void:
 
 
 ## The token lets an older session leave without cutting off a newer one.
-## Snowballs share the minigame bed.
+## The snowball screen ("snow") plays the snowball bed.
 func play_activity(kind: String) -> int:
-	var which := "games" if kind == "snow" else kind
+	var which := "snowball" if kind == "snow" else kind
 	if not SETS.has(which):
 		return 0
 	_token += 1
@@ -172,7 +177,7 @@ func _process(delta: float) -> void:
 		_a.play()
 
 
-## in_game false is the menu. zone is a town spot ("basketball", "sketch", "fishing", "games")
+## in_game false is the menu. zone is a town spot ("basketball", "sketch", "fishing", "snowball")
 ## or "" — it only applies while the location id is town, so a door trip always wins.
 static func area_for(in_game: bool, location: String, zone: String) -> String:
 	if not in_game:
@@ -243,7 +248,7 @@ func _town_zone(delta: float) -> String:
 		elif _at_fishing(player, at):
 			here = "fishing"
 		elif Net.snow_here(at):
-			here = "games"
+			here = "snowball"
 	if here != "":
 		_zone = here
 		_zone_left = 0.0

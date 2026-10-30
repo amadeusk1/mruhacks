@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://vwfy80xu4unf"
+path="res://.godot/imported/titlescreen music A2.mp3-faa1735130c8ac206f914f3c68466cfc.mp3str"
+
+[deps]
+
+source_file="res://audio/music/titlescreen music A2.mp3"
+dest_files=["res://.godot/imported/titlescreen music A2.mp3-faa1735130c8ac206f914f3c68466cfc.mp3str"]
+
+[params]
+
+loop=true
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

@@ -40,7 +40,11 @@ func _ready() -> void:
 	await get_tree().create_timer(0.5).timeout
 	_p.global_position = Vector3(floor_node.global_position.x + 0.4, floor_node.global_position.y + 0.1, floor_node.global_position.z + 0.3)
 	await get_tree().create_timer(1.6).timeout
-	print("LIVING dancing=%s count=%d anim=%s music=%.2f" % [_p.call("is_dancing"), floor_node.call("dancer_count"), _p.get("_clips").current_animation, floor_node.get("_music").progress()])
+	print("LIVING dancing=%s count=%d anim=%s music=%.2f" % [_p.call("is_dancing"), floor_node.call("dancer_count"), _p.get("_clips").current_animation, floor_node.get("_music").progress() if floor_node.get("_music") else 1.0])
+	var dj := floor_node.get_node("DanceMusic") as AudioStreamPlayer
+	var song: Array = DanceFloor.song_at(DanceFloor.clock()) if DanceFloor.songs_on else [-1, 0.0]
+	print("LIVING dance songs=%s song=%d playing=%s stream=%s pos=%.2f clock_pos=%.2f beat=%.2f beat_s=%.3f vol=%.1f" % [DanceFloor.songs_on, song[0], dj.playing,
+		dj.stream.resource_path.get_file() if dj.stream else "-", dj.get_playback_position(), song[1], DanceFloor.beat(), DanceFloor.beat_len(), dj.volume_db])
 	LivingTown.hour_override = 0.0
 	await get_tree().create_timer(0.6).timeout
 	_shot("%s/dance_night.png" % out)
