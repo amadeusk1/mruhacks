@@ -106,6 +106,7 @@ func rules() -> void:
 	check(refund[-1]["amount"] == 200 and refund[-1]["eligible"] == [1], "uncalled chips return")
 	check(R.roulette_return("n17", 17) == 36 and R.roulette_return("n17", 18) == 0, "straight up")
 	check(R.roulette_return("red", 1) == 2 and R.roulette_return("red", 2) == 0 and R.roulette_return("red", 0) == 0, "red")
+	check(R.roulette_return("green", 0) == 36 and R.roulette_return("green", 17) == 0 and R.roulette_spot_ok("green"), "green")
 	check(R.roulette_return("even", 0) == 0 and R.roulette_return("odd", 35) == 2, "zero loses even money")
 	check(R.roulette_return("d2", 24) == 3 and R.roulette_return("d2", 25) == 0 and R.roulette_return("d1", 0) == 0, "dozens")
 	check(R.roulette_spot_ok("n36") and not R.roulette_spot_ok("n37") and not R.roulette_spot_ok("n-1") and not R.roulette_spot_ok("n07"), "spot names")

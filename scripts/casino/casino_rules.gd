@@ -209,16 +209,19 @@ static func roulette_color(n: int) -> String:
 	return "red" if REDS.has(n) else "black"
 
 
-## Valid spots: "n0".."n36", red, black, odd, even, d1/d2/d3 (dozens).
+## Valid spots: "n0".."n36", red, black, green (the simple board's name for 0), odd, even, d1/d2/d3 (dozens).
 static func roulette_spot_ok(spot: String) -> bool:
-	if spot in ["red", "black", "odd", "even", "d1", "d2", "d3"]:
+	if spot in ["red", "black", "green", "odd", "even", "d1", "d2", "d3"]:
 		return true
 	return spot.begins_with("n") and spot.substr(1).is_valid_int() and int(spot.substr(1)) >= 0 \
 		and int(spot.substr(1)) <= 36 and str(int(spot.substr(1))) == spot.substr(1)
 
 
-## Total returned per chip staked (stake included): 36 straight up, 3 dozens, 2 even money, 0 lose.
+## Total returned per chip staked (stake included): 36 straight up (green is 0 straight up),
+## 3 dozens, 2 even money, 0 lose.
 static func roulette_return(spot: String, pocket: int) -> int:
+	if spot == "green":
+		return 36 if pocket == 0 else 0
 	if spot.begins_with("n"):
 		return 36 if int(spot.substr(1)) == pocket else 0
 	if pocket == 0:
