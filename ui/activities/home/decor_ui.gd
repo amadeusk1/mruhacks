@@ -8,6 +8,7 @@ signal closed
 const A := preload("res://ui/activities/act_style.gd")
 const CATS := [["Seating", "sofa"], ["Tables", "table"], ["Lights", "lamp"], ["Plants", "plant"], ["Wall", "frame"], ["Rugs", "rug"], ["More", "plus"]]
 const SWATCHES := ["#E86D58", "#2FA3A3", "#3D7BD9", "#5DAA3C", "#E3A92B", "#7B4FC4", "#F3E2C5", "#3A3D44"]
+const LEFT_HOME_M := 30.0  ## farther than any dome is wide; the yard is 80 m from the interior
 
 var editor: DecorEditor
 var home_name := "My Home"
@@ -60,6 +61,7 @@ func start(room: Node3D, shell_id: String, camera: Camera3D, default_items: Arra
 	editor.selection_changed.connect(_on_selection)
 	editor.saved.connect(_on_saved)
 	editor.layout_changed.connect(func() -> void: _undo_btn.disabled = not editor.can_undo())
+	room.tree_exiting.connect(_close)  # the door to town, a reload, any trip that drops the room
 
 
 # ---------------------------------------------------------------- catalogue --
@@ -363,6 +365,10 @@ func _on_saved(ok: bool) -> void:
 func _process(_delta: float) -> void:
 	if editor == null:
 		return
+	var player := get_tree().get_first_node_in_group("local_player") as Node3D
+	if player != null and player.global_position.distance_to(editor.room.global_position) > LEFT_HOME_M:
+		_close()  # the yard shares this scene, so the room stays loaded behind you
+		return
 	if _ghost_bar.visible and editor.has_ghost():
 		var p := editor.ghost_screen_pos()
 		_ghost_bar.reset_size()
@@ -425,6 +431,7 @@ func _done() -> void:
 func _close() -> void:
 	if editor and _mode != "home":
 		_done()
+	editor = null  # it goes with the room
 	closed.emit()
 	queue_free()
 
