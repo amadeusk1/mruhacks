@@ -143,7 +143,7 @@ func _open_home_edit() -> Control:
 	var player := get_tree().get_first_node_in_group("local_player") as Node3D
 	var room: Node3D = null
 	var best := INF
-	for n in get_tree().root.find_children("snow_dome*_interior*", "Node3D", true, false):  # any house tier
+	for n in get_tree().root.find_children(HomeUpgrades.house() + "*_interior*", "Node3D", true, false):  # any tier
 		var d := INF if player == null else player.global_position.distance_to((n as Node3D).global_position)
 		if d < best:
 			best = d

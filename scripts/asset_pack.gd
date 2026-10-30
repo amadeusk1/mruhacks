@@ -137,17 +137,18 @@ const _YARD_MIN_Z := -5.15
 const _YARD_MAX_X := 1.05
 
 
-## tier: the house tier to build (HomeUpgrades), 0 = the local player's own.
-static func dress_home(home: Node3D, tier: int = 0) -> void:
+## shell: the interior id to build (HomeUpgrades), "" = the local player's own house.
+static func dress_home(home: Node3D, shell: String = "") -> void:
 	if home.get_node_or_null("PackProps") != null:
 		return
 	_retire_home_boxes(home)
+	shell = shell if shell != "" else HomeUpgrades.interior_id()
 	var props := Node3D.new()
 	props.name = "PackProps"
 	home.add_child(props)
 	var nav := home.get_node("NavigationRegion3D") as Node3D
-	_place_home_exterior(home, props, nav, tier)
-	_place_home_interior(home, props, nav, tier)
+	_place_home_exterior(home, props, nav, shell)
+	_place_home_interior(home, props, nav, shell)
 	if nav.has_method("rebake"):
 		nav.call("rebake")
 
@@ -193,12 +194,8 @@ static func _retire_home_boxes(home: Node) -> void:
 
 
 ## Dome radius of a house tier's interior (manifest radius_m); the old snow dome is 2.3 m.
-static func _home_radius(tier: int) -> float:
-	return float(AssetRegistry.entry(HomeUpgrades.interior_id(tier)).get("radius_m", 2.3))
-
-
-static func _place_home_exterior(home: Node3D, props: Node3D, nav: Node3D, tier: int = 0) -> void:
-	var house := spawn("homes", HomeUpgrades.exterior_id(tier).get_file())
+static func _place_home_exterior(home: Node3D, props: Node3D, nav: Node3D, shell: String) -> void:
+	var house := spawn("homes", shell.get_file().replace("_interior", "_exterior"))
 	if house == null:
 		return
 	props.add_child(house)
@@ -218,7 +215,8 @@ static func _place_home_exterior(home: Node3D, props: Node3D, nav: Node3D, tier:
 	if outward.length_squared() < 0.01:
 		outward = Vector3(0.0, 0.0, 1.0)
 	outward = outward.normalized()
-	_wall_ring(nav, house.global_position, _home_radius(tier) - 0.1, Vector2(outward.x, outward.z), 0.4)
+	var half := HomeUpgrades.extents(shell)
+	_wall_ring(nav, house.global_position, maxf(half.x, half.y) - 0.1, Vector2(outward.x, outward.z), 0.4)
 	_tunnel(nav, house.global_position, door_local, outward)
 	_set_door(home.get_node("YardDoor") as Area3D, door_world + outward * 0.2, outward)
 	_aim_marker(home.get_node("OutsideSpawn") as Node3D, door_world + outward * 1.35, door_world)
@@ -227,8 +225,8 @@ static func _place_home_exterior(home: Node3D, props: Node3D, nav: Node3D, tier:
 		arrival.position.x = 4.3
 
 
-static func _place_home_interior(home: Node3D, props: Node3D, nav: Node3D, tier: int = 0) -> void:
-	var room := spawn("homes", HomeUpgrades.interior_id(tier).get_file())
+static func _place_home_interior(home: Node3D, props: Node3D, nav: Node3D, shell: String) -> void:
+	var room := spawn("homes", shell.get_file())
 	if room == null:
 		return
 	props.add_child(room)
@@ -243,7 +241,15 @@ static func _place_home_interior(home: Node3D, props: Node3D, nav: Node3D, tier:
 	if outward.length_squared() < 0.01:
 		outward = Vector3(-1.0, 0.0, 0.0)
 	outward = outward.normalized()
-	_wall_ring(nav, room.global_position, _home_radius(tier) - 0.15, Vector2(outward.x, outward.z), 0.42)
+	var entry := AssetRegistry.entry(shell)
+	var half := HomeUpgrades.extents(shell)
+	if entry.has("radius_m"):
+		_wall_ring(nav, room.global_position, half.x - 0.15, Vector2(outward.x, outward.z), 0.42)
+	else:
+		outward = _wall_box(nav, room.global_position, half, exit_local)
+	for s: Array in entry.get("solids", []):  # stove, stairs, trunk: authored x0, x1, y0, y1
+		var mid := Vector3((s[0] + s[1]) * 0.5, 1.1, -(s[2] + s[3]) * 0.5)
+		_axis_box(nav, Vector3(s[1] - s[0], 2.2, s[3] - s[2]), room.global_position * Vector3(1, 0, 1) + mid, 2)
 	var exit_world := room.global_transform * exit_local
 	_set_door(home.get_node("InsideDoor") as Area3D, exit_world + outward * 0.45, outward, 1.9)
 	var spawn_world := room.global_position + Vector3(-1.32, 0.0, -0.48)
@@ -471,6 +477,19 @@ static func _wall_ring(nav: Node3D, center: Vector3, radius: float, door_dir: Ve
 		body.add_child(col)
 	nav.add_child(body)
 	body.global_position = center
+
+
+## Rectangular room walls (half: x and depth) with a gap at the door on the nearest wall.
+## Returns that wall's outward direction.
+static func _wall_box(nav: Node3D, center: Vector3, half: Vector2, door: Vector3) -> Vector3:
+	var at := Vector3(center.x, 0.0, center.z)
+	var on_x := absf(door.x) / half.x > absf(door.z) / half.y
+	var outward := Vector3(signf(door.x), 0.0, 0.0) if on_x else Vector3(0.0, 0.0, signf(door.z))
+	var gap := 0.55
+	for side: float in [-1.0, 1.0]:
+		_wall_along_x(nav, at, side * (half.y + 0.21), -half.x - 0.42, half.x + 0.42, door.x, gap if outward.z == side else 0.0)
+		_wall_along_z(nav, at, side * (half.x + 0.21), -half.y - 0.42, half.y + 0.42, door.z, gap if outward.x == side else 0.0)
+	return outward
 
 
 static func _tunnel(nav: Node3D, origin: Vector3, door_local: Vector3, outward: Vector3) -> void:

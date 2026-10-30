@@ -1,8 +1,8 @@
 class_name HomeUpgradeCard
 extends UIModal
-## "Upgrade your house" card, opened from the Home HUD inside your own house: the dome now and
+## "Upgrade your house" card, opened from the Home HUD inside your own house: the house now and
 ## the next tier side by side, the space each gives, the price and your coins. Buying swaps the
-## house (HomeUpgrades), then a short build moment reloads the room around the bigger dome.
+## house (HomeUpgrades), then a short build moment reloads the room around the bigger one.
 
 const A := preload("res://ui/activities/act_style.gd")
 
@@ -19,7 +19,7 @@ static func make(on_bought: Callable = Callable()) -> HomeUpgradeCard:
 func _build() -> void:
 	var now := HomeUpgrades.tier()
 	var next := HomeUpgrades.next_tier()
-	setup("Upgrade your house", "Same cozy dome, more room to decorate.", 860, true, false)
+	setup("Upgrade your house", "Same cozy home, more room to decorate.", 860, true, false)
 	if next.is_empty():
 		body.add_child(A.label("Your house is as big as it gets, for now.", 22, A.SUB, false, HORIZONTAL_ALIGNMENT_CENTER))
 		return
@@ -30,8 +30,10 @@ func _build() -> void:
 	row.add_child(_tile(now, have, false))
 	row.add_child(A.icon("arrow_right", 44, A.TEAL))
 	row.add_child(_tile(int(next["tier"]), more, true))
-	var gain := A.label("+%d floor spaces   +%d wall spots" % [more["floor"] - have["floor"], more["wall"] - have["wall"]],
-			26, A.TEAL_DARK, true, HORIZONTAL_ALIGNMENT_CENTER)
+	var gain_text := "+%d floor spaces" % (more["floor"] - have["floor"])
+	if more["wall"] > have["wall"]:
+		gain_text += "   +%d wall spots" % (more["wall"] - have["wall"])
+	var gain := A.label(gain_text, 26, A.TEAL_DARK, true, HORIZONTAL_ALIGNMENT_CENTER)
 	body.add_child(gain)
 	body.add_child(A.label("Your furniture moves over with you.", 18, A.SUB, false, HORIZONTAL_ALIGNMENT_CENTER))
 	var price := int(next["price"])
@@ -77,9 +79,9 @@ func _buy(gained: int) -> void:
 	HomeUpgradeCard.build_moment(tree, gained)
 
 
-## The house grows: the screen whites out while the room reloads around the new dome, then
-## the bird cheers, a toast counts the new space and the decorating grid shows it for a moment.
-static func build_moment(tree: SceneTree, gained: int) -> void:
+## The house grows or changes: the screen whites out while the room reloads around it, then the
+## bird cheers, a toast says so and (when it grew) the decorating grid shows the new space.
+static func build_moment(tree: SceneTree, gained: int, text := "Building your home…") -> void:
 	var layer := CanvasLayer.new()
 	layer.layer = 120
 	tree.root.add_child(layer)
@@ -88,7 +90,7 @@ static func build_moment(tree: SceneTree, gained: int) -> void:
 	white.mouse_filter = Control.MOUSE_FILTER_STOP
 	white.set_anchors_preset(Control.PRESET_FULL_RECT)
 	layer.add_child(white)
-	var note := A.label("Raising the dome…", 34, A.NAVY, true, HORIZONTAL_ALIGNMENT_CENTER)
+	var note := A.label(text, 34, A.NAVY, true, HORIZONTAL_ALIGNMENT_CENTER)
 	note.set_anchors_preset(Control.PRESET_CENTER)
 	note.modulate.a = 0.0
 	layer.add_child(note)
@@ -108,6 +110,9 @@ static func build_moment(tree: SceneTree, gained: int) -> void:
 	var player := tree.get_first_node_in_group("local_player")
 	if player and player.has_method("play_emote"):
 		player.call("play_emote", "emote_cheer")
+	if gained <= 0:
+		UIWidgets.toast(tree.root, "Welcome to your new home!", "home", 3.5)
+		return
 	UIWidgets.toast(tree.root, "Your home grew! %d new spaces to decorate." % gained, "star", 3.5)
 	var editors := tree.root.find_children("HouseLayout", "", true, false)
 	if not editors.is_empty():

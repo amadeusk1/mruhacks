@@ -446,7 +446,7 @@ func _set_edit(show: bool) -> void:
 	_layout()
 
 
-## The interior sits far from the yard, so a few metres of the snow-dome shell means "inside".
+## The interior sits far from the yard, so a few metres of the house shell means "inside".
 func _in_own_interior(player: Node3D) -> bool:
 	if _location_id() != "home":
 		return false
@@ -456,7 +456,7 @@ func _in_own_interior(player: Node3D) -> bool:
 	var room := _room()
 	if room == null:
 		return false
-	for n in room.find_children("snow_dome*_interior*", "Node3D", true, false):  # any house tier
+	for n in room.find_children(HomeUpgrades.house() + "*_interior*", "Node3D", true, false):  # any tier
 		if _flat((n as Node3D).global_position - player.global_position) < 5.0:
 			return true
 	return false

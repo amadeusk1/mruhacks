@@ -39,7 +39,7 @@ func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	theme = UIKit.THEME
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	home_kind = str(HomeUpgrades.info(HomeUpgrades.tier())["name"])
+	home_kind = str(HomeUpgrades.info()["name"])
 	_build_catalog()
 	_build_hud()
 	_build_decorate()
@@ -140,11 +140,17 @@ func _build_hud() -> void:
 	var edit := A.button("Edit Home", "primary", "brush", 26, Vector2(270, 84))
 	edit.pressed.connect(func() -> void: _show("decorate"))
 	A.pin(_hud, edit, Vector4(0, 0, 0, 0), Vector4(30, 392, 300, 476))
+	var left := 30.0  # the buttons below stay clear of the dock
 	if not HomeUpgrades.next_tier().is_empty():  # this HUD only opens in your own house
-		var up := A.button("Upgrade", "secondary", "star", 22, Vector2(230, 62))
+		var up := A.button("Upgrade", "secondary", "star", 22, Vector2(190, 62))
 		up.tooltip_text = "Make your house bigger"
 		up.pressed.connect(func() -> void: UIRouter.push(HomeUpgradeCard.make(_close)))
-		A.pin(_hud, up, Vector4(0, 0, 0, 0), Vector4(30, 490, 260, 552))  # clear of the dock below
+		A.pin(_hud, up, Vector4(0, 0, 0, 0), Vector4(left, 490, left + 190, 552))
+		left += 204.0
+	var move := A.button("Change House", "secondary", "home", 22, Vector2(230, 62))
+	move.tooltip_text = "Move into another house"
+	move.pressed.connect(func() -> void: ActivityScreens.open("home_choose"))
+	A.pin(_hud, move, Vector4(0, 0, 0, 0), Vector4(left, 490, left + 230, 552))
 	var x := A.close_disc(60)
 	x.pressed.connect(_close)
 	A.pin(_hud, x, Vector4(1, 0, 1, 0), Vector4(-88, 22, -28, 82))

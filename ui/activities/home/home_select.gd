@@ -1,6 +1,7 @@
 extends Control
 ## Choose Home and Home Visitors (Images/UI - Houses Visitors and Player Actions.png).
-## mode "choose" lists the six shells (Models/homes *_exterior thumbnails); "visitors" edits access.
+## mode "choose" lists the six house types, each shown at the tier you own; moving in rebuilds the
+## room around the new house (HomeUpgrades keeps your upgrades); "visitors" edits access.
 ## Visitor access and decorate permission are saved locally; "Who can decorate?" is locked to
 ## Only me (owner-only edits are the proposed first policy; no server enforces sharing yet).
 
@@ -29,8 +30,8 @@ func _ready() -> void:
 	theme = UIKit.THEME
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	var cfg := ConfigFile.new()
+	_sel = HomeUpgrades.house()
 	if cfg.load(PATH) == OK:
-		_sel = cfg.get_value("home", "shell", _sel)
 		_visit = cfg.get_value("home", "visitors", _visit)
 	_build()
 
@@ -83,7 +84,7 @@ func _build_choose() -> void:
 		tile.size_flags_vertical = Control.SIZE_EXPAND_FILL
 		tile.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		v.add_child(tile)
-		tile.add_child(ModelThumb.new("homes/%s_exterior" % h[0]))
+		tile.add_child(ModelThumb.new(HomeUpgrades.exterior_id(0, h[0])))
 		v.add_child(A.label(h[1], 19, A.NAVY, true, HORIZONTAL_ALIGNMENT_CENTER))
 	var right := A.vbox(12)
 	right.custom_minimum_size.x = 400
@@ -92,9 +93,9 @@ func _build_choose() -> void:
 	big.add_theme_stylebox_override("panel", A.box(Color("#D8EAF1"), 18))
 	big.custom_minimum_size = Vector2(400, 300)
 	right.add_child(big)
-	big.add_child(ModelThumb.new("homes/%s_exterior" % _sel))
+	big.add_child(ModelThumb.new(HomeUpgrades.exterior_id(0, _sel)))
 	var info := _info(_sel)
-	right.add_child(A.title(info[1], 30, HORIZONTAL_ALIGNMENT_CENTER))
+	right.add_child(A.title(str(HomeUpgrades.info(0, _sel)["name"]), 30, HORIZONTAL_ALIGNMENT_CENTER))
 	var d := A.label(info[2], 18, A.SUB, false, HORIZONTAL_ALIGNMENT_CENTER)
 	d.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	right.add_child(d)
@@ -166,16 +167,20 @@ func _build_visitors() -> void:
 func _save() -> void:
 	var cfg := ConfigFile.new()
 	cfg.load(PATH)
-	cfg.set_value("home", "shell", _sel)
 	cfg.set_value("home", "visitors", _visit)
 	cfg.save(PATH)
 	Net.set_visitors(_visit)
 
 
 func _use() -> void:
+	var tree := get_tree()
+	var moving := _sel != HomeUpgrades.house()
 	_save()
-	chosen.emit("homes/%s_interior" % _sel)
+	HomeUpgrades.set_house(_sel)
+	chosen.emit(HomeUpgrades.interior_id())
 	close()
+	if moving:
+		HomeUpgradeCard.build_moment(tree, 0, "Moving house…")
 
 
 func close() -> void:

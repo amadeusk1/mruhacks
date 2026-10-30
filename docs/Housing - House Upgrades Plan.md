@@ -169,4 +169,23 @@ Grids are centred on the room, so a cell's position relative to the room centre 
   - The in-game upgrade flow, and the town island swap.
   - Visits were not tested with two clients.
 
+**All six houses now upgrade, and the house choice works.**
+
+| House | Tier 2 | Floor spaces | Wall spots | Price |
+|---|---|---:|---:|---:|
+| Snow Dome | Big Dome | 48 → 83 | 5 → 7 | 120 |
+| A-frame | Long A-frame | 50 → 82 | 5 → 7 | 110 |
+| Cottage | Big Cottage | 40 → 76 | 4 → 5 | 120 |
+| Treehouse | Big Treehouse | 25 → 43 | 2 → 2 | 80 |
+| Lighthouse | Keeper's Lighthouse | 44 → 81 | 2 → 4 | 120 |
+| Houseboat | Big Houseboat | 31 → 50 | 3 → 5 | 80 |
+
+- **Blender:** each house function takes a tier, with its own `*_TIERS` table; `variant()` overrides the shared dimension tables while tier 2 builds. Lineup render: `Renders/Details/homes_house_tiers.png`.
+- **A-frame interior:** the roof slopes are gone (they covered the room from the game camera) and the Long A-frame's loft stays at the back. This is the one tier 1 GLB that changed.
+- **Fixtures:** interiors list `solids` (stove, stairs, trunk) that `AssetPack` turns into colliders. Square rooms get `_wall_box`.
+- **Choosing a house:** Change House in the Home HUD opens Choose Home, and moving is free. `home_choice.cfg` keeps `[home] shell` and each type's tier in `[tiers]`; an old `[home] tier` still counts for the dome.
+- **Furniture:** every shell keeps its own layout. A shell with no layout starts from the tier below, otherwise from the house you left (`HomeUpgrades.move_source`).
+- **Town:** Home2 shows your house and tier, with its way in on `Home2Door` (the treehouse uses its stair foot). The houseboat sits on the snow plot.
+- **Tested** in Godot 4.7.2: every house and tier in the real game (room, walls, door, floor, Edit Home, town island), the Choose Home and Upgrade card paths, and an existing tier 2 dome save. Visits with two clients are still untested.
+
 **Not built yet:** Twin Dome (tier 3), the `home_changed` broadcast for friends already inside during an upgrade, and the "moved to storage" list (items with no room are only logged).

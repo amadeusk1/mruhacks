@@ -18,7 +18,7 @@ hinge parts (part_door_leaf). Chimneys carry socket_fx_smoke above the cap.
 Interior meta: cells, cell_origin, cell_m, floor_z, blocked_cells, wall_slots, ceiling_anchors;
 the A-frame also has cells_loft / blocked_cells_loft / loft_z and a penguin headroom check.
 """
-from contextlib import nullcontext
+from contextlib import contextmanager, nullcontext
 from common import *
 from kits.buildings import (T, WALL_T, ROOF_T, DOOR_T, TRIM_T, masonry_wall, tiled_gable, entry_steps, attach)
 from kits.winter import snowy_fir, snowy_rock, snow_lumps, snow_post, SNOW
@@ -38,6 +38,28 @@ HULL_T = tint("hull", "wood_b")
 PLASTER = (WALL_T, "plaster_shade", WALL_T)
 WOODS = ("wood", "wood_c", "wood_b")
 DOOR_OPEN = 100                   # hinge swing (deg) toward local +Y: into the building / out of the room
+
+
+# House upgrade tiers (docs/Housing - House Upgrades Plan.md): tier 1 is the plain family name,
+# tier N adds _tN. A bigger tier is the same house rebuilt with larger numbers, so the shared
+# dimension tables (AF, RC, TH_, LH, HB) are overridden while it builds.
+def tier_name(base, tier):
+    return base if tier == 1 else f"{base}_t{tier}"
+
+
+def tier_extra(base, tier, part):
+    return {"tier": tier, "upgrade_of": f"{tier_name(base, tier - 1)}_{part}"} if tier > 1 else {}
+
+
+@contextmanager
+def variant(table, **over):
+    saved = dict(table)
+    table.update(over)
+    try:
+        yield
+    finally:
+        table.clear()
+        table.update(saved)
 
 
 # =============================================================================== shared dressing
@@ -611,20 +633,20 @@ def treehouse_deck(b, W, D, DZ, trunk=(-0.8, 0.5), stair_gap=0.95):
     snow_lumps(b, 0, y0 + 0.3, DZ, W - 0.8, 0.3, 4, r=(0.07, 0.12))
 
 
-def _hull_stations():
-    return [  # x, half-beam, sheer z, bottom z (relative to the hull frame)
+def _hull_stations(sx=1.0):
+    return [(x * sx, hw, sh, bt) for x, hw, sh, bt in (  # x, half-beam, sheer z, bottom z (relative to the hull frame)
         (-2.7, 1.18, 0.24, -0.72), (-2.1, 1.3, 0.2, -0.8), (-1.0, 1.32, 0.18, -0.84), (0.0, 1.32, 0.18, -0.84),
-        (1.0, 1.28, 0.2, -0.82), (1.85, 1.08, 0.28, -0.72), (2.45, 0.66, 0.4, -0.52), (2.85, 0.08, 0.55, -0.16)]
+        (1.0, 1.28, 0.2, -0.82), (1.85, 1.08, 0.28, -0.72), (2.45, 0.66, 0.4, -0.52), (2.85, 0.08, 0.55, -0.16))]
 
 
 HULL_Z = WATER_Z + 0.62           # hull frame height (waterline ~0.62 below it)
 BOAT_DECK = HULL_Z + 0.12         # boat deck top
 
 
-def houseboat_hull(b):
+def houseboat_hull(b, sx=1.0):
     """Lofted hull (stern -X, bow +X) with gunwale cap and rub rail. Pivot = boat centre, z in
-    world terms (water at WATER_Z)."""
-    st = _hull_stations()
+    world terms (water at WATER_Z). sx stretches the hull along its length."""
+    st = _hull_stations(sx)
     sec = lambda hw, sh, bt: [(-hw, sh), (-hw * 0.97, (sh + bt) / 2 + 0.06), (-hw * 0.72, bt + 0.08), (0, bt),
                               (hw * 0.72, bt + 0.08), (hw * 0.97, (sh + bt) / 2 + 0.06), (hw, sh)]
     with b.at((0, 0, HULL_Z)):
@@ -646,20 +668,21 @@ def houseboat_hull(b):
                 beam(b, (x0, side * (hw0 + 0.02), sh0 - 0.32), (x1, side * (hw1 + 0.02), sh1 - 0.3), 0.08, 0.1, "wood_dark", 0.01)
         for k in range(8):                                     # life ring on the port side
             a0, a1 = 2 * math.pi * k / 8, 2 * math.pi * (k + 1) / 8
-            seg = [(1.25 + 0.2 * math.cos(a0 + (a1 - a0) * q / 2), -1.36, 0.0 + 0.2 * math.sin(a0 + (a1 - a0) * q / 2)) for q in range(3)]
+            seg = [(1.25 * sx + 0.2 * math.cos(a0 + (a1 - a0) * q / 2), -1.36, 0.0 + 0.2 * math.sin(a0 + (a1 - a0) * q / 2)) for q in range(3)]
             for p0, p1 in zip(seg, seg[1:]):
                 beam(b, p0, p1, 0.08, 0.08, tint("ring", "coral") if k % 2 else "white", 0.01)
 
 
-def houseboat_deck(b, gap_x=-0.45):
+def houseboat_deck(b, gap_x=-0.45, sx=1.0):
     """Deck planks clipped to the hull plan, rope rail on snow-capped posts (gap at gap_x for the
     gangway) and the stern flag pole. Pivot = boat centre."""
     z = BOAT_DECK
     for i in range(11):
         y = -1.15 + 0.23 * (i + 0.5)
-        x1 = 2.0 - 1.4 * (abs(y) / 1.2) ** 2
-        b.box(x1 + 2.6, 0.22, 0.06, (x1 - 2.6) / 2, y, z - 0.06, pick(WOODS, i), bevel=0.01)
-    pts = [(-2.45, -1.05), (-1.2, -1.2), (1.0, -1.18), (1.9, -0.95), (2.45, -0.5)]
+        x1 = (2.0 - 1.4 * (abs(y) / 1.2) ** 2) * sx
+        x0 = 2.6 * sx
+        b.box(x1 + x0, 0.22, 0.06, (x1 - x0) / 2, y, z - 0.06, pick(WOODS, i), bevel=0.01)
+    pts = [(x * sx, y) for x, y in ((-2.45, -1.05), (-1.2, -1.2), (1.0, -1.18), (1.9, -0.95), (2.45, -0.5))]
     for x, y in pts:
         snow_post(b, x, y, z, h=0.62, w=0.1)
         snow_post(b, x, -y, z, h=0.62, w=0.1)
@@ -667,9 +690,10 @@ def houseboat_deck(b, gap_x=-0.45):
         if not (x0 < gap_x < x1):
             rope_between(b, (x0, y0, z + 0.5), (x1, y1, z + 0.5), sag=0.08, r=0.022)
         rope_between(b, (x0, -y0, z + 0.5), (x1, -y1, z + 0.5), sag=0.08, r=0.022)
-    b.cyl(0.04, 1.6, -2.55, 0.0, z, "wood_b", segs=6)
-    with b.part("flag", pivot=(-2.55, 0, z + 1.58), motion="flutter", amp_deg=12):
-        b.prism([(0, 0), (0.55, -0.12), (0, -0.32)], 0.02, x=-2.55, y=0, z=z + 1.58, mat=tint("flag", "cream"))
+    fx = -2.55 * sx
+    b.cyl(0.04, 1.6, fx, 0.0, z, "wood_b", segs=6)
+    with b.part("flag", pivot=(fx, 0, z + 1.58), motion="flutter", amp_deg=12):
+        b.prism([(0, 0), (0.55, -0.12), (0, -0.32)], 0.02, x=fx, y=0, z=z + 1.58, mat=tint("flag", "cream"))
 
 
 # =============================================================================== roof sections
@@ -734,7 +758,7 @@ def aframe_roof(roof):
         with roof.at((0, 0.4, 0)):
             tiled_gable(roof, 1.0, 1.5, 0.5, z=1.2, overhang=0.16, tile=0.3, tile_thick=0.07, gable=WALL_T, timber=False)
             ridge_snow_on(roof, 1.0, 1.8, 0.5, 1.2, tile_thick=0.07, w=0.24)
-    chimney_stone(roof, -1.15, 1.0, ZE + 0.6, ZE + RISE * 0.9)
+    chimney_stone(roof, -1.15, 1.0 + (LEN - 4.4) / 2, ZE + 0.6, ZE + RISE * 0.9)
 
 
 RC = dict(R=2.2, H=1.9, SLAB=0.22, RISE=1.55)
@@ -743,8 +767,9 @@ RC = dict(R=2.2, H=1.9, SLAB=0.22, RISE=1.55)
 def round_cottage_roof(roof):
     R, H, SLAB, RISE = RC["R"], RC["H"], RC["SLAB"], RC["RISE"]
     cone_roof(roof, R, RISE, SLAB + H, overhang=0.4, seed=7)
-    roof.box(0.5, 0.5, 1.2, 0.85, 0.7, SLAB + H + 0.3, "chimney", bevel=0.03)
-    chimney_stone(roof, 0.85, 0.7, SLAB + H + 0.6, SLAB + H + RISE + 0.35)
+    g = R / 2.2
+    roof.box(0.5, 0.5, 1.2, 0.85 * g, 0.7 * g, SLAB + H + 0.3, "chimney", bevel=0.03)
+    chimney_stone(roof, 0.85 * g, 0.7 * g, SLAB + H + 0.6, SLAB + H + RISE + 0.35)
 
 
 TH_ = dict(DZ=1.9, TX=-1.25, TY=0.65, CW=2.5, CD=2.0, CH=WALL_H, CX=0.45, CY=0.25)
@@ -895,6 +920,11 @@ class Room:
         self.origin = (-hx, -hy) if corner else (-self.nx * CELL, -self.ny * CELL)
         self.blockers = []
         self.slots, self.anchors = {}, {}
+        self.solids = []
+
+    def solid(self, x0, x1, y0, y1):
+        """A fixture the player can't walk through (stove, stairs, trunk); the game adds a collider."""
+        self.solids.append([round(v, 3) for v in (x0, x1, y0, y1)])
 
     def block_circle(self, x, y, r):
         self.blockers.append(lambda cx, cy: math.hypot(cx - x, cy - y) < r)
@@ -934,6 +964,8 @@ class Room:
         m = {"cells": cells, "cell_origin": [round(v, 3) for v in self.origin], "cell_m": CELL,
              "floor_z": self.floor_z, "blocked_cells": blocked, "wall_slots": self.slots,
              "ceiling_anchors": self.anchors}
+        if self.solids:
+            m["solids"] = self.solids
         m.update(extra)
         return m
 
@@ -1095,8 +1127,8 @@ def snow_dome(tier=1):
 
 # =============================================================================== A-frame cabin
 AF_DOOR_H = 1.5                                 # interior back door sits under the loft
-LOFT_Z, LOFT_Y0 = 1.85, 0.5                      # loft floor height above the room floor, loft front edge
-STAIR_X0, STAIR_X1, STAIR_Y0 = 0.25, 0.8, -0.95  # loft stair footprint (rises toward +Y to LOFT_Y0)
+LOFT_Z = 1.85                                    # loft floor height above the room floor
+STAIR_X0, STAIR_X1 = 0.25, 0.8                   # loft stair footprint (rises toward +Y to the loft edge)
 
 
 def aframe_headroom(roof_z, cells_loft, room):
@@ -1115,13 +1147,26 @@ def aframe_headroom(roof_z, cells_loft, room):
     return check
 
 
-def aframe_cabin():
+# LEN is the cabin length (AF override), HD the interior half depth; a longer cabin keeps its span.
+AF_TIERS = {
+    1: dict(LEN=4.4, HD=2.0, base=(3.7, 3.6), rocks=6, firs=((-2.7, 1.6, 2.6), (2.75, 1.2, 2.3)),
+            left_slots=(-1.2, -0.2, 0.8),
+            anchors=((0.0, -0.6), (-0.6, -1.3), (0.5, -1.4))),
+    2: dict(LEN=6.4, HD=3.0, base=(3.8, 4.6), rocks=8, firs=((-2.8, 2.6, 2.6), (2.85, 2.2, 2.3), (-2.9, -0.6, 1.8)),
+            left_slots=(-2.2, -1.2, -0.2, 0.8, 1.8),
+            anchors=((0.0, -0.6), (-0.6, -1.3), (0.5, -1.4), (0.0, -2.3), (-0.6, -2.5))),
+}
+
+
+def aframe_cabin(tier=1):
+    t = AF_TIERS[tier]
+    name = tier_name("aframe_cabin", tier)
     SPAN, LEN, KNEE, RISE, SLAB = AF["SPAN"], AF["LEN"], AF["KNEE"], AF["RISE"], AF["SLAB"]
     ZE = SLAB + KNEE
     half = SPAN / 2
-    b = Builder("aframe_cabin_exterior", seed=621)
-    roof = Builder("aframe_cabin_exterior_roof", seed=622)
-    snow_base(b, 3.7, 3.6, seed=62, rocks=6, back_firs=((-2.7, 1.6, 2.6), (2.75, 1.2, 2.3)))
+    b = Builder(f"{name}_exterior", seed=621)
+    roof = Builder(f"{name}_exterior_roof", seed=622)
+    snow_base(b, *t["base"], seed=62, rocks=t["rocks"], back_firs=t["firs"])
     b.box(SPAN + 0.3, LEN + 0.3, SLAB, 0, 0, 0, "stone_dark", bevel=0.035)
     for sx in (-1, 1):
         with b.at((sx * (half - T / 2), 0, SLAB), rotz=90 * sx):
@@ -1150,23 +1195,24 @@ def aframe_cabin():
                   segs=7, rot=(90, 0, 0), center=True)
             b.cyl(0.06, 0.63, 1.6 + j * 0.19 + i * 0.095, yF - 0.35, 0.09 + i * 0.16, "tan", segs=7, rot=(90, 0, 0), center=True)
     wall_lantern(b, dx + 0.75, yF - 0.05, SLAB + 1.55)
+    if tier >= 2:  # a longer cabin: a side window down each long wall and a second lantern
+        for sx in (-1, 1):
+            with b.at((sx * half, 0.6, 0), rotz=-90 * sx):
+                arched_window(b, 0, 0.0, SLAB + 0.2, w=0.46, h=0.56)
+        wall_lantern(b, dx - 0.75, yF - 0.05, SLAB + 1.55)
     aframe_roof(roof)
     b.socket("door", (dx, yF - 1.3, 0), rotz=180)
-    finish_house(b, roof, {"interior": "aframe_cabin_interior", "roof_child": "aframe_cabin_exterior_roof",
-                           "footprint_m": [SPAN, LEN], "floor_z": SLAB})
+    finish_house(b, roof, {"interior": f"{name}_interior", "roof_child": f"{name}_exterior_roof",
+                           "footprint_m": [SPAN, LEN], "floor_z": SLAB, **tier_extra("aframe_cabin", tier, "exterior")})
 
-    # interior: A-frame room with loft, stair and wood stove (cozy loft)
-    HW, HD = 2.0, 2.0
+    # interior: A-frame room with loft, stair and wood stove (cozy loft); no roof slopes, they would
+    # cover the room from the game camera
+    HW, HD = 2.0, t["HD"]
+    LOFT_Y0, STAIR_Y0 = 0.5 + HD - 2.0, -0.95 + HD - 2.0   # the loft stays at the back, so the camera sees under it
     K, SL = 0.9, RISE / half
     roof_z = lambda x: FLOOR + K + (HW - abs(x)) * SL
-    b = Builder("aframe_cabin_interior", seed=631)
+    b = Builder(f"{name}_interior", seed=631)
     rect_floor(b, 2 * HW, 2 * HD)
-    A = math.atan(SL)
-    Ls = (HW + 0.1) / math.cos(A) * 0.98
-    mid = Vector((-(HW + 0.1) / 2, 0, FLOOR + K + (HW + 0.1) / 2 * SL))
-    b.box(Ls, 2 * HD + 0.2, 0.08, mid.x - 0.06, 0, mid.z + 0.05, "wood_c", bevel=0.01, rot=(0, -math.degrees(A), 0), center=True)
-    for y in (-1.6, -0.55, 0.5, 1.55):
-        b.box(Ls, 0.1, 0.12, mid.x + 0.02, y, mid.z - 0.03, "wood_dark", bevel=0.012, rot=(0, -math.degrees(A), 0), center=True)
     with b.at((-HW - T / 2, 0, 0), rotz=-90):
         masonry_wall(b, 2 * HD, K + FLOOR, base=False, mat=WALL_T)
     yB = HD + T / 2
@@ -1197,7 +1243,7 @@ def aframe_cabin():
         b.box(STAIR_X1 - STAIR_X0, run / steps + 0.02, 0.06, (STAIR_X0 + STAIR_X1) / 2, yy, zz, pick(("wood", "wood_c"), i), bevel=0.01)
     for x in (STAIR_X0 - 0.03, STAIR_X1 + 0.03):
         beam(b, (x, STAIR_Y0, FLOOR), (x, LOFT_Y0, FLOOR + LOFT_Z), 0.05, 0.16, "wood_b", 0.012)
-    sx, sy = -1.35, -1.0                                                # wood stove (front-left)
+    sx, sy = -1.35, -HD + 1.0                                           # wood stove (front-left)
     b.box(0.95, 0.95, 0.08, sx, sy, FLOOR, "stone", bevel=0.02)
     b.box(0.55, 0.5, 0.5, sx, sy, FLOOR + 0.12, "iron", bevel=0.03)
     b.box(0.32, 0.03, 0.22, sx, sy - 0.25, FLOOR + 0.22, "glow", bevel=0)
@@ -1210,54 +1256,74 @@ def aframe_cabin():
     room = Room(b, lambda x, y: abs(x) <= HW + 1e-6 and abs(y) <= HD + 1e-6, HW, HD)
     room.block_rect(STAIR_X0 - 0.1, STAIR_X1 + 0.1, STAIR_Y0 - 0.15, LOFT_Y0)
     room.block_rect(sx - 0.55, sx + 0.55, sy - 0.55, sy + 0.55)
-    room.block_rect(-1.6, -0.4, 1.0, HD)
+    room.block_rect(-1.6, -0.4, HD - 1.0, HD)
+    room.solid(STAIR_X0 - 0.05, STAIR_X1 + 0.05, STAIR_Y0, LOFT_Y0 + 0.1)
+    room.solid(sx - 0.45, sx + 0.45, sy - 0.45, sy + 0.45)
     cells_loft = room.cells(inside=lambda x, y: abs(x) <= 1.0 + 1e-6 and LOFT_Y0 - 1e-6 <= y <= HD + 1e-6)
     blocked_loft = [c for c in cells_loft
                     if STAIR_X0 - 0.3 <= room.centre(c)[0] <= STAIR_X1 + 0.3 and room.centre(c)[1] < LOFT_Y0 + CELL]
     check = aframe_headroom(roof_z, cells_loft, room)
     room.wall_slot((0.3, HD, 1.3), (0, -1))
     room.wall_slot((1.2, HD, 1.3), (0, -1))
-    for y in (-1.2, -0.2, 0.8):
+    for y in t["left_slots"]:
         room.wall_slot((-HW, y, FLOOR + 0.6), (1, 0))
-    for x, y in ((0.0, -0.6), (-0.6, -1.3), (0.5, -1.4)):
+    for x, y in t["anchors"]:
         room.anchor((x, y, roof_z(x) - 0.25))
     b.socket("spawn_inside", (-1.0, HD - 0.75, FLOOR), rotz=180)
     b.socket("exit", (-1.0, HD - 0.25, FLOOR))
     b.socket("stair_top", ((STAIR_X0 + STAIR_X1) / 2, LOFT_Y0 + 0.3, FLOOR + LOFT_Z))
-    b.finish(KIT, "room", room.meta(shape="aframe", exterior="aframe_cabin_exterior", cells_loft=cells_loft,
+    b.finish(KIT, "room", room.meta(shape="aframe", exterior=f"{name}_exterior", cells_loft=cells_loft,
                                     blocked_cells_loft=blocked_loft, loft_z=round(FLOOR + LOFT_Z, 3), headroom=check,
-                                    headroom_note="roof height at x = floor_z + 0.9 + (2.0 - |x|) * 1.909"))
+                                    headroom_note="roof height at x = floor_z + 0.9 + (2.0 - |x|) * 1.909",
+                                    **tier_extra("aframe_cabin", tier, "interior")))
 
 
 # =============================================================================== round cottage
-def round_cottage():
+# n: wall segments outside / in the room (about 1 m each); lanterns hug the door at any size.
+RC_TIERS = {
+    1: dict(R=2.2, Ri=2.2, n=14, ni=16, base=(3.4, 3.2), rocks=5, firs=((2.6, 1.4, 2.0),), lanterns=(243, 297),
+            windows=(215, 330, 30, 150), room_windows=(90, 140, 60), anchors=((0, 0), (-0.8, 0.7), (0.7, 0.6))),
+    2: dict(R=2.9, Ri=2.9, n=18, ni=20, base=(4.2, 3.95), rocks=7, firs=((3.3, 1.8, 2.0), (-3.3, 1.5, 1.7)),
+            lanterns=(249, 291), windows=(215, 330, 30, 150, 90), room_windows=(50, 85, 120, 145),
+            anchors=((0, 0), (-1.1, 0.9), (0.9, 0.9), (-1.3, -0.5), (0.2, 1.8))),
+}
+
+
+def round_cottage(tier=1):
+    t = RC_TIERS[tier]
+    name = tier_name("round_cottage", tier)
     R, H, SLAB = RC["R"], RC["H"], RC["SLAB"]
-    b = Builder("round_cottage_exterior", seed=641)
-    roof = Builder("round_cottage_exterior_roof", seed=642)
-    snow_base(b, 3.4, 3.2, seed=64, rocks=5, back_firs=((2.6, 1.4, 2.0),))
+    g = R / 2.2
+    b = Builder(f"{name}_exterior", seed=641)
+    roof = Builder(f"{name}_exterior_roof", seed=642)
+    snow_base(b, *t["base"], seed=64, rocks=t["rocks"], back_firs=t["firs"])
     b.cyl(R + 0.2, SLAB, 0, 0, 0, "stone_dark", segs=14, bevel=0.03)
-    ring_wall(b, R, H, 14, z0=SLAB, doors=(270,), windows=(215, 330, 30, 150), door_kw=dict(w=0.78, h=1.55, fw=0.11, depth=0.3))
+    ring_wall(b, R, H, t["n"], z0=SLAB, doors=(270,), windows=t["windows"], door_kw=dict(w=0.78, h=1.55, fw=0.11, depth=0.3))
     entry_steps(b, 0, -R - 0.12, w=1.1, steps=2, rise=SLAB / 2, tread=0.3, mats=("stone", "stone_dark"))
-    for a in (243, 297):
+    for a in t["lanterns"]:
         r = math.radians(a)
         with b.at((R * math.cos(r), R * math.sin(r), SLAB), rotz=a + 90):
             wall_lantern(b, 0, 0.02, 1.55)
-    rail_run(b, (-2.75, -1.2), (-2.4, -2.0), 0.0, posts=2)
-    rail_run(b, (-2.4, -2.0), (-1.55, -2.45), 0.0, posts=2)
-    planter_box(b, 0.8, 0.32, 0.28, x=1.6, y=-2.25, z=0.0, flowers=("leaf_b",))
-    snow_lumps(b, 1.6, -2.25, 0.3, 0.7, 0.25, 3, r=(0.06, 0.1))
-    barrel(b, 2.1, -1.65)
-    stepping_stones(b, 0, -R - 0.75, -3.0, n=2, seed=4)
+    rail_run(b, (-2.75 * g, -1.2 * g), (-2.4 * g, -2.0 * g), 0.0, posts=2)
+    rail_run(b, (-2.4 * g, -2.0 * g), (-1.55 * g, -2.45 * g), 0.0, posts=2)
+    planter_box(b, 0.8, 0.32, 0.28, x=1.6 * g, y=-2.25 * g, z=0.0, flowers=("leaf_b",))
+    snow_lumps(b, 1.6 * g, -2.25 * g, 0.3, 0.7, 0.25, 3, r=(0.06, 0.1))
+    barrel(b, 2.1 * g, -1.65 * g)
+    stepping_stones(b, 0, -R - 0.75, -R - 0.8, n=2, seed=4)
+    if tier >= 2:  # a bigger household: a second planter and a woodpile by the wall
+        planter_box(b, 0.8, 0.32, 0.28, x=-1.1 * g, y=-2.6 * g, z=0.0, flowers=("leaf_b",))
+        woodpile(b, 2.75, -2.15, rotz=-35)
     round_cottage_roof(roof)
     b.socket("door", (0, -R - 0.9, 0), rotz=180)
-    finish_house(b, roof, {"interior": "round_cottage_interior", "roof_child": "round_cottage_exterior_roof",
-                           "footprint_m": [2 * R, 2 * R], "floor_z": SLAB, "modules": ["mod_wall_curved_r2.2_n14_*"]})
+    finish_house(b, roof, {"interior": f"{name}_interior", "roof_child": f"{name}_exterior_roof",
+                           "footprint_m": [2 * R, 2 * R], "floor_z": SLAB, "modules": [f"mod_wall_curved_r{R:g}_n{t['n']}_*"],
+                           **tier_extra("round_cottage", tier, "exterior")})
 
-    Ri = 2.2
-    b = Builder("round_cottage_interior", seed=651)
+    Ri, ni = t["Ri"], t["ni"]
+    b = Builder(f"{name}_interior", seed=651)
     round_floor(b, Ri + T / 2)
-    segs = ring_wall(b, Ri + T, 2.1, 16, facing="in", doors=(195,), windows=(90, 140, 60), low=low_front, base=False,
-                     cap="wood_c", door_kw=dict(depth=T + 0.04), offset=195 % 22.5)
+    segs = ring_wall(b, Ri + T, 2.1, ni, facing="in", doors=(195,), windows=t["room_windows"], low=low_front, base=False,
+                     cap="wood_c", door_kw=dict(depth=T + 0.04), offset=195 % (360 / ni))
     for k in range(8):  # exposed ceiling beams on the full walls' top
         a = 45 + k * 22.5
         r = math.radians(a)
@@ -1268,12 +1334,13 @@ def round_cottage():
     dr = math.radians(195)
     room.block_circle((Ri - 0.5) * math.cos(dr), (Ri - 0.5) * math.sin(dr), 0.75)
     ring_slots(room, Ri, 1.35, segs)
-    for x, y in ((0, 0), (-0.8, 0.7), (0.7, 0.6)):
+    for x, y in t["anchors"]:
         room.anchor((x, y, 2.3))
     b.socket("spawn_inside", ((Ri - 0.9) * math.cos(dr), (Ri - 0.9) * math.sin(dr), FLOOR), rotz=-75)
     b.socket("exit", ((Ri - 0.25) * math.cos(dr), (Ri - 0.25) * math.sin(dr), FLOOR))
-    b.finish(KIT, "room", room.meta(shape="round", radius_m=Ri, exterior="round_cottage_exterior",
-                                    modules=["mod_wall_curved_r2.42_n16_*", "mod_floor_sector_r2.31_45"]))
+    b.finish(KIT, "room", room.meta(shape="round", radius_m=Ri, exterior=f"{name}_exterior",
+                                    modules=[f"mod_wall_curved_r{Ri + T:.2f}_n{ni}_*", f"mod_floor_sector_r{Ri + T / 2:.2f}_45"],
+                                    **tier_extra("round_cottage", tier, "interior")))
 
 
 # =============================================================================== treehouse
@@ -1308,11 +1375,30 @@ def cabin_walls(b, CW, CD, front, side_l, side_r, back, posts=0.14):
     return fr
 
 
-def treehouse():
+# The bigger cabin grows away from the trunk (toward +X) on a longer deck.
+TH_TIERS = {
+    1: dict(deck=DECK, base=(3.6, 3.3), rocks=6, foot=[7.2, 6.6], front=CABIN_FRONT, side=CABIN_SIDE,
+            back=[("plain", 1.0), ("plain", 1.0), ("plain", 0.5)], W=3.0, D=2.5,
+            room_back=[("plain", 1.0), ("plain", 0.5), ("window", 1.0), ("plain", 0.5)],
+            room_left=[("window", 1.0), ("door", 1.0), ("plain", 0.5)], beams=(-1.0, 0.0, 1.0),
+            anchors=((-0.5, -0.4), (0.5, 0.4), (0.9, -0.6))),
+    2: dict(deck=dict(X0=-2.05, X1=3.05, Y0=-1.6, Y1=1.9), base=(4.3, 3.6), rocks=8, foot=[8.6, 7.2],
+            front=CABIN_FRONT + [("window", 1.0)], side=[("plain", 0.5), ("window", 1.0), ("plain", 1.0)],
+            back=[("plain", 1.0), ("plain", 1.0), ("plain", 1.0), ("plain", 0.5)], W=4.0, D=3.0,
+            room_back=[("plain", 1.0), ("plain", 0.5), ("window", 1.0), ("plain", 0.5), ("window", 1.0)],
+            room_left=[("window", 1.0), ("door", 1.0), ("plain", 1.0)], beams=(-1.5, -0.5, 0.5, 1.5),
+            anchors=((-0.5, -0.4), (0.5, 0.4), (0.9, -0.6), (-1.0, 0.7), (1.4, 0.6))),
+}
+
+
+def treehouse(tier=1):
+    t = TH_TIERS[tier]
+    name = tier_name("treehouse", tier)
+    DECK = t["deck"]
     DZ, TX, TY, CW, CD, CX, CY = TH_["DZ"], TH_["TX"], TH_["TY"], TH_["CW"], TH_["CD"], TH_["CX"], TH_["CY"]
-    b = Builder("treehouse_exterior", seed=661)
-    roof = Builder("treehouse_exterior_roof", seed=662)
-    snow_base(b, 3.6, 3.3, seed=66, rocks=6)
+    b = Builder(f"{name}_exterior", seed=661)
+    roof = Builder(f"{name}_exterior_roof", seed=662)
+    snow_base(b, *t["base"], seed=66, rocks=t["rocks"])
     with b.at((TX, TY, 0)):
         treehouse_support(b)
     treehouse_canopy(roof)
@@ -1323,47 +1409,63 @@ def treehouse():
     with b.at((sx, DECK["Y0"] - 2.0, 0)):
         stair_flight(b, run=2.75, rise=DZ)
     with b.at((CX, CY, DZ)):
-        fr = cabin_walls(b, CW, CD, CABIN_FRONT, CABIN_SIDE, CABIN_SIDE, [("plain", 1.0), ("plain", 1.0), ("plain", 0.5)])
+        fr = cabin_walls(b, CW, CD, t["front"], t["side"], t["side"], t["back"])
         with b.at((0, -CD / 2 + T / 2, 0)):
             wall_lantern(b, -1.0, -T / 2, 1.5)
     door_x = CX + next(c for k, c, _ in fr if k == "door")
     treehouse_roof(roof)
     b.socket("door", (door_x, CY - CD / 2 - 0.6, DZ), rotz=180)
     b.socket("approach", (sx, DECK["Y0"] - 2.5, 0), rotz=180)
-    finish_house(b, roof, {"interior": "treehouse_interior", "roof_child": "treehouse_exterior_roof", "deck_z": DZ,
-                           "footprint_m": [7.2, 6.6], "modules": ["mod_treehouse_support", "mod_treehouse_deck",
-                                                                  "mod_stairs_2m", "mod_wall_straight_*"]})
+    finish_house(b, roof, {"interior": f"{name}_interior", "roof_child": f"{name}_exterior_roof", "deck_z": DZ,
+                           "footprint_m": t["foot"], "modules": ["mod_treehouse_support", "mod_treehouse_deck",
+                                                                  "mod_stairs_2m", "mod_wall_straight_*"],
+                           **tier_extra("treehouse", tier, "exterior")})
 
-    W, D = 3.0, 2.5
-    b = Builder("treehouse_interior", seed=671)
+    W, D = t["W"], t["D"]
+    b = Builder(f"{name}_interior", seed=671)
     rect_floor(b, W, D)
     with b.at((0, 0, FLOOR)):
-        laid = rect_room(b, W, D, back=[("plain", 1.0), ("plain", 0.5), ("window", 1.0), ("plain", 0.5)],
-                         left=[("window", 1.0), ("door", 1.0), ("plain", 0.5)])
-    for x in (-1.0, 0.0, 1.0):                         # ceiling beams and a branch through the corner
+        laid = rect_room(b, W, D, back=t["room_back"], left=t["room_left"])
+    for x in t["beams"]:                               # ceiling beams and a branch through the corner
         b.box(0.12, D + 0.3, 0.14, x, 0, FLOOR + WALL_H, "wood_dark", bevel=0.015)
     trunk = (-W / 2 + 0.25, D / 2 - 0.25)
     b.cyl(0.24, 2.3, trunk[0], trunk[1], 0, "bark", segs=8, r2=0.2, jitter=0.015)
     dy = door_y(laid)
     room = Room(b, lambda x, y: abs(x) <= W / 2 + 1e-6 and abs(y) <= D / 2 + 1e-6, W / 2, D / 2, corner=True)
     room.block_circle(*trunk, 0.45)
+    room.solid(trunk[0] - 0.25, trunk[0] + 0.25, trunk[1] - 0.25, trunk[1] + 0.25)
     room.block_rect(-W / 2, -W / 2 + 0.8, dy - 0.5, dy + 0.5)
     rect_slots(room, W, D, FLOOR + 1.3, laid, skip=lambda x, y: math.hypot(x - trunk[0], y - trunk[1]) < 0.55)
-    for x, y in ((-0.5, -0.4), (0.5, 0.4), (0.9, -0.6)):
+    for x, y in t["anchors"]:
         room.anchor((x, y, FLOOR + 1.93))
     b.socket("spawn_inside", (-W / 2 + 0.7, dy, FLOOR), rotz=-90)
     b.socket("exit", (-W / 2 + 0.2, dy, FLOOR))
-    b.finish(KIT, "room", room.meta(shape="rect", room_m=[W, D], exterior="treehouse_exterior",
-                                    modules=["mod_floor_tile_wood", "mod_wall_straight_*"]))
+    b.finish(KIT, "room", room.meta(shape="rect", room_m=[W, D], exterior=f"{name}_exterior",
+                                    modules=["mod_floor_tile_wood", "mod_wall_straight_*"],
+                                    **tier_extra("treehouse", tier, "interior")))
 
 
 # =============================================================================== lighthouse loft
-def lighthouse_loft():
+# The keeper's cottage beside the tower grows toward +X; the round room inside gets wider.
+LH_TIERS = {
+    1: dict(Ri=2.4, n=18, base=(3.7, 3.2), rocks=8, foot=[7.4, 6.4], firs=((-2.6, 1.6, 2.4),),
+            front=[("window_round", 1.0), ("door", 1.0), ("plain", 0.5)], back=[("plain", 1.0), ("plain", 1.0), ("plain", 0.5)],
+            windows=(70, 110, 140), anchors=((0, 0), (-0.9, 0.8), (0.6, -0.4))),
+    2: dict(Ri=3.0, n=22, base=(4.4, 3.4), rocks=10, foot=[8.8, 6.8], firs=((-3.1, 1.7, 2.4), (3.6, 1.6, 1.8)),
+            front=[("window_round", 1.0), ("door", 1.0), ("window", 1.0), ("plain", 0.5)],
+            back=[("plain", 1.0), ("plain", 1.0), ("plain", 1.0), ("plain", 0.5)], windows=(95, 120, 145),
+            anchors=((0, 0), (-1.2, 1.0), (0.8, -0.5), (-1.3, -0.6), (0.3, 1.6))),
+}
+
+
+def lighthouse_loft(tier=1):
+    t = LH_TIERS[tier]
+    name = tier_name("lighthouse_loft", tier)
     TX, TY, TOW, R0, R1 = LH["TX"], LH["TY"], LH["TOWER"], LH["R0"], LH["R1"]
     CW, CD, SLAB, CX, CY = LH["CW"], LH["CD"], LH["SLAB"], LH["CX"], LH["CY"]
-    b = Builder("lighthouse_loft_exterior", seed=681)
-    roof = Builder("lighthouse_loft_exterior_roof", seed=682)
-    snow_base(b, 3.7, 3.2, seed=68, rocks=8, back_firs=((-2.6, 1.6, 2.4),))
+    b = Builder(f"{name}_exterior", seed=681)
+    roof = Builder(f"{name}_exterior_roof", seed=682)
+    snow_base(b, *t["base"], seed=68, rocks=t["rocks"], back_firs=t["firs"])
     b.cyl(R0 + 0.12, 0.4, TX, TY, 0, "stone_dark", segs=14, r2=R0 + 0.06, bevel=0.03)
     bands = 6
     for i in range(bands):
@@ -1387,8 +1489,7 @@ def lighthouse_loft():
     lighthouse_lantern(roof)
     b.box(CW + 0.2, CD + 0.2, SLAB, CX, CY, 0, "stone_dark", bevel=0.03)        # side cottage
     with b.at((CX, CY, SLAB)):
-        fr = cabin_walls(b, CW, CD, [("window_round", 1.0), ("door", 1.0), ("plain", 0.5)], None, CABIN_SIDE,
-                         [("plain", 1.0), ("plain", 1.0), ("plain", 0.5)])
+        fr = cabin_walls(b, CW, CD, t["front"], None, CABIN_SIDE, t["back"])
         with b.at((0, -CD / 2 + T / 2, 0)):
             wall_lantern(b, 1.0, -T / 2, 1.5)
     door_x = CX + next(c for k, c, _ in fr if k == "door")
@@ -1400,13 +1501,14 @@ def lighthouse_loft():
     crate(b, CX + 1.35, CY - CD / 2 - 0.5, rotz=12)
     stepping_stones(b, door_x, CY - CD / 2 - 0.65, -2.9, n=2, seed=8)
     b.socket("door", (door_x, CY - CD / 2 - 0.85, 0), rotz=180)
-    finish_house(b, roof, {"interior": "lighthouse_loft_interior", "roof_child": "lighthouse_loft_exterior_roof",
-                           "footprint_m": [7.4, 6.4], "modules": ["mod_wall_straight_*", "mod_lighthouse_lantern"]})
+    finish_house(b, roof, {"interior": f"{name}_interior", "roof_child": f"{name}_exterior_roof",
+                           "footprint_m": t["foot"], "modules": ["mod_wall_straight_*", "mod_lighthouse_lantern"],
+                           **tier_extra("lighthouse_loft", tier, "exterior")})
 
-    Ri = 2.4
-    b = Builder("lighthouse_loft_interior", seed=691)
+    Ri = t["Ri"]
+    b = Builder(f"{name}_interior", seed=691)
     round_floor(b, Ri + T / 2)
-    segs = ring_wall(b, Ri + T, 2.3, 18, facing="in", doors=(180,), windows=(70, 110, 140), low=low_front, base=False,
+    segs = ring_wall(b, Ri + T, 2.3, t["n"], facing="in", doors=(180,), windows=t["windows"], low=low_front, base=False,
                      cap="wood_c", door_kw=dict(depth=T + 0.04), mat=(WALL_T, STRIPE_T, WALL_T), band=True)
     ST0, ST1, STR = 20, 75, 0.62                     # curved stair arc (degrees) and tread length
     steps = 10
@@ -1418,39 +1520,62 @@ def lighthouse_loft():
             b.box(0.42, STR, 0.07, 0, 0, zz - 0.07, pick(("wood", "wood_c"), i), bevel=0.012)
             b.box(0.12, 0.12, zz - 0.07, 0, STR / 2 - 0.1, 0, "wood_dark", bevel=0.01)
     room = Room(b, lambda x, y: math.hypot(x, y) <= Ri - 0.03, Ri, Ri)
+    for i in range(0, steps, 2):
+        a = math.radians(ST0 + (ST1 - ST0) * (i + 1) / steps)
+        px, py = (Ri - STR / 2) * math.cos(a), (Ri - STR / 2) * math.sin(a)
+        room.solid(px - 0.3, px + 0.3, py - 0.3, py + 0.3)
     in_stair = lambda a: ST0 - 8 <= a <= ST1 + 8
     room.blockers.append(lambda x, y: math.hypot(x, y) > Ri - STR - 0.2 and in_stair(math.degrees(math.atan2(y, x)) % 360))
     room.block_circle(-(Ri - 0.5), 0, 0.75)
     ring_slots(room, Ri, 1.4, segs, skip=in_stair)
-    for x, y in ((0, 0), (-0.9, 0.8), (0.6, -0.4)):
+    for x, y in t["anchors"]:
         room.anchor((x, y, 2.6))
     b.socket("spawn_inside", (-(Ri - 0.9), 0, FLOOR), rotz=-90)
     b.socket("exit", (-(Ri - 0.25), 0, FLOOR))
     b.socket("stair_top", ((Ri - 0.3) * math.cos(math.radians(ST1)), (Ri - 0.3) * math.sin(math.radians(ST1)), FLOOR + 2.1))
-    b.finish(KIT, "room", room.meta(shape="round", radius_m=Ri, exterior="lighthouse_loft_exterior",
-                                    modules=["mod_lighthouse_floor", "mod_wall_curved_r2.62_n18_*"]))
+    b.finish(KIT, "room", room.meta(shape="round", radius_m=Ri, exterior=f"{name}_exterior",
+                                    modules=["mod_lighthouse_floor", f"mod_wall_curved_r{Ri + T:.2f}_n{t['n']}_*"],
+                                    **tier_extra("lighthouse_loft", tier, "interior")))
 
 
 # =============================================================================== houseboat
-def houseboat():
+# sx stretches the hull and deck so the longer cabin keeps its walkway at both ends.
+HB_TIERS = {
+    1: dict(sx=1.0, water=(9.0, 7.0), front=[("window_round", 1.0), ("door", 1.0), ("plain", 1.0)],
+            back=[("plain", 1.0), ("window_round", 1.0), ("plain", 1.0)], W=3.5, D=2.5,
+            room_back=[("window_round", 1.0), ("plain", 1.0), ("window_round", 1.0), ("plain", 0.5)],
+            room_left=[("plain", 0.5), ("door", 1.0), ("window_round", 1.0)], ribs=(-1.2, -0.4, 0.4, 1.2),
+            anchors=((-0.8, 0.0), (0.8, 0.0))),
+    2: dict(sx=1.22, water=(10.8, 7.0), front=[("window_round", 1.0), ("door", 1.0), ("plain", 1.0), ("window_round", 1.0)],
+            back=[("plain", 1.0), ("window_round", 1.0), ("window_round", 1.0), ("plain", 1.0)], W=4.5, D=3.0,
+            room_back=[("window_round", 1.0), ("plain", 1.0), ("window_round", 1.0), ("plain", 1.0), ("plain", 0.5)],
+            room_left=[("plain", 0.5), ("door", 1.0), ("window_round", 1.0), ("plain", 0.5)],
+            ribs=(-1.8, -1.0, -0.2, 0.6, 1.4), anchors=((-1.2, 0.0), (0.0, 0.5), (1.2, 0.0))),
+}
+
+
+def houseboat(tier=1):
+    t = HB_TIERS[tier]
+    name = tier_name("houseboat", tier)
+    sx = t["sx"]
     CW, CD, CX = HB["CW"], HB["CD"], HB["CX"]
-    b = Builder("houseboat_exterior", seed=701)
-    roof = Builder("houseboat_exterior_roof", seed=702)
-    water_surface(b, 9.0, 7.0, x=0, y=-0.6, n=8, seed=7, z=WATER_Z)
-    houseboat_hull(b)
+    b = Builder(f"{name}_exterior", seed=701)
+    roof = Builder(f"{name}_exterior_roof", seed=702)
+    water_surface(b, *t["water"], x=0, y=-0.6, n=8, seed=7, z=WATER_Z)
+    houseboat_hull(b, sx)
     zdeck = BOAT_DECK
     with b.at((CX, 0, zdeck)):
-        fr = cabin_walls(b, CW, CD, [("window_round", 1.0), ("door", 1.0), ("plain", 1.0)],
+        fr = cabin_walls(b, CW, CD, t["front"],
                          [("plain", 0.5), ("window_round", 1.0), ("plain", 0.5)],
                          [("plain", 0.5), ("window_round", 1.0), ("plain", 0.5)],
-                         [("plain", 1.0), ("window_round", 1.0), ("plain", 1.0)], posts=0.13)
+                         t["back"], posts=0.13)
         with b.at((0, -CD / 2 + T / 2, 0)):
             wall_lantern(b, 0.9, -T / 2, 1.55)
     door_x = CX + next(c for k, c, _ in fr if k == "door")
-    houseboat_deck(b, gap_x=door_x)
+    houseboat_deck(b, gap_x=door_x, sx=sx)
     houseboat_roof(roof)
-    barrel(b, 1.7, 0.45, zdeck)
-    crate(b, 2.15, 0.1, zdeck, s=0.4, rotz=-10)
+    barrel(b, 1.7 * sx, 0.45, zdeck)
+    crate(b, 2.15 * sx, 0.1, zdeck, s=0.4, rotz=-10)
     for i in range(7):                                            # moored dock with gangway
         y = -1.75 - 0.25 * (i + 0.5)
         b.box(2.4, 0.24, 0.08, 0.2, y, -0.08, pick(WOODS, i), bevel=0.012)
@@ -1465,28 +1590,29 @@ def houseboat():
     b.torus(0.22, 0.06, 1.85, -1.62, 0.3, tint("ring", "coral"), segs=12, ring=6, rot=(90, 0, 0))
     snow_lumps(b, 0.2, -2.6, 0.0, 2.2, 1.6, 4, r=(0.08, 0.14))
     b.socket("door", (door_x, -2.4, 0.0), rotz=180)
-    finish_house(b, roof, {"interior": "houseboat_interior", "roof_child": "houseboat_exterior_roof", "water_z": WATER_Z,
-                           "deck_z": round(zdeck, 3), "footprint_m": [9.0, 7.0],
-                           "modules": ["mod_houseboat_hull", "mod_houseboat_deck", "mod_wall_straight_*"]})
+    finish_house(b, roof, {"interior": f"{name}_interior", "roof_child": f"{name}_exterior_roof", "water_z": WATER_Z,
+                           "deck_z": round(zdeck, 3), "footprint_m": list(t["water"]),
+                           "modules": ["mod_houseboat_hull", "mod_houseboat_deck", "mod_wall_straight_*"],
+                           **tier_extra("houseboat", tier, "exterior")})
 
-    W, D = 3.5, 2.5
-    b = Builder("houseboat_interior", seed=711)
+    W, D = t["W"], t["D"]
+    b = Builder(f"{name}_interior", seed=711)
     rect_floor(b, W, D)
     with b.at((0, 0, FLOOR)):
-        laid = rect_room(b, W, D, back=[("window_round", 1.0), ("plain", 1.0), ("window_round", 1.0), ("plain", 0.5)],
-                         left=[("plain", 0.5), ("door", 1.0), ("window_round", 1.0)])
-    for x in (-1.2, -0.4, 0.4, 1.2):  # ceiling ribs
+        laid = rect_room(b, W, D, back=t["room_back"], left=t["room_left"])
+    for x in t["ribs"]:  # ceiling ribs
         b.box(0.1, D + 0.2, 0.12, x, 0, FLOOR + WALL_H, "wood_dark", bevel=0.015)
     dy = door_y(laid)
     room = Room(b, lambda x, y: abs(x) <= W / 2 + 1e-6 and abs(y) <= D / 2 + 1e-6, W / 2, D / 2, corner=True)
     room.block_rect(-W / 2, -W / 2 + 0.8, dy - 0.5, dy + 0.5)
     rect_slots(room, W, D, FLOOR + 1.3, laid)
-    for x, y in ((-0.8, 0.0), (0.8, 0.0)):
+    for x, y in t["anchors"]:
         room.anchor((x, y, FLOOR + 1.93))
     b.socket("spawn_inside", (-W / 2 + 0.7, dy, FLOOR), rotz=-90)
     b.socket("exit", (-W / 2 + 0.2, dy, FLOOR))
-    b.finish(KIT, "room", room.meta(shape="rect", room_m=[W, D], exterior="houseboat_exterior",
-                                    modules=["mod_floor_tile_wood", "mod_wall_straight_*"]))
+    b.finish(KIT, "room", room.meta(shape="rect", room_m=[W, D], exterior=f"{name}_exterior",
+                                    modules=["mod_floor_tile_wood", "mod_wall_straight_*"],
+                                    **tier_extra("houseboat", tier, "interior")))
 
 
 # =============================================================================== module exports
@@ -1600,8 +1726,18 @@ def build():
     snow_dome()
     snow_dome(2)
     aframe_cabin()
+    with variant(AF, LEN=AF_TIERS[2]["LEN"]):
+        aframe_cabin(2)
     round_cottage()
+    with variant(RC, R=RC_TIERS[2]["R"], RISE=1.85):
+        round_cottage(2)
     treehouse()
+    with variant(TH_, CW=3.5, CD=2.5, CX=0.95, CY=0.3):
+        treehouse(2)
     lighthouse_loft()
+    with variant(LH, CW=3.5, CX=1.85):
+        lighthouse_loft(2)
     houseboat()
+    with variant(HB, CW=4.0):
+        houseboat(2)
     build_modules()

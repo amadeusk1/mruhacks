@@ -186,16 +186,21 @@ func _xform(p: Dictionary) -> Transform3D:
 	return Transform3D(Basis(Vector3.UP, deg_to_rad(float(p.get("rot_y_deg", 0.0)))).scaled(Vector3.ONE * s), _v(p["pos"]))
 
 
+## Ground spot in front of a house's door (the treehouse's stair foot; its door is up on the deck).
+func _way_in(id: String) -> Vector3:
+	var sockets := AssetRegistry.sockets(id)
+	var d: Array = sockets.get("socket_approach", sockets.get("socket_door", [0, 0, 0]))
+	return Vector3(d[0], 0.0, -d[1])
+
+
 func _place(nav: Node, p: Dictionary) -> void:
 	var id := str(p["id"])
 	var xform := _xform(p)
-	if str(p.get("name", "")) == "Home2" and id == "homes/snow_dome_exterior" and HomeUpgrades.tier() > 1:
-		# your own house shows your upgrade (local only), its door kept on the Home2Door marker
-		var big := HomeUpgrades.exterior_id()
-		var d0: Array = AssetRegistry.sockets(id).get("socket_door", [0, 0, 0])
-		var d1: Array = AssetRegistry.sockets(big).get("socket_door", [0, 0, 0])
-		xform.origin += xform.basis * (Vector3(d0[0], d0[2], -d0[1]) - Vector3(d1[0], d1[2], -d1[1]))
-		id = big
+	if str(p.get("name", "")) == "Home2" and id == "homes/snow_dome_exterior" and HomeUpgrades.exterior_id() != id:
+		# your own house stands here (local only), its way in kept on the Home2Door marker
+		var mine := HomeUpgrades.exterior_id()
+		xform.origin += xform.basis * (_way_in(id) - _way_in(mine))
+		id = mine
 	var node := _spawn(id)
 	if node == null:
 		return
