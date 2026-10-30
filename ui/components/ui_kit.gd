@@ -80,6 +80,7 @@ static func dock_button(text: String, icon_name: String) -> Button:
 	b.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
 	b.expand_icon = false
 	b.custom_minimum_size = Vector2(112, 88)
+	b.focus_mode = Control.FOCUS_NONE
 	b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	b.add_theme_font_size_override("font_size", 18)
 	b.add_theme_constant_override("icon_max_width", 32)

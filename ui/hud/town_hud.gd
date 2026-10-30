@@ -347,6 +347,11 @@ func _flat(v: Vector3) -> float:
 
 
 func _input(event: InputEvent) -> void:
+	# Space is jump and also ui_accept. A focused dock button (usually Map) would open on jump.
+	if event.is_action_pressed("jump") and not UIRouter.is_open():
+		var owner := get_viewport().gui_get_focus_owner()
+		if owner is BaseButton:
+			owner.release_focus()
 	if not event.is_action_pressed("interact"):
 		return
 	if UIRouter.is_open() or get_viewport().gui_get_focus_owner() is LineEdit:

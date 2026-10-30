@@ -44,6 +44,7 @@ func _init() -> void:
 			(child as Control).mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_view.add_child(title)
 	var x := UIKit.icon_button("close", "Close map", 64)
+	x.focus_mode = Control.FOCUS_NONE
 	UIKit.pin(x, Vector2(1, 0), Vector2(-52, 50), Vector2(64, 64))
 	x.pressed.connect(close)
 	_view.add_child(x)
