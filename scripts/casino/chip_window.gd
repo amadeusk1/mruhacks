@@ -6,6 +6,7 @@ func _ready() -> void:
 	verb = "Cashier"
 	reach = 1.6
 	super._ready()
+	add_to_group("cashier")
 
 
 func interact(_player: Node) -> bool:

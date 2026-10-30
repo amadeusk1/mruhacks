@@ -50,13 +50,14 @@ func _ready() -> void:
 	_entry.text_changed.connect(_on_text_changed)
 	_entry.focus_entered.connect(_on_focus_entered)
 	_entry.focus_exited.connect(_on_focus_exited)
-	set_coins(coins)
+	set_coins(Pets.load_coins())  # coins carry over between sessions (they buy pets)
 	_refresh_log()
 
 
 func set_coins(amount: int) -> void:
 	coins = maxi(0, amount)
 	_amount.text = str(coins)
+	Pets.save_coins(coins)
 
 
 func add_coins(amount: int) -> void:

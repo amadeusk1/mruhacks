@@ -8,6 +8,7 @@ signal closed
 signal place_requested(asset_id: String)
 
 const A := preload("res://ui/activities/act_style.gd")
+const Shop := preload("res://scripts/wardrobe_shop.gd")
 const CATS := ["All", "Clothing", "Props"]
 const PROPS := ["room_kit/mug", "room_kit/small_lantern", "room_kit/book_single", "room_kit/plush_penguin",
 		"room_kit/cushion_round", "room_kit/tabletop_plant", "room_kit/candle", "room_kit/trophy", "room_kit/framed_photo"]
@@ -33,6 +34,7 @@ func _ready() -> void:
 	theme = UIKit.THEME
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_look = Outfit.load_look()
+	Shop.claim_worn(_look)
 	_collect()
 	_preview = PenguinView.new()
 	A.pin(self, _preview, Vector4(0.0, 0.0, 0.34, 1.0), Vector4(10, 0, 0, 0))
@@ -191,9 +193,18 @@ func _show_detail() -> void:
 	var act: Button
 	if it["slot"] != "":
 		var worn: bool = str(_look.get(it["slot"], "")) == short
-		act = A.button("Unequip" if worn else "Equip", "secondary" if worn else "primary", "", 26, Vector2(0, 70))
+		var owned := Shop.owns_item(short)
+		act = A.button("Unequip" if worn else ("Equip" if owned else "Buy  %d" % Shop.item_price(short)), "secondary" if worn else "primary", "", 26, Vector2(0, 70))
 		act.pressed.connect(func() -> void:
-			_look[it["slot"]] = "" if worn else short
+			if worn:
+				_look[it["slot"]] = ""
+			elif owned:
+				_look[it["slot"]] = short
+			elif not Shop.buy_item(get_tree(), short):
+				UIWidgets.toast(self, "%s costs %d coins." % [Outfit.pretty(short), Shop.item_price(short)], "alert")
+				return
+			else:
+				_look[it["slot"]] = short
 			Outfit.save_look(_look)
 			Outfit.apply_to_local_player(get_tree(), _look)
 			Net.preferred_color = int(_look.get("color", 0))

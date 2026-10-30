@@ -9,7 +9,7 @@ import bpy
 import common
 from mathutils import Vector, Euler
 
-DEFAULT = ["avatar", "room_kit", "home_themes", "cafe", "fishing", "interaction_props"]
+DEFAULT = ["avatar", "pets", "room_kit", "home_themes", "cafe", "fishing", "interaction_props"]
 SIZE = 256
 args = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
 kits = [a for a in args if not a.startswith("--")] or DEFAULT

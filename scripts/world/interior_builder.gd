@@ -380,13 +380,26 @@ func _make_seat(seat_name: String, floor_pos: Vector3, yaw: float, seat_h: float
 	return seat
 
 
-## The chip window is the room's cashier: play chips only, the same free refill the tables offer.
+## Cashier lives on the booth, at the mat in front of the window, so you use the booth itself.
 func _chip_window(booth: Node3D) -> void:
 	var spot := preload("res://scripts/casino/chip_window.gd").new()
 	spot.name = "ChipWindow"
-	add_child(spot)
+	booth.add_child(spot)
 	var sock := Sockets.find(booth, "player_0")
-	spot.global_position = sock.global_position if sock else booth.global_position + Vector3(-0.7, 0, 0)
+	# Local offset only. global_position during _enter_tree ignores the booth's yaw and
+	# leaves the prompt off to the side of the cabinet.
+	spot.position = _local_on(booth, sock) if sock else Vector3(0.15, 0.0, 0.83)
+	spot.position.y = 0.0
+
+
+func _local_on(root: Node3D, node: Node3D) -> Vector3:
+	var p := node.position
+	var n := node.get_parent()
+	while n != null and n != root:
+		if n is Node3D:
+			p = (n as Node3D).transform * p
+		n = n.get_parent()
+	return p
 
 
 func _slot_row(nav: Node, shell_id: String, sockets: Dictionary) -> void:

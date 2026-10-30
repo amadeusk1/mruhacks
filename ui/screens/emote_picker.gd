@@ -1,7 +1,7 @@
 class_name EmotePicker
 extends UIModal
 ## Eight emotes (board panel 4, right). Picking one plays the anim_emotes clip on your penguin and
-## closes the picker; moving cancels the emote.
+## closes the picker; moving cancels the emote. With a pet out, a Pet row adds its emotes ("pet/<id>").
 
 const EMOTES := [["Wave", "emote_wave"], ["Cheer", "emote_cheer"], ["Laugh", "emote_laugh"], ["Dance", "emote_dance"],
 	["Shy", "emote_shy"], ["Sleepy", "emote_sleepy"], ["Surprise", "emote_surprised"], ["Happy", "emote_happy_bounce"]]
@@ -12,11 +12,15 @@ func _init() -> void:
 	title_label.theme_type_variation = "Heading"
 	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	dim.color = Color(0, 0, 0, 0.0)
+	var tree := Engine.get_main_loop() as SceneTree
+	var player: Node = tree.get_first_node_in_group("local_player") if tree else null
+	var pet: PetFollower = player.get_node_or_null("Pet") as PetFollower if player else null
+	var pet_emotes: Array = Pets.emotes(pet.species) if pet else []
 	if not Mobile.active():
 		var cc: Control = card.get_parent()
 		cc.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
 		cc.offset_left = -720
-		cc.offset_top = -560
+		cc.offset_top = -560 - (80 if not pet_emotes.is_empty() else 0)
 		cc.offset_right = -24
 		cc.offset_bottom = -140
 	var grid := GridContainer.new()
@@ -34,6 +38,22 @@ func _init() -> void:
 		fx.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		b.add_child(fx)
 		grid.add_child(b)
+	if pet_emotes.is_empty():
+		return
+	var row := HBoxContainer.new()  # slim row of pet emotes: pet icon + name
+	row.add_theme_constant_override("separation", 12)
+	body.add_child(row)
+	var pet_icon := AssetRegistry.icon("pets/" + pet.species)
+	for e in pet_emotes:
+		var b := UIKit.button(str(e["name"]), "secondary", "", Vector2(0, 64))
+		b.icon = pet_icon
+		b.expand_icon = true
+		b.add_theme_constant_override("icon_max_width", 48)
+		for s in ["icon_normal_color", "icon_hover_color", "icon_pressed_color", "icon_focus_color", "icon_hover_pressed_color"]:
+			b.add_theme_color_override(s, Color.WHITE)  # the pet's own colours, not the theme's navy
+		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		b.pressed.connect(_play.bind("pet/" + str(e["id"])))
+		row.add_child(b)
 
 
 func _play(clip: String) -> void:

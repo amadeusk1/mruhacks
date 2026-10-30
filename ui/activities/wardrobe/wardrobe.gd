@@ -1,11 +1,12 @@
 extends Control
-## Wardrobe (Color / Hats / Clothes / Accessories) and Outfit Slots, per Images/UI - Wardrobe and Inventory.png.
+## Wardrobe (Color / Hats / Clothes / Accessories / Pets) and Outfit Slots, per Images/UI - Wardrobe and Inventory.png.
 ## Changes preview live and reversibly; Done saves (Outfit) and re-dresses the local penguin; X cancels.
 
 signal closed(saved: bool)
 
 const A := preload("res://ui/activities/act_style.gd")
-const TABS := [["Color", "palette"], ["Hats", "hat"], ["Clothes", "shirt"], ["Accessories", "glasses"]]
+const Shop := preload("res://scripts/wardrobe_shop.gd")
+const TABS := [["Color", "palette"], ["Hats", "hat"], ["Clothes", "shirt"], ["Accessories", "glasses"], ["Pets", "paw"]]
 const TAB_SLOTS := {"Hats": ["head"], "Clothes": ["torso"], "Accessories": ["face", "neck", "back", "hand"]}
 const COLOR_NAMES := ["Blue", "Green", "Yellow", "Pink", "Purple", "Orange"]
 const SLOT_CARDS := [["Hat", "head"], ["Clothes", "torso"], ["Face", "face"], ["Back", "back"], ["Hand", "hand"]]
@@ -26,6 +27,7 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_saved = Outfit.load_look()
 	_look = _saved.duplicate()
+	Shop.claim_worn(_saved)
 	_load_catalog()
 	_preview = PenguinView.new()
 	_preview.turntable = true
@@ -59,6 +61,7 @@ func _rebuild() -> void:
 	for c in _body.get_children():
 		c.queue_free()
 	_preview.set_look(Outfit.coat(_look), Outfit.pieces(_look))
+	_preview.set_pet(str(_look.get("pet", "")), Outfit.coat(_look))
 	if mode == "slots":
 		_build_slots()
 	else:
@@ -67,17 +70,27 @@ func _rebuild() -> void:
 
 # ------------------------------------------------------------- wardrobe tabs --
 func _build_wardrobe() -> void:
-	var tabs := A.hbox(10)
+	var tabs := A.hbox(8)
 	tabs.custom_minimum_size.y = 62
 	_body.add_child(tabs)
 	for t in TABS:
 		var b := A.tab(t[0], t[1], t[0] == _tab)
-		b.add_theme_font_size_override("font_size", 21)
+		b.add_theme_font_size_override("font_size", 17)  # five tabs fit beside the close button
+		b.add_theme_constant_override("icon_max_width", 20)
+		b.add_theme_constant_override("h_separation", 6)
+		for s in ["normal", "hover", "pressed", "hover_pressed", "focus", "disabled"]:
+			if b.has_theme_stylebox_override(s):
+				var box := b.get_theme_stylebox(s).duplicate()
+				box.content_margin_left = 8
+				box.content_margin_right = 8
+				b.add_theme_stylebox_override(s, box)
 		b.custom_minimum_size = Vector2(0, 56)
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		b.pressed.connect(func() -> void: _tab = t[0]; _rebuild())
 		tabs.add_child(b)
 	tabs.add_child(A.spacer(46))
+	var wallet := A.label("Your coins: %d" % Pets.coins(get_tree()), 20, A.SUB)
+	_body.add_child(wallet)
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -94,14 +107,28 @@ func _build_wardrobe() -> void:
 			view.framing = "full"
 			view.custom_minimum_size = Vector2(150, 132)
 			view.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			grid.add_child(_card(COLOR_NAMES[i], null, int(_look["color"]) == i, func() -> void: _look["color"] = i; _rebuild(), view))
+			var card := _card(COLOR_NAMES[i], null, int(_look["color"]) == i, _pick_color.bind(i), view)
+			if not Shop.owns_color(i):
+				card.add_child(_price_tag(Shop.color_price(i)))
+			grid.add_child(card)
 			view.call_deferred("set_look", Net.coat_color(i), {})
+	elif _tab == "Pets":
+		for p in Pets.catalog():
+			var pet: String = p["id"]
+			var card := _card(str(p["name"]), A.asset_icon("pets/" + pet), str(_look.get("pet", "")) == pet,
+					func() -> void: _pick_pet(pet))
+			card.tooltip_text = str(p["blurb"])
+			if not Pets.owns(pet):
+				card.add_child(_price_tag(int(p["price"])))
+			grid.add_child(card)
 	else:
 		for slot in TAB_SLOTS[_tab]:
 			for asset in _catalog.get(slot, []):
 				var on: bool = str(_look.get(slot, "")) == asset
-				grid.add_child(_card(Outfit.pretty(asset), A.asset_icon("avatar/" + asset), on,
-						func() -> void: _toggle(slot, asset)))
+				var card := _card(Outfit.pretty(asset), A.asset_icon("avatar/" + asset), on, _pick_item.bind(slot, asset))
+				if not Shop.owns_item(asset):
+					card.add_child(_price_tag(Shop.item_price(asset)))
+				grid.add_child(card)
 	var foot := Control.new()
 	foot.custom_minimum_size.y = 78
 	_body.add_child(foot)
@@ -153,6 +180,72 @@ func _card(text: String, tex: Texture2D, selected: bool, on_press: Callable, art
 		var badge := A.check_badge(34)
 		A.pin(b, badge, Vector4(1, 0, 1, 0), Vector4(-30, -10, 6, 26))
 	return b
+
+
+func _price_tag(price: int) -> Control:
+	var tag := PanelContainer.new()
+	tag.add_theme_stylebox_override("panel", A.box(Color("#F2C230"), 12, 0, Color.TRANSPARENT, 6))
+	tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var l := A.label("%d coins" % price, 16, A.NAVY, true, HORIZONTAL_ALIGNMENT_CENTER)
+	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tag.add_child(l)
+	tag.position = Vector2(10, 10)
+	return tag
+
+
+## Owned pets toggle on and off like clothes. Others ask to adopt first, then equip.
+func _pick_pet(pet: String) -> void:
+	if Pets.owns(pet):
+		_look["pet"] = "" if str(_look.get("pet", "")) == pet else pet
+		_rebuild()
+		return
+	var p := Pets.info(pet)
+	var price := int(p.get("price", 0))
+	var have := Pets.coins(get_tree())
+	if have < price:
+		UIWidgets.toast(self, "%s costs %d coins. You need %d more." % [p["name"], price, price - have], "alert")
+		return
+	var d := ConfirmDialog.ask("Adopt %s?" % p["name"], "%s\nSpend %d of your %d coins." % [p["blurb"], price, have],
+			"Not now", "Adopt", "check")
+	d.confirmed.connect(func() -> void:
+		if Pets.buy(get_tree(), pet):
+			_look["pet"] = pet
+			UIWidgets.toast(self, "%s joined you!" % p["name"], "paw")
+		_rebuild())
+
+
+func _pick_color(index: int) -> void:
+	if Shop.owns_color(index):
+		_look["color"] = index
+		_rebuild()
+		return
+	_ask_buy(COLOR_NAMES[index], Shop.color_price(index), func() -> void:
+		if Shop.buy_color(get_tree(), index):
+			_look["color"] = index
+			UIWidgets.toast(self, "%s is yours." % COLOR_NAMES[index], "check")
+		_rebuild())
+
+
+func _pick_item(slot: String, asset: String) -> void:
+	if Shop.owns_item(asset):
+		_toggle(slot, asset)
+		return
+	var name := Outfit.pretty(asset)
+	_ask_buy(name, Shop.item_price(asset), func() -> void:
+		if Shop.buy_item(get_tree(), asset):
+			_look[slot] = asset
+			UIWidgets.toast(self, "%s is yours." % name, "check")
+		_rebuild())
+
+
+func _ask_buy(item_name: String, price: int, on_yes: Callable) -> void:
+	var have := Pets.coins(get_tree())
+	if have < price:
+		UIWidgets.toast(self, "%s costs %d coins. You need %d more." % [item_name, price, price - have], "alert")
+		return
+	var d := ConfirmDialog.ask("Buy %s?" % item_name, "Spend %d of your %d coins." % [price, have],
+			"Not now", "Buy", "check")
+	d.confirmed.connect(on_yes)
 
 
 func _toggle(slot: String, asset: String) -> void:

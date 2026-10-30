@@ -1,7 +1,9 @@
 extends Node3D
 
-## A small round pet. Naps in the pen and bobs in place.
+## A pet napping in the plaza pen: a pets-kit model idling in place (PetFollower display mode).
+## Without a species it falls back to the old round placeholder that bobs in place.
 
+@export var species := ""
 @export var coat_color := Color(0.95, 0.55, 0.42)
 @export var bob_speed := 1.5
 @export var bob_height := 0.045
@@ -11,6 +13,16 @@ var _phase := 0.0
 
 
 func _ready() -> void:
+	if species != "" and AssetRegistry.has("pets/" + species):
+		for c in get_children():
+			c.queue_free()
+		var pet := PetFollower.new()
+		pet.species = species
+		pet.display = true
+		pet.coat = coat_color
+		add_child(pet)
+		set_process(false)
+		return
 	_base_y = position.y
 	_phase = randf() * TAU
 	var mesh := $Body as MeshInstance3D

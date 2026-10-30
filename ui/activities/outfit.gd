@@ -68,6 +68,7 @@ static func apply_to_local_player(tree: SceneTree, look: Dictionary) -> void:
 		return
 	var bird := player.find_child("PackAvatar", true, false) as Node3D
 	dress(bird, look)
+	Pets.attach(player as Node3D, str(look.get("pet", "")), coat(look))
 
 
 static func pretty(asset: String) -> String:

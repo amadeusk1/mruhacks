@@ -7,7 +7,7 @@ R = os.path.join(VAULT, "Renders")
 MODELS = os.path.join(VAULT, "Models")
 
 GROUPS = [  # (heading, kits) in the order a reader cares about
-    ("Characters", ["avatar"]),
+    ("Characters", ["avatar", "pets"]),
     ("Town", ["plaza", "nature_dock", "town_connections", "buildings", "cafe", "cottage", "building_finishing", "world_misc"]),
     ("Cinema", ["cinema", "cinema_lobby", "cinema_auditorium"]),
     ("Arcade", ["arcade"]),

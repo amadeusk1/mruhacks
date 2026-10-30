@@ -1,0 +1,284 @@
+[
+  {
+    "id": "pets/baby_pengloo",
+    "file": "pets/baby_pengloo.glb",
+    "category": "pet",
+    "size_m": [
+      0.509,
+      0.379,
+      0.464
+    ],
+    "sockets": {
+      "socket_back": [
+        0.0,
+        0.169,
+        0.2
+      ],
+      "socket_head": [
+        0.0,
+        0.0,
+        0.36
+      ]
+    },
+    "parts": {
+      "part_flipper_L": {
+        "pivot": [
+          0.157,
+          -0.015,
+          0.215
+        ],
+        "motion": "flutter",
+        "axis": "y",
+        "amp_deg": 35
+      },
+      "part_flipper_R": {
+        "pivot": [
+          -0.157,
+          -0.015,
+          0.215
+        ],
+        "motion": "flutter",
+        "axis": "y",
+        "amp_deg": 35
+      },
+      "part_foot_L": {
+        "pivot": [
+          0.07,
+          -0.06,
+          0.02
+        ],
+        "motion": "tilt",
+        "axis": "x",
+        "max_deg": 25
+      },
+      "part_foot_R": {
+        "pivot": [
+          -0.07,
+          -0.06,
+          0.02
+        ],
+        "motion": "tilt",
+        "axis": "x",
+        "max_deg": 25
+      }
+    },
+    "icon": "pets/icons/baby_pengloo.png",
+    "part_clips": {
+      "part_flipper_L": [
+        "flipper_L_flutter"
+      ],
+      "part_flipper_R": [
+        "flipper_R_flutter"
+      ]
+    },
+    "tints": {
+      "body": "#8E9BAA"
+    },
+    "slot": "pet",
+    "species": "baby_pengloo",
+    "display_name": "Baby Pengloo",
+    "price": 40,
+    "height_m": 0.43,
+    "emotes": [
+      {
+        "id": "copy",
+        "name": "Copy Me",
+        "owner_clip": "emotes/emote_wave"
+      }
+    ],
+    "blurb": "A tiny copycat that waddles after you."
+  },
+  {
+    "id": "pets/leash_fish",
+    "file": "pets/leash_fish.glb",
+    "category": "pet",
+    "size_m": [
+      0.291,
+      0.647,
+      0.392
+    ],
+    "sockets": {
+      "socket_leash": [
+        0.0,
+        -0.075,
+        0.355
+      ],
+      "socket_mouth": [
+        0.0,
+        -0.27,
+        0.14
+      ]
+    },
+    "parts": {
+      "part_fin_L": {
+        "pivot": [
+          0.115,
+          -0.07,
+          0.11
+        ],
+        "motion": "flutter",
+        "axis": "y",
+        "amp_deg": 40
+      },
+      "part_fin_R": {
+        "pivot": [
+          -0.115,
+          -0.07,
+          0.11
+        ],
+        "motion": "flutter",
+        "axis": "y",
+        "amp_deg": 40
+      },
+      "part_tail": {
+        "pivot": [
+          0.0,
+          0.21,
+          0.17
+        ],
+        "motion": "sway",
+        "axis": "z",
+        "amp_deg": 30
+      }
+    },
+    "icon": "pets/icons/leash_fish.png",
+    "part_clips": {
+      "part_fin_L": [
+        "fin_L_flutter"
+      ],
+      "part_fin_R": [
+        "fin_R_flutter"
+      ],
+      "part_tail": [
+        "tail_sway"
+      ]
+    },
+    "tints": {
+      "body": "#F08A2E",
+      "fin": "#D9473B"
+    },
+    "slot": "pet",
+    "species": "leash_fish",
+    "display_name": "Fish on a Leash",
+    "price": 25,
+    "height_m": 0.34,
+    "emotes": [
+      {
+        "id": "fetch",
+        "name": "Fetch!",
+        "owner_clip": "snowballs/snow_throw"
+      }
+    ],
+    "color_variants": {
+      "body": [
+        "orange",
+        "yellow",
+        "sky",
+        "lavender",
+        "pink"
+      ],
+      "fin": [
+        "red",
+        "teal",
+        "purple",
+        "mustard"
+      ]
+    },
+    "blurb": "A very good boy. Who happens to be a fish."
+  },
+  {
+    "id": "pets/snowball_pet",
+    "file": "pets/snowball_pet.glb",
+    "category": "pet",
+    "size_m": [
+      0.369,
+      0.381,
+      0.513
+    ],
+    "sockets": {},
+    "parts": {
+      "part_ball": {
+        "pivot": [
+          0.0,
+          0.0,
+          0.19
+        ],
+        "motion": "spin",
+        "axis": "x"
+      },
+      "part_face": {
+        "pivot": [
+          0.0,
+          0.0,
+          0.19
+        ],
+        "motion": "tilt",
+        "axis": "x",
+        "max_deg": 12
+      }
+    },
+    "icon": "pets/icons/snowball_pet.png",
+    "part_clips": {
+      "part_ball": [
+        "ball_spin"
+      ]
+    },
+    "tints": {},
+    "slot": "pet",
+    "species": "snowball_pet",
+    "display_name": "Snowball",
+    "price": 15,
+    "height_m": 0.42,
+    "roll_radius_m": 0.19,
+    "emotes": [
+      {
+        "id": "pop",
+        "name": "Grow & Pop",
+        "owner_clip": "emotes/emote_surprised"
+      }
+    ],
+    "blurb": "Rolls after you and grows in fresh snow."
+  },
+  {
+    "id": "pets/fetch_boot",
+    "file": "pets/fetch_boot.glb",
+    "category": "pet_prop",
+    "size_m": [
+      0.084,
+      0.18,
+      0.13
+    ],
+    "sockets": {},
+    "tints": {},
+    "slot": "pet_prop",
+    "fetch": true
+  },
+  {
+    "id": "pets/fetch_sock",
+    "file": "pets/fetch_sock.glb",
+    "category": "pet_prop",
+    "size_m": [
+      0.052,
+      0.117,
+      0.148
+    ],
+    "sockets": {},
+    "tints": {},
+    "slot": "pet_prop",
+    "fetch": true
+  },
+  {
+    "id": "pets/fetch_can",
+    "file": "pets/fetch_can.glb",
+    "category": "pet_prop",
+    "size_m": [
+      0.106,
+      0.111,
+      0.115
+    ],
+    "sockets": {},
+    "tints": {},
+    "slot": "pet_prop",
+    "fetch": true
+  }
+]

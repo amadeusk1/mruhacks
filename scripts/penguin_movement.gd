@@ -349,6 +349,19 @@ func _try_interact() -> bool:
 	return false
 
 
+## The footprint body in front of the chip window. Clicking the booth uses its cashier.
+func _cashier_on(collider: Node) -> Node:
+	if collider == null or not collider.has_meta("blocker_node"):
+		return null
+	var model := collider.get_meta("blocker_node") as Node
+	if model == null:
+		return null
+	var spot := model.get_node_or_null("ChipWindow")
+	if spot != null and spot.is_in_group("cashier"):
+		return spot
+	return null
+
+
 func _interact_point(node: Node) -> Vector3:
 	if node.has_method("approach_point"):
 		return node.call("approach_point") as Vector3
@@ -484,6 +497,16 @@ func _try_click(event: InputEvent = null) -> void:
 		_pending_bench = collider
 		_begin_click(_closest_nav_point(collider.call("approach_point")))
 		return
+	var cashier := _cashier_on(collider)
+	if cashier != null:
+		if _sitting:
+			stand_up()
+		if bool(cashier.call("can_interact")):
+			cashier.call("interact", self)
+			return
+		_pending_bench = cashier
+		_begin_click(_closest_nav_point(cashier.call("approach_point")))
+		return
 	var seat := SeatSpot.pick(get_tree(), raw, 0.7)  # benches, stools, chairs: walk over, then sit
 	if seat != null and not (_sitting and _seat_bench == seat):
 		if _sitting:
@@ -566,7 +589,8 @@ func _follow_path() -> Vector3:
 	var offset := Vector2(global_position.x - target.x, global_position.z - target.z)
 	var seat := _pending_bench as SeatSpot  # the seat's furniture is solid: arriving beside it is enough
 	var at_seat := seat != null and Vector2(global_position.x - seat.seat_point.x, global_position.z - seat.seat_point.z).length() < 1.1
-	if offset.length() <= stop_distance or at_seat:
+	var at_cashier := _pending_bench != null and _pending_bench.is_in_group("cashier") and _pending_bench.has_method("can_interact") and bool(_pending_bench.call("can_interact"))
+	if offset.length() <= stop_distance or at_seat or at_cashier:
 		var bench := _pending_bench
 		_pending_bench = null
 		_cancel_click()
@@ -574,6 +598,8 @@ func _follow_path() -> Vector3:
 			bench.call("try_fish", true)
 		elif bench != null and bench.has_method("try_sit"):
 			bench.call("try_sit", true)
+		elif bench != null and bench.is_in_group("cashier") and bench.has_method("interact"):
+			bench.call("interact", self)
 		return Vector3.ZERO
 	if agent.is_navigation_finished():
 		if not agent.is_target_reachable():
@@ -759,6 +785,7 @@ func apply_identity(player_name: String, color_index: int, outfit: Dictionary = 
 		return
 	_look_sig = sig
 	_tint_applied = int(look["color"])
+	Pets.attach(self, str(look.get("pet", "")), Outfit.coat(look))
 	var bird := visual.get_node_or_null("PackAvatar") as Node3D
 	if bird != null:
 		Outfit.dress(bird, look)
@@ -981,10 +1008,24 @@ func _start_seat_clip() -> void:
 
 
 ## Plays an emote ("wave", "dance", "emote_cheer"...) from anim_emotes. Moving cancels it.
+## "pet/<id>" plays the pet's emote (Pets.emotes) with the owner's matching clip.
 func play_emote(emote_name: String) -> bool:
+	var pet := get_node_or_null("Pet") as PetFollower
+	if emote_name.begins_with("pet/"):
+		var id := emote_name.trim_prefix("pet/")
+		if pet == null or not pet.play_emote(id):
+			return false
+		for e in Pets.emotes(pet.species):
+			if str(e.get("id", "")) == id:
+				_play_overlay(str(e.get("owner_clip", "")), "emotes")
+		if _remote_peer == 0:
+			Net.note_emote(emote_name)
+		return true
 	var ok := _play_overlay(emote_name, "emotes")
 	if ok and _remote_peer == 0:
 		Net.note_emote(emote_name)
+	if ok and pet:
+		pet.on_owner_emote(emote_name)
 	return ok
 
 
@@ -1168,7 +1209,9 @@ func _mount_pack(body: Color) -> void:
 	# Clothes come from apply_identity, which has the replicated look for remotes.
 	AssetPack.mount_bird(visual, body)
 	if _remote_peer == 0:
-		Outfit.dress(visual.get_node_or_null("PackAvatar") as Node3D, Outfit.load_look())
+		var look := Outfit.load_look()
+		Outfit.dress(visual.get_node_or_null("PackAvatar") as Node3D, look)
+		Pets.attach(self, str(look.get("pet", "")), Outfit.coat(look))
 
 
 func _pose_placeholder() -> void:

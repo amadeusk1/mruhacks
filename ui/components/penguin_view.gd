@@ -15,6 +15,7 @@ var _bird: Node3D
 var _cam: Camera3D
 var _player: AnimationPlayer
 var _pieces: Array[Node] = []
+var _pet: PetFollower
 var _yaw := 0.0
 var _drag := false
 var _body := Color("#3D7BD9")
@@ -75,9 +76,27 @@ func _frame() -> void:
 		_cam.look_at(Vector3(0, 0.66, 0))
 		_cam.fov = 21.0
 	else:
-		_cam.position = Vector3(0, 1.05, 6.2)
-		_cam.look_at(Vector3(0, 0.72, 0))
+		var x := 0.24 if _pet else 0.0  # make room for the pet at the bird's feet
+		_cam.position = Vector3(x, 1.05, 6.2)
+		_cam.look_at(Vector3(x, 0.72, 0))
 		_cam.fov = 21.0
+
+
+## Shows `pet` (pets kit id, "" for none) idling at the bird's feet.
+func set_pet(pet: String, body: Color) -> void:
+	if _pet and (pet == "" or _pet.species != pet):
+		_pet.queue_free()
+		_pet = null
+	if pet != "" and _pet == null and _viewport:
+		_pet = PetFollower.new()
+		_pet.species = pet
+		_pet.display = true
+		_pet.position = Vector3(0.56, 0.0, 0.45)
+		_pet.rotation.y = deg_to_rad(-28)
+		_viewport.add_child(_pet)
+	if _pet:
+		_pet.set_coat(body)
+	_frame()
 
 
 ## body: coat colour. outfit: {"head": "red_beanie", "torso": "hoodie", "face": "", "neck": "", "back": "", "hand": "mug"}
