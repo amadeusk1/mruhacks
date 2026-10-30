@@ -456,7 +456,7 @@ func _in_own_interior(player: Node3D) -> bool:
 	var room := _room()
 	if room == null:
 		return false
-	for n in room.find_children("snow_dome_interior*", "Node3D", true, false):
+	for n in room.find_children("snow_dome*_interior*", "Node3D", true, false):  # any house tier
 		if _flat((n as Node3D).global_position - player.global_position) < 5.0:
 			return true
 	return false

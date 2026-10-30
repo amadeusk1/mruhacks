@@ -1,11 +1,10 @@
 class_name Pets
 extends RefCounted
-## Pet catalog, ownership and coins. Pets come from Models/pets/manifest.json (slot "pet"),
+## Pet catalog and ownership. Pets come from Models/pets/manifest.json (slot "pet"),
 ## adopted pets are saved in user://pets.cfg, and the active pet rides in the worn look
 ## ("pet" key) so Net syncs it with the outfit. PetFollower walks it after its bird.
 
 const PATH := "user://pets.cfg"
-const WALLET := "user://wallet.cfg"
 
 
 ## [{id, name, price, blurb}] in shop order (cheapest first).
@@ -56,21 +55,17 @@ static func _add_owned(pet: String) -> void:
 
 
 # ------------------------------------------------------------------ coins --
-## The HUD shows the live count; the wallet file keeps it between sessions.
+## Kept for older callers; the wallet itself lives in Coins.
 static func coins(tree: SceneTree) -> int:
-	var hud := tree.get_first_node_in_group("play_hud")
-	return int(hud.coins) if hud else load_coins()
+	return Coins.have(tree)
 
 
 static func load_coins() -> int:
-	var cfg := ConfigFile.new()
-	return int(cfg.get_value("wallet", "coins", 0)) if cfg.load(WALLET) == OK else 0
+	return Coins.load_saved()
 
 
 static func save_coins(amount: int) -> void:
-	var cfg := ConfigFile.new()
-	cfg.set_value("wallet", "coins", maxi(0, amount))
-	cfg.save(WALLET)
+	Coins.save(amount)
 
 
 ## Spends the pet's price and adopts it. False when it is unknown or unaffordable.
@@ -80,14 +75,8 @@ static func buy(tree: SceneTree, pet: String) -> bool:
 		return false
 	if owns(pet):
 		return true
-	var have := coins(tree)
-	if have < int(p["price"]):
+	if not Coins.spend(tree, int(p["price"])):
 		return false
-	var hud := tree.get_first_node_in_group("play_hud")
-	if hud:
-		hud.set_coins(have - int(p["price"]))
-	else:
-		save_coins(have - int(p["price"]))
 	_add_owned(pet)
 	return true
 

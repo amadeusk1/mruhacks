@@ -137,7 +137,8 @@ const _YARD_MIN_Z := -5.15
 const _YARD_MAX_X := 1.05
 
 
-static func dress_home(home: Node3D) -> void:
+## tier: the house tier to build (HomeUpgrades), 0 = the local player's own.
+static func dress_home(home: Node3D, tier: int = 0) -> void:
 	if home.get_node_or_null("PackProps") != null:
 		return
 	_retire_home_boxes(home)
@@ -145,8 +146,8 @@ static func dress_home(home: Node3D) -> void:
 	props.name = "PackProps"
 	home.add_child(props)
 	var nav := home.get_node("NavigationRegion3D") as Node3D
-	_place_home_exterior(home, props, nav)
-	_place_home_interior(home, props, nav)
+	_place_home_exterior(home, props, nav, tier)
+	_place_home_interior(home, props, nav, tier)
 	if nav.has_method("rebake"):
 		nav.call("rebake")
 
@@ -191,8 +192,13 @@ static func _retire_home_boxes(home: Node) -> void:
 			body.visible = false
 
 
-static func _place_home_exterior(home: Node3D, props: Node3D, nav: Node3D) -> void:
-	var house := spawn("homes", "snow_dome_exterior")
+## Dome radius of a house tier's interior (manifest radius_m); the old snow dome is 2.3 m.
+static func _home_radius(tier: int) -> float:
+	return float(AssetRegistry.entry(HomeUpgrades.interior_id(tier)).get("radius_m", 2.3))
+
+
+static func _place_home_exterior(home: Node3D, props: Node3D, nav: Node3D, tier: int = 0) -> void:
+	var house := spawn("homes", HomeUpgrades.exterior_id(tier).get_file())
 	if house == null:
 		return
 	props.add_child(house)
@@ -212,7 +218,7 @@ static func _place_home_exterior(home: Node3D, props: Node3D, nav: Node3D) -> vo
 	if outward.length_squared() < 0.01:
 		outward = Vector3(0.0, 0.0, 1.0)
 	outward = outward.normalized()
-	_wall_ring(nav, house.global_position, 2.2, Vector2(outward.x, outward.z), 0.4)
+	_wall_ring(nav, house.global_position, _home_radius(tier) - 0.1, Vector2(outward.x, outward.z), 0.4)
 	_tunnel(nav, house.global_position, door_local, outward)
 	_set_door(home.get_node("YardDoor") as Area3D, door_world + outward * 0.2, outward)
 	_aim_marker(home.get_node("OutsideSpawn") as Node3D, door_world + outward * 1.35, door_world)
@@ -221,8 +227,8 @@ static func _place_home_exterior(home: Node3D, props: Node3D, nav: Node3D) -> vo
 		arrival.position.x = 4.3
 
 
-static func _place_home_interior(home: Node3D, props: Node3D, nav: Node3D) -> void:
-	var room := spawn("homes", "snow_dome_interior")
+static func _place_home_interior(home: Node3D, props: Node3D, nav: Node3D, tier: int = 0) -> void:
+	var room := spawn("homes", HomeUpgrades.interior_id(tier).get_file())
 	if room == null:
 		return
 	props.add_child(room)
@@ -237,7 +243,7 @@ static func _place_home_interior(home: Node3D, props: Node3D, nav: Node3D) -> vo
 	if outward.length_squared() < 0.01:
 		outward = Vector3(-1.0, 0.0, 0.0)
 	outward = outward.normalized()
-	_wall_ring(nav, room.global_position, 2.15, Vector2(outward.x, outward.z), 0.42)
+	_wall_ring(nav, room.global_position, _home_radius(tier) - 0.15, Vector2(outward.x, outward.z), 0.42)
 	var exit_world := room.global_transform * exit_local
 	_set_door(home.get_node("InsideDoor") as Area3D, exit_world + outward * 0.45, outward, 1.9)
 	var spawn_world := room.global_position + Vector3(-1.32, 0.0, -0.48)

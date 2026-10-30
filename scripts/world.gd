@@ -230,6 +230,15 @@ func travel_to(location_id: String, spawn_name: String = "BusArrival", igloo_id:
 	_refresh_presence()
 
 
+## Rebuilds the current room from its scene (a house upgrade swaps the dome) and lands at spawn_name.
+func reload_room(spawn_name: String) -> void:
+	if not _in_game or _traveling or _current_id == "":
+		return
+	var id := _current_id
+	_current_id = ""  # travel_to skips a trip to the room you are already in
+	await travel_to(id, spawn_name, _igloo_id)
+
+
 ## Stand outside the player's snow dome on the town island.
 func go_to_homes() -> void:
 	if _current_id == LocationCatalog.MAIN:
@@ -714,7 +723,7 @@ func _share_home() -> void:
 	var cfg := ConfigFile.new()
 	cfg.load("user://home_choice.cfg")
 	Net.set_visitors(str(cfg.get_value("home", "visitors", "friends")))
-	var path := DecorEditor.path_for("homes/snow_dome_interior")
+	var path := DecorEditor.path_for(HomeUpgrades.interior_id())
 	if FileAccess.file_exists(path):
 		Net.publish_home(FileAccess.get_file_as_string(path))
 

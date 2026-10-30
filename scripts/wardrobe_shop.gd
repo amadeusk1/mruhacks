@@ -76,17 +76,7 @@ static func buy_color(tree: SceneTree, index: int) -> bool:
 
 
 static func _pay(tree: SceneTree, price: int) -> bool:
-	if price < 1:
-		return true
-	var have := Pets.coins(tree)
-	if have < price:
-		return false
-	var hud := tree.get_first_node_in_group("play_hud")
-	if hud:
-		hud.set_coins(have - price)
-	else:
-		Pets.save_coins(have - price)
-	return true
+	return Coins.spend(tree, price)
 
 
 static func _owned(section: String) -> PackedStringArray:

@@ -143,7 +143,7 @@ func _open_home_edit() -> Control:
 	var player := get_tree().get_first_node_in_group("local_player") as Node3D
 	var room: Node3D = null
 	var best := INF
-	for n in get_tree().root.find_children("snow_dome_interior*", "Node3D", true, false):
+	for n in get_tree().root.find_children("snow_dome*_interior*", "Node3D", true, false):  # any house tier
 		var d := INF if player == null else player.global_position.distance_to((n as Node3D).global_position)
 		if d < best:
 			best = d
@@ -155,6 +155,6 @@ func _open_home_edit() -> Control:
 	var ui: Control = (load("res://ui/activities/home/decor_ui.gd") as GDScript).new()
 	UIRouter.push(ui)
 	ui.tree_exiting.connect(func() -> void: UIRouter.remove(ui))
-	ui.call("start", room, "homes/snow_dome_interior", cam)
+	ui.call("start", room, HomeUpgrades.interior_id(), cam)
 	_open = ui
 	return ui

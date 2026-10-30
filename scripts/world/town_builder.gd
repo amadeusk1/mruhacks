@@ -188,12 +188,20 @@ func _xform(p: Dictionary) -> Transform3D:
 
 func _place(nav: Node, p: Dictionary) -> void:
 	var id := str(p["id"])
+	var xform := _xform(p)
+	if str(p.get("name", "")) == "Home2" and id == "homes/snow_dome_exterior" and HomeUpgrades.tier() > 1:
+		# your own house shows your upgrade (local only), its door kept on the Home2Door marker
+		var big := HomeUpgrades.exterior_id()
+		var d0: Array = AssetRegistry.sockets(id).get("socket_door", [0, 0, 0])
+		var d1: Array = AssetRegistry.sockets(big).get("socket_door", [0, 0, 0])
+		xform.origin += xform.basis * (Vector3(d0[0], d0[2], -d0[1]) - Vector3(d1[0], d1[2], -d1[1]))
+		id = big
 	var node := _spawn(id)
 	if node == null:
 		return
 	node.name = str(p.get("name", id.get_file()))
 	node.set_meta("asset_id", id)
-	node.transform = _xform(p)
+	node.transform = xform
 	nav.add_child(node)
 	if id == "activities/basketball_court_half":
 		node.add_to_group("town_court_half")

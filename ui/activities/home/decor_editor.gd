@@ -576,3 +576,64 @@ func clear_items() -> void:
 			it["node"].queue_free()
 	items.clear()
 	selected = {}
+
+
+## House upgrade: brings a smaller shell's saved layout into this (bigger) one. Both grids are
+## centred on the room, so floor and rug items keep their spot relative to the room centre (or
+## the nearest free spot); wall items move to the free wall slot nearest their old bearing.
+## The old file is left in place as a backup. Returns how many items found no room.
+func migrate_from(old_shell: String) -> int:
+	var path := path_for(old_shell)
+	if not FileAccess.file_exists(path):
+		return 0
+	var data = JSON.parse_string(FileAccess.get_file_as_string(path))
+	if not (data is Dictionary) or not (data.get("items") is Array):
+		return 0
+	var old := _entry(old_shell)
+	var o: Array = old.get("cell_origin", [0, 0])
+	var old_m := float(old.get("cell_m", cell_m))
+	var bearing := {}  # old slot name -> angle around the room centre
+	var ws = old.get("wall_slots", {})
+	if ws is Dictionary:
+		for k in ws:
+			var p: Array = ws[k]["pos"]
+			bearing[k] = atan2(float(p[1]), float(p[0]))
+	var lost := 0
+	for e in data["items"].slice(0, 300):
+		if not (e is Dictionary) or not (e.get("cell") is Array) or e["cell"].size() != 2 or _entry(str(e.get("id", ""))).is_empty():
+			continue
+		var id := str(e["id"])
+		var rot := int(e.get("rot", 0))
+		var tints = e.get("tints", {})
+		var c: Array = e["cell"]
+		var at := Vector2(o[0] + float(c[0]) * old_m, o[1] + float(c[1]) * old_m)  # cell corner, room local
+		var cell := Vector2i(roundi((at.x - _origin.x) / cell_m), roundi((at.y - _origin.y) / cell_m))
+		var slot := str(e.get("slot", ""))
+		if str(placement(id).get("layer", "floor")) == "wall":
+			slot = _free_slot_near(float(bearing.get(slot, 0.0)))
+			if slot == "":
+				lost += 1
+				continue
+		elif check(id, cell, rot) != "":
+			var alt := _nearest_valid(id, cell, rot, "", {})
+			if alt.x == -99:
+				lost += 1
+				continue
+			cell = alt
+		_add(id, cell, rot, slot, tints if tints is Dictionary else {})
+	_undo.clear()
+	return lost
+
+
+func _free_slot_near(angle: float) -> String:
+	var best := ""
+	var best_d := INF
+	for s in _wall_slots:
+		if items.any(func(it: Dictionary) -> bool: return it["slot"] == s["name"]):
+			continue
+		var p: Vector3 = s["pos"]
+		var d := absf(angle_difference(angle, atan2(-p.z, p.x)))  # Godot pos back to Blender XY
+		if d < best_d:
+			best_d = d
+			best = s["name"]
+	return best

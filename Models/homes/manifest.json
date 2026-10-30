@@ -459,6 +459,690 @@
     ]
   },
   {
+    "id": "homes/snow_dome_t2_exterior",
+    "file": "homes/snow_dome_t2_exterior.glb",
+    "category": "building",
+    "size_m": [
+      9.099,
+      8.833,
+      4.15
+    ],
+    "sockets": {
+      "socket_fx_smoke": [
+        1.239,
+        1.109,
+        3.87
+      ],
+      "socket_door": [
+        0.0,
+        -4.15,
+        0.0
+      ]
+    },
+    "parts": {
+      "part_crown": {
+        "pivot": [
+          2.7,
+          2.6,
+          0.21
+        ],
+        "motion": "sway",
+        "amp_deg": 2.5
+      },
+      "part_crown__park": {
+        "pivot": [
+          -2.75,
+          2.45,
+          0.252
+        ],
+        "motion": "sway",
+        "amp_deg": 2.5
+      },
+      "part_door_leaf": {
+        "pivot": [
+          -0.4,
+          -3.49,
+          0.0
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 100
+      }
+    },
+    "part_clips": {
+      "part_crown": [
+        "crown_sway"
+      ],
+      "part_door_leaf": [
+        "door_leaf_open",
+        "door_leaf_close"
+      ]
+    },
+    "tints": {
+      "wall": "#EEF4F7",
+      "trim": "#BC874E",
+      "door": "#207D85"
+    },
+    "interior": "snow_dome_t2_interior",
+    "roof_child": "snow_dome_t2_exterior_roof",
+    "footprint_m": [
+      8.6,
+      7.9
+    ],
+    "tier": 2,
+    "upgrade_of": "snow_dome_exterior",
+    "color_variants": {
+      "roof": [
+        "#F07E66",
+        "#2F8F8A",
+        "#3D6E8F",
+        "#7A9A4A"
+      ]
+    }
+  },
+  {
+    "id": "homes/snow_dome_t2_interior",
+    "file": "homes/snow_dome_t2_interior.glb",
+    "category": "room",
+    "size_m": [
+      6.572,
+      6.572,
+      2.529
+    ],
+    "sockets": {
+      "socket_ceiling_0": [
+        0.0,
+        0.0,
+        2.45
+      ],
+      "socket_ceiling_1": [
+        -1.3,
+        1.0,
+        2.45
+      ],
+      "socket_ceiling_2": [
+        1.1,
+        1.2,
+        2.45
+      ],
+      "socket_ceiling_3": [
+        -1.5,
+        -0.6,
+        2.45
+      ],
+      "socket_ceiling_4": [
+        0.3,
+        2.0,
+        2.45
+      ],
+      "socket_exit": [
+        -2.584,
+        0.941,
+        0.12
+      ],
+      "socket_spawn_inside": [
+        -1.973,
+        0.718,
+        0.12
+      ],
+      "socket_wall_slot_0": [
+        1.847,
+        2.364,
+        1.3
+      ],
+      "socket_wall_slot_1": [
+        1.026,
+        2.819,
+        1.3
+      ],
+      "socket_wall_slot_2": [
+        -0.827,
+        2.884,
+        1.3
+      ],
+      "socket_wall_slot_3": [
+        -2.364,
+        1.847,
+        1.3
+      ],
+      "socket_wall_slot_4": [
+        -2.998,
+        0.105,
+        1.3
+      ],
+      "socket_wall_slot_5": [
+        -2.884,
+        -0.827,
+        1.3
+      ],
+      "socket_wall_slot_6": [
+        -2.487,
+        -1.678,
+        1.3
+      ]
+    },
+    "parts": {
+      "part_door_leaf": {
+        "pivot": [
+          -3.009,
+          0.68,
+          0.0
+        ],
+        "motion": "hinge",
+        "axis": "z",
+        "open_deg": 100
+      }
+    },
+    "part_clips": {
+      "part_door_leaf": [
+        "door_leaf_open",
+        "door_leaf_close"
+      ]
+    },
+    "tints": {
+      "wall": "#EEF4F7",
+      "trim": "#BC874E",
+      "door": "#207D85"
+    },
+    "cells": [
+      [
+        1,
+        3
+      ],
+      [
+        1,
+        4
+      ],
+      [
+        1,
+        5
+      ],
+      [
+        1,
+        6
+      ],
+      [
+        1,
+        7
+      ],
+      [
+        1,
+        8
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        2,
+        5
+      ],
+      [
+        2,
+        6
+      ],
+      [
+        2,
+        7
+      ],
+      [
+        2,
+        8
+      ],
+      [
+        2,
+        9
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        3,
+        2
+      ],
+      [
+        3,
+        3
+      ],
+      [
+        3,
+        4
+      ],
+      [
+        3,
+        5
+      ],
+      [
+        3,
+        6
+      ],
+      [
+        3,
+        7
+      ],
+      [
+        3,
+        8
+      ],
+      [
+        3,
+        9
+      ],
+      [
+        3,
+        10
+      ],
+      [
+        4,
+        1
+      ],
+      [
+        4,
+        2
+      ],
+      [
+        4,
+        3
+      ],
+      [
+        4,
+        4
+      ],
+      [
+        4,
+        5
+      ],
+      [
+        4,
+        6
+      ],
+      [
+        4,
+        7
+      ],
+      [
+        4,
+        8
+      ],
+      [
+        4,
+        9
+      ],
+      [
+        4,
+        10
+      ],
+      [
+        5,
+        1
+      ],
+      [
+        5,
+        2
+      ],
+      [
+        5,
+        3
+      ],
+      [
+        5,
+        4
+      ],
+      [
+        5,
+        5
+      ],
+      [
+        5,
+        6
+      ],
+      [
+        5,
+        7
+      ],
+      [
+        5,
+        8
+      ],
+      [
+        5,
+        9
+      ],
+      [
+        5,
+        10
+      ],
+      [
+        6,
+        1
+      ],
+      [
+        6,
+        2
+      ],
+      [
+        6,
+        3
+      ],
+      [
+        6,
+        4
+      ],
+      [
+        6,
+        5
+      ],
+      [
+        6,
+        6
+      ],
+      [
+        6,
+        7
+      ],
+      [
+        6,
+        8
+      ],
+      [
+        6,
+        9
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        7,
+        1
+      ],
+      [
+        7,
+        2
+      ],
+      [
+        7,
+        3
+      ],
+      [
+        7,
+        4
+      ],
+      [
+        7,
+        5
+      ],
+      [
+        7,
+        6
+      ],
+      [
+        7,
+        7
+      ],
+      [
+        7,
+        8
+      ],
+      [
+        7,
+        9
+      ],
+      [
+        7,
+        10
+      ],
+      [
+        8,
+        1
+      ],
+      [
+        8,
+        2
+      ],
+      [
+        8,
+        3
+      ],
+      [
+        8,
+        4
+      ],
+      [
+        8,
+        5
+      ],
+      [
+        8,
+        6
+      ],
+      [
+        8,
+        7
+      ],
+      [
+        8,
+        8
+      ],
+      [
+        8,
+        9
+      ],
+      [
+        8,
+        10
+      ],
+      [
+        9,
+        2
+      ],
+      [
+        9,
+        3
+      ],
+      [
+        9,
+        4
+      ],
+      [
+        9,
+        5
+      ],
+      [
+        9,
+        6
+      ],
+      [
+        9,
+        7
+      ],
+      [
+        9,
+        8
+      ],
+      [
+        9,
+        9
+      ],
+      [
+        10,
+        3
+      ],
+      [
+        10,
+        4
+      ],
+      [
+        10,
+        5
+      ],
+      [
+        10,
+        6
+      ],
+      [
+        10,
+        7
+      ],
+      [
+        10,
+        8
+      ]
+    ],
+    "cell_origin": [
+      -3.0,
+      -3.0
+    ],
+    "cell_m": 0.5,
+    "floor_z": 0.12,
+    "blocked_cells": [
+      [
+        1,
+        6
+      ],
+      [
+        1,
+        7
+      ],
+      [
+        1,
+        8
+      ],
+      [
+        2,
+        7
+      ],
+      [
+        2,
+        8
+      ]
+    ],
+    "wall_slots": {
+      "wall_slot_0": {
+        "pos": [
+          1.847,
+          2.364,
+          1.3
+        ],
+        "facing": [
+          -0.616,
+          -0.788
+        ]
+      },
+      "wall_slot_1": {
+        "pos": [
+          1.026,
+          2.819,
+          1.3
+        ],
+        "facing": [
+          -0.342,
+          -0.94
+        ]
+      },
+      "wall_slot_2": {
+        "pos": [
+          -0.827,
+          2.884,
+          1.3
+        ],
+        "facing": [
+          0.276,
+          -0.961
+        ]
+      },
+      "wall_slot_3": {
+        "pos": [
+          -2.364,
+          1.847,
+          1.3
+        ],
+        "facing": [
+          0.788,
+          -0.616
+        ]
+      },
+      "wall_slot_4": {
+        "pos": [
+          -2.998,
+          0.105,
+          1.3
+        ],
+        "facing": [
+          0.999,
+          -0.035
+        ]
+      },
+      "wall_slot_5": {
+        "pos": [
+          -2.884,
+          -0.827,
+          1.3
+        ],
+        "facing": [
+          0.961,
+          0.276
+        ]
+      },
+      "wall_slot_6": {
+        "pos": [
+          -2.487,
+          -1.678,
+          1.3
+        ],
+        "facing": [
+          0.829,
+          0.559
+        ]
+      }
+    },
+    "ceiling_anchors": {
+      "ceiling_0": [
+        0,
+        0,
+        2.45
+      ],
+      "ceiling_1": [
+        -1.3,
+        1.0,
+        2.45
+      ],
+      "ceiling_2": [
+        1.1,
+        1.2,
+        2.45
+      ],
+      "ceiling_3": [
+        -1.5,
+        -0.6,
+        2.45
+      ],
+      "ceiling_4": [
+        0.3,
+        2.0,
+        2.45
+      ]
+    },
+    "shape": "round",
+    "radius_m": 3.0,
+    "exterior": "snow_dome_t2_exterior",
+    "modules": [
+      "mod_wall_curved_r3.22_n20_*",
+      "mod_floor_sector_r3.11_45"
+    ],
+    "tier": 2,
+    "upgrade_of": "snow_dome_interior"
+  },
+  {
     "id": "homes/aframe_cabin_exterior",
     "file": "homes/aframe_cabin_exterior.glb",
     "category": "building",

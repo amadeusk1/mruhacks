@@ -676,12 +676,13 @@ def houseboat_deck(b, gap_x=-0.45):
 DOME_R, DOME_TH, DOME_HB = 2.3, 0.3, 0.55
 
 
-def dome_blocks(main, roof):
-    """Ice-block dome: rings below 1.45 m go to `main`, the upper rings to `roof`."""
-    R, TH, HB = DOME_R, DOME_TH, DOME_HB
+def dome_blocks(main, roof, R=DOME_R):
+    """Ice-block dome: rings below 1.45 m go to `main`, the upper rings to `roof`. Block size is
+    fixed (about 0.66 m wide, HB tall), so a bigger R gets more blocks rather than bigger ones."""
+    TH, HB = DOME_TH, DOME_HB
     dphi = HB / R
     door_half = lambda rr: math.asin(min(1, 0.72 / rr))
-    for k in range(6):
+    for k in range(8):
         phi = (k + 0.5) * dphi
         if phi > math.radians(63):
             break
@@ -698,19 +699,20 @@ def dome_blocks(main, roof):
                         bevel=0.06, rot=(-math.degrees(phi), 0, 0), center=True, jitter=0.012)
 
 
-def dome_roof(roof):
-    """Snow dome removable top: upper block rings, ice cap, snow, chimney."""
-    R = DOME_R
-    dome_blocks(Builder("_scratch"), roof)
+def dome_roof(roof, R=DOME_R):
+    """Snow dome removable top: upper block rings, ice cap, snow, chimney. The cap and chimney
+    grow with R so the bigger dome's top stays closed."""
+    g = R / DOME_R
+    dome_blocks(Builder("_scratch"), roof, R)
     zcap = R - 0.52
-    roof.blob(1.18, 1.18, 0.56, 0, 0, zcap, ICE[0], subdiv=2, jitter=0.02)
-    roof.blob(0.92, 0.86, 0.2, 0.05, 0.1, zcap + 0.42, "snow", subdiv=2, jitter=0.02)
+    roof.blob(1.18 * g, 1.18 * g, 0.56, 0, 0, zcap, ICE[0], subdiv=2, jitter=0.02)
+    roof.blob(0.92 * g, 0.86 * g, 0.2, 0.05, 0.1, zcap + 0.42, "snow", subdiv=2, jitter=0.02)
     for k, (a, s) in enumerate(((40, 0.62), (130, 0.55), (210, 0.6), (300, 0.5))):
         phi = math.radians(52)
         p = (R * math.cos(phi) * math.cos(math.radians(a)), R * math.cos(phi) * math.sin(math.radians(a)), R * math.sin(phi))
         with roof.at(p, rotz=a + 90):
-            roof.blob(s * 0.8, s * 0.6, 0.07, 0, -0.02, 0, pick(SNOW, k), subdiv=2, rot=(-52, 0, 0), jitter=0.01)
-    chimney_stone(roof, 0.95, 0.85, 1.4, 2.95)
+            roof.blob(s * 0.8 * g, s * 0.6 * g, 0.07, 0, -0.02, 0, pick(SNOW, k), subdiv=2, rot=(-52, 0, 0), jitter=0.01)
+    chimney_stone(roof, 0.95 * g, 0.85 * g, 1.4, 2.95 + (R - DOME_R))
 
 
 AF = dict(SPAN=4.4, LEN=4.4, KNEE=0.9, RISE=4.2, SLAB=0.2)
@@ -992,13 +994,41 @@ def finish_house(b, roof, meta):
 
 
 # =============================================================================== snow dome
-def snow_dome():
-    R = DOME_R
-    b = Builder("snow_dome_exterior", seed=601)
-    roof = Builder("snow_dome_exterior_roof", seed=602)
-    snow_base(b, 3.5, 3.2, seed=61, rocks=7)
-    dome_blocks(b, Builder("_scratch"))
-    dome_roof(roof)
+# House upgrade tiers (docs/Housing - House Upgrades Plan.md). Every tier is the same igloo:
+# block size, door, windows and dressing keep their size; only the radius, the block count,
+# the wall segment count (about 1 m each) and the extra dressing change.
+#   R / Ri     exterior dome / interior room radius      n        interior wall segments
+#   base       snow island half extents                  windows  interior window bearings
+#   ext_windows  exterior windows (bearing, elevation, kind)     anchors  ceiling hooks (x, y)
+DOME_TIERS = {
+    1: dict(name="snow_dome", R=DOME_R, Ri=2.3, n=16, base=(3.5, 3.2), rocks=7, firs=(), windows=(95,),
+            ext_windows=((215, 30, "round"), (325, 26, "arch")), anchors=((0, 0), (-0.9, 0.7), (0.8, 0.8)),
+            footprint=[7.0, 6.4]),
+    2: dict(name="snow_dome_t2", R=3.0, Ri=3.0, n=20, base=(4.3, 3.95), rocks=9,
+            firs=((-2.75, 2.45, 1.8), (2.7, 2.6, 1.5)), windows=(80, 120),
+            ext_windows=((215, 30, "round"), (325, 26, "arch"), (165, 30, "round"), (20, 24, "arch")),
+            anchors=((0, 0), (-1.3, 1.0), (1.1, 1.2), (-1.5, -0.6), (0.3, 2.0)), footprint=[8.6, 7.9]),
+}
+
+
+def woodpile(b, x, y, rotz=0.0):
+    """Split logs stacked 3-2-1 under a snow cap."""
+    with b.at((x, y, 0), rotz=rotz):
+        for row, (count, z) in enumerate(((3, 0.07), (2, 0.19), (1, 0.31))):
+            for i in range(count):
+                b.cyl(0.07, 0.62, (i - (count - 1) / 2) * 0.145, 0, z, pick(("bark", "wood_b", "wood_dark"), row + i),
+                      segs=6, rot=(0, 90, 0), center=True)
+        b.blob(0.24, 0.32, 0.06, 0, 0, 0.39, "snow", subdiv=2, jitter=0.01)
+
+
+def snow_dome(tier=1):
+    t = DOME_TIERS[tier]
+    name, R, g = t["name"], t["R"], t["R"] / DOME_R
+    b = Builder(f"{name}_exterior", seed=601)
+    roof = Builder(f"{name}_exterior_roof", seed=602)
+    snow_base(b, *t["base"], seed=61, rocks=t["rocks"], back_firs=t["firs"])
+    dome_blocks(b, Builder("_scratch"), R)
+    dome_roof(roof, R)
     b.cyl(R - 0.2, 0.2, 0, 0, -0.05, ICE[1], segs=16)                              # closes the floor
     y0, y1 = -R * 0.72, -R - 0.55                                                  # entrance tunnel
     ym, dl = (y0 + y1) / 2, y0 - y1
@@ -1014,7 +1044,7 @@ def snow_dome():
     arched_door(b, 0, y1, 0, w=0.8, h=1.5, fw=0.13, depth=0.3, socket=False)
     b.blob(0.62, dl * 0.48, 0.12, 0, ym - 0.05, zc + rr + 0.16, "snow", subdiv=2, jitter=0.015)
     snow_lumps(b, 0, y1 + 0.1, zc + rr + 0.14, 1.0, 0.3, 3, r=(0.08, 0.14))
-    for a, phi, kind in ((215, 30, "round"), (325, 26, "arch")):
+    for a, phi, kind in t["ext_windows"]:
         p = (R * math.cos(math.radians(phi)) * math.cos(math.radians(a)),
              R * math.cos(math.radians(phi)) * math.sin(math.radians(a)), R * math.sin(math.radians(phi)))
         with b.at(p, rotz=a + 90):
@@ -1024,35 +1054,43 @@ def snow_dome():
                 else:
                     arched_window(b, 0, -0.07, -0.3, w=0.42, h=0.6, depth=0.4)
     post_lantern(b, -1.05, y1 + 0.05, side=1, h=1.55)
-    barrel(b, 0.95, y1 + 0.25)
-    snowy_rock(b, 1.5, -1.9, 0.4, 0.3, 0.3, 1)
-    snowy_rock(b, -1.7, -1.7, 0.35, 0.28, 0.26, 2)
-    stepping_stones(b, 0, y1 - 0.25, -3.1, n=3, seed=6)
+    barrel(b, 0.95 if tier == 1 else 1.75, y1 + 0.25)
+    snowy_rock(b, 1.5 * g, -1.9 * g, 0.4, 0.3, 0.3, 1)
+    snowy_rock(b, -1.7 * g, -1.7 * g, 0.35, 0.28, 0.26, 2)
+    stepping_stones(b, 0, y1 - 0.25, -3.1 if tier == 1 else y1 - 0.85, n=3, seed=6)
+    if tier >= 2:  # a bigger household: twin lanterns at the tunnel and a woodpile for the stove
+        post_lantern(b, 1.05, y1 + 0.05, side=-1, h=1.55)
+        woodpile(b, -1.85, y1 + 0.1, rotz=15)
     b.socket("door", (0, y1 - 0.6, 0), rotz=180)
-    finish_house(b, roof, {"interior": "snow_dome_interior", "roof_child": "snow_dome_exterior_roof", "footprint_m": [7.0, 6.4]})
+    meta = {"interior": f"{name}_interior", "roof_child": f"{name}_exterior_roof", "footprint_m": t["footprint"]}
+    if tier > 1:
+        meta.update(tier=tier, upgrade_of=DOME_TIERS[tier - 1]["name"] + "_exterior")
+    finish_house(b, roof, meta)
 
-    Ri = 2.3
-    b = Builder("snow_dome_interior", seed=611)
+    Ri, n = t["Ri"], t["n"]
+    b = Builder(f"{name}_interior", seed=611)
     round_floor(b, Ri + T / 2)
-    segs = ring_wall(b, Ri + T, 2.0, 16, facing="in", doors=(160,), windows=(95,), low=low_front,
+    segs = ring_wall(b, Ri + T, 2.0, n, facing="in", doors=(160,), windows=t["windows"], low=low_front,
                      mat=PLASTER, base=False, cap="wood_c", door_kw=dict(depth=T + 0.04))
     for i, (a, kind, lip) in enumerate(segs):  # an inward-leaning ice course hints at the dome above
         if lip:
             continue
         rm = (Ri + 0.02) * 0.97
         with b.at((rm * math.cos(math.radians(a)), rm * math.sin(math.radians(a)), 2.0), rotz=a - 90):
-            b.box(2 * Ri * math.tan(math.pi / 16) * 0.98, 0.18, 0.55, 0, 0, 0, pick(ICE, i), bevel=0.04,
+            b.box(2 * Ri * math.tan(math.pi / n) * 0.98, 0.18, 0.55, 0, 0, 0, pick(ICE, i), bevel=0.04,
                   rot=(25, 0, 0), jitter=0.006)
     room = Room(b, lambda x, y: math.hypot(x, y) <= Ri - 0.03, Ri, Ri)
     dr = math.radians(160)
     room.block_circle((Ri - 0.5) * math.cos(dr), (Ri - 0.5) * math.sin(dr), 0.75)
     ring_slots(room, Ri, 1.3, segs)
-    for x, y in ((0, 0), (-0.9, 0.7), (0.8, 0.8)):
+    for x, y in t["anchors"]:
         room.anchor((x, y, 2.45))
     b.socket("spawn_inside", ((Ri - 0.9) * math.cos(dr), (Ri - 0.9) * math.sin(dr), FLOOR), rotz=-20)
     b.socket("exit", ((Ri - 0.25) * math.cos(dr), (Ri - 0.25) * math.sin(dr), FLOOR))
-    b.finish(KIT, "room", room.meta(shape="round", radius_m=Ri, exterior="snow_dome_exterior",
-                                    modules=["mod_wall_curved_r2.52_n16_*", "mod_floor_sector_r2.41_45"]))
+    extra = {"tier": tier, "upgrade_of": DOME_TIERS[tier - 1]["name"] + "_interior"} if tier > 1 else {}
+    b.finish(KIT, "room", room.meta(shape="round", radius_m=Ri, exterior=f"{name}_exterior",
+                                    modules=[f"mod_wall_curved_r{Ri + T:.2f}_n{n}_*", f"mod_floor_sector_r{Ri + T / 2:.2f}_45"],
+                                    **extra))
 
 
 # =============================================================================== A-frame cabin
@@ -1560,6 +1598,7 @@ def build_modules():
 
 def build():
     snow_dome()
+    snow_dome(2)
     aframe_cabin()
     round_cottage()
     treehouse()
